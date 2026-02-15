@@ -325,8 +325,12 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
                 setUploadStatus('uploading');
                 console.log('[UPLOAD_START] Avatar optimization & upload');
                 try {
-                    // 1. Optimización Agresiva (Cliente)
-                    const optimizedBlob = await compressImage(pendingFile);
+                    // 1. Optimización Agresiva (Cliente) con Timeout de 15s
+                    const optimizedBlob = await withTimeout(
+                        compressImage(pendingFile),
+                        15000,
+                        'Error: La compresión de imagen tardó demasiado. Intenta con otra foto.'
+                    );
 
                     // 2. Subida Rápida
                     const path = `avatars/${user!.uid}/${Date.now()}.webp`;
@@ -421,6 +425,9 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
                 setSaveStatus('error');
                 setUploadStatus('error');
                 alert(err.message || "Error al guardar. Verifica tu conexión.");
+                // FORCE STATE RESET
+                setSaveStatus('error');
+                setUploadStatus('error');
             }
         } finally {
             if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
@@ -434,6 +441,9 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
             alert('Archivo demasiado grande (máx 10MB)');
             return;
         }
+        // Reset previo para evitar estados inconsistentes
+        setUploadStatus('idle');
+        setSaveStatus('idle');
         setPendingFile(file);
         setPreviewUrl(URL.createObjectURL(file));
         setDraft(prev => ({ ...prev, avatar: { type: 'photo', updated_at: new Date().toISOString() } }));

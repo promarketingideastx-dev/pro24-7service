@@ -25,13 +25,18 @@ export const sanitizeData = (data: any): any => {
  * Rejects if the promise doesn't resolve within the specified milliseconds.
  */
 export const withTimeout = <T>(promise: Promise<T>, ms: number, message = 'Timeout exceeded'): Promise<T> => {
+    let timeoutId: NodeJS.Timeout;
+    const timeoutPromise = new Promise<T>((_, reject) => {
+        timeoutId = setTimeout(() => {
+            reject(new Error(message));
+        }, ms);
+    });
+
     return Promise.race([
-        promise,
-        new Promise<T>((_, reject) => {
-            const t = setTimeout(() => {
-                clearTimeout(t);
-                reject(new Error(message));
-            }, ms);
-        })
+        promise.then((res) => {
+            clearTimeout(timeoutId);
+            return res;
+        }),
+        timeoutPromise
     ]);
 };

@@ -23,9 +23,8 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 
-// Use a simpler persistent cache to avoid deadlocks while ensuring offline support
-export const db = initializeFirestore(app, {
-    localCache: persistentLocalCache({})
-});
+// Use getFirestore for default configuration which is often more stable
+// unless offline persistence is critical and tested.
+export const db = getFirestore(app);
 
 export default app;
