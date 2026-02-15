@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { doc, setDoc, deleteDoc, getDoc, collection, query, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/context/AuthContext';
+import { sanitizeData } from '@/lib/firestoreUtils';
 
 interface FavoriteButtonProps {
     providerId: string | number;
@@ -35,7 +36,7 @@ export default function FavoriteButton({ providerId, providerData, size = 'md' }
     const toggleFavorite = async (e: React.MouseEvent) => {
         e.stopPropagation();
         if (!user) {
-            // Should probably trigger login modal, but for now just return
+            alert('Inicia sesión para guardar favoritos.');
             return;
         }
 
@@ -46,14 +47,14 @@ export default function FavoriteButton({ providerId, providerData, size = 'md' }
                 await deleteDoc(favRef);
                 console.log(`[AuthTelemetry] favorite_removed: ${id}`);
             } else {
-                await setDoc(favRef, {
+                await setDoc(favRef, sanitizeData({
                     providerId: id,
                     name: providerData?.name || 'Profesional',
                     main_category: providerData?.category || '',
                     rating: providerData?.rating || 0,
                     image: providerData?.image || '',
                     created_at: new Date().toISOString()
-                });
+                }));
                 console.log(`[AuthTelemetry] favorite_added: ${id}`);
             }
         } catch (error) {

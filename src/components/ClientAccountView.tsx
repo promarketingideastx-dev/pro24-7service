@@ -345,6 +345,10 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
     }, [user]);
 
     const handleSaveProfile = async (autoClose = false) => {
+        if (!user) {
+            alert('Error: No hay sesión activa. Recarga la página.');
+            return;
+        }
         if (!draft.fullName.trim()) return setSaveStatus('error');
         if (isSavingRef.current) return;
 

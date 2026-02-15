@@ -88,7 +88,10 @@ export default function ProfileEditor({ onSave, isLoading: parentLoading }: { on
     };
 
     const handlePublish = async () => {
-        if (!user) return;
+        if (!user) {
+            alert('Error: No hay sesión activa. Recarga la página.');
+            return;
+        }
         setLoading(true);
         setDebugStatus('Guardando...');
         console.log('[BUSINESS_SAVE_START]');
