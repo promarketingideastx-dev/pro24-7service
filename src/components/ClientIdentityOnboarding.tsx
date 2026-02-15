@@ -5,6 +5,8 @@ import { doc, updateDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/context/AuthContext';
 import { sanitizeData, withTimeout } from '@/lib/firestoreUtils';
+import { COUNTRIES, Country } from '@/lib/countries';
+import { CountrySelector } from './CountrySelector';
 
 type Step = 'name' | 'optional' | 'privacy';
 
@@ -16,11 +18,11 @@ const TRANSLATIONS = {
         title_optional: 'Personaliza tu experiencia',
         subtitle_optional: 'Estos datos nos ayudan a recomendarte mejores servicios cerca de ti.',
         label_phone: 'Teléfono',
-        label_city: 'Ciudad o Zona',
+        label_city: 'Ciudad o Zona', // This will be removed or changed to 'País'
         label_gender: 'Género',
         label_age: 'Rango de edad',
         placeholder_phone: '+1 234 567 890',
-        placeholder_city: 'Ej: Miami, FL',
+        placeholder_city: 'Ej: Miami, FL', // This will be removed
         title_privacy: 'Privacidad y Preferencias',
         subtitle_privacy: 'Tu seguridad y privacidad son nuestra prioridad.',
         label_marketing: 'Quiero recibir novedades y promociones exclusivas.',
@@ -40,11 +42,11 @@ const TRANSLATIONS = {
         title_optional: 'Personalize your experience',
         subtitle_optional: 'This data helps us recommend better services near you.',
         label_phone: 'Phone Number',
-        label_city: 'City or Area',
+        label_city: 'City or Area', // This will be removed or changed to 'Country'
         label_gender: 'Gender',
         label_age: 'Age range',
         placeholder_phone: '+1 234 567 890',
-        placeholder_city: 'e.g., Miami, FL',
+        placeholder_city: 'e.g., Miami, FL', // This will be removed
         title_privacy: 'Privacy & Preferences',
         subtitle_privacy: 'Your security and privacy are our priority.',
         label_marketing: 'I want to receive news and exclusive promotions.',
@@ -64,11 +66,11 @@ const TRANSLATIONS = {
         title_optional: 'Personalize sua experiência',
         subtitle_optional: 'Esses dados nos ajudam a recomendar melhores serviços perto de você.',
         label_phone: 'Telefone',
-        label_city: 'Cidade ou Zona',
+        label_city: 'Cidade ou Zona', // This will be removed or changed to 'País'
         label_gender: 'Gênero',
         label_age: 'Faixa etária',
         placeholder_phone: '+55 11 98765-4321',
-        placeholder_city: 'Ex: São Paulo, SP',
+        placeholder_city: 'Ex: São Paulo, SP', // This will be removed
         title_privacy: 'Privacidade e Preferências',
         subtitle_privacy: 'Sua segurança e privacidade são nossa prioridade.',
         label_marketing: 'Quero receber novidades e promoções exclusivas.',
@@ -93,7 +95,7 @@ export default function ClientIdentityOnboarding() {
     // Identity Data
     const [fullName, setFullName] = useState('');
     const [phone, setPhone] = useState('');
-    const [city, setCity] = useState('');
+    const [country, setCountry] = useState<Country | null>(null); // Changed from city to country
     const [gender, setGender] = useState('');
     const [ageRange, setAgeRange] = useState('');
 
@@ -141,7 +143,7 @@ export default function ClientIdentityOnboarding() {
             const rawPayload = {
                 full_name: fullName.trim(),
                 phone: phone || null,
-                city_zone: city || null,
+                country: country?.code || null, // Changed from city_zone to country
                 gender: gender || null,
                 age_range: ageRange || null,
                 consent: {
@@ -212,9 +214,12 @@ export default function ClientIdentityOnboarding() {
                                 <label>{t.label_phone}</label>
                                 <input type="tel" placeholder={t.placeholder_phone} value={phone} onChange={e => setPhone(e.target.value)} />
                             </div>
-                            <div className="input-group">
-                                <label>{t.label_city}</label>
-                                <input type="text" placeholder={t.placeholder_city} value={city} onChange={e => setCity(e.target.value)} />
+                            <div className="input-group full-width">
+                                <label>País / Zona</label>
+                                <CountrySelector
+                                    value={country?.code || ''}
+                                    onChange={setCountry}
+                                />
                             </div>
                             <div className="input-group">
                                 <label>{t.label_gender}</label>
@@ -302,6 +307,7 @@ export default function ClientIdentityOnboarding() {
                 @media (max-width: 480px) {
                     .form-grid { grid-template-columns: 1fr; }
                 }
+                .full-width { grid-column: 1 / -1; }
             `}</style>
         </div>
     );

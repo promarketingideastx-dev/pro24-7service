@@ -3,13 +3,16 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { db, auth, storage } from '@/lib/firebase';
-import { doc, updateDoc, collection, query, onSnapshot, orderBy, deleteDoc, setDoc } from 'firebase/firestore';
+import { doc, updateDoc, collection, query, onSnapshot, orderBy, deleteDoc, setDoc, getDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { signOut } from 'firebase/auth';
 import { COUNTRIES } from '@/lib/countries';
+import { CountrySelector } from './CountrySelector';
 import { sanitizeData, withTimeout } from '@/lib/firestoreUtils';
 
 // V26.2 - Structural Fix: Firestore Resilience
+
+import { compressImage } from '@/lib/imageUtils';
 
 const TRANSLATIONS = {
     es: {
@@ -279,47 +282,6 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
         );
     }, [draft, profile, pendingFile]);
 
-    const compressImage = async (file: File): Promise<Blob> => {
-        return new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error('Compression timeout')), 10000);
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (event) => {
-                const img = new Image();
-                img.src = event.target?.result as string;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const MAX_SIZE = 800;
-                    let width = img.width;
-                    let height = img.height;
-                    if (width > height && width > MAX_SIZE) {
-                        height *= MAX_SIZE / width;
-                        width = MAX_SIZE;
-                    } else if (height > MAX_SIZE) {
-                        width *= MAX_SIZE / height;
-                        height = MAX_SIZE;
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx?.drawImage(img, 0, 0, width, height);
-                    canvas.toBlob((blob) => {
-                        clearTimeout(timeout);
-                        if (blob) resolve(blob);
-                        else reject(new Error('Canvas toBlob failed'));
-                    }, 'image/jpeg', 0.8);
-                };
-                img.onerror = () => {
-                    clearTimeout(timeout);
-                    reject(new Error('Image failed to load'));
-                };
-            };
-            reader.onerror = () => {
-                clearTimeout(timeout);
-                reject(new Error('File reader failed'));
-            };
-        });
-    };
 
     // Fetch Favorites
     useEffect(() => {
@@ -361,14 +323,18 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
 
             if (pendingFile) {
                 setUploadStatus('uploading');
-                console.log('[UPLOAD_START] Avatar file');
+                console.log('[UPLOAD_START] Avatar optimization & upload');
                 try {
-                    const blob = await withTimeout(compressImage(pendingFile), 10000, 'Error: Compresión de imagen tardó demasiado');
-                    const path = `avatars/${user!.uid}/${Date.now()}.jpg`;
+                    // 1. Optimización Agresiva (Cliente)
+                    const optimizedBlob = await compressImage(pendingFile);
+
+                    // 2. Subida Rápida
+                    const path = `avatars/${user!.uid}/${Date.now()}.webp`;
                     const storageRef = ref(storage, path);
                     const { uploadBytes } = await import('firebase/storage');
 
-                    await withTimeout(uploadBytes(storageRef, blob), 30000, 'Error: Subida de imagen tardó demasiado');
+                    // Timeout generoso (90s) para conexiones lentas, pero el archivo ya es pequeño
+                    await withTimeout(uploadBytes(storageRef, optimizedBlob), 90000, 'Error: Subida de imagen tardó demasiado (Red muy lenta)');
                     const url = await getDownloadURL(storageRef);
 
                     finalAvatar = {
@@ -382,7 +348,9 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
                 } catch (upErr: any) {
                     console.error('[UPLOAD_FAIL]', upErr);
                     setUploadStatus('error');
-                    throw upErr;
+                    alert('Error al subir la imagen. Intenta con una foto más pequeña o revisa tu conexión.');
+                    // No lanzamos error para permitir que se guarde el resto del perfil (nombre, tel, etc.)
+                    // return; // Si descomentas esto, abortas todo el guardado. Mejor seguir.
                 }
             }
 
@@ -419,6 +387,19 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
                 45000,
                 'Error: El servidor de perfiles está tardando demasiado. Verifica tu conexión.'
             );
+
+            // VERIFICATION STEP: Read back to confirm
+            console.log('[SAVE_VERIFY] Verifying write...');
+            const verifySnap = await getDoc(userRef);
+            if (!verifySnap.exists()) {
+                throw new Error('Error crítico: El perfil no se guardó correctamente (Documento no existe).');
+            }
+            const verifyData = verifySnap.data();
+            if (verifyData?.updatedAt !== cleanPayload.updatedAt) {
+                console.warn('[SAVE_WARN] Timestamp mismatch, potential race condition or lag.');
+                // We don't throw here to avoid false negatives on minor lags, but we log it.
+            }
+
             console.log(`[SAVE_OK] Finish in ${Date.now() - startTime}ms`);
 
 
@@ -561,20 +542,11 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
                                 </div>
                                 <div className="input-group full-width">
                                     <label>{t.label_country}</label>
-                                    <div className="country-selector-wrap">
-                                        <select
-                                            value={draft.countryCode}
-                                            onChange={e => {
-                                                const selected = COUNTRIES.find(c => c.code === e.target.value);
-                                                if (selected) setDraft({ ...draft, countryCode: selected.code, countryName: selected.name });
-                                            }}
-                                            disabled={saveStatus === 'saving'}
-                                        >
-                                            {COUNTRIES.map(c => (
-                                                <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
+                                    <CountrySelector
+                                        value={draft.countryCode}
+                                        onChange={(c) => setDraft({ ...draft, countryCode: c.code, countryName: c.name })}
+                                        disabled={saveStatus === 'saving'}
+                                    />
                                 </div>
                                 <div className="input-group">
                                     <label>{t.label_city}</label>
@@ -709,7 +681,7 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
                             <button className="danger" onClick={handleRemoveAvatar}>🗑️ {t.avatar_options.remove}</button>
                             <button className="cancel" onClick={() => setShowAvatarMenu(false)}>{t.avatar_options.cancel}</button>
                         </div>
-                        <input id="gallery-input" type="file" accept="image/*" hidden onChange={e => {
+                        <input id="gallery-input" type="file" accept="image/*" capture="user" hidden onChange={e => {
                             const file = e.target.files?.[0];
                             if (file) handleFileSelect(file);
                         }} />

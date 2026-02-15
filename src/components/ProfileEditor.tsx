@@ -4,8 +4,11 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { CATEGORIES, taxonomy } from '@/lib/taxonomy';
 import { useAuth } from '@/context/AuthContext';
 import { db } from '@/lib/firebase';
-import { doc, updateDoc, setDoc } from 'firebase/firestore';
+import { doc, updateDoc, setDoc, getDoc } from 'firebase/firestore';
 import { sanitizeData, withTimeout } from '@/lib/firestoreUtils';
+import { compressImage } from '@/lib/imageUtils';
+import { ref, getDownloadURL } from 'firebase/storage';
+import { storage } from '@/lib/firebase';
 
 // V2: Structural Fix - Firestore Resilience
 const SCHEMA_VERSION = 2;
@@ -126,6 +129,13 @@ export default function ProfileEditor({ onSave, isLoading: parentLoading }: { on
                 'Error: El servidor de perfiles está tardando demasiado. Verifica tu conexión.'
             );
 
+            // VERIFICATION STEP
+            console.log('[BUSINESS_SAVE_VERIFY] Confirming write...');
+            const verifySnap = await getDoc(userRef);
+            if (!verifySnap.exists()) {
+                throw new Error('Error crítico: El perfil de negocio no se guardó.');
+            }
+
             console.log(`[BUSINESS_SAVE_OK] Finish in ${Date.now() - startTime}ms`);
             await refreshProfile();
             if (onSave) onSave();
@@ -160,12 +170,38 @@ export default function ProfileEditor({ onSave, isLoading: parentLoading }: { on
                     <div className="photo-upload">
                         {profileImage ? <img src={profileImage} alt="Profile" /> : <div className="placeholder">📷</div>}
                         <input
-                            type="text"
-                            placeholder="URL de foto"
-                            value={profileImage}
-                            onChange={e => setProfileImage(e.target.value)}
-                            className="url-input"
+                            type="file"
+                            accept="image/*"
+                            id="business-logo-input"
+                            style={{ display: 'none' }}
+                            onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                    try {
+                                        setDebugStatus('Comprimiendo...');
+                                        const blob = await compressImage(file);
+                                        setDebugStatus('Subiendo...');
+                                        const path = `business/${user!.uid}/${Date.now()}.webp`;
+                                        const storageRef = ref(storage, path);
+                                        const { uploadBytes } = await import('firebase/storage');
+                                        await uploadBytes(storageRef, blob);
+                                        const url = await getDownloadURL(storageRef);
+                                        setProfileImage(url);
+                                        setDebugStatus('Foto lista');
+                                    } catch (err) {
+                                        console.error(err);
+                                        alert('Error al subir imagen');
+                                        setDebugStatus('Error');
+                                    }
+                                }
+                            }}
                         />
+                        <button
+                            className="btn-upload-mini"
+                            onClick={() => document.getElementById('business-logo-input')?.click()}
+                        >
+                            Subir Logo
+                        </button>
                     </div>
                     <div className="fields">
                         <input type="text" placeholder="Nombre de tu negocio" value={displayName} onChange={e => setDisplayName(e.target.value)} />
@@ -265,7 +301,7 @@ export default function ProfileEditor({ onSave, isLoading: parentLoading }: { on
                 .photo-upload { width: 100px; display: flex; flex-direction: column; gap: 8px; }
                 .photo-upload .placeholder { width: 100px; height: 100px; background: #1E293B; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 2px dashed rgba(255,255,255,0.1); }
                 .photo-upload img { width: 100px; height: 100px; border-radius: 16px; object-fit: cover; border: 2px solid var(--accent-primary); }
-                .url-input { font-size: 0.6rem !important; padding: 4px !important; }
+                .btn-upload-mini { font-size: 0.7rem; padding: 4px 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white; cursor: pointer; margin-top: 4px; }
                 
                 .branding-grid .fields { flex: 1; display: flex; flex-direction: column; gap: 10px; }
                 .bio-textarea { width: 100%; height: 100px; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; color: white; font-family: inherit; font-size: 0.9rem; outline: none; resize: none; }
