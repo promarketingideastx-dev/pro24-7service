@@ -352,7 +352,8 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
                 } catch (upErr: any) {
                     console.error('[UPLOAD_FAIL]', upErr);
                     setUploadStatus('error');
-                    alert('Error al subir la imagen. Intenta con una foto más pequeña o revisa tu conexión.');
+                    // DIAGNÓSTICO: Mostrar error real para identificar permisos vs red
+                    alert(`Error: ${upErr.message || 'Fallo desconocido al subir imagen'}`);
                     // No lanzamos error para permitir que se guarde el resto del perfil (nombre, tel, etc.)
                     // return; // Si descomentas esto, abortas todo el guardado. Mejor seguir.
                 }
