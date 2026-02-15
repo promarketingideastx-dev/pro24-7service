@@ -4,6 +4,12 @@
  */
 
 export const compressImage = async (file: File): Promise<Blob> => {
+    // Si la imagen es menor a 300KB, no comprimir (ya es ligera)
+    if (file.size < 300 * 1024) {
+        console.log(`[ImageUtils] Imagen pequeña (${(file.size / 1024).toFixed(1)}KB), omitiendo compresión.`);
+        return file;
+    }
+
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
