@@ -95,31 +95,65 @@ Para trabajar en este proyecto, necesitas instalar estas herramientas **ANTES** 
 
 ---
 
-## 6. PRÓXIMOS PASOS (FASE 2)
+## 6. ESTADO ACTUAL (FASE 3: ECOSYSTEMA)
 
-Cuando retomes el trabajo, esto es lo que sigue:
+Hemos avanzado significativamente hoy. Aquí es donde dejamos el proyecto:
 
-1.  **Definir Roles:**
-    - Crear campo `role: 'client' | 'provider'` en la colección `users` de Firebase.
-2.  **Onboarding:**
-    - Crear pantalla de bienvenida tras el registro para elegir rol.
-3.  **Perfil de Negocio:**
-    - Formulario para que los proveedores suban sus fotos y servicios.
+### ✅ Lo que ya está hecho (Hoy):
+1.  **Selección de País:** Navbar con selector de banderitas 3D y contexto global.
+2.  **Mapa Interactivo Mejorado:**
+    - Doble click lógico: 1er click = Preview, 2do click = Navegar.
+    - Ocultamiento de datos sensibles para usuarios no logueados.
+3.  **Búsqueda Inteligente:** Fuzzy match y sugerencias "¿Quisiste decir?".
+4.  **Datos de Prueba Masivos:** Generación de hubs de negocios en varias ciudades por país.
+5.  **Despliegue:** Configuración de URL de producción en Vercel.
+
+### 🚧 En Progreso / Siguientes Pasos (Para tu Mac):
+El siguiente gran módulo es el **Panel de Proveedor** (`/business`).
+
+1.  **Wizard de Registro (`/business/setup`):**
+    - El paso 2 (Ubicación) necesita integrar el mapa para capturar `lat` y `lng` reales.
+    - *Tarea:* Agregar selector de pin en el mapa dentro del formulario.
+2.  **Gestión de Servicios (`/business/services`):**
+    - Crear la pantalla para que el negocio agregue sus servicios (Corte, Barba, etc.) con precio y duración.
+3.  **Dashboard:**
+    - Crear la vista principal con gráficas simples.
 
 ---
 
-## 7. SOLUCIÓN DE PROBLEMAS COMUNES
+## 7. INSTRUCCIONES PARA RETOMAR EN MAC
+
+Cuando llegues a casa y abras tu Mac:
+
+1.  **Abre la terminal en la carpeta del proyecto.**
+2.  **Descarga los cambios de hoy:**
+    ```bash
+    git pull
+    ```
+    *(Esto bajará todo el código nuevo del mapa, búsqueda y configuración que hicimos hoy)*.
+
+3.  **Instala nuevas dependencias (si las hubiera):**
+    ```bash
+    npm install
+    ```
+
+4.  **Corre el proyecto:**
+    ```bash
+    npm run dev
+    ```
+
+¡Y listo! Deberías ver exactamente lo mismo que tienes aquí en Windows.
+
+---
+
+## 8. SOLUCIÓN DE PROBLEMAS COMUNES
 
 - **Error: "Firebase: Error (auth/invalid-api-key)"**
   - *Causa:* Tu archivo `.env.local` está vacío o tiene claves incorrectas.
   - *Solución:* Revisa el paso 3 de esta guía.
 
-- **Error: "Module not found"**
-  - *Causa:* Faltan dependencias.
-  - *Solución:* Ejecuta `npm install` de nuevo.
-
 - **La app se ve mal en móvil:**
-  - *Solución:* Asegúrate de estar en la rama `main` (`git checkout main`) y haber hecho `git pull`.
+  - *Solución:* Borra la caché del navegador móvil o prueba en modo incógnito (Vercel actualiza rápido, pero los celulares guardan caché agresivamente).
 
 ---
-*Este documento fue generado automáticamente por tu asistente AI (Antigravity) el 16 Feb 2026.*
+*Este documento fue actualizado por tu asistente AI (Antigravity) el 16 Feb 2026 para tu sesión de trabajo en casa.*
