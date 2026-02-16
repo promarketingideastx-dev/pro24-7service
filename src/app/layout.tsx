@@ -1,34 +1,26 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import "leaflet/dist/leaflet.css";
-import { AppProvider } from "@/context/AppContext";
-import { AuthProvider } from "@/context/AuthContext";
+import type { Metadata } from 'next';
+import { Inter, Outfit } from 'next/font/google';
+import './globals.css';
+import { AuthProvider } from '@/context/AuthContext';
+
+const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: "Service Marketplace - Premium Services",
-  description: "Find and book premium services near you.",
-};
-
-export const viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 5,
-  userScalable: true,
-  viewportFit: 'cover',
+  title: 'PRO24/7 | Servicios Premium',
+  description: 'Conecta con los mejores profesionales.',
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="es" className={`${outfit.variable} ${inter.variable}`}>
+      <body className="font-sans antialiased text-white bg-slate-900 selection:bg-sky-500/30 pb-20">
         <AuthProvider>
-          <AppProvider>
-            {children}
-          </AppProvider>
+          {children}
         </AuthProvider>
       </body>
     </html>

@@ -1,23 +1,54 @@
-@import "../styles/design-system.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Additional global styles if needed */
-html,
-body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overscroll-behavior: none;
-  /* Prevents bounce effect on mobile */
-  background-color: #0F172A;
-  /* Match theme background to avoid white flashes */
+:root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 11, 15, 25;
+    /* #0B0F19 Deep Space */
+    --background-end-rgb: 0, 0, 0;
 }
 
 body {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+    color: rgb(var(--foreground-rgb));
+    background: linear-gradient(to bottom,
+            transparent,
+            rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+    min-height: 100vh;
 }
 
-main {
-  flex-grow: 1;
+/* Custom Scrollbar for Premium Feel */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Utilities */
+.glass-panel {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-glass;
+}
+
+.text-glow {
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }

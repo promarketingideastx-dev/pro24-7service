@@ -13,6 +13,7 @@ import { sanitizeData, withTimeout } from '@/lib/firestoreUtils';
 // V26.2 - Structural Fix: Firestore Resilience
 
 import { compressImage } from '@/lib/imageUtils';
+import { UserProfileService } from '@/services/userProfile.service';
 
 const TRANSLATIONS = {
     es: {
@@ -244,7 +245,8 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
 
     // Sync draft with profile when profile is loaded or changed externally
     useEffect(() => {
-        if (profile && saveStatus === 'idle' && uploadStatus === 'idle') {
+        // Solo sincronizar si el perfil cambia y NO estamos guardando activamente
+        if (profile && saveStatus === 'idle' && !isSavingRef.current) {
             setDraft({
                 fullName: profile.full_name || '',
                 phone: profile.phone || '',
@@ -259,7 +261,7 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
                 avatar: profile.avatar
             });
         }
-    }, [profile, saveStatus, uploadStatus]);
+    }, [profile]); // Removed safeStatus/uploadStatus dependencies to prevent revert loops
 
     const isDirty = useMemo(() => {
         if (!profile) return false;
@@ -318,95 +320,29 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
         isSavingRef.current = true;
 
         try {
-            console.log('[SAVE_START] Atomic profile save');
-            let finalAvatar = { ...draft.avatar };
+            console.log('[SAVE_START] Atomic profile save via Service');
 
-            if (pendingFile) {
-                setUploadStatus('uploading');
-                console.log('[UPLOAD_START] Avatar optimization & upload');
-                try {
-                    // 1. Optimización Agresiva (Cliente) con Timeout de 15s
-                    const optimizedBlob = await withTimeout(
-                        compressImage(pendingFile),
-                        15000,
-                        'Error: La compresión de imagen tardó demasiado. Intenta con otra foto.'
-                    );
-
-                    // 2. Subida Rápida
-                    const path = `avatars/${user!.uid}/${Date.now()}.webp`;
-                    const storageRef = ref(storage, path);
-                    const { uploadBytes } = await import('firebase/storage');
-
-                    // Timeout generoso (90s) para conexiones lentas, pero el archivo ya es pequeño
-                    await withTimeout(uploadBytes(storageRef, optimizedBlob), 90000, 'Error: Subida de imagen tardó demasiado (Red muy lenta)');
-                    const url = await getDownloadURL(storageRef);
-
-                    finalAvatar = {
-                        type: 'photo',
-                        photo_url: url,
-                        photo_path: path,
-                        updated_at: new Date().toISOString()
-                    };
-                    console.log('[UPLOAD_OK] Avatar ready');
-                    setUploadStatus('done');
-                } catch (upErr: any) {
-                    console.error('[UPLOAD_FAIL]', upErr);
-                    setUploadStatus('error');
-                    // DIAGNÓSTICO: Mostrar error real para identificar permisos vs red
-                    alert(`Error: ${upErr.message || 'Fallo desconocido al subir imagen'}`);
-                    // No lanzamos error para permitir que se guarde el resto del perfil (nombre, tel, etc.)
-                    // return; // Si descomentas esto, abortas todo el guardado. Mejor seguir.
-                }
-            }
-
-            // Construct and sanitize payload
-            const rawPayload = {
-                full_name: draft.fullName.trim(),
-                phone: draft.phone || null,
-                city_zone: draft.city || null,
-                country_code: draft.countryCode,
-                country_name: draft.countryName,
-                gender: draft.gender || null,
-                age_range: draft.ageRange || null,
-                avatar: finalAvatar,
-                consent: {
-                    ...profile?.consent,
-                    marketing_opt_in: draft.marketing,
-                    updated_at: new Date().toISOString()
-                },
-                settings: {
-                    ...profile?.settings,
-                    locale: draft.localePref,
-                    unit_km_mi: draft.units
-                },
-                updatedAt: new Date().toISOString()
+            // Usar el nuevo servicio (V2 Architecture)
+            // Adaptar draft a la estructura parcial esperada
+            const updateData = {
+                fullName: draft.fullName,
+                phone: draft.phone,
+                marketing_opt_in: draft.marketing,
+                // Root params passed loosely
+                countryCode: draft.countryCode,
+                countryName: draft.countryName,
+                localePref: draft.localePref,
+                units: draft.units
             };
 
-            const cleanPayload = sanitizeData(rawPayload);
-            const userRef = doc(db, 'users', user!.uid);
-
-            console.log('[SAVE_WRITE] Sending to Firestore...');
-            const startTime = Date.now();
-            await withTimeout(
-                setDoc(userRef, cleanPayload, { merge: true }),
-                45000,
-                'Error: El servidor de perfiles está tardando demasiado. Verifica tu conexión.'
+            const result = await UserProfileService.updateClientProfile(
+                user.uid,
+                profile || {}, // Current full profile data
+                updateData,    // New data to merge
+                pendingFile
             );
 
-            // VERIFICATION STEP: Read back to confirm
-            console.log('[SAVE_VERIFY] Verifying write...');
-            const verifySnap = await getDoc(userRef);
-            if (!verifySnap.exists()) {
-                throw new Error('Error crítico: El perfil no se guardó correctamente (Documento no existe).');
-            }
-            const verifyData = verifySnap.data();
-            if (verifyData?.updatedAt !== cleanPayload.updatedAt) {
-                console.warn('[SAVE_WARN] Timestamp mismatch, potential race condition or lag.');
-                // We don't throw here to avoid false negatives on minor lags, but we log it.
-            }
-
-            console.log(`[SAVE_OK] Finish in ${Date.now() - startTime}ms`);
-
+            console.log(`[ClientAccountView] Save result: ${result}`);
 
             if (!unmounted.current) {
                 setPendingFile(null);
@@ -414,10 +350,11 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
                 setSaveStatus('success');
                 refreshProfile();
 
+                // Feedback visual claro y cierre
                 if (autoClose) {
-                    setTimeout(() => onClose(), 600);
+                    setTimeout(() => onClose(), 1500);
                 } else {
-                    setTimeout(() => { if (!unmounted.current) setSaveStatus('idle'); }, 2000);
+                    setTimeout(() => { if (!unmounted.current) setSaveStatus('idle'); }, 2500);
                 }
             }
         } catch (err: any) {
@@ -425,10 +362,10 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
             if (!unmounted.current) {
                 setSaveStatus('error');
                 setUploadStatus('error');
+                // Mensaje amigable al usuario
                 alert(err.message || "Error al guardar. Verifica tu conexión.");
-                // FORCE STATE RESET
+                // Forzar reset visual
                 setSaveStatus('error');
-                setUploadStatus('error');
             }
         } finally {
             if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
@@ -670,11 +607,14 @@ export default function ClientAccountView({ onClose }: ClientAccountViewProps) {
                 {activeTab === 'profile' && (
                     <div className="sticky-save-bar">
                         <button
-                            className={`btn-save-sticky ${saveStatus === 'saving' ? 'is-saving' : ''}`}
-                            onClick={() => handleSaveProfile(false)}
-                            disabled={saveStatus === 'saving' || uploadStatus === 'uploading'}
+                            className={`btn-save-sticky ${saveStatus === 'saving' || saveStatus === 'success' ? 'is-saving' : ''}`}
+                            onClick={() => handleSaveProfile(true)}
+                            disabled={saveStatus === 'saving' || saveStatus === 'success' || uploadStatus === 'uploading'}
                         >
-                            {saveStatus === 'saving' ? t.btn_saving : t.btn_save}
+                            {saveStatus === 'saving' ? t.btn_saving :
+                                saveStatus === 'success' ? t.btn_success :
+                                    saveStatus === 'error' ? t.btn_error :
+                                        saveStatus === 'timeout' ? t.btn_timeout : t.btn_save}
                         </button>
                     </div>
                 )}

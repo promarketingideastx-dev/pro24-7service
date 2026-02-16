@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "../styles/design-system.css";
+
+/* Additional global styles if needed */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overscroll-behavior: none;
+  /* Prevents bounce effect on mobile */
+  background-color: #0F172A;
+  /* Match theme background to avoid white flashes */
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex-grow: 1;
+}
