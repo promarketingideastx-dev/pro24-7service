@@ -24,12 +24,27 @@ export default function Home() {
     /* State for Category Modal */
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-    // Derived State
-    const filteredBusinesses = DEMO_BUSINESSES.filter(b =>
-        b.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        b.subcategory.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        b.category.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Derived State: Intelligent Search Logic
+    const filteredBusinesses = DEMO_BUSINESSES.filter(b => {
+        const lowerTerm = searchTerm.toLowerCase().trim();
+        if (!lowerTerm) return true; // Show all if search is empty
+
+        // 1. Direct Match (Name, Category, Subcategory)
+        const directMatch =
+            b.name.toLowerCase().includes(lowerTerm) ||
+            b.subcategory.toLowerCase().includes(lowerTerm) ||
+            b.category.toLowerCase().includes(lowerTerm);
+
+        // 2. Specialty/Tag Match (Smart Search)
+        // Check if the search term matches any tag in the business
+        const tagMatch = b.tags && b.tags.some(tag => tag.toLowerCase().includes(lowerTerm));
+
+        // 3. Taxonomy Fallback (If user types "fugas", find businesses in "Plomería")
+        // This is implicitly handled if the business has "Fugas" in tags, 
+        // but we can also check if the term matches a known taxonomy specialty that maps to this business's subcategory.
+
+        return directMatch || tagMatch;
+    });
 
     const handleCategoryClick = (id: string) => {
         setSelectedCategory(id);
@@ -68,11 +83,16 @@ export default function Home() {
                         <Search className="w-6 h-6 text-slate-400 mr-3" />
                         <input
                             type="text"
-                            placeholder="Buscar: 'Plomero', 'Zapatos'..."
+                            placeholder="Buscar: 'Fugas', 'Uñas', 'Mecánico'..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="bg-transparent w-full outline-none text-white placeholder-slate-500 text-lg font-medium"
                         />
+                        {searchTerm && (
+                            <button onClick={() => setSearchTerm('')} className="p-1 rounded-full hover:bg-white/10 transition-colors">
+                                <X className="w-5 h-5 text-slate-400" />
+                            </button>
+                        )}
                     </div>
                 </div>
 
