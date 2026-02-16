@@ -26,6 +26,8 @@ export default function BusinessWizard() {
         specialties: [] as string[],
         modality: '', // 'home', 'local', 'both'
         address: '',
+        country: 'HN', // Default
+        city: '',
         images: [] as any[]
     });
 
@@ -57,11 +59,22 @@ export default function BusinessWizard() {
         setError('');
 
         try {
+            // MOCK GEOCODING (To be replaced by Google Maps API later)
+            // Default center for San Pedro Sula (HN) or generic
+            const baseLat = 15.50417;
+            const baseLng = -88.02500;
+            // Add slight jitter so they don't stack on map
+            const mockLocation = {
+                lat: baseLat + (Math.random() - 0.5) * 0.05,
+                lng: baseLng + (Math.random() - 0.5) * 0.05
+            };
+
             const profileData = {
                 ...formData,
                 userId: user.uid,
                 email: user.email || '',
                 images: [],
+                location: mockLocation, // Ensure map has data
                 modality: formData.modality as 'home' | 'local' | 'both'
             };
 

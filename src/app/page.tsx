@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, MapPin, Star, Bell, Filter, Grid, Zap, User, X, ChevronRight } from 'lucide-react';
-import { DEMO_BUSINESSES } from '@/data/mockBusinesses';
+import { DEMO_BUSINESSES, BusinessMock } from '@/data/mockBusinesses';
 import { TAXONOMY } from '@/lib/taxonomy';
 import dynamic from 'next/dynamic';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+// import AuthGateModal from '@/components/ui/AuthGateModal'; // Kept for reference but unused
+import PublicBusinessPreviewModal from '@/components/ui/PublicBusinessPreviewModal';
 
 const DynamicMap = dynamic(() => import('@/components/ui/MapWidget'), {
     ssr: false,
@@ -24,10 +28,88 @@ export default function Home() {
     /* State for Category Modal */
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     /* State for Selected Business (Map Focus) */
-    const [selectedBusiness, setSelectedBusiness] = useState<any>(null); // Using any to avoid import loop for now, or use type if available
+    /* State for Selected Business (Map Focus) */
+    const [selectedBusiness, setSelectedBusiness] = useState<BusinessMock | null>(null);
+
+    /* Data State */
+    const [businesses, setBusinesses] = useState<BusinessMock[]>(DEMO_BUSINESSES);
+
+    /* Auth Guard State */
+    const { user } = useAuth();
+    const router = useRouter();
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const [pendingBusiness, setPendingBusiness] = useState<BusinessMock | null>(null);
+
+    // Effect: Load real businesses from Firestore
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                // Dynamically import service to avoid server-side issues if any
+                const { BusinessProfileService } = await import('@/services/businessProfile.service');
+                const realBiz = await BusinessProfileService.getPublicBusinesses();
+                if (realBiz && realBiz.length > 0) {
+                    // Combine Demo + Real. 
+                    // Filter out duplicates if any (by id)
+                    const combined = [...DEMO_BUSINESSES, ...realBiz];
+                    // Simple dedup based on ID
+                    const unique = Array.from(new Map(combined.map(item => [item.id, item])).values());
+
+                    // Type assertion to ensure compatibility if needed, though they should match
+                    setBusinesses(unique as BusinessMock[]);
+                }
+            } catch (error) {
+                console.error("Failed to load real businesses:", error);
+            }
+        };
+        loadData();
+    }, []);
+
+    const handleBusinessClick = (biz: BusinessMock) => {
+        // 1. Focus Map logic (Visual)
+        setSelectedBusiness(biz);
+
+        // 2. Auth Guard Logic (Access)
+        // Note: We might want to allow map focus WITHOUT opening modal immediately, 
+        // only open modal if they try to "Enter" profile. 
+        // BUT user request says: "Click en resultado -> Intercept".
+        // Let's implement: Click focuses Map. SECOND Click (or specific button) opens profile? 
+        // Re-reading request: "al intentar entrar al perfil completo debe interceptarse". 
+        // "Click en card o pin debe hacer: Si user existe -> navegar. Si null -> modal".
+
+        // Let's make it so: Click -> Focus Map (Visual). 
+        // If they click AGAIN on the focused card or a "Ver Perfil" button -> Action.
+        // OR: Single click does both? 
+        // "Click en resultado -> Zoom en Mapa" was prev task.
+        // New task: "si user null -> modal". 
+        // Conflict: If I click to zoom, and it opens modal immediately, it might be annoying if I just want to browse map.
+        // Compromise: Click = Zoom + Highlight. In the Highlighted Card, add "Ver Detalles" button that triggers logic. 
+        // However, standard UX: Click Card -> Go to Details. 
+        // Let's stick to: Click List -> Zoom Map (Already done). 
+        // Let's add a "Ver Perfil Completo" button to the card that appears/activates.
+
+        // ACTUALIZACIÓN DE LÓGICA SEGÚN REPORTE:
+        // "Click en card o pin debe hacer: Si user existe -> navegar... Si user null -> modal"
+        // Esto reemplaza el comportamiento de solo zoom. 
+        // Para mantener el zoom (que es cool), haré:
+        // 1. Zoom (siempre).
+        // 2. Si es Desktop, tal vez esperar doble click? No, mobile first.
+
+        // DECISIÓN: Click en Lista = Zoom (Selección). 
+        // Click en la Tarjeta YA Seleccionada (o botón en ella) = Navegar/Modal.
+        // Para simplificar flujo inicial y cumplir requerimiento de bloqueo:
+        // Forzaremos el bloqueo al intentar 'abrir' el negocio.
+
+        if (!user) {
+            setPendingBusiness(biz);
+            setShowAuthModal(true);
+        } else {
+            router.push(`/negocio/${biz.id}`);
+        }
+    };
+
 
     // Derived State: Intelligent Search Logic
-    const filteredBusinesses = DEMO_BUSINESSES.filter(b => {
+    const filteredBusinesses = businesses.filter(b => {
         const lowerTerm = searchTerm.toLowerCase().trim();
         if (!lowerTerm) return false; // Hide results if search is empty
 
@@ -41,10 +123,21 @@ export default function Home() {
         // Check if the search term matches any tag in the business
         const tagMatch = b.tags && b.tags.some(tag => tag.toLowerCase().includes(lowerTerm));
 
-        // 3. Taxonomy Fallback (If user types "fugas", find businesses in "Plomería")
-
         return directMatch || tagMatch;
     });
+
+    // Auto-select first business for "Curious Mode" engagement
+    useEffect(() => {
+        if (filteredBusinesses.length > 0) {
+            // Check if current selection is still in the list
+            const isSelectedInList = selectedBusiness && filteredBusinesses.some(b => b.id === selectedBusiness.id);
+
+            // If nothing selected, or selected item was filtered out, select the first one
+            if (!selectedBusiness || !isSelectedInList) {
+                setSelectedBusiness(filteredBusinesses[0]);
+            }
+        }
+    }, [filteredBusinesses, selectedBusiness]);
 
     const handleCategoryClick = (id: string) => {
         setSelectedCategory(id);
@@ -69,8 +162,85 @@ export default function Home() {
                         </div>
                     </div>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center">
-                    <User className="w-5 h-5 text-slate-400" />
+
+                <div className="flex items-center gap-3">
+                    {user ? (
+                        <div className="flex items-center gap-3 group relative">
+                            {/* User Info (Desktop/Tablet) */}
+                            <div className="hidden sm:flex flex-col items-end">
+                                <span className="text-xs font-bold text-white leading-none">{user.displayName || 'Usuario'}</span>
+                                <span className="text-[10px] text-slate-400">Ver Perfil</span>
+                            </div>
+
+                            {/* Avatar / Menu Trigger */}
+                            <button
+                                className="w-10 h-10 rounded-full bg-slate-800 border-2 border-brand-neon-cyan/50 p-0.5 overflow-hidden transition-transform hover:scale-105"
+                            >
+                                {user.photoURL ? (
+                                    <img src={user.photoURL} alt="User" className="w-full h-full rounded-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full bg-brand-neon-cyan text-black flex items-center justify-center font-bold">
+                                        {user.email?.[0].toUpperCase() || 'U'}
+                                    </div>
+                                )}
+                            </button>
+
+                            {/* Simple Dropdown for Logout */}
+                            <div className="absolute top-12 right-0 w-48 bg-[#151b2e] border border-white/10 rounded-xl shadow-2xl p-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all z-50">
+                                <div className="px-3 py-2 border-b border-white/5 mb-1">
+                                    <p className="text-xs text-slate-400">Conectado como</p>
+                                    <p className="text-sm text-white font-medium truncate">{user.email}</p>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        import('@/services/auth.service').then(({ AuthService }) => {
+                                            AuthService.logout().then(() => {
+                                                window.location.reload(); // Force refresh to clear state nicely
+                                            });
+                                        });
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-lg text-slate-300 hover:bg-white/5 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
+                                >
+                                    <span className="w-2 h-2 rounded-full bg-slate-500"></span>
+                                    Cerrar Sesión
+                                </button>
+
+                                <button
+                                    onClick={() => {
+                                        if (confirm("¿Estás SEGURO? Esto borrará tu cuenta y no podrás recuperarla.")) {
+                                            import('@/services/auth.service').then(({ AuthService }) => {
+                                                AuthService.deleteAccount().then(() => {
+                                                    alert("Cuenta eliminada correctamente.");
+                                                    window.location.reload();
+                                                }).catch(err => {
+                                                    console.error(err);
+                                                    alert("Error: Quizás necesites re-autenticarte primero (Login de nuevo e intenta borrar inmediatamente).");
+                                                });
+                                            });
+                                        }
+                                    }}
+                                    className="w-full text-left px-3 py-2 rounded-lg text-red-400 hover:bg-red-500/10 text-xs font-medium transition-colors flex items-center gap-2 border-t border-white/5 pt-2"
+                                >
+                                    ⚠️ Borrar Cuenta (Test)
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => router.push('/auth/login')}
+                                className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                            >
+                                Entrar
+                            </button>
+                            <button
+                                onClick={() => router.push('/auth/register')}
+                                className="bg-white text-slate-900 px-4 py-2 rounded-full text-sm font-bold hover:bg-slate-100 transition-colors"
+                            >
+                                Crear Cuenta
+                            </button>
+                        </div>
+                    )}
                 </div>
             </header>
 
@@ -95,6 +265,13 @@ export default function Home() {
                         )}
                     </div>
                 </div>
+
+                {/* Public Preview Modal (Soft Gate) */}
+                <PublicBusinessPreviewModal
+                    isOpen={showAuthModal}
+                    onClose={() => setShowAuthModal(false)}
+                    business={pendingBusiness}
+                />
 
                 {/* Categories Row (Horizontal) */}
                 <div className="flex justify-between items-start gap-2 overflow-x-auto no-scrollbar py-2">
@@ -181,7 +358,11 @@ export default function Home() {
 
                 {/* Map Widget (Real Leaflet Map) */}
                 <div className="relative h-[400px] w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl group cursor-pointer isolate">
-                    <DynamicMap businesses={filteredBusinesses} selectedBusiness={selectedBusiness} />
+                    <DynamicMap
+                        businesses={filteredBusinesses}
+                        selectedBusiness={selectedBusiness}
+                        onBusinessSelect={handleBusinessClick}
+                    />
 
                     {/* Map Label (Overlay) */}
                     <div className="absolute bottom-4 left-4 z-[1000] pointer-events-none">
@@ -198,7 +379,7 @@ export default function Home() {
                     {filteredBusinesses.map((biz) => (
                         <div
                             key={biz.id}
-                            onClick={() => setSelectedBusiness(biz)}
+                            onClick={() => handleBusinessClick(biz)}
                             className={`flex items-center p-4 bg-[#151b2e] border rounded-3xl transition-all cursor-pointer group
                                 ${selectedBusiness?.id === biz.id ? 'border-brand-neon-cyan shadow-[0_0_15px_rgba(0,240,255,0.2)]' : 'border-white/5 hover:border-white/10'}
                             `}
@@ -215,6 +396,10 @@ export default function Home() {
                                     <span className="text-yellow-400 font-bold text-xs">5.0</span>
                                     <span className="text-slate-500 text-xs">(San Pedro Sula)</span>
                                 </div>
+                            </div>
+                            {/* Action hint for logged out users */}
+                            <div className="hidden group-hover:flex items-center px-3 py-1 bg-white/10 rounded-full text-[10px] text-white font-medium">
+                                Ver Perfil
                             </div>
                         </div>
                     ))}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -12,6 +12,7 @@ import { BusinessMock } from '@/data/mockBusinesses';
 interface MapWidgetProps {
     businesses: BusinessMock[];
     selectedBusiness?: BusinessMock | null;
+    onBusinessSelect?: (business: BusinessMock) => void;
 }
 
 // Component to update map center if valid businesses are present
@@ -71,12 +72,23 @@ const createCustomIcon = (icon: any, colorClass: string) => {
     });
 };
 
-export default function MapWidget({ businesses, selectedBusiness }: MapWidgetProps) {
+export default function MapWidget({ businesses, selectedBusiness, onBusinessSelect }: MapWidgetProps) {
     const [isMounted, setIsMounted] = useState(false);
+    const markerRefs = useRef<{ [key: string]: L.Marker | null }>({});
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
+
+    // Effect to open popup when selectedBusiness changes
+    useEffect(() => {
+        if (selectedBusiness && markerRefs.current[selectedBusiness.id]) {
+            const marker = markerRefs.current[selectedBusiness.id];
+            if (marker) {
+                marker.openPopup();
+            }
+        }
+    }, [selectedBusiness]);
 
     if (!isMounted) return <div className="h-64 w-full bg-slate-900 rounded-3xl animate-pulse flex items-center justify-center text-slate-500">Cargando Mapa...</div>;
 
@@ -103,12 +115,34 @@ export default function MapWidget({ businesses, selectedBusiness }: MapWidgetPro
                     key={biz.id}
                     position={[biz.lat, biz.lng]}
                     icon={createCustomIcon(biz.icon, biz.color)}
+                    ref={(el: any) => {
+                        if (el) markerRefs.current[biz.id] = el;
+                    }}
+                    eventHandlers={{
+                        click: () => {
+                            if (onBusinessSelect) {
+                                onBusinessSelect(biz);
+                            }
+                        }
+                    }}
                 >
                     <Popup className="custom-popup">
-                        <div className="p-1 min-w-[150px]">
-                            <h3 className="font-bold text-slate-900 text-sm">{biz.name}</h3>
-                            <p className="text-xs text-slate-500">{biz.subcategory}</p>
-                            <p className="text-[10px] text-slate-400 mt-1">{biz.description}</p>
+                        <div className="p-2 min-w-[160px] flex flex-col gap-2">
+                            <div>
+                                <h3 className="font-bold text-slate-900 text-sm leading-tight">{biz.name}</h3>
+                                <p className="text-xs text-slate-500 font-medium">{biz.subcategory}</p>
+                            </div>
+                            <p className="text-[10px] text-slate-400 line-clamp-2">{biz.description}</p>
+
+                            <button
+                                onClick={() => {
+                                    window.location.href = `/negocio/${biz.id}`;
+                                }}
+                                className="w-full bg-slate-900 text-white text-xs font-bold py-1.5 px-3 rounded-lg hover:bg-slate-800 transition-colors flex items-center justify-center gap-1 mt-1"
+                            >
+                                Ver Perfil
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                            </button>
                         </div>
                     </Popup>
                 </Marker>

@@ -1,6 +1,5 @@
-
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
 
 export interface BusinessProfileData {
     businessName: string;
@@ -10,6 +9,8 @@ export interface BusinessProfileData {
     specialties: string[];
     modality: 'home' | 'local' | 'both';
     address?: string;
+    city?: string;
+    country?: string;
     images: string[];
     userId: string;
     email: string;
@@ -18,7 +19,7 @@ export interface BusinessProfileData {
 
 export const BusinessProfileService = {
     /**
-     * Creates a new business profile for the user.
+     * Creates a new business profile with strict data separation.
      */
     async createProfile(userId: string, data: BusinessProfileData) {
         if (!userId) throw new Error('User ID is required');
@@ -28,42 +29,169 @@ export const BusinessProfileService = {
             throw new Error('Faltan datos obligatorios (Nombre, Categoría o Modalidad).');
         }
 
-        const businessRef = doc(db, 'businesses', userId);
+        const publicRef = doc(db, 'businesses_public', userId);
+        const privateRef = doc(db, 'businesses_private', userId);
         const userRef = doc(db, 'users', userId);
 
-        try {
-            // 2. check if profile already exists
-            const docSnap = await getDoc(businessRef);
-            if (docSnap.exists()) {
-                throw new Error('El perfil de negocio ya existe.');
-            }
+        const batch = writeBatch(db);
 
-            // 3. Prepare payload
-            const payload = {
-                ...data,
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp(),
-                status: 'active',
-                rating: 0,
+        try {
+            // 2. Prepare Public Payload (Safe for everyone)
+            const publicPayload = {
+                id: userId,
+                name: data.businessName,
+                category: data.category,
+                subcategory: data.subcategory,
+                city: data.city || 'San Pedro Sula', // Default for now
+                country: data.country || 'HN',
+                tags: data.specialties || [],
+                rating: 5.0, // Initial boost
                 reviewCount: 0,
-                verified: false
+                coverImage: data.images[0] || null, // First image as cover
+                shortDescription: data.description.substring(0, 150),
+                location: {
+                    lat: 15.50417 + (Math.random() - 0.5) * 0.02, // Mock Geocoding
+                    lng: -88.02500 + (Math.random() - 0.5) * 0.02
+                },
+                modality: data.modality,
+                status: 'active',
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
             };
 
-            // 4. Save to Firestore (Batch not strictly necessary for 2 writes, but good practice)
-            // Writing simply with promises here
-            await setDoc(businessRef, payload);
+            // 3. Prepare Private Payload (Sensitive info)
+            const privatePayload = {
+                id: userId,
+                fullDescription: data.description,
+                email: data.email,
+                phone: data.phone || '',
+                address: data.address || '',
+                gallery: data.images || [],
+                verificationStatus: 'pending',
+                updatedAt: serverTimestamp()
+            };
 
-            // 5. Update User Role
-            await updateDoc(userRef, {
+            // 4. Batch Writes
+            batch.set(publicRef, publicPayload);
+            batch.set(privateRef, privatePayload);
+            batch.update(userRef, {
                 isProvider: true,
                 currentRole: 'provider',
                 providerSince: serverTimestamp()
             });
 
+            await batch.commit();
+
             return { success: true, id: userId };
         } catch (error: any) {
             console.error('Error creating business profile:', error);
             throw new Error(error.message || 'Error al crear el perfil.');
+        }
+    },
+
+    /**
+     * Fetches all active businesses from PUBLIC collection.
+     */
+    async getPublicBusinesses(countryCode?: string) {
+        try {
+            const { collection, getDocs, query, where } = await import('firebase/firestore');
+
+            // Basic query - in prod, use compound queries or Algolia
+            let q = query(
+                collection(db, 'businesses_public'),
+                where('status', '==', 'active')
+            );
+
+            if (countryCode) {
+                // Note: Requires composite index if combined with status. 
+                // For now, filter client side if index missing, or assume country is enough.
+                q = query(q, where('country', '==', countryCode));
+            }
+
+            const querySnapshot = await getDocs(q);
+
+            return querySnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    // Ensure lat/lng exist for map
+                    lat: data.location?.lat || 15.50417,
+                    lng: data.location?.lng || -88.02500,
+                    icon: '💼', // Can map category to icon here
+                    color: 'bg-blue-500',
+                    description: data.shortDescription || ''
+                } as any;
+            });
+        } catch (error) {
+            console.error("Error fetching public businesses:", error);
+            return [];
+        }
+    },
+
+    async getPublicBusinessById(id: string) {
+        try {
+            const docRef = doc(db, 'businesses_public', id);
+            const snap = await getDoc(docRef);
+
+            if (snap.exists()) {
+                return { id: snap.id, ...snap.data() };
+            }
+
+            // Fallback to Mock Data if not found in Firestore (for Dev/Demo)
+            const { DEMO_BUSINESSES } = await import('@/data/mockBusinesses');
+            const mockBiz = DEMO_BUSINESSES.find(b => b.id === id);
+
+            if (mockBiz) {
+                return {
+                    ...mockBiz,
+                    rating: 5.0,
+                    reviewCount: 120,
+                    coverImage: null, // Mocks don't have covers yet
+                    shortDescription: mockBiz.description,
+                    fullDescription: mockBiz.description + " (Descripción detallada simulada del negocio).",
+                    phone: "+504 9999-9999",
+                    email: "contacto@demo.com",
+                    gallery: []
+                };
+            }
+
+            return null;
+        } catch (error) {
+            console.error("Error fetching business public:", error);
+            // Even on error, try mock
+            try {
+                const { DEMO_BUSINESSES } = await import('@/data/mockBusinesses');
+                const mockBiz = DEMO_BUSINESSES.find(b => b.id === id);
+                if (mockBiz) {
+                    return {
+                        ...mockBiz,
+                        rating: 5.0,
+                        reviewCount: 10,
+                        coverImage: null,
+                        shortDescription: mockBiz.description,
+                        fullDescription: mockBiz.description + " (Modo Offline/Error)",
+                        phone: "+504 9999-9999",
+                        email: "error@demo.com",
+                        gallery: []
+                    };
+                }
+            } catch (e) {
+                console.error("Mock fallback failed", e);
+            }
+            return null;
+        }
+    },
+
+    async getPrivateBusinessData(id: string) {
+        try {
+            const docRef = doc(db, 'businesses_private', id);
+            const snap = await getDoc(docRef);
+            return snap.exists() ? snap.data() : null;
+        } catch (error) {
+            // Permission denied if not auth, handled by Security Rules ideally
+            console.error("Error fetching business private:", error);
+            return null;
         }
     }
 };
