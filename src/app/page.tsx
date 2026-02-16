@@ -23,6 +23,8 @@ export default function Home() {
     const [searchTerm, setSearchTerm] = useState('');
     /* State for Category Modal */
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    /* State for Selected Business (Map Focus) */
+    const [selectedBusiness, setSelectedBusiness] = useState<any>(null); // Using any to avoid import loop for now, or use type if available
 
     // Derived State: Intelligent Search Logic
     const filteredBusinesses = DEMO_BUSINESSES.filter(b => {
@@ -174,7 +176,7 @@ export default function Home() {
 
                 {/* Map Widget (Real Leaflet Map) */}
                 <div className="relative h-[400px] w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl group cursor-pointer isolate">
-                    <DynamicMap businesses={filteredBusinesses} />
+                    <DynamicMap businesses={filteredBusinesses} selectedBusiness={selectedBusiness} />
 
                     {/* Map Label (Overlay) */}
                     <div className="absolute bottom-4 left-4 z-[1000] pointer-events-none">
@@ -189,7 +191,13 @@ export default function Home() {
                 {/* Featured Pros List (Uses Filtered Data if matches, else defaults) */}
                 <div className="space-y-4">
                     {(filteredBusinesses.length > 0 ? filteredBusinesses : DEMO_BUSINESSES).slice(0, 3).map((biz) => (
-                        <div key={biz.id} className="flex items-center p-4 bg-[#151b2e] border border-white/5 rounded-3xl hover:border-white/10 transition-all cursor-pointer group">
+                        <div
+                            key={biz.id}
+                            onClick={() => setSelectedBusiness(biz)}
+                            className={`flex items-center p-4 bg-[#151b2e] border rounded-3xl transition-all cursor-pointer group
+                                ${selectedBusiness?.id === biz.id ? 'border-brand-neon-cyan shadow-[0_0_15px_rgba(0,240,255,0.2)]' : 'border-white/5 hover:border-white/10'}
+                            `}
+                        >
                             <div className="w-14 h-14 rounded-2xl bg-slate-700 mr-4 shrink-0 flex items-center justify-center text-2xl relative overflow-hidden">
                                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0"></div>
                                 {typeof biz.icon === 'string' ? biz.icon : <Zap className="w-6 h-6 text-white" />}

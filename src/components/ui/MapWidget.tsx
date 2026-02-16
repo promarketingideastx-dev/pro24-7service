@@ -11,22 +11,38 @@ import { BusinessMock } from '@/data/mockBusinesses';
 
 interface MapWidgetProps {
     businesses: BusinessMock[];
+    selectedBusiness?: BusinessMock | null;
 }
 
 // Component to update map center if valid businesses are present
-function MapUpdater({ businesses }: { businesses: BusinessMock[] }) {
+function MapUpdater({ businesses, selectedBusiness }: { businesses: BusinessMock[], selectedBusiness?: BusinessMock | null }) {
     const map = useMap();
 
+    // Effect for initial load or filter changes
     useEffect(() => {
-        if (businesses.length > 0) {
-            // Calculate bounds or center
+        if (businesses.length > 0 && !selectedBusiness) {
+            // If no specific selection, view all (fltBounds) or center SPS
             const group = L.featureGroup(businesses.map(b => L.marker([b.lat, b.lng])));
             // map.fitBounds(group.getBounds(), { padding: [50, 50] });
-            // Or just fly to the first one for simplicity or center of SPS
-            // San Pedro Sula Center: 15.50417, -88.02500
-            map.flyTo([15.5042, -88.0250], 14);
+            map.flyTo([15.5042, -88.0250], 13);
         }
-    }, [businesses, map]);
+    }, [businesses, map, selectedBusiness]);
+
+    // Effect for specific selection (Click on List)
+    useEffect(() => {
+        if (selectedBusiness) {
+            map.flyTo([selectedBusiness.lat, selectedBusiness.lng], 16, {
+                animate: true,
+                duration: 1.5
+            });
+            // Note: Opening a popup programmatically requires a bit more setup
+            // if you want it to be tied to the marker. For now, just flying to it.
+            // To open a popup, you'd typically need a ref to the Marker component
+            // or iterate through markers to find the one matching selectedBusiness.
+            // For simplicity, we'll just fly to the location.
+            // map.openPopup(L.latLng(selectedBusiness.lat, selectedBusiness.lng));
+        }
+    }, [selectedBusiness, map]);
 
     return null;
 }
@@ -55,7 +71,7 @@ const createCustomIcon = (icon: any, colorClass: string) => {
     });
 };
 
-export default function MapWidget({ businesses }: MapWidgetProps) {
+export default function MapWidget({ businesses, selectedBusiness }: MapWidgetProps) {
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
@@ -80,7 +96,7 @@ export default function MapWidget({ businesses }: MapWidgetProps) {
                 url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
             />
 
-            <MapUpdater businesses={businesses} />
+            <MapUpdater businesses={businesses} selectedBusiness={selectedBusiness} />
 
             {businesses.map((biz) => (
                 <Marker
