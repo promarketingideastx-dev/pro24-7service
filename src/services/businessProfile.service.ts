@@ -10,11 +10,13 @@ export interface BusinessProfileData {
     modality: 'home' | 'local' | 'both';
     address?: string;
     city?: string;
+    department: string; // Added Department
     country?: string;
     images: string[];
     userId: string;
     email: string;
     phone?: string;
+    website?: string;
 }
 
 export const BusinessProfileService = {
@@ -43,12 +45,14 @@ export const BusinessProfileService = {
                 category: data.category,
                 subcategory: data.subcategory,
                 city: data.city || 'San Pedro Sula', // Default for now
+                department: data.department || 'Cortés',
                 country: data.country || 'HN',
                 tags: data.specialties || [],
                 rating: 5.0, // Initial boost
                 reviewCount: 0,
                 coverImage: data.images[0] || null, // First image as cover
                 shortDescription: data.description.substring(0, 150),
+                website: data.website || '', // Added website
                 location: {
                     lat: 15.50417 + (Math.random() - 0.5) * 0.02, // Mock Geocoding
                     lng: -88.02500 + (Math.random() - 0.5) * 0.02
@@ -66,6 +70,7 @@ export const BusinessProfileService = {
                 email: data.email,
                 phone: data.phone || '',
                 address: data.address || '',
+                department: data.department || '', // Also save in private for querying ease if needed
                 gallery: data.images || [],
                 verificationStatus: 'pending',
                 updatedAt: serverTimestamp()

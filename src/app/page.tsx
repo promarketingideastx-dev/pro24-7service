@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { Search, MapPin, Star, Bell, Filter, Grid, Zap, User, X, ChevronRight } from 'lucide-react';
 import { DEMO_BUSINESSES, BusinessMock } from '@/data/mockBusinesses';
 import { TAXONOMY } from '@/lib/taxonomy';
+import { matchesSearch, findSuggestion } from '@/lib/searchUtils';
+import { useCountry } from '@/context/CountryContext';
+import CountrySelector from '@/components/ui/CountrySelector';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -28,8 +31,10 @@ export default function Home() {
     /* State for Category Modal */
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     /* State for Selected Business (Map Focus) */
-    /* State for Selected Business (Map Focus) */
     const [selectedBusiness, setSelectedBusiness] = useState<BusinessMock | null>(null);
+
+    /* Country Context */
+    const { selectedCountry, isLoading: isCountryLoading, clearCountry } = useCountry();
 
     /* Data State */
     const [businesses, setBusinesses] = useState<BusinessMock[]>(DEMO_BUSINESSES);
@@ -64,41 +69,7 @@ export default function Home() {
         loadData();
     }, []);
 
-    const handleBusinessClick = (biz: BusinessMock) => {
-        // 1. Focus Map logic (Visual)
-        setSelectedBusiness(biz);
-
-        // 2. Auth Guard Logic (Access)
-        // Note: We might want to allow map focus WITHOUT opening modal immediately, 
-        // only open modal if they try to "Enter" profile. 
-        // BUT user request says: "Click en resultado -> Intercept".
-        // Let's implement: Click focuses Map. SECOND Click (or specific button) opens profile? 
-        // Re-reading request: "al intentar entrar al perfil completo debe interceptarse". 
-        // "Click en card o pin debe hacer: Si user existe -> navegar. Si null -> modal".
-
-        // Let's make it so: Click -> Focus Map (Visual). 
-        // If they click AGAIN on the focused card or a "Ver Perfil" button -> Action.
-        // OR: Single click does both? 
-        // "Click en resultado -> Zoom en Mapa" was prev task.
-        // New task: "si user null -> modal". 
-        // Conflict: If I click to zoom, and it opens modal immediately, it might be annoying if I just want to browse map.
-        // Compromise: Click = Zoom + Highlight. In the Highlighted Card, add "Ver Detalles" button that triggers logic. 
-        // However, standard UX: Click Card -> Go to Details. 
-        // Let's stick to: Click List -> Zoom Map (Already done). 
-        // Let's add a "Ver Perfil Completo" button to the card that appears/activates.
-
-        // ACTUALIZACIÓN DE LÓGICA SEGÚN REPORTE:
-        // "Click en card o pin debe hacer: Si user existe -> navegar... Si user null -> modal"
-        // Esto reemplaza el comportamiento de solo zoom. 
-        // Para mantener el zoom (que es cool), haré:
-        // 1. Zoom (siempre).
-        // 2. Si es Desktop, tal vez esperar doble click? No, mobile first.
-
-        // DECISIÓN: Click en Lista = Zoom (Selección). 
-        // Click en la Tarjeta YA Seleccionada (o botón en ella) = Navegar/Modal.
-        // Para simplificar flujo inicial y cumplir requerimiento de bloqueo:
-        // Forzaremos el bloqueo al intentar 'abrir' el negocio.
-
+    const handleNavigate = (biz: BusinessMock) => {
         if (!user) {
             setPendingBusiness(biz);
             setShowAuthModal(true);
@@ -107,37 +78,53 @@ export default function Home() {
         }
     };
 
+    const handleBusinessClick = (biz: BusinessMock) => {
+        // Double-click logic: 
+        // 1st click = Select & Preview (handled by state + map flyTo)
+        // 2nd click (on same) = Navigate
+        if (selectedBusiness?.id === biz.id) {
+            handleNavigate(biz);
+        } else {
+            setSelectedBusiness(biz);
+        }
+    };
 
     // Derived State: Intelligent Search Logic
+    const [suggestion, setSuggestion] = useState<string | null>(null);
+
     const filteredBusinesses = businesses.filter(b => {
-        const lowerTerm = searchTerm.toLowerCase().trim();
-        if (!lowerTerm) return false; // Hide results if search is empty
+        // 0. Filter by Country Code (Strict)
+        if (selectedCountry) {
+            const bizCountry = b.countryCode || 'HN';
+            if (bizCountry !== selectedCountry.code) return false;
+        }
 
-        // 1. Direct Match (Name, Category, Subcategory)
-        const directMatch =
-            b.name.toLowerCase().includes(lowerTerm) ||
-            b.subcategory.toLowerCase().includes(lowerTerm) ||
-            b.category.toLowerCase().includes(lowerTerm);
+        const term = searchTerm.trim();
+        if (!term) return true;
 
-        // 2. Specialty/Tag Match (Smart Search)
-        // Check if the search term matches any tag in the business
-        const tagMatch = b.tags && b.tags.some(tag => tag.toLowerCase().includes(lowerTerm));
+        // 1. Prepare Searchable Text (Name, Category, Subcategory, Tags, Desc)
+        const searchableText = `
+            ${b.name} 
+            ${b.category} 
+            ${b.subcategory} 
+            ${b.tags.join(' ')} 
+            ${b.description || ''}
+        `;
 
-        return directMatch || tagMatch;
+        // 2. Use Advanced Token Matching
+        return matchesSearch(searchableText, term);
     });
 
-    // Auto-select first business for "Curious Mode" engagement
+    // Effect: Suggestions mechanism (Run when results are empty)
     useEffect(() => {
-        if (filteredBusinesses.length > 0) {
-            // Check if current selection is still in the list
-            const isSelectedInList = selectedBusiness && filteredBusinesses.some(b => b.id === selectedBusiness.id);
-
-            // If nothing selected, or selected item was filtered out, select the first one
-            if (!selectedBusiness || !isSelectedInList) {
-                setSelectedBusiness(filteredBusinesses[0]);
-            }
+        const term = searchTerm.trim();
+        if (term.length > 2 && filteredBusinesses.length === 0) {
+            const match = findSuggestion(term);
+            setSuggestion(match);
+        } else {
+            setSuggestion(null);
         }
-    }, [filteredBusinesses, selectedBusiness]);
+    }, [searchTerm, filteredBusinesses.length]);
 
     const handleCategoryClick = (id: string) => {
         setSelectedCategory(id);
@@ -145,20 +132,37 @@ export default function Home() {
 
     const selectedTaxonomy = selectedCategory ? TAXONOMY[selectedCategory as keyof typeof TAXONOMY] : null;
 
+    // Show Loader or Country Selector
+    if (isCountryLoading) return <div className="h-screen bg-[#0B0F19] flex items-center justify-center text-white">Cargando...</div>;
+    if (!selectedCountry) return <CountrySelector />;
+
     return (
         <main className="h-screen bg-[#0B0F19] text-white overflow-hidden font-sans flex flex-col">
-
-            {/* Header (fixed height, shrink-0) */}
+            {/* Header with Dynamic Location */}
             <header className="shrink-0 px-6 py-4 flex justify-between items-center z-50 bg-[#0B0F19]">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center shadow-[0_0_15px_rgba(0,240,255,0.3)]">
                         <span className="font-bold text-xs text-black">P24</span>
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-[10px] text-slate-400 font-medium tracking-wider uppercase leading-none">Ubicación</span>
-                        <div className="flex items-center gap-1 cursor-pointer group">
-                            <span className="font-bold text-sm text-white group-hover:text-brand-neon-cyan transition-colors">San Pedro Sula</span>
-                            <MapPin className="w-3 h-3 text-brand-neon-cyan" />
+                        <span className="text-[10px] text-brand-neon-cyan/80 font-bold tracking-wider uppercase leading-none mb-0.5">Ubicación</span>
+                        <div
+                            className="flex items-center gap-2 cursor-pointer group bg-white/5 hover:bg-white/10 px-2.5 py-1.5 rounded-lg transition-colors border border-transparent hover:border-white/10"
+                            onClick={clearCountry}
+                        >
+                            {/* Waving Flag Icon */}
+                            <div className="w-6 h-4 relative shadow-sm rounded-sm overflow-hidden">
+                                <img
+                                    src={`https://flagcdn.com/w40/${selectedCountry.code.toLowerCase()}.png`}
+                                    alt={selectedCountry.name}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+
+                            <span className="font-bold text-sm text-white group-hover:text-brand-neon-cyan transition-colors">
+                                {selectedCountry.name}
+                            </span>
+                            <MapPin className="w-3 h-3 text-slate-400 group-hover:text-brand-neon-cyan transition-colors" />
                         </div>
                     </div>
                 </div>
@@ -298,13 +302,16 @@ export default function Home() {
                         businesses={filteredBusinesses}
                         selectedBusiness={selectedBusiness}
                         onBusinessSelect={handleBusinessClick}
+                        onNavigate={handleNavigate}
+                        isAuthenticated={!!user}
+                        countryCoordinates={selectedCountry?.coordinates}
                     />
 
                     {/* Map Label (Overlay) */}
                     <div className="absolute bottom-4 left-4 z-[1000] pointer-events-none">
                         <div className="bg-[#0B0F19]/80 backdrop-blur px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
                             <MapPin className="w-3 h-3 text-cyan-400" />
-                            <span className="text-xs font-bold text-white">San Pedro Sula (En Vivo)</span>
+                            <span className="text-xs font-bold text-white">{selectedCountry?.mainCity || 'San Pedro Sula'} (En Vivo)</span>
                             <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                         </div>
                     </div>
@@ -340,8 +347,22 @@ export default function Home() {
                         </div>
                     ))}
                     {filteredBusinesses.length === 0 && searchTerm && (
-                        <div className="text-center py-10 text-slate-500 text-sm">
-                            No encontramos resultados para "{searchTerm}"
+                        <div className="flex flex-col items-center justify-center py-10 text-slate-500 text-sm animate-in fade-in zoom-in duration-300">
+                            <p>No encontramos resultados para "{searchTerm}"</p>
+
+                            {/* Suggestion UI */}
+                            {suggestion && (
+                                <div className="mt-4 flex flex-col items-center gap-2">
+                                    <p className="text-xs text-slate-400">¿Quizás quisiste decir?</p>
+                                    <button
+                                        onClick={() => setSearchTerm(suggestion)}
+                                        className="px-4 py-2 bg-brand-neon-cyan/10 border border-brand-neon-cyan/20 rounded-full text-brand-neon-cyan font-bold hover:bg-brand-neon-cyan/20 transition-all flex items-center gap-2"
+                                    >
+                                        <Zap className="w-4 h-4 fill-current" />
+                                        {suggestion}
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

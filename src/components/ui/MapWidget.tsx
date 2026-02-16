@@ -13,21 +13,34 @@ interface MapWidgetProps {
     businesses: BusinessMock[];
     selectedBusiness?: BusinessMock | null;
     onBusinessSelect?: (business: BusinessMock) => void;
+    onNavigate?: (business: BusinessMock) => void; // Explicit navigation action
+    isAuthenticated?: boolean;
+    countryCoordinates?: { lat: number; lng: number; zoom: number };
 }
 
 // Component to update map center if valid businesses are present
-function MapUpdater({ businesses, selectedBusiness }: { businesses: BusinessMock[], selectedBusiness?: BusinessMock | null }) {
+function MapUpdater({ businesses, selectedBusiness, countryCoordinates }: {
+    businesses: BusinessMock[],
+    selectedBusiness?: BusinessMock | null,
+    countryCoordinates?: { lat: number; lng: number; zoom: number }
+}) {
     const map = useMap();
 
     // Effect for initial load or filter changes
     useEffect(() => {
-        if (businesses.length > 0 && !selectedBusiness) {
-            // If no specific selection, view all (fltBounds) or center SPS
-            const group = L.featureGroup(businesses.map(b => L.marker([b.lat, b.lng])));
-            // map.fitBounds(group.getBounds(), { padding: [50, 50] });
-            map.flyTo([15.5042, -88.0250], 13);
+        if (!selectedBusiness) {
+            // Prioritize Country Selection coordinates
+            if (countryCoordinates) {
+                map.flyTo([countryCoordinates.lat, countryCoordinates.lng], countryCoordinates.zoom, {
+                    animate: true,
+                    duration: 2.5,
+                    easeLinearity: 0.25
+                });
+            } else if (businesses.length > 0) {
+                map.flyTo([15.5042, -88.0250], 13);
+            }
         }
-    }, [businesses, map, selectedBusiness]);
+    }, [businesses, map, selectedBusiness, countryCoordinates]);
 
     // Effect for specific selection (Click on List)
     useEffect(() => {
@@ -36,12 +49,6 @@ function MapUpdater({ businesses, selectedBusiness }: { businesses: BusinessMock
                 animate: true,
                 duration: 1.5
             });
-            // Note: Opening a popup programmatically requires a bit more setup
-            // if you want it to be tied to the marker. For now, just flying to it.
-            // To open a popup, you'd typically need a ref to the Marker component
-            // or iterate through markers to find the one matching selectedBusiness.
-            // For simplicity, we'll just fly to the location.
-            // map.openPopup(L.latLng(selectedBusiness.lat, selectedBusiness.lng));
         }
     }, [selectedBusiness, map]);
 
@@ -49,10 +56,6 @@ function MapUpdater({ businesses, selectedBusiness }: { businesses: BusinessMock
 }
 
 const createCustomIcon = (icon: any, colorClass: string) => {
-    // Extract bg color from class (e.g. 'bg-orange-500') to a hex or RGB for style if needed
-    // For simplicity, we just use the class in a wrapper div.
-
-    // We render the emoji or icon as string.
     const iconContent = typeof icon === 'string' ? icon : '?';
 
     return L.divIcon({
@@ -72,7 +75,14 @@ const createCustomIcon = (icon: any, colorClass: string) => {
     });
 };
 
-export default function MapWidget({ businesses, selectedBusiness, onBusinessSelect }: MapWidgetProps) {
+export default function MapWidget({
+    businesses,
+    selectedBusiness,
+    onBusinessSelect,
+    onNavigate,
+    isAuthenticated = false,
+    countryCoordinates
+}: MapWidgetProps) {
     const [isMounted, setIsMounted] = useState(false);
     const markerRefs = useRef<{ [key: string]: L.Marker | null }>({});
 
@@ -80,35 +90,25 @@ export default function MapWidget({ businesses, selectedBusiness, onBusinessSele
         setIsMounted(true);
     }, []);
 
-    // Effect to open popup when selectedBusiness changes
-    useEffect(() => {
-        if (selectedBusiness && markerRefs.current[selectedBusiness.id]) {
-            const marker = markerRefs.current[selectedBusiness.id];
-            if (marker) {
-                marker.openPopup();
-            }
-        }
-    }, [selectedBusiness]);
-
     if (!isMounted) return <div className="h-64 w-full bg-slate-900 rounded-3xl animate-pulse flex items-center justify-center text-slate-500">Cargando Mapa...</div>;
 
-    const spsPosition: [number, number] = [15.50417, -88.02500];
+    const startZoom = countryCoordinates ? Math.max(2, countryCoordinates.zoom - 2) : 11;
+    const defaultPosition: [number, number] = countryCoordinates ? [countryCoordinates.lat, countryCoordinates.lng] : [15.50417, -88.02500];
 
     return (
         <MapContainer
-            center={spsPosition}
-            zoom={14}
+            center={defaultPosition}
+            zoom={startZoom}
             scrollWheelZoom={false}
             className="h-full w-full rounded-3xl z-0"
             style={{ height: '100%', width: '100%' }}
         >
-            {/* Voyager Map Tiles (Clean, Clear, Not Dark/White) */}
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                 url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
             />
 
-            <MapUpdater businesses={businesses} selectedBusiness={selectedBusiness} />
+            <MapUpdater businesses={businesses} selectedBusiness={selectedBusiness} countryCoordinates={countryCoordinates} />
 
             {businesses.map((biz) => (
                 <Marker
@@ -120,6 +120,7 @@ export default function MapWidget({ businesses, selectedBusiness, onBusinessSele
                     }}
                     eventHandlers={{
                         click: () => {
+                            // Let parent handle logic (Selection vs Navigation)
                             if (onBusinessSelect) {
                                 onBusinessSelect(biz);
                             }
@@ -127,20 +128,34 @@ export default function MapWidget({ businesses, selectedBusiness, onBusinessSele
                     }}
                 >
                     <Popup className="custom-popup">
-                        <div className="p-2 min-w-[160px] flex flex-col gap-2">
+                        <div className="p-2 min-w-[180px] flex flex-col gap-2">
                             <div>
                                 <h3 className="font-bold text-slate-900 text-sm leading-tight">{biz.name}</h3>
                                 <p className="text-xs text-slate-500 font-medium">{biz.subcategory}</p>
                             </div>
-                            <p className="text-[10px] text-slate-400 line-clamp-2">{biz.description}</p>
+
+                            {/* Content Protection Logic */}
+                            {isAuthenticated ? (
+                                <p className="text-[10px] text-slate-400 line-clamp-2">{biz.description}</p>
+                            ) : (
+                                <div className="bg-slate-100 p-1.5 rounded text-[10px] text-slate-500 italic flex items-center gap-1">
+                                    <span>🔒</span>
+                                    <span>Inicia sesión para ver detalles.</span>
+                                </div>
+                            )}
 
                             <button
-                                onClick={() => {
-                                    window.location.href = `/negocio/${biz.id}`;
+                                onClick={(e) => {
+                                    e.stopPropagation(); // Prevent map click
+                                    if (onNavigate) onNavigate(biz);
                                 }}
-                                className="w-full bg-slate-900 text-white text-xs font-bold py-1.5 px-3 rounded-lg hover:bg-slate-800 transition-colors flex items-center justify-center gap-1 mt-1"
+                                className={`w-full text-xs font-bold py-1.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-1 mt-1
+                                    ${isAuthenticated
+                                        ? 'bg-slate-900 text-white hover:bg-slate-800'
+                                        : 'bg-brand-neon-cyan/10 text-brand-dark-blue hover:bg-brand-neon-cyan/20 border border-brand-neon-cyan/20'}
+                                `}
                             >
-                                Ver Perfil
+                                {isAuthenticated ? 'Ver Perfil' : 'Crear Cuenta / Ver'}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
                             </button>
                         </div>
