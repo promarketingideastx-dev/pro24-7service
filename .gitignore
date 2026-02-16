@@ -44,3 +44,4 @@ next-env.d.ts
 *.log
 .firebaserc
 .firebase/
+_legacy_backup
