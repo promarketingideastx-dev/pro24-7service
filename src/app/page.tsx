@@ -29,7 +29,7 @@ export default function Home() {
     // Derived State: Intelligent Search Logic
     const filteredBusinesses = DEMO_BUSINESSES.filter(b => {
         const lowerTerm = searchTerm.toLowerCase().trim();
-        if (!lowerTerm) return true; // Show all if search is empty
+        if (!lowerTerm) return false; // Hide results if search is empty
 
         // 1. Direct Match (Name, Category, Subcategory)
         const directMatch =
@@ -42,8 +42,6 @@ export default function Home() {
         const tagMatch = b.tags && b.tags.some(tag => tag.toLowerCase().includes(lowerTerm));
 
         // 3. Taxonomy Fallback (If user types "fugas", find businesses in "Plomería")
-        // This is implicitly handled if the business has "Fugas" in tags, 
-        // but we can also check if the term matches a known taxonomy specialty that maps to this business's subcategory.
 
         return directMatch || tagMatch;
     });
@@ -151,7 +149,14 @@ export default function Home() {
                                         </h3>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                             {sub.specialties.map((spec, i) => (
-                                                <div key={i} className="flex items-center gap-2 text-sm text-slate-300 bg-white/5 px-3 py-2 rounded-lg hover:bg-white/10 cursor-pointer transition-colors group/item">
+                                                <div
+                                                    key={i}
+                                                    onClick={() => {
+                                                        setSearchTerm(spec);
+                                                        setSelectedCategory(null);
+                                                    }}
+                                                    className="flex items-center gap-2 text-sm text-slate-300 bg-white/5 px-3 py-2 rounded-lg hover:bg-white/10 cursor-pointer transition-colors group/item"
+                                                >
                                                     <ChevronRight className="w-3 h-3 text-slate-600 group-hover/item:text-brand-neon-cyan" />
                                                     {spec}
                                                 </div>
@@ -190,7 +195,7 @@ export default function Home() {
 
                 {/* Featured Pros List (Uses Filtered Data if matches, else defaults) */}
                 <div className="space-y-4">
-                    {(filteredBusinesses.length > 0 ? filteredBusinesses : DEMO_BUSINESSES).slice(0, 3).map((biz) => (
+                    {filteredBusinesses.map((biz) => (
                         <div
                             key={biz.id}
                             onClick={() => setSelectedBusiness(biz)}
