@@ -132,13 +132,31 @@ export const BusinessProfileService = {
     async getPublicBusinessById(id: string) {
         try {
             const docRef = doc(db, 'businesses_public', id);
-            const snap = await getDoc(docRef);
+
+            // OPTIMIZATION: Race condition to prevent hanging on Vercel cold starts.
+            // If Firestore takes > 2.5s, we force a fallback to Mock Data immediately.
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Firestore timeout")), 2500)
+            );
+
+            const snap = await Promise.race([
+                getDoc(docRef),
+                timeoutPromise
+            ]) as any; // Type assertion to handle the race result
 
             if (snap.exists()) {
                 return { id: snap.id, ...snap.data() };
             }
 
-            // Fallback to Mock Data if not found in Firestore (for Dev/Demo)
+            // Explicitly throw if not found to trigger fallback logic below
+            // ...but the logic below handles "if not returned". 
+            // Actually, if snap doesn't exist, we just continue.
+            // But if we return here, we exit.
+            // If we don't return, we fall through to Mock Data logic?
+            // Original code:
+            // if (snap.exists()) { return ... }
+            // // Fallback to Mock Data...
+            // Perfect. The flow continues.
             const { DEMO_BUSINESSES } = await import('@/data/mockBusinesses');
             const mockBiz = DEMO_BUSINESSES.find(b => b.id === id);
 

@@ -146,10 +146,10 @@ export default function Home() {
     const selectedTaxonomy = selectedCategory ? TAXONOMY[selectedCategory as keyof typeof TAXONOMY] : null;
 
     return (
-        <main className="min-h-screen bg-[#0B0F19] text-white overflow-x-hidden pb-10 font-sans">
+        <main className="h-screen bg-[#0B0F19] text-white overflow-hidden font-sans flex flex-col">
 
-            {/* Header (Minimal) */}
-            <header className="px-6 py-6 flex justify-between items-center">
+            {/* Header (fixed height, shrink-0) */}
+            <header className="shrink-0 px-6 py-4 flex justify-between items-center z-50 bg-[#0B0F19]">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center shadow-[0_0_15px_rgba(0,240,255,0.3)]">
                         <span className="font-bold text-xs text-black">P24</span>
@@ -244,55 +244,114 @@ export default function Home() {
                 </div>
             </header>
 
-            <div className="px-6 space-y-8">
+            {/* Scrollable Content Wrapper */}
+            <div className="flex-1 flex flex-col min-h-0">
 
-                {/* Search Bar - Large & Glow */}
-                <div className="relative group">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-purple-600 opacity-20 rounded-2xl blur-md group-hover:opacity-40 transition duration-500"></div>
-                    <div className="relative flex items-center bg-[#151b2e] border border-white/10 rounded-2xl px-5 py-4 shadow-2xl">
-                        <Search className="w-6 h-6 text-slate-400 mr-3" />
-                        <input
-                            type="text"
-                            placeholder="Buscar: 'Fugas', 'Uñas', 'Mecánico'..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="bg-transparent w-full outline-none text-white placeholder-slate-500 text-lg font-medium"
-                        />
-                        {searchTerm && (
-                            <button onClick={() => setSearchTerm('')} className="p-1 rounded-full hover:bg-white/10 transition-colors">
-                                <X className="w-5 h-5 text-slate-400" />
-                            </button>
-                        )}
+                {/* Search Bar - Sticky on Mobile? No, simple flex item */}
+                <div className="shrink-0 px-6 pb-4 z-40">
+                    <div className="relative group">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-purple-600 opacity-20 rounded-2xl blur-md group-hover:opacity-40 transition duration-500"></div>
+                        <div className="relative flex items-center bg-[#151b2e] border border-white/10 rounded-2xl px-5 py-3 shadow-2xl">
+                            <Search className="w-6 h-6 text-slate-400 mr-3" />
+                            <input
+                                type="text"
+                                placeholder="Buscar: 'Fugas', 'Uñas', 'Mecánico'..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="bg-transparent w-full outline-none text-white placeholder-slate-500 text-base font-medium"
+                            />
+                            {searchTerm && (
+                                <button onClick={() => setSearchTerm('')} className="p-1 rounded-full hover:bg-white/10 transition-colors">
+                                    <X className="w-5 h-5 text-slate-400" />
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                {/* Public Preview Modal (Soft Gate) */}
+                {/* Categories Row */}
+                <div className="shrink-0 px-6 pb-2">
+                    <div className="flex justify-between items-start gap-2 overflow-x-auto no-scrollbar py-2">
+                        {categories.map((cat, idx) => (
+                            <div
+                                key={idx}
+                                onClick={() => handleCategoryClick(cat.id)}
+                                className="flex flex-col items-center gap-2 min-w-[90px] cursor-pointer group"
+                            >
+                                <div className={`
+                     w-14 h-14 rounded-2xl flex items-center justify-center text-xl
+                     ${cat.bg} border ${cat.border}
+                     shadow-[0_0_15px_rgba(0,0,0,0.2)]
+                     group-hover:scale-105 transition-transform duration-300
+                   `}>
+                                    <span className="filter drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">{cat.icon}</span>
+                                </div>
+                                <span className="text-[10px] sm:text-xs font-medium text-slate-400 group-hover:text-white transition-colors text-center leading-tight">{cat.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Map Widget (Responsive Height) */}
+                <div className="shrink-0 mx-6 mb-4 rounded-3xl overflow-hidden border border-white/10 shadow-2xl group cursor-pointer isolate relative transition-all duration-300 h-[35vh] min-h-[250px] max-h-[400px] md:h-[400px]">
+                    <DynamicMap
+                        businesses={filteredBusinesses}
+                        selectedBusiness={selectedBusiness}
+                        onBusinessSelect={handleBusinessClick}
+                    />
+
+                    {/* Map Label (Overlay) */}
+                    <div className="absolute bottom-4 left-4 z-[1000] pointer-events-none">
+                        <div className="bg-[#0B0F19]/80 backdrop-blur px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
+                            <MapPin className="w-3 h-3 text-cyan-400" />
+                            <span className="text-xs font-bold text-white">San Pedro Sula (En Vivo)</span>
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Featured Pros List (Scrollable Fill) */}
+                <div className="flex-1 overflow-y-auto px-6 pb-24 space-y-3 custom-scrollbar">
+                    {filteredBusinesses.map((biz) => (
+                        <div
+                            key={biz.id}
+                            onClick={() => handleBusinessClick(biz)}
+                            className={`flex items-center p-3 bg-[#151b2e] border rounded-2xl transition-all cursor-pointer group
+                                ${selectedBusiness?.id === biz.id ? 'border-brand-neon-cyan shadow-[0_0_15px_rgba(0,240,255,0.2)]' : 'border-white/5 hover:border-white/10'}
+                            `}
+                        >
+                            <div className="w-12 h-12 rounded-xl bg-slate-700 mr-3 shrink-0 flex items-center justify-center text-xl relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0"></div>
+                                {typeof biz.icon === 'string' ? biz.icon : <Zap className="w-5 h-5 text-white" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h3 className="font-bold text-white text-sm truncate">{biz.name}</h3>
+                                <p className="text-[10px] text-brand-neon-cyan font-medium mb-0.5 truncate">{biz.subcategory}</p>
+                                <div className="flex items-center gap-1">
+                                    <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                                    <span className="text-yellow-400 font-bold text-[10px]">5.0</span>
+                                    <span className="text-slate-500 text-[10px] truncate">(San Pedro Sula)</span>
+                                </div>
+                            </div>
+                            {/* Action hint for logged out users */}
+                            <div className="hidden group-hover:flex items-center px-2 py-1 bg-white/10 rounded-full text-[10px] text-white font-medium whitespace-nowrap">
+                                Ver
+                            </div>
+                        </div>
+                    ))}
+                    {filteredBusinesses.length === 0 && searchTerm && (
+                        <div className="text-center py-10 text-slate-500 text-sm">
+                            No encontramos resultados para "{searchTerm}"
+                        </div>
+                    )}
+                </div>
+
+                {/* Modals placed here or at root */}
                 <PublicBusinessPreviewModal
                     isOpen={showAuthModal}
                     onClose={() => setShowAuthModal(false)}
                     business={pendingBusiness}
                 />
-
-                {/* Categories Row (Horizontal) */}
-                <div className="flex justify-between items-start gap-2 overflow-x-auto no-scrollbar py-2">
-                    {categories.map((cat, idx) => (
-                        <div
-                            key={idx}
-                            onClick={() => handleCategoryClick(cat.id)}
-                            className="flex flex-col items-center gap-2 min-w-[100px] cursor-pointer group"
-                        >
-                            <div className={`
-                 w-16 h-16 rounded-2xl flex items-center justify-center text-2xl
-                 ${cat.bg} border ${cat.border}
-                 shadow-[0_0_15px_rgba(0,0,0,0.2)]
-                 group-hover:scale-105 transition-transform duration-300
-               `}>
-                                <span className="filter drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">{cat.icon}</span>
-                            </div>
-                            <span className="text-xs font-medium text-slate-400 group-hover:text-white transition-colors">{cat.name}</span>
-                        </div>
-                    ))}
-                </div>
 
                 {/* Categories Detail Modal */}
                 {selectedCategory && selectedTaxonomy && (
@@ -355,55 +414,6 @@ export default function Home() {
                         </div>
                     </div>
                 )}
-
-                {/* Map Widget (Real Leaflet Map) */}
-                <div className="relative h-[400px] w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl group cursor-pointer isolate">
-                    <DynamicMap
-                        businesses={filteredBusinesses}
-                        selectedBusiness={selectedBusiness}
-                        onBusinessSelect={handleBusinessClick}
-                    />
-
-                    {/* Map Label (Overlay) */}
-                    <div className="absolute bottom-4 left-4 z-[1000] pointer-events-none">
-                        <div className="bg-[#0B0F19]/80 backdrop-blur px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
-                            <MapPin className="w-3 h-3 text-cyan-400" />
-                            <span className="text-xs font-bold text-white">San Pedro Sula (En Vivo)</span>
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Featured Pros List (Uses Filtered Data if matches, else defaults) */}
-                <div className="space-y-4">
-                    {filteredBusinesses.map((biz) => (
-                        <div
-                            key={biz.id}
-                            onClick={() => handleBusinessClick(biz)}
-                            className={`flex items-center p-4 bg-[#151b2e] border rounded-3xl transition-all cursor-pointer group
-                                ${selectedBusiness?.id === biz.id ? 'border-brand-neon-cyan shadow-[0_0_15px_rgba(0,240,255,0.2)]' : 'border-white/5 hover:border-white/10'}
-                            `}
-                        >
-                            <div className="w-14 h-14 rounded-2xl bg-slate-700 mr-4 shrink-0 flex items-center justify-center text-2xl relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0"></div>
-                                {typeof biz.icon === 'string' ? biz.icon : <Zap className="w-6 h-6 text-white" />}
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="font-bold text-white text-base">{biz.name}</h3>
-                                <p className="text-xs text-brand-neon-cyan font-medium mb-1">{biz.subcategory}</p>
-                                <div className="flex items-center gap-1">
-                                    <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-                                    <span className="text-yellow-400 font-bold text-xs">5.0</span>
-                                    <span className="text-slate-500 text-xs">(San Pedro Sula)</span>
-                                </div>
-                            </div>
-                            {/* Action hint for logged out users */}
-                            <div className="hidden group-hover:flex items-center px-3 py-1 bg-white/10 rounded-full text-[10px] text-white font-medium">
-                                Ver Perfil
-                            </div>
-                        </div>
-                    ))}
-                </div>
 
             </div>
         </main>
