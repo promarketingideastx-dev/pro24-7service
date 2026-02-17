@@ -35,6 +35,7 @@ export interface UserDocument {
     uid: string;
     email: string;
     roles: UserRole;
+    role: 'client' | 'provider' | null; // Primary active role
     createdAt: Timestamp;
     lastLogin: Timestamp;
     country_code: string; // ISO2: "HN", "US", "MX"

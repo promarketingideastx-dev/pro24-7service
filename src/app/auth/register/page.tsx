@@ -19,8 +19,7 @@ function RegisterForm() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -120,6 +119,7 @@ function RegisterForm() {
                         >
                             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
+
                     </div>
                 </div>
 
@@ -143,7 +143,8 @@ function RegisterForm() {
                         >
                             {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
-                        </button>
+
+
                     </div>
                 </div>
 

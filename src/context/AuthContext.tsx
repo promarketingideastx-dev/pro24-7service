@@ -11,12 +11,14 @@ interface AuthContextType {
     user: User | null;
     userProfile: UserDocument | null;
     loading: boolean;
+    refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
     user: null,
     userProfile: null,
-    loading: true
+    loading: true,
+    refreshProfile: async () => { }
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -24,19 +26,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [userProfile, setUserProfile] = useState<UserDocument | null>(null);
     const [loading, setLoading] = useState(true);
 
+    // Fetch profile manually (one-time fetch)
+    const fetchProfile = async (uid: string) => {
+        try {
+            const profile = await UserService.getUserProfile(uid);
+            setUserProfile(profile);
+        } catch (error) {
+            console.error("Failed to fetch user profile", error);
+            setUserProfile(null);
+        }
+    };
+
     useEffect(() => {
+        let unsubscribeFirestore: (() => void) | null = null;
+
         const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
             setUser(currentUser);
 
+            // Clean up previous Firestore listener if exists
+            if (unsubscribeFirestore) {
+                unsubscribeFirestore();
+                unsubscribeFirestore = null;
+            }
+
             if (currentUser) {
-                // Real-time Listener (Start immediately, don't wait for create)
+                // Real-time Listener (Start immediately)
                 const userRef = doc(db, 'users', currentUser.uid);
-                const unsubscribeFirestore = onSnapshot(userRef, (docSnap) => {
+                unsubscribeFirestore = onSnapshot(userRef, (docSnap) => {
                     if (docSnap.exists()) {
                         setUserProfile(docSnap.data() as UserDocument);
                     } else {
                         // Profile doesn't exist yet -> Trigger creation in background
-                        // This prevents blocking the UI while writing to DB
                         UserService.createUserProfile(currentUser.uid, currentUser.email || '').catch(e => console.error(e));
                         setUserProfile(null);
                     }
@@ -45,19 +65,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     console.error("AuthContext Firestore Error:", error);
                     setLoading(false);
                 });
-
-                return () => unsubscribeFirestore();
             } else {
                 setUserProfile(null);
                 setLoading(false);
             }
         });
 
-        return () => unsubscribeAuth();
+        return () => {
+            unsubscribeAuth();
+            if (unsubscribeFirestore) {
+                unsubscribeFirestore();
+            }
+        };
     }, []);
 
+    const refreshProfile = async () => {
+        if (user) {
+            await fetchProfile(user.uid);
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, userProfile, loading }}>
+        <AuthContext.Provider value={{ user, userProfile, loading, refreshProfile }}>
             {children}
         </AuthContext.Provider>
     );

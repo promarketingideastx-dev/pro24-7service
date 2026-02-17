@@ -21,6 +21,7 @@ export const UserService = {
                 provider: false,
                 admin: false
             },
+            role: null, // Initialize primary role as null
             createdAt: serverTimestamp() as any,
             lastLogin: serverTimestamp() as any,
             country_code: 'HN',
@@ -71,11 +72,13 @@ export const UserService = {
 
         if (role === 'provider') {
             await setDoc(userRef, {
+                role: 'provider',
                 roles: { provider: true },
                 isBusinessActive: false
             }, { merge: true });
         } else if (role === 'client') {
             await setDoc(userRef, {
+                role: 'client',
                 roles: { client: true }
             }, { merge: true });
         }

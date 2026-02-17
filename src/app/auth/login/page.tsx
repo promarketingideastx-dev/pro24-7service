@@ -17,7 +17,7 @@ function LoginForm() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const [showPassword, setShowPassword] = useState(false);
+
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -103,7 +103,7 @@ function LoginForm() {
                         >
                             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
-                        </button>
+
                     </div>
                 </div>
 
