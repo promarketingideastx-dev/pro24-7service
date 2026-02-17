@@ -4,7 +4,7 @@ import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { AuthService } from '@/services/auth.service';
-import { Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
+import { Mail, Lock, LogIn, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 function LoginForm() {
     const router = useRouter();
@@ -13,6 +13,7 @@ function LoginForm() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -87,7 +88,7 @@ function LoginForm() {
                     <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                         <input
-                            type={showPassword ? "text" : "password"}
+                            type={showPassword ? 'text' : 'password'}
                             required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -97,13 +98,11 @@ function LoginForm() {
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors focus:outline-none"
+                            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                         >
-                            {showPassword ? (
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" /></svg>
-                            ) : (
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" /><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" /><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" /><path d="m2 2 20 20" /></svg>
-                            )}
+                            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
                         </button>
                     </div>
                 </div>
@@ -122,7 +121,7 @@ function LoginForm() {
                         </>
                     )}
                 </button>
-            </form>
+            </form >
 
             <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
@@ -171,7 +170,7 @@ function LoginForm() {
                     </Link>
                 </p>
             </div>
-        </div>
+        </div >
     );
 }
 
