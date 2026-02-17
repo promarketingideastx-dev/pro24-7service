@@ -82,5 +82,14 @@ export const UserService = {
                 roles: { client: true }
             }, { merge: true });
         }
+    },
+
+    /**
+     * Updates the user's profile information.
+     */
+    async updateUserProfile(uid: string, data: { displayName?: string; phoneNumber?: string; address?: string }) {
+        if (!uid) throw new Error('User ID required');
+        const userRef = doc(db, 'users', uid);
+        await updateDoc(userRef, data);
     }
 };

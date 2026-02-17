@@ -1,4 +1,4 @@
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import {
     GoogleAuthProvider,
     signInWithPopup,
@@ -6,9 +6,11 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword
 } from 'firebase/auth';
+import { doc, deleteDoc } from 'firebase/firestore';
 import { UserService } from './user.service';
 
 export const AuthService = {
+    // ... existing login methods ...
     loginWithGoogle: async () => {
         const provider = new GoogleAuthProvider();
         try {
@@ -59,6 +61,18 @@ export const AuthService = {
         try {
             const user = auth.currentUser;
             if (user) {
+                // 1. Clean Firestore Data (Best Effort)
+                try {
+                    await deleteDoc(doc(db, 'users', user.uid));
+                    // Try to delete business profiles if they exist (assuming ID = UID)
+                    await deleteDoc(doc(db, 'businesses_public', user.uid)).catch(() => { });
+                    await deleteDoc(doc(db, 'businesses_private', user.uid)).catch(() => { });
+                } catch (dbError) {
+                    console.warn("Error cleaning up user data:", dbError);
+                    // Continue to delete auth even if DB cleanup fails partially
+                }
+
+                // 2. Delete Auth Account
                 await user.delete();
             }
         } catch (error) {
@@ -66,6 +80,6 @@ export const AuthService = {
             throw error;
         }
     },
-
-
 };
+
+

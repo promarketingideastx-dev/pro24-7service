@@ -40,7 +40,8 @@ function RegisterForm() {
 
         try {
             await AuthService.registerWithEmail(email, password);
-            router.replace(returnTo);
+            // Force onboarding for new accounts
+            router.replace('/onboarding');
         } catch (err: any) {
             console.error(err);
             if (err.code === 'auth/email-already-in-use') {
@@ -62,7 +63,10 @@ function RegisterForm() {
         setError(null);
         try {
             await AuthService.loginWithGoogle();
-            router.replace(returnTo);
+            // Google login might be existing user, but if they are on Register page, 
+            // we assume they want to sign up or at least review options.
+            // Ideally we check if profile exists, but /onboarding handles idempotency well.
+            router.replace('/onboarding');
         } catch (err: any) {
             console.error(err);
             setError('No se pudo registrar con Google.');

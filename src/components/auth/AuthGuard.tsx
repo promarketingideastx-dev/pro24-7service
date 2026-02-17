@@ -79,11 +79,12 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             const hasRole = userProfile.roles?.client || userProfile.roles?.provider;
 
             if (!hasRole) {
-                // User has NO role -> MUST be on onboarding
-                if (!startsWithAny(ONBOARDING_PREFIXES)) {
-                    router.replace(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`);
-                } else {
+                // User has NO role -> Allow public pages + onboarding
+                if (startsWithAny(ONBOARDING_PREFIXES) || startsWithAny(PUBLIC_PREFIXES)) {
                     setIsAuthorized(true);
+                } else {
+                    // Force onboarding only for protected routes
+                    router.replace(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`);
                 }
                 return;
             }
@@ -108,10 +109,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         } else {
             // User is logged in, but profile is missing/not loaded. 
             // Treat as "No Role" -> Redirect to Onboarding
-            if (!startsWithAny(ONBOARDING_PREFIXES)) {
-                router.replace(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`);
-            } else {
+            if (startsWithAny(ONBOARDING_PREFIXES) || startsWithAny(PUBLIC_PREFIXES)) {
                 setIsAuthorized(true);
+            } else {
+                router.replace(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`);
             }
         }
 

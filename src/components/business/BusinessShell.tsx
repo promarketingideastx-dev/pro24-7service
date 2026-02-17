@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Store, Calendar, Settings, logOut, Menu, X, PlusCircle } from 'lucide-react';
+import { LayoutDashboard, Store, Calendar, Settings, LogOut, Menu, X, PlusCircle } from 'lucide-react';
 import GlassPanel from '@/components/ui/GlassPanel';
 import BusinessGuard from '@/components/auth/BusinessGuard';
 import { AuthService } from '@/services/auth.service';
@@ -16,7 +16,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
         { name: 'Dashboard', href: '/business/dashboard', icon: <LayoutDashboard size={20} /> },
         { name: 'Mis Servicios', href: '/business/services', icon: <Store size={20} /> },
         { name: 'Agenda', href: '/business/schedule', icon: <Calendar size={20} /> },
-        { name: 'Configuración', href: '/business/setup', icon: <Settings size={20} /> }, // Temporary strict link
+        { name: 'Configuración', href: '/business/profile', icon: <Settings size={20} /> },
     ];
 
     const isActive = (path: string) => pathname === path;
@@ -50,14 +50,25 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                 `}>
                     <div className="flex flex-col h-full p-6">
                         {/* Logo (Desktop) */}
-                        <div className="hidden md:flex items-center gap-3 mb-10">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center shadow-[0_0_15px_rgba(0,240,255,0.3)]">
-                                <span className="font-extrabold text-sm text-black">P24</span>
+                        <div className="hidden md:flex flex-col gap-4 mb-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+                                    <span className="font-extrabold text-sm text-black">P24</span>
+                                </div>
+                                <div>
+                                    <h1 className="font-bold text-lg leading-none">PRO24/7</h1>
+                                    <span className="text-[10px] text-cyan-400 font-medium tracking-wider uppercase">Business</span>
+                                </div>
                             </div>
-                            <div>
-                                <h1 className="font-bold text-lg leading-none">PRO24/7</h1>
-                                <span className="text-[10px] text-cyan-400 font-medium tracking-wider uppercase">Business</span>
-                            </div>
+
+                            {/* SWITCH TO CLIENT MODE */}
+                            <Link
+                                href="/"
+                                className="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 rounded-lg py-2 text-xs font-medium text-slate-300 transition-colors"
+                            >
+                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                Explorar como Cliente
+                            </Link>
                         </div>
 
                         {/* Navigation */}
@@ -88,7 +99,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                             onClick={async () => await AuthService.logout()}
                             className="mt-auto flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-colors"
                         >
-                            <span className="rotate-180"><logOut size={20} /></span>
+                            <span className="rotate-180"><LogOut size={20} /></span>
                             <span className="font-medium text-sm">Cerrar Sesión</span>
                         </button>
                     </div>

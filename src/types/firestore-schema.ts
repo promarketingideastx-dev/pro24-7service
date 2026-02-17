@@ -42,6 +42,11 @@ export interface UserDocument {
     locale: 'es' | 'en' | 'pt';
     settings: UserSettings;
 
+    // Optional flattened profile fields for easier access in CRM
+    displayName?: string;
+    phoneNumber?: string;
+    address?: string;
+
     // Perfil Cliente (Siempre existe, aunque sea básico)
     clientProfile: ClientProfile;
 

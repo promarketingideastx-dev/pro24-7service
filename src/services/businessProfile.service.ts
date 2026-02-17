@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, updateDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
+import { doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, writeBatch, serverTimestamp } from 'firebase/firestore';
 
 export interface BusinessProfileData {
     businessName: string;
@@ -7,6 +7,8 @@ export interface BusinessProfileData {
     category: string;
     subcategory: string;
     specialties: string[];
+    additionalCategories?: string[]; // New: Multi-select areas
+    additionalSpecialties?: string[]; // New: Multi-select specialties
     modality: 'home' | 'local' | 'both';
     address?: string;
     city?: string;
@@ -18,6 +20,81 @@ export interface BusinessProfileData {
     phone?: string;
     website?: string;
 }
+
+// --- Services Subcollection Types ---
+export interface ServiceData {
+    id?: string;
+    name: string;
+    description?: string;
+    price: number;
+    durationMinutes: number;
+    currency: string;
+    createdAt?: any;
+    updatedAt?: any;
+}
+
+export const ServicesService = {
+    /**
+     * Get all services for a business
+     */
+    async getServices(businessId: string): Promise<ServiceData[]> {
+        try {
+            const servicesRef = collection(db, 'businesses', businessId, 'services');
+            const snapshot = await getDocs(servicesRef);
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ServiceData));
+        } catch (error) {
+            console.error("Error fetching services:", error);
+            return [];
+        }
+    },
+
+    /**
+     * Add a new service
+     */
+    async addService(businessId: string, service: Omit<ServiceData, 'id'>): Promise<string> {
+        try {
+            const servicesRef = collection(db, 'businesses', businessId, 'services');
+            const docRef = await addDoc(servicesRef, {
+                ...service,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            });
+            return docRef.id;
+        } catch (error) {
+            console.error("Error adding service:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * Update a service
+     */
+    async updateService(businessId: string, serviceId: string, data: Partial<ServiceData>): Promise<void> {
+        try {
+            const serviceRef = doc(db, 'businesses', businessId, 'services', serviceId);
+            await updateDoc(serviceRef, {
+                ...data,
+                updatedAt: serverTimestamp()
+            });
+        } catch (error) {
+            console.error("Error updating service:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * Delete a service
+     */
+    async deleteService(businessId: string, serviceId: string): Promise<void> {
+        try {
+            const serviceRef = doc(db, 'businesses', businessId, 'services', serviceId);
+            await deleteDoc(serviceRef);
+        } catch (error) {
+            console.error("Error deleting service:", error);
+            throw error;
+        }
+    }
+};
 
 export const BusinessProfileService = {
     /**
@@ -42,12 +119,14 @@ export const BusinessProfileService = {
             const publicPayload = {
                 id: userId,
                 name: data.businessName,
-                category: data.category,
-                subcategory: data.subcategory,
+                category: data.category, // Primary
+                subcategory: data.subcategory, // Primary
+                additionalCategories: data.additionalCategories || [], // New
+                additionalSpecialties: data.additionalSpecialties || [], // New
                 city: data.city || 'San Pedro Sula', // Default for now
                 department: data.department || 'Cortés',
                 country: data.country || 'HN',
-                tags: data.specialties || [],
+                tags: data.specialties || [], // Primary Specialties
                 rating: 5.0, // Initial boost
                 reviewCount: 0,
                 coverImage: data.images[0] || null, // First image as cover
@@ -82,6 +161,7 @@ export const BusinessProfileService = {
             batch.update(userRef, {
                 isProvider: true,
                 currentRole: 'provider',
+                businessProfileId: userId, // Link business to user for BusinessGuard
                 providerSince: serverTimestamp()
             });
 
@@ -216,5 +296,98 @@ export const BusinessProfileService = {
             console.error("Error fetching business private:", error);
             return null;
         }
+    },
+
+    /**
+     * Get full profile for editing (combines public and private)
+     */
+    async getProfile(userId: string): Promise<Partial<BusinessProfileData> | null> {
+        try {
+            const publicRef = doc(db, 'businesses_public', userId);
+            const privateRef = doc(db, 'businesses_private', userId);
+
+            const [publicSnap, privateSnap] = await Promise.all([
+                getDoc(publicRef),
+                getDoc(privateRef)
+            ]);
+
+            if (!publicSnap.exists()) return null;
+
+            const publicData = publicSnap.data();
+            const privateData = privateSnap.exists() ? privateSnap.data() : {};
+
+            // Map back to BusinessProfileData structure
+            return {
+                userId,
+                businessName: publicData.name,
+                category: publicData.category,
+                subcategory: publicData.subcategory,
+                additionalCategories: publicData.additionalCategories || [],
+                additionalSpecialties: publicData.additionalSpecialties || [],
+                specialties: publicData.tags || [],
+                city: publicData.city,
+                department: publicData.department,
+                country: publicData.country,
+                modality: publicData.modality,
+                description: privateData.fullDescription || publicData.shortDescription, // Prefer full
+                phone: privateData.phone || '',
+                email: privateData.email || '',
+                address: privateData.address || '',
+                website: publicData.website || '',
+                images: privateData.gallery || (publicData.coverImage ? [publicData.coverImage] : [])
+            };
+        } catch (error) {
+            console.error("Error getting profile:", error);
+            return null;
+        }
+    },
+
+    /**
+     * Update full profile
+     */
+    async updateProfile(userId: string, data: Partial<BusinessProfileData>) {
+        const publicRef = doc(db, 'businesses_public', userId);
+        const privateRef = doc(db, 'businesses_private', userId);
+        const batch = writeBatch(db);
+
+        // Prepare updates (only define fields that are present in data)
+        const publicUpdate: any = { updatedAt: serverTimestamp() };
+        const privateUpdate: any = { updatedAt: serverTimestamp() };
+
+        if (data.businessName) publicUpdate.name = data.businessName;
+        if (data.category) publicUpdate.category = data.category;
+        if (data.subcategory) publicUpdate.subcategory = data.subcategory;
+        if (data.additionalCategories) publicUpdate.additionalCategories = data.additionalCategories;
+        if (data.additionalSpecialties) publicUpdate.additionalSpecialties = data.additionalSpecialties;
+        if (data.specialties) publicUpdate.tags = data.specialties;
+        if (data.city) publicUpdate.city = data.city;
+        if (data.department) publicUpdate.department = data.department;
+        if (data.modality) publicUpdate.modality = data.modality;
+        if (data.description) {
+            publicUpdate.shortDescription = data.description.substring(0, 150);
+            privateUpdate.fullDescription = data.description;
+        }
+        if (data.website !== undefined) publicUpdate.website = data.website;
+
+        // Handle images
+        if (data.images) {
+            publicUpdate.coverImage = data.images[0] || null;
+            privateUpdate.gallery = data.images;
+        }
+
+        if (data.email) privateUpdate.email = data.email;
+        if (data.phone) privateUpdate.phone = data.phone;
+        if (data.address) privateUpdate.address = data.address;
+
+        // Also update private department if present
+        if (data.department) privateUpdate.department = data.department;
+
+        batch.update(publicRef, publicUpdate);
+
+        // Check if private doc exists, if not set it, else update
+        // Simple approach: we assume it exists if public exists, but safer to update
+        batch.update(privateRef, privateUpdate);
+
+        await batch.commit();
     }
 };

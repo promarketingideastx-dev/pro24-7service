@@ -40,23 +40,29 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
             return;
         }
 
-        // 4. Check Business Profile Existence (Wizard Check)
-        const hasBusiness = !!userProfile.businessProfileId; // Adjust field name based on schema
+        // 4. Check Business Profile Existence
+        const hasBusiness = !!userProfile.businessProfileId;
         const isSetupPage = pathname.startsWith('/business/setup');
+        const isBusinessRoute = pathname.startsWith('/business');
 
-        if (!hasBusiness) {
-            // Provider without business -> Force Setup
-            if (!isSetupPage) {
-                router.replace('/business/setup');
+        if (hasBusiness) {
+            // Provider WITH business
+            if (isSetupPage) {
+                router.replace('/business/dashboard');
             } else {
+                // Allow access
                 setIsAuthorized(true);
             }
         } else {
-            // Provider WITH business
+            // Provider WITHOUT business (or partial)
+            // If trying to access setup, allow.
             if (isSetupPage) {
-                // Already setup -> Go to Dashboard
-                router.replace('/business/dashboard');
+                setIsAuthorized(true);
+            } else if (isBusinessRoute) {
+                // Trying to access dashboard without business -> Setup
+                router.replace('/business/setup');
             } else {
+                // Public route -> Allow
                 setIsAuthorized(true);
             }
         }

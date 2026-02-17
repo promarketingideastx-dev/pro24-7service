@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, MapPin, Star, Bell, Filter, Grid, Zap, User, X, ChevronRight } from 'lucide-react';
+import { Search, MapPin, Star, Bell, Filter, Grid, Zap, User, X, ChevronRight, Store } from 'lucide-react';
 import { DEMO_BUSINESSES, BusinessMock } from '@/data/mockBusinesses';
 import { TAXONOMY } from '@/lib/taxonomy';
 import { matchesSearch, findSuggestion } from '@/lib/searchUtils';
@@ -40,7 +40,7 @@ export default function Home() {
     const [businesses, setBusinesses] = useState<BusinessMock[]>(DEMO_BUSINESSES);
 
     /* Auth Guard State */
-    const { user } = useAuth();
+    const { user, userProfile } = useAuth();
     const router = useRouter();
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [pendingBusiness, setPendingBusiness] = useState<BusinessMock | null>(null);
@@ -170,6 +170,17 @@ export default function Home() {
                 <div className="flex items-center gap-3">
                     {user ? (
                         <div className="flex items-center gap-3 group relative">
+                            {/* Business Owner Switch */}
+                            {userProfile?.roles?.provider && (
+                                <button
+                                    onClick={() => router.push('/business/dashboard')}
+                                    className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-brand-neon-cyan/30 bg-brand-neon-cyan/10 text-brand-neon-cyan text-xs font-bold hover:bg-brand-neon-cyan/20 transition-all"
+                                >
+                                    <Store className="w-3 h-3" />
+                                    Administrar mi Negocio
+                                </button>
+                            )}
+
                             {/* User Info (Desktop/Tablet) */}
                             <div className="hidden sm:flex flex-col items-end">
                                 <span className="text-xs font-bold text-white leading-none">{user.displayName || 'Usuario'}</span>
@@ -195,6 +206,25 @@ export default function Home() {
                                     <p className="text-xs text-slate-400">Conectado como</p>
                                     <p className="text-sm text-white font-medium truncate">{user.email}</p>
                                 </div>
+
+                                {userProfile?.roles?.provider && (
+                                    <button
+                                        onClick={() => router.push('/business/dashboard')}
+                                        className="w-full text-left px-3 py-2 rounded-lg text-brand-neon-cyan hover:bg-white/5 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
+                                    >
+                                        <Store size={14} />
+                                        Administrar Negocio
+                                    </button>
+                                )}
+
+                                <button
+                                    onClick={() => router.push('/user/profile')}
+                                    className="w-full text-left px-3 py-2 rounded-lg text-slate-300 hover:bg-white/5 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
+                                >
+                                    <User size={14} />
+                                    Mi Perfil
+                                </button>
+
                                 <button
                                     onClick={() => {
                                         import('@/services/auth.service').then(({ AuthService }) => {
@@ -208,35 +238,27 @@ export default function Home() {
                                     <span className="w-2 h-2 rounded-full bg-slate-500"></span>
                                     Cerrar Sesión
                                 </button>
-
-                                <button
-                                    onClick={() => {
-                                        if (confirm("¿Estás SEGURO? Esto borrará tu cuenta y no podrás recuperarla.")) {
-                                            import('@/services/auth.service').then(({ AuthService }) => {
-                                                AuthService.deleteAccount().then(() => {
-                                                    alert("Cuenta eliminada correctamente.");
-                                                    window.location.reload();
-                                                }).catch(err => {
-                                                    console.error(err);
-                                                    alert("Error: Quizás necesites re-autenticarte primero (Login de nuevo e intenta borrar inmediatamente).");
-                                                });
-                                            });
-                                        }
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-lg text-red-400 hover:bg-red-500/10 text-xs font-medium transition-colors flex items-center gap-2 border-t border-white/5 pt-2"
-                                >
-                                    ⚠️ Borrar Cuenta (Test)
-                                </button>
                             </div>
                         </div>
                     ) : (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-4">
+                            {/* Business CTA - Keep this for professionals */}
+                            <button
+                                onClick={() => router.push('/auth/register')} // Direct to register, pre-selection handled in onboarding if implemented later
+                                className="hidden md:block text-xs font-bold text-slate-400 hover:text-white transition-colors"
+                            >
+                                ¿Eres profesional? <span className="text-brand-neon-cyan">Regístrate</span>
+                            </button>
+
+                            <div className="h-4 w-px bg-white/10 hidden md:block"></div>
+
                             <button
                                 onClick={() => router.push('/auth/login')}
                                 className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
                             >
                                 Entrar
                             </button>
+                            {/* White Button - Only visible when NOT logged in */}
                             <button
                                 onClick={() => router.push('/auth/register')}
                                 className="bg-white text-slate-900 px-4 py-2 rounded-full text-sm font-bold hover:bg-slate-100 transition-colors"
