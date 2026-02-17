@@ -1,5 +1,7 @@
 import BusinessShell from '@/components/business/BusinessShell';
 
+import { Suspense } from 'react';
+
 export default function BusinessLayout({
     children,
 }: {
@@ -8,8 +10,10 @@ export default function BusinessLayout({
     // Server Component Layout typically acts as a boundary
     // We delegate the "Shell" (Client Component) to handle state/interactivity
     return (
-        <BusinessShell>
-            {children}
-        </BusinessShell>
+        <Suspense fallback={null}>
+            <BusinessShell>
+                {children}
+            </BusinessShell>
+        </Suspense>
     );
 }
