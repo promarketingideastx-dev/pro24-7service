@@ -59,7 +59,7 @@ export function Step3Location({ data, update }: any) {
                             type="text"
                             value={data.city || ''}
                             onChange={(e) => update('city', e.target.value)}
-                            placeholder="Ej. San Pedro Sula"
+                            placeholder="Ej. Ciudad Principal"
                             className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500"
                         />
                     </div>

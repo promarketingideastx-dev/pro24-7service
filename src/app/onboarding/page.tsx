@@ -7,6 +7,8 @@ import { UserService } from '@/services/user.service';
 import { AuthService } from '@/services/auth.service';
 import { enableNetwork } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { toast } from 'sonner';
 import { Search, Briefcase } from 'lucide-react';
 
 export default function OnboardingPage() {
@@ -16,7 +18,9 @@ export default function OnboardingPage() {
 
     const handleRoleSelection = async (role: 'client' | 'provider') => {
         if (!user) {
-            alert("Error: No se encontró usuario autenticado. Por favor, intenta iniciar sesión de nuevo.");
+            // Should not happen due to guard, but safe check
+            toast.error("Error: No se encontró usuario autenticado. Por favor, intenta iniciar sesión de nuevo.");
+            router.push('/auth/login');
             return;
         }
 
@@ -47,13 +51,11 @@ export default function OnboardingPage() {
                 router.push('/');
             }
         } catch (error: any) {
-            console.error("Onboarding Error:", error);
-            const errorMessage = error?.message || (typeof error === 'string' ? error : JSON.stringify(error));
-
-            if (errorMessage.includes("client is offline")) {
-                alert(`Tu conexión es inestable. Intenta recargar la página.`);
+            console.error("Error saving role:", error);
+            if (error.message && error.message.includes("offline")) {
+                toast.error("Tu conexión es inestable. Intenta recargar la página.");
             } else {
-                alert(`Hubo un error al guardar tu selección. Por favor intenta de nuevo.`);
+                toast.error("Hubo un error al guardar tu selección. Por favor intenta de nuevo.");
             }
         } finally {
             setLoading(false);

@@ -133,18 +133,18 @@ const generateGlobalTestBusinesses = (): BusinessMock[] => {
                 countryCode: country.code
             });
 
-            // 2. Barber/Spa
+            // 2. Beauty/Style
             generated.push({
                 id: (idCounter++).toString(),
-                name: `Estética ${hub.name} Glow`,
+                name: `Estudio ${hub.name} Style`,
                 category: 'Belleza / Cuidado',
-                subcategory: 'Barbería',
-                tags: ['Corte', 'Barba', 'Facial', 'Estilo', 'Masaje'],
+                subcategory: 'Estilismo',
+                tags: ['Imagen', 'Consultoría', 'Facial', 'Estilo', 'Color'],
                 lat: hub.lat + (seededRandom(idCounter) - 0.5) * 0.02,
                 lng: hub.lng + (seededRandom(idCounter + 1) - 0.5) * 0.02,
-                icon: '✂️',
+                icon: '✨',
                 color: 'bg-blue-500',
-                description: `Centro de estética y barbería en ${hub.name}.`,
+                description: `Centro de imagen y estilismo en ${hub.name}.`,
                 countryCode: country.code
             });
 

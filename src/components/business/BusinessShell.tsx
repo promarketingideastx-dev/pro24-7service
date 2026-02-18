@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Store, Calendar, Settings, LogOut, Menu, X, PlusCircle } from 'lucide-react';
+import { LayoutDashboard, Store, Calendar, Settings, LogOut, Menu, X, PlusCircle, Users } from 'lucide-react';
 import GlassPanel from '@/components/ui/GlassPanel';
 import BusinessGuard from '@/components/auth/BusinessGuard';
 import { AuthService } from '@/services/auth.service';
@@ -14,8 +14,10 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
 
     const menuItems = [
         { name: 'Dashboard', href: '/business/dashboard', icon: <LayoutDashboard size={20} /> },
+        { name: 'Agenda', href: '/business/agenda', icon: <Calendar size={20} /> },
+        { name: 'Clientes', href: '/business/clients', icon: <Users size={20} /> },
         { name: 'Mis Servicios', href: '/business/services', icon: <Store size={20} /> },
-        { name: 'Agenda', href: '/business/schedule', icon: <Calendar size={20} /> },
+        { name: 'Equipo', href: '/business/team', icon: <Users size={20} /> },
         { name: 'Configuración', href: '/business/profile', icon: <Settings size={20} /> },
     ];
 

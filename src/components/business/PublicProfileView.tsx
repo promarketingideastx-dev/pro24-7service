@@ -1,4 +1,8 @@
-import { MapPin, Star, Lock, Phone, MessageSquare, UserPlus, LogIn } from 'lucide-react';
+import { MapPin, Star, Lock, Phone, MessageSquare, UserPlus, LogIn, Globe, Calendar } from 'lucide-react';
+import OpeningHoursStatus from './public/OpeningHoursStatus';
+import WeeklyScheduleView from './public/WeeklyScheduleView';
+import RequestAppointmentModal from '@/components/public/RequestAppointmentModal';
+import { useState } from 'react';
 
 interface PublicProfileViewProps {
     business: any;
@@ -7,6 +11,8 @@ interface PublicProfileViewProps {
 }
 
 export default function PublicProfileView({ business, onLogin, onRegister }: PublicProfileViewProps) {
+    const [isBookingOpen, setIsBookingOpen] = useState(false);
+
     if (!business) return null;
 
     return (
@@ -45,9 +51,25 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
             <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
 
                 {/* Basic Info (Public) */}
-                <div className="flex items-center gap-2 text-slate-300 text-sm">
-                    <MapPin className="w-4 h-4 text-slate-500" />
-                    <span>{business.city || 'Ubicación no especificada'}, Honduras</span>
+                <div className="flex flex-col gap-2 text-slate-300 text-sm">
+                    <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-slate-500" />
+                        <span>{business.city || 'Ubicación no especificada'}, Honduras</span>
+                    </div>
+                    {/* Website Link (Added) */}
+                    {business.website && (
+                        <div className="flex items-center gap-2">
+                            <Globe className="w-4 h-4 text-slate-500" />
+                            <a
+                                href={!business.website.startsWith('http') ? `https://${business.website}` : business.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-brand-neon-cyan hover:underline"
+                            >
+                                {business.website}
+                            </a>
+                        </div>
+                    )}
                 </div>
 
                 {/* Description (Teaser) */}
@@ -59,7 +81,31 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
                     </p>
                 </div>
 
-                {/* TEASER SECTIONS (BLURRED) */}
+                {/* Opening Hours & Status */}
+                <div className="space-y-4">
+                    <OpeningHoursStatus schedule={business.openingHours} />
+                    <WeeklyScheduleView schedule={business.openingHours} />
+                </div>
+
+                {/* Booking Teaser / Action */}
+                <div className="bg-gradient-to-r from-brand-neon-cyan/10 to-brand-neon-purple/10 border border-brand-neon-cyan/20 rounded-2xl p-6 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-neon-cyan/20 blur-3xl rounded-full -mr-16 -mt-16"></div>
+                    <div className="relative z-10">
+                        <h3 className="text-white font-bold text-lg mb-2 flex items-center gap-2">
+                            <Calendar className="w-5 h-5 text-brand-neon-cyan" />
+                            Reserva tu Cita Online
+                        </h3>
+                        <p className="text-slate-300 text-sm mb-4">
+                            Selecciona el servicio y horario que prefieras sin esperas.
+                        </p>
+                        <button
+                            onClick={() => setIsBookingOpen(true)}
+                            className="w-full py-3 bg-brand-neon-cyan text-black font-bold rounded-xl shadow-[0_0_15px_rgba(0,240,255,0.3)] hover:shadow-[0_0_20px_rgba(0,240,255,0.5)] hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                        >
+                            Reservar Ahora
+                        </button>
+                    </div>
+                </div>
 
                 {/* Gallery Teaser */}
                 <div className="relative group cursor-pointer" onClick={onRegister}>
@@ -80,48 +126,33 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
                     </div>
                 </div>
 
-                {/* Contact Teaser */}
-                <div className="relative group cursor-pointer" onClick={onRegister}>
-                    <div className="flex justify-between items-center mb-3">
-                        <h3 className="text-white font-bold text-sm uppercase tracking-wider text-slate-500">Contacto Directo</h3>
-                        <Lock className="w-3 h-3 text-slate-500" />
-                    </div>
-                    <div className="space-y-3 opacity-30 blur-[3px] pointer-events-none select-none grayscale">
-                        <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5">
-                            <Phone className="w-4 h-4 text-slate-400" />
-                            <span className="text-slate-400 text-sm">+504 9999-****</span>
-                        </div>
-                        <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5">
-                            <MessageSquare className="w-4 h-4 text-slate-400" />
-                            <span className="text-slate-400 text-sm">Chatear con {business.name}</span>
-                        </div>
-                    </div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 flex items-center gap-2 text-xs font-bold text-white shadow-xl hover:scale-105 transition-transform">
-                            Contactar Ahora
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
             {/* Footer Actions (Sticky) */}
             <div className="p-6 border-t border-white/5 bg-[#0f172a] space-y-3">
                 <button
-                    onClick={onRegister}
-                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-sm shadow-lg hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-2"
+                    onClick={() => setIsBookingOpen(true)}
+                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-brand-neon-cyan to-brand-neon-purple text-black font-bold text-sm shadow-lg hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-2"
                 >
-                    <UserPlus className="w-4 h-4" />
-                    Crear Cuenta Gratis y Contactar
+                    <Calendar className="w-4 h-4" />
+                    Agendar Cita
                 </button>
                 <button
                     onClick={onLogin}
                     className="w-full py-3.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-medium text-sm transition-colors flex items-center justify-center gap-2"
                 >
                     <LogIn className="w-4 h-4" />
-                    Ya tengo cuenta, iniciar sesión
+                    Soy Cliente (Login)
                 </button>
             </div>
+
+            <RequestAppointmentModal
+                isOpen={isBookingOpen}
+                onClose={() => setIsBookingOpen(false)}
+                businessId={business.id}
+                businessName={business.name}
+                openingHours={business.openingHours}
+            />
 
         </div>
     );

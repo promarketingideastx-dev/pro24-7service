@@ -4,7 +4,10 @@ import { useState, useEffect, useRef } from 'react';
 import { updateProfile } from 'firebase/auth';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { User, Phone, MapPin, Heart, LogOut, Trash2, Camera, Save, AlertTriangle } from 'lucide-react';
+import {
+    User, Mail, Phone, MapPin, Calendar, Edit2, LogOut, Camera, Shield, X, Trash2, AlertTriangle, Heart, Save
+} from 'lucide-react';
+import { toast } from 'sonner';
 import Link from 'next/link';
 import { UserService } from '@/services/user.service'; // Assuming this service exists or we'll add methods
 import { StorageService } from '@/services/storage.service'; // For avatar upload
@@ -22,6 +25,7 @@ export default function UserProfilePage() {
         phoneNumber: '',
         address: '',
     });
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     // Load initial data
     useEffect(() => {
@@ -63,12 +67,11 @@ export default function UserProfilePage() {
             setAvatarPreview(downloadURL);
 
             // Optional: Show a subtle success message
-            // alert('Foto actualizada correctamente'); // REMOVED
-            // window.location.reload(); // REMOVED
+            toast.success('Foto actualizada correctamente');
 
         } catch (error: any) {
             console.error("Error uploading avatar:", error);
-            alert("Error al subir la imagen: " + (error.message || error));
+            toast.error("Error al subir la imagen: " + (error.message || error));
         } finally {
             setLoading(false);
         }
@@ -81,26 +84,29 @@ export default function UserProfilePage() {
         try {
             await UserService.updateUserProfile(user.uid, formData);
             // Non-intrusive success feedback
-            setSuccessMessage("Cambios guardados correctamente");
-            setTimeout(() => setSuccessMessage(null), 3000);
+            toast.success('Perfil actualizado correctamente');
         } catch (error) {
-            console.error(error);
-            alert('Error al actualizar perfil');
+            console.error("Error updating profile:", error);
+            toast.error('Error al actualizar perfil');
         } finally {
             setLoading(false);
         }
     };
 
     const handleDeleteAccount = async () => {
-        if (!confirm("⚠️ ¿ESTÁS SEGURO? Esta acción es irreversible y borrará todos tus datos.")) return;
 
+        setShowDeleteModal(true);
+    };
+
+    const confirmDeleteAccount = async () => {
         try {
             const { AuthService } = await import('@/services/auth.service');
             await AuthService.deleteAccount();
-            window.location.href = '/';
+            router.push('/');
+            toast.success("Cuenta eliminada correctamente");
         } catch (error) {
-            console.error(error);
-            alert("Error al eliminar cuenta. Es posible que necesites volver a iniciar sesión por seguridad.");
+            console.error("Error deleting account:", error);
+            toast.error("Error al eliminar cuenta. Es posible que necesites volver a iniciar sesión por seguridad.");
         }
     };
 
@@ -204,7 +210,7 @@ export default function UserProfilePage() {
                                         value={formData.address}
                                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                                         className="w-full bg-[#0B0F19] border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
-                                        placeholder="Ej. San Pedro Sula, Col. Trejo"
+                                        placeholder="Dirección completa (calle, colonia/sector, ciudad)"
                                     />
                                 </div>
                             </div>
@@ -265,6 +271,44 @@ export default function UserProfilePage() {
                 </div>
 
             </div>
+
+            {/* Delete Account Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-[#151b2e] border border-red-500/20 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative ring-1 ring-red-500/20">
+                        <div className="flex flex-col items-center text-center gap-4">
+                            <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-2 animate-pulse">
+                                <AlertTriangle size={32} />
+                            </div>
+
+                            <div>
+                                <h3 className="text-xl font-bold text-white mb-2">¿Eliminar Cuenta?</h3>
+                                <p className="text-slate-400 text-sm leading-relaxed">
+                                    Esta acción es <span className="text-red-400 font-bold">irreversible</span>.
+                                    Perderás todos tus datos, historial y acceso a la plataforma.
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col gap-3 w-full mt-4">
+                                <button
+                                    onClick={confirmDeleteAccount}
+                                    className="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] flex items-center justify-center gap-2"
+                                >
+                                    <Trash2 size={18} />
+                                    Sí, eliminar todo
+                                </button>
+                                <button
+                                    onClick={() => setShowDeleteModal(false)}
+                                    className="w-full py-3 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl font-medium transition-colors border border-white/5 hover:border-white/10"
+                                >
+                                    Cancelar, quiero quedarme
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
+
     );
 }

@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { Lock, Award, Star, Phone, MessageSquare, Calendar } from 'lucide-react';
 import PublicProfileView from '@/components/business/PublicProfileView';
+import RequestAppointmentModal from '@/components/public/RequestAppointmentModal';
 
 export default function BusinessProfilePage() {
     const params = useParams();
@@ -16,40 +17,32 @@ export default function BusinessProfilePage() {
     const [publicData, setPublicData] = useState<any>(null);
     const [privateData, setPrivateData] = useState<any>(null);
     const [pageLoading, setPageLoading] = useState(true);
+    const [error, setError] = useState(false);
+    const [isBookingOpen, setIsBookingOpen] = useState(false);
 
     // Initial Load: Always get public data
-    useEffect(() => {
-        const loadPublic = async () => {
-            try {
-                const { BusinessProfileService } = await import('@/services/businessProfile.service');
-                const pub = await BusinessProfileService.getPublicBusinessById(id);
+    const loadPublic = async () => {
+        setPageLoading(true);
+        setError(false);
+        try {
+            const { BusinessProfileService } = await import('@/services/businessProfile.service');
+            const pub = await BusinessProfileService.getPublicBusinessById(id);
 
-                if (pub) {
-                    setPublicData(pub);
-                } else {
-                    // Fallback to local mock if service fails/returns null
-                    const { DEMO_BUSINESSES } = await import('@/data/mockBusinesses');
-                    const mock = DEMO_BUSINESSES.find(b => b.id === id);
-                    if (mock) {
-                        setPublicData({
-                            ...mock,
-                            rating: 5.0,
-                            reviewCount: 120,
-                            coverImage: null,
-                            shortDescription: mock.description,
-                            fullDescription: mock.description + " (Modo Demo Local).",
-                            phone: "+504 9999-9999",
-                            email: "demo@local.com",
-                            gallery: []
-                        });
-                    }
-                }
-            } catch (err) {
-                console.error("Error loading public profile:", err);
-            } finally {
-                setPageLoading(false);
+            if (pub) {
+                setPublicData(pub);
+            } else {
+                // Not found (404)
+                setPublicData(null);
             }
-        };
+        } catch (err) {
+            console.error("Error loading public profile:", err);
+            setError(true);
+        } finally {
+            setPageLoading(false);
+        }
+    };
+
+    useEffect(() => {
         loadPublic();
     }, [id]);
 
@@ -73,12 +66,27 @@ export default function BusinessProfilePage() {
         return <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center text-slate-400">Cargando perfil...</div>;
     }
 
-    // 1. If no public data found -> 404 (conceptually)
+    // 1. Error State
+    if (error) {
+        return (
+            <div className="min-h-screen bg-[#0B0F19] flex flex-col items-center justify-center text-white gap-4">
+                <p className="text-red-400">Ocurrió un error al cargar el negocio.</p>
+                <button
+                    onClick={loadPublic}
+                    className="px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+                >
+                    Reintentar
+                </button>
+            </div>
+        );
+    }
+
+    // 2. If no public data found -> 404 (Real 404, no mocks)
     if (!publicData) {
         return <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center text-white">Negocio no encontrado</div>;
     }
 
-    // 2. If User NOT logged in -> Show Public View (Soft Gate)
+    // 3. If User NOT logged in -> Show Public View (Soft Gate)
     if (!user) {
         return (
             <div className="min-h-screen bg-[#0B0F19] flex flex-col justify-center">
@@ -94,7 +102,7 @@ export default function BusinessProfilePage() {
         );
     }
 
-    // 3. User Logged In -> Show Full Profile (Combined Public + Private)
+    // 4. User Logged In -> Show Full Profile (Combined Public + Private)
     const fullProfile = { ...publicData, ...privateData };
 
     return (
@@ -142,6 +150,20 @@ export default function BusinessProfilePage() {
                             <p className="text-slate-400 leading-relaxed">
                                 {fullProfile.fullDescription || fullProfile.shortDescription || fullProfile.description}
                             </p>
+
+                            {/* WEBSITE DISPLAY (New) */}
+                            {fullProfile.website && (
+                                <div className="mt-4 pt-4 border-t border-white/5">
+                                    <a
+                                        href={!fullProfile.website.startsWith('http') ? `https://${fullProfile.website}` : fullProfile.website}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-brand-neon-cyan hover:underline text-sm font-medium flex items-center gap-2"
+                                    >
+                                        🌐 {fullProfile.website}
+                                    </a>
+                                </div>
+                            )}
                         </div>
 
                         <div className="bg-[#151b2e] rounded-3xl p-6 border border-white/5">
@@ -163,8 +185,11 @@ export default function BusinessProfilePage() {
                         <div className="bg-[#151b2e] rounded-3xl p-6 border border-white/5 md:sticky md:top-6">
                             <h3 className="font-bold text-lg mb-4">Contactar / Reservar</h3>
 
-                            {/* Buttons with Real Logic would go here */}
-                            <button className="w-full py-3 rounded-xl bg-brand-neon-cyan text-black font-bold mb-3 flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                            {/* Buttons with Real Logic */}
+                            <button
+                                onClick={() => setIsBookingOpen(true)}
+                                className="w-full py-3 rounded-xl bg-brand-neon-cyan text-black font-bold mb-3 flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+                            >
                                 <Calendar className="w-4 h-4" />
                                 Agendar Cita
                             </button>
@@ -183,6 +208,14 @@ export default function BusinessProfilePage() {
 
                 </div>
             </div>
+
+            <RequestAppointmentModal
+                isOpen={isBookingOpen}
+                onClose={() => setIsBookingOpen(false)}
+                businessId={id}
+                businessName={fullProfile.name}
+                openingHours={fullProfile.openingHours}
+            />
         </main>
     );
 }

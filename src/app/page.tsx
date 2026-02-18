@@ -37,7 +37,10 @@ export default function Home() {
     const { selectedCountry, isLoading: isCountryLoading, clearCountry } = useCountry();
 
     /* Data State */
-    const [businesses, setBusinesses] = useState<BusinessMock[]>(DEMO_BUSINESSES);
+    /* Data State */
+    const [businesses, setBusinesses] = useState<BusinessMock[]>(
+        process.env.NEXT_PUBLIC_USE_MOCKS === 'true' ? DEMO_BUSINESSES : []
+    );
 
     /* Auth Guard State */
     const { user, userProfile } = useAuth();
@@ -52,15 +55,21 @@ export default function Home() {
                 // Dynamically import service to avoid server-side issues if any
                 const { BusinessProfileService } = await import('@/services/businessProfile.service');
                 const realBiz = await BusinessProfileService.getPublicBusinesses();
-                if (realBiz && realBiz.length > 0) {
-                    // Combine Demo + Real. 
-                    // Filter out duplicates if any (by id)
-                    const combined = [...DEMO_BUSINESSES, ...realBiz];
+
+                let combined = realBiz || [];
+
+                // Strict Mock Logic: Only add demos if flag is explicitly true
+                if (process.env.NEXT_PUBLIC_USE_MOCKS === 'true') {
+                    const { DEMO_BUSINESSES } = await import('@/data/mockBusinesses');
+                    combined = [...DEMO_BUSINESSES, ...combined];
+                }
+
+                if (combined.length > 0) {
                     // Simple dedup based on ID
                     const unique = Array.from(new Map(combined.map(item => [item.id, item])).values());
-
-                    // Type assertion to ensure compatibility if needed, though they should match
                     setBusinesses(unique as BusinessMock[]);
+                } else {
+                    setBusinesses([]);
                 }
             } catch (error) {
                 console.error("Failed to load real businesses:", error);
@@ -327,6 +336,7 @@ export default function Home() {
                         onNavigate={handleNavigate}
                         isAuthenticated={!!user}
                         countryCoordinates={selectedCountry?.coordinates}
+                        countryCode={selectedCountry?.code}
                     />
 
                     {/* Map Label (Overlay) */}

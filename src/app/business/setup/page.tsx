@@ -17,6 +17,7 @@ import { TAXONOMY } from '@/lib/taxonomy';
 import { useCountry } from '@/context/CountryContext';
 import { getCountryConfig } from '@/lib/locations';
 import { ActiveCountry } from '@/lib/activeCountry';
+import { toast } from 'sonner';
 
 const STEPS = [
     { id: 1, title: 'Información', icon: Building },
@@ -132,7 +133,7 @@ export default function BusinessSetupPage() {
             router.push('/business/dashboard');
         } catch (error: any) {
             console.error("Setup Error:", error);
-            alert(`Error al crear negocio: ${error.message}`);
+            toast.error(`Error al crear negocio: ${error.message}`);
             setIsSubmitting(false);
         }
     };
@@ -150,7 +151,7 @@ export default function BusinessSetupPage() {
                                 value={formData.businessName}
                                 onChange={e => setFormData({ ...formData, businessName: e.target.value })}
                                 className="w-full h-12 bg-[#151b2e] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
-                                placeholder="Ej: Barbería El Corte"
+                                placeholder="Ej: Mi Negocio Profesional"
                             />
                         </div>
                         <div>
@@ -159,7 +160,7 @@ export default function BusinessSetupPage() {
                                 value={formData.description}
                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
                                 className="w-full h-24 bg-[#151b2e] border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-neon-cyan resize-none"
-                                placeholder="Ej: Calidad y estilo en cada corte."
+                                placeholder="Ej: Soluciones profesionales para ti."
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -331,7 +332,7 @@ export default function BusinessSetupPage() {
                                                                 additionalCategories: [...currentAdditional, cat.id]
                                                             });
                                                         } else {
-                                                            alert("Máximo 2 áreas adicionales permitidas.");
+                                                            toast.error("Máximo 2 áreas adicionales permitidas.");
                                                         }
                                                     }
                                                 } else {
@@ -397,7 +398,7 @@ export default function BusinessSetupPage() {
                                         if (['photography', 'camera'].some(k => sub.id.includes(k))) SubIcon = Camera;
                                         if (sub.id === 'videography') SubIcon = MonitorPlay;
                                         if (sub.id === 'music') SubIcon = Music;
-                                        if (sub.id === 'hair') SubIcon = Scissors;
+                                        if (sub.id === 'hair') SubIcon = Sparkles; // Generic Replacement
                                         if (sub.id === 'self_defense') SubIcon = Shield;
                                         if (['electrical', 'electric'].some(k => sub.id.includes(k))) SubIcon = Zap;
                                         if (['plumbing', 'water'].some(k => sub.id.includes(k))) SubIcon = Droplets;
@@ -470,8 +471,7 @@ export default function BusinessSetupPage() {
                                                                     if (current.length < 6) {
                                                                         setFormData({ ...formData, specialties: [...current, spec] });
                                                                     } else {
-                                                                        // Optional: Add toast/alert
-                                                                        // alert("Máximo 6 especialidades permitidas.");
+                                                                        toast.error("Máximo 6 especialidades permitidas.");
                                                                     }
                                                                 }
                                                             }}

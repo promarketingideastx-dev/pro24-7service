@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import GlassPanel from '@/components/ui/GlassPanel';
-import { Plus, Clock, MoreVertical, Trash2, Edit2, X, DollarSign, Search } from 'lucide-react';
+import { Plus, Clock, MoreVertical, Trash2, Edit2, X, DollarSign, Copy, AlertTriangle } from 'lucide-react';
+import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { ServicesService, ServiceData } from '@/services/businessProfile.service';
 
@@ -14,14 +15,14 @@ export default function ServicesPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Form State
-    const [formData, setFormData] = useState<Partial<ServiceData>>({
+    const [formData, setFormData] = useState<ServiceData>({
         name: '',
         description: '',
         price: 0,
-        durationMinutes: 30,
         currency: 'L.'
     });
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
 
     const fetchServices = async () => {
         if (!user) return;
@@ -43,33 +44,25 @@ export default function ServicesPage() {
         try {
             if (editingId) {
                 await ServicesService.updateService(user.uid, editingId, formData);
+                toast.success("Servicio actualizado correctamente");
             } else {
-                await ServicesService.addService(user.uid, {
+                const newService = {
                     name: formData.name,
                     description: formData.description || '',
                     price: Number(formData.price),
-                    durationMinutes: Number(formData.durationMinutes),
                     currency: formData.currency || 'L.'
-                });
+                };
+                await ServicesService.addService(user.uid, newService);
+                toast.success("Servicio creado correctamente");
             }
             setIsModalOpen(false);
             resetForm();
             fetchServices();
         } catch (error) {
             console.error("Error saving service:", error);
-            alert("Error al guardar servicio.");
+            toast.error("Error al guardar servicio");
         } finally {
             setIsSubmitting(false);
-        }
-    };
-
-    const handleDelete = async (id: string) => {
-        if (!user || !confirm("¿Estás seguro de eliminar este servicio?")) return;
-        try {
-            await ServicesService.deleteService(user.uid, id);
-            fetchServices();
-        } catch (error) {
-            console.error("Error deleting:", error);
         }
     };
 
@@ -79,8 +72,10 @@ export default function ServicesPage() {
         setIsModalOpen(true);
     };
 
+
+
     const resetForm = () => {
-        setFormData({ name: '', description: '', price: 0, durationMinutes: 30, currency: 'L.' });
+        setFormData({ name: '', description: '', price: 0, currency: 'L.' });
         setEditingId(null);
     };
 
@@ -89,7 +84,7 @@ export default function ServicesPage() {
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-white">Mis Servicios</h1>
-                    <p className="text-slate-400 text-sm">Gestiona tu menú de servicios</p>
+                    <p className="text-slate-400 text-sm">Gestiona los servicios que ofreces a tus clientes</p>
                 </div>
                 <button
                     onClick={() => { resetForm(); setIsModalOpen(true); }}
@@ -108,11 +103,11 @@ export default function ServicesPage() {
             ) : services.length === 0 ? (
                 <GlassPanel className="p-12 flex flex-col items-center justify-center min-h-[400px] text-center border-dashed border-white/20">
                     <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-4 text-slate-500">
-                        <DollarSign size={32} />
+                        <Clock size={32} />
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">No tienes servicios aún</h3>
+                    <h3 className="text-lg font-bold text-white mb-2">No tienes servicios configurados</h3>
                     <p className="text-slate-400 max-w-sm mb-6">
-                        Agrega los servicios que ofreces para que tus clientes sepan qué pueden reservar.
+                        Agrega tus servicios para que los clientes puedan agendar citas contigo.
                     </p>
                     <button
                         onClick={() => { resetForm(); setIsModalOpen(true); }}
@@ -129,7 +124,7 @@ export default function ServicesPage() {
                                 <h3 className="font-bold text-white text-lg truncate pr-6">{service.name}</h3>
                                 <div className="flex bg-white/5 rounded-lg p-1 absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button onClick={() => handleEdit(service)} className="p-1.5 hover:text-cyan-400 text-slate-400"><Edit2 size={16} /></button>
-                                    <button onClick={() => handleDelete(service.id!)} className="p-1.5 hover:text-red-400 text-slate-400"><Trash2 size={16} /></button>
+                                    <button onClick={() => setServiceToDelete(service.id!)} className="p-1.5 hover:text-red-400 text-slate-400"><Trash2 size={16} /></button>
                                 </div>
                             </div>
 
@@ -138,20 +133,22 @@ export default function ServicesPage() {
                             </p>
 
                             <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
-                                <span className="text-xl font-bold text-brand-neon-cyan">
-                                    {service.currency} {service.price}
+                                <span className="text-lg font-bold text-white">
+                                    {service.currency} {service.price.toLocaleString('es-HN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </span>
-                                <div className="flex items-center gap-1 text-xs text-slate-500 bg-white/5 px-2 py-1 rounded">
-                                    <Clock size={12} />
-                                    {service.durationMinutes} min
-                                </div>
+                                {/* Add duration if available */}
+                                {/* {service.duration && (
+                                    <span className="text-slate-400 text-sm flex items-center gap-1">
+                                        <Clock size={14} /> {service.duration} min
+                                    </span>
+                                )} */}
                             </div>
                         </GlassPanel>
                     ))}
                 </div>
             )}
 
-            {/* Modal */}
+            {/* Service Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="bg-[#151b2e] border border-white/10 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
@@ -189,7 +186,7 @@ export default function ServicesPage() {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 gap-4">
                                 <div>
                                     <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">Precio</label>
                                     <div className="relative">
@@ -204,21 +201,6 @@ export default function ServicesPage() {
                                         />
                                     </div>
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">Duración (min)</label>
-                                    <div className="relative">
-                                        <span className="absolute left-3 top-3 text-slate-500"><Clock size={16} /></span>
-                                        <input
-                                            type="number"
-                                            required
-                                            min="5"
-                                            step="5"
-                                            value={formData.durationMinutes}
-                                            onChange={e => setFormData({ ...formData, durationMinutes: Number(e.target.value) })}
-                                            className="w-full bg-[#0B0F19] border border-white/10 rounded-lg pl-9 pr-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
-                                        />
-                                    </div>
-                                </div>
                             </div>
 
                             <button
@@ -229,6 +211,51 @@ export default function ServicesPage() {
                                 {isSubmitting ? 'Guardando...' : 'Guardar Servicio'}
                             </button>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {serviceToDelete && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-[#151b2e] border border-white/10 w-full max-w-sm rounded-2xl p-6 shadow-2xl relative">
+                        <div className="flex flex-col items-center text-center mb-6">
+                            <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-4 text-red-500">
+                                <AlertTriangle size={24} />
+                            </div>
+                            <h3 className="font-bold text-white text-lg mb-2">¿Eliminar servicio?</h3>
+                            <p className="text-slate-400 text-sm">
+                                Esta acción no se puede deshacer. El servicio dejará de estar disponible.
+                            </p>
+                        </div>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setServiceToDelete(null)}
+                                className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl font-medium transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (serviceToDelete) {
+                                        const id = serviceToDelete;
+                                        setServiceToDelete(null);
+                                        ServicesService.deleteService(user?.uid || '', id)
+                                            .then(() => {
+                                                toast.success("Servicio eliminado correctamente");
+                                                fetchServices();
+                                            })
+                                            .catch(error => {
+                                                console.error("Error deleting service:", error);
+                                                toast.error("Error al eliminar servicio");
+                                            });
+                                    }
+                                }}
+                                className="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-colors shadow-lg shadow-red-500/20"
+                            >
+                                Eliminar
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

@@ -21,8 +21,12 @@ export interface CountryConfig {
         lng: number;
         zoom: number;
     };
+    // Visible Bounds [SouthWestLat, SouthWestLng, NorthEastLat, NorthEastLng]
+    // Used to clamp markers that are slightly off
+    bounds?: [number, number, number, number];
     mainCity: string;        // Name of the capital or main city for the map label
     states: { name: string; cities?: string[] }[];
+    timeFormat?: '12h' | '24h'; // New: 12h vs 24h format
 }
 
 export const DEFAULT_COUNTRY: CountryCode = 'HN';
@@ -30,8 +34,10 @@ export const DEFAULT_COUNTRY: CountryCode = 'HN';
 export const COUNTRIES: Record<CountryCode, CountryConfig> = {
     // CENTRAL AMERICA
     HN: {
-        code: 'HN', name: 'Honduras', flag: '🇭🇳', currency: 'HNL', phonePrefix: '+504', regionType: 'department', regionLabel: 'Departamento',
+        code: 'HN', name: 'Honduras', flag: '🇭🇳', currency: 'HNL', phonePrefix: '+504', regionType: 'department', regionLabel: 'Departamento', timeFormat: '12h',
         coordinates: { lat: 14.0818, lng: -87.2068, zoom: 7 }, // Tegucigalpa
+        // HN Bounds: SW(12.9, -89.4), NE(16.6, -83.1)
+        bounds: [12.90, -89.40, 16.60, -83.10],
         mainCity: 'Tegucigalpa',
         states: [
             { name: 'Atlántida', cities: ['La Ceiba'] }, { name: 'Choluteca', cities: ['Choluteca'] },
@@ -46,7 +52,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
         ]
     },
     GT: {
-        code: 'GT', name: 'Guatemala', flag: '🇬🇹', currency: 'GTQ', phonePrefix: '+502', regionType: 'department', regionLabel: 'Departamento',
+        code: 'GT', name: 'Guatemala', flag: '🇬🇹', currency: 'GTQ', phonePrefix: '+502', regionType: 'department', regionLabel: 'Departamento', timeFormat: '12h',
         coordinates: { lat: 14.6349, lng: -90.5069, zoom: 7 }, // Guatemala City
         mainCity: 'Ciudad de Guatemala',
         states: [
@@ -212,7 +218,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
         ]
     },
     ES: {
-        code: 'ES', name: 'España', flag: '🇪🇸', currency: 'EUR', phonePrefix: '+34', regionType: 'province', regionLabel: 'Provincia',
+        code: 'ES', name: 'España', flag: '🇪🇸', currency: 'EUR', phonePrefix: '+34', regionType: 'province', regionLabel: 'Provincia', timeFormat: '24h',
         coordinates: { lat: 40.4168, lng: -3.7038, zoom: 6 }, // Madrid
         mainCity: 'Madrid',
         states: [

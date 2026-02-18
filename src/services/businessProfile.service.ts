@@ -1,5 +1,6 @@
 import { db } from '@/lib/firebase';
 import { doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, writeBatch, serverTimestamp } from 'firebase/firestore';
+import { WeeklySchedule } from './employee.service';
 
 export interface BusinessProfileData {
     businessName: string;
@@ -19,6 +20,7 @@ export interface BusinessProfileData {
     email: string;
     phone?: string;
     website?: string;
+    openingHours?: WeeklySchedule;
 }
 
 // --- Services Subcollection Types ---
@@ -27,7 +29,7 @@ export interface ServiceData {
     name: string;
     description?: string;
     price: number;
-    durationMinutes: number;
+    durationMinutes?: number;
     currency: string;
     createdAt?: any;
     updatedAt?: any;
@@ -138,6 +140,7 @@ export const BusinessProfileService = {
                 },
                 modality: data.modality,
                 status: 'active',
+                openingHours: data.openingHours || null, // Shared
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp()
             };
@@ -215,74 +218,51 @@ export const BusinessProfileService = {
     },
 
     async getPublicBusinessById(id: string) {
+        // 1. Strict Mock Check: Only use mocks if flag is explicitly set
+        if (process.env.NEXT_PUBLIC_USE_MOCKS === 'true') {
+            try {
+                const { DEMO_BUSINESSES } = await import('@/data/mockBusinesses');
+                const mockBiz = DEMO_BUSINESSES.find(b => b.id === id);
+                if (mockBiz) {
+                    console.log(`[DEV MODE] Returning mock business for id: ${id}`);
+                    return {
+                        ...mockBiz,
+                        rating: 5.0,
+                        reviewCount: 120,
+                        coverImage: null,
+                        shortDescription: mockBiz.description,
+                        fullDescription: mockBiz.description + " (MOCK DATA)",
+                        phone: "+504 9999-9999",
+                        email: "moch@dev.com",
+                        gallery: [],
+                        website: "https://mock-business.dev"
+                    };
+                }
+            } catch (e) {
+                console.warn("Failed to load mock data in dev mode", e);
+            }
+        }
+
         try {
             const docRef = doc(db, 'businesses_public', id);
-
-            // OPTIMIZATION: Race condition to prevent hanging on Vercel cold starts.
-            // If Firestore takes > 2.5s, we force a fallback to Mock Data immediately.
-            const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error("Firestore timeout")), 2500)
-            );
-
-            const snap = await Promise.race([
-                getDoc(docRef),
-                timeoutPromise
-            ]) as any; // Type assertion to handle the race result
+            const snap = await getDoc(docRef);
 
             if (snap.exists()) {
-                return { id: snap.id, ...snap.data() };
-            }
-
-            // Explicitly throw if not found to trigger fallback logic below
-            // ...but the logic below handles "if not returned". 
-            // Actually, if snap doesn't exist, we just continue.
-            // But if we return here, we exit.
-            // If we don't return, we fall through to Mock Data logic?
-            // Original code:
-            // if (snap.exists()) { return ... }
-            // // Fallback to Mock Data...
-            // Perfect. The flow continues.
-            const { DEMO_BUSINESSES } = await import('@/data/mockBusinesses');
-            const mockBiz = DEMO_BUSINESSES.find(b => b.id === id);
-
-            if (mockBiz) {
+                const data = snap.data();
                 return {
-                    ...mockBiz,
-                    rating: 5.0,
-                    reviewCount: 120,
-                    coverImage: null, // Mocks don't have covers yet
-                    shortDescription: mockBiz.description,
-                    fullDescription: mockBiz.description + " (Descripción detallada simulada del negocio).",
-                    phone: "+504 9999-9999",
-                    email: "contacto@demo.com",
-                    gallery: []
+                    id: snap.id,
+                    ...data,
+                    // Ensure these fields exist or are consistent
+                    website: data.website || '',
+                    gallery: data.gallery || [], // Map if needed, but usually images/gallery
+                    description: data.shortDescription || data.description || ''
                 };
             }
 
             return null;
         } catch (error) {
             console.error("Error fetching business public:", error);
-            // Even on error, try mock
-            try {
-                const { DEMO_BUSINESSES } = await import('@/data/mockBusinesses');
-                const mockBiz = DEMO_BUSINESSES.find(b => b.id === id);
-                if (mockBiz) {
-                    return {
-                        ...mockBiz,
-                        rating: 5.0,
-                        reviewCount: 10,
-                        coverImage: null,
-                        shortDescription: mockBiz.description,
-                        fullDescription: mockBiz.description + " (Modo Offline/Error)",
-                        phone: "+504 9999-9999",
-                        email: "error@demo.com",
-                        gallery: []
-                    };
-                }
-            } catch (e) {
-                console.error("Mock fallback failed", e);
-            }
-            return null;
+            throw error; // Propagate error to let UI handle "Retry"
         }
     },
 
@@ -334,7 +314,8 @@ export const BusinessProfileService = {
                 email: privateData.email || '',
                 address: privateData.address || '',
                 website: publicData.website || '',
-                images: privateData.gallery || (publicData.coverImage ? [publicData.coverImage] : [])
+                images: privateData.gallery || (publicData.coverImage ? [publicData.coverImage] : []),
+                openingHours: publicData.openingHours || undefined
             };
         } catch (error) {
             console.error("Error getting profile:", error);
@@ -368,6 +349,7 @@ export const BusinessProfileService = {
             privateUpdate.fullDescription = data.description;
         }
         if (data.website !== undefined) publicUpdate.website = data.website;
+        if (data.openingHours) publicUpdate.openingHours = data.openingHours;
 
         // Handle images
         if (data.images) {

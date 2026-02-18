@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { StorageService } from '@/services/storage.service';
 import { useAuth } from '@/context/AuthContext';
 
@@ -37,8 +38,8 @@ export default function ImageUploader({ images, onImagesChange, maxImages = 5, d
             onImagesChange(combined);
 
         } catch (error) {
-            console.error("Upload failed", error);
-            alert("Error al subir imagen. Intenta de nuevo.");
+            console.error("Error uploading image:", error);
+            toast.error("Error al subir imagen. Intenta de nuevo.");
         } finally {
             setUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';

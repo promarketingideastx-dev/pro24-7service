@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { BusinessMock } from '@/data/mockBusinesses';
+import { COUNTRIES, CountryCode } from '@/lib/locations';
 
 // Fix for default marker icon in Leaflet with Next.js
 // We won't use default markers, we use custom DivIcons, but good to have.
@@ -16,6 +17,7 @@ interface MapWidgetProps {
     onNavigate?: (business: BusinessMock) => void; // Explicit navigation action
     isAuthenticated?: boolean;
     countryCoordinates?: { lat: number; lng: number; zoom: number };
+    countryCode?: string;
 }
 
 // Component to update map center if valid businesses are present
@@ -81,10 +83,35 @@ export default function MapWidget({
     onBusinessSelect,
     onNavigate,
     isAuthenticated = false,
-    countryCoordinates
+    countryCoordinates,
+    countryCode
 }: MapWidgetProps) {
     const [isMounted, setIsMounted] = useState(false);
     const markerRefs = useRef<{ [key: string]: L.Marker | null }>({});
+
+    // Bounds & Clamping Logic
+    const activeCountry = countryCode ? COUNTRIES[countryCode as CountryCode] : null;
+    const countryBounds = activeCountry?.bounds; // [S, W, N, E]
+
+    const getClampedPosition = (lat: number, lng: number): [number, number] => {
+        if (!countryBounds) return [lat, lng];
+
+        const [minLat, minLng, maxLat, maxLng] = countryBounds;
+        const MARGIN = 0.05; // ~5.5km tolerance
+
+        let newLat = lat;
+        let newLng = lng;
+
+        // Soft Clamp Latitude
+        if (lat < minLat && lat >= minLat - MARGIN) newLat = minLat + 0.0001;
+        else if (lat > maxLat && lat <= maxLat + MARGIN) newLat = maxLat - 0.0001;
+
+        // Soft Clamp Longitude
+        if (lng < minLng && lng >= minLng - MARGIN) newLng = minLng + 0.0001;
+        else if (lng > maxLng && lng <= maxLng + MARGIN) newLng = maxLng - 0.0001;
+
+        return [newLat, newLng];
+    };
 
     useEffect(() => {
         setIsMounted(true);
@@ -110,58 +137,57 @@ export default function MapWidget({
 
             <MapUpdater businesses={businesses} selectedBusiness={selectedBusiness} countryCoordinates={countryCoordinates} />
 
-            {businesses.map((biz) => (
-                <Marker
-                    key={biz.id}
-                    position={[biz.lat, biz.lng]}
-                    icon={createCustomIcon(biz.icon, biz.color)}
-                    ref={(el: any) => {
-                        if (el) markerRefs.current[biz.id] = el;
-                    }}
-                    eventHandlers={{
-                        click: () => {
-                            // Let parent handle logic (Selection vs Navigation)
-                            if (onBusinessSelect) {
-                                onBusinessSelect(biz);
+            {businesses.map((biz) => {
+                const position = getClampedPosition(biz.lat, biz.lng);
+
+                return (
+                    <Marker
+                        key={biz.id}
+                        position={position}
+                        icon={createCustomIcon(biz.icon, biz.color)}
+                        ref={(el: any) => {
+                            if (el) markerRefs.current[biz.id] = el;
+                        }}
+                        eventHandlers={{
+                            click: () => {
+                                // Let parent handle logic (Selection vs Navigation)
+                                if (onBusinessSelect) {
+                                    onBusinessSelect(biz);
+                                }
                             }
-                        }
-                    }}
-                >
-                    <Popup className="custom-popup">
-                        <div className="p-2 min-w-[180px] flex flex-col gap-2">
-                            <div>
-                                <h3 className="font-bold text-slate-900 text-sm leading-tight">{biz.name}</h3>
-                                <p className="text-xs text-slate-500 font-medium">{biz.subcategory}</p>
-                            </div>
-
-                            {/* Content Protection Logic */}
-                            {isAuthenticated ? (
-                                <p className="text-[10px] text-slate-400 line-clamp-2">{biz.description}</p>
-                            ) : (
-                                <div className="bg-slate-100 p-1.5 rounded text-[10px] text-slate-500 italic flex items-center gap-1">
-                                    <span>🔒</span>
-                                    <span>Inicia sesión para ver detalles.</span>
+                        }}
+                    >
+                        <Popup className="custom-popup" closeButton={false} minWidth={140} maxWidth={180}>
+                            <div className="p-1 min-w-[140px] flex flex-col gap-1.5 text-center">
+                                <div>
+                                    <h3 className="font-bold text-slate-900 text-xs leading-none line-clamp-1">{biz.name}</h3>
+                                    <p className="text-[10px] text-slate-500 font-medium mt-0.5">{biz.subcategory}</p>
                                 </div>
-                            )}
 
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation(); // Prevent map click
-                                    if (onNavigate) onNavigate(biz);
-                                }}
-                                className={`w-full text-xs font-bold py-1.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-1 mt-1
+                                {/* Minimalist Content */}
+                                {isAuthenticated && (
+                                    <p className="text-[10px] text-slate-400 line-clamp-1 hidden sm:block leading-tight">{biz.description}</p>
+                                )}
+
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation(); // Prevent map click
+                                        if (onNavigate) onNavigate(biz);
+                                    }}
+                                    className={`w-full text-[10px] font-bold py-1 px-2 rounded transition-colors flex items-center justify-center gap-1
                                     ${isAuthenticated
-                                        ? 'bg-slate-900 text-white hover:bg-slate-800'
-                                        : 'bg-brand-neon-cyan/10 text-brand-dark-blue hover:bg-brand-neon-cyan/20 border border-brand-neon-cyan/20'}
+                                            ? 'bg-slate-900 text-white hover:bg-slate-800'
+                                            : 'bg-brand-neon-cyan/10 text-brand-dark-blue hover:bg-brand-neon-cyan/20 border border-brand-neon-cyan/20'}
                                 `}
-                            >
-                                {isAuthenticated ? 'Ver Perfil' : 'Crear Cuenta / Ver'}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-                            </button>
-                        </div>
-                    </Popup>
-                </Marker>
-            ))}
+                                >
+                                    {isAuthenticated ? 'Ver Perfil' : 'Ver'}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                                </button>
+                            </div>
+                        </Popup>
+                    </Marker>
+                )
+            })}
         </MapContainer>
     );
 }

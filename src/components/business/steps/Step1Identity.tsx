@@ -15,7 +15,7 @@ export function Step1Identity({ data, update }: any) {
                         type="text"
                         value={data.businessName}
                         onChange={(e) => update('businessName', e.target.value)}
-                        placeholder="Ej. Barbería El Elegante, Servicios Técnicos López..."
+                        placeholder="Ej. Soluciones Técnicas, Estudio Creativo..."
                         className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-slate-600"
                     />
                 </div>
@@ -26,7 +26,7 @@ export function Step1Identity({ data, update }: any) {
                         rows={4}
                         value={data.description}
                         onChange={(e) => update('description', e.target.value)}
-                        placeholder="Describe brevemente lo que haces. Ej: Especialistas en cortes modernos y cuidado de barba con más de 5 años de experiencia..."
+                        placeholder="Describe brevemente lo que haces. Ej: Ofrecemos servicios profesionales con calidad garantizada y atención personalizada..."
                         className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-slate-600 resize-none"
                     />
                     <p className="text-xs text-slate-500 mt-2 text-right">{data.description.length}/300 caracteres</p>

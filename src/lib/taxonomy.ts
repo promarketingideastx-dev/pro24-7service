@@ -200,7 +200,7 @@ export const TAXONOMY = {
             {
                 id: 'hair',
                 label: { es: 'Cabello', en: 'Hair', pt: 'Cabelo' },
-                specialties: ['Corte de Dama', 'Corte de Caballero (Barbería)', 'Colorimetría/Tintes', 'Tratamientos capilares', 'Peinados']
+                specialties: ['Corte de Dama', 'Corte de Caballero', 'Colorimetría/Tintes', 'Tratamientos capilares', 'Peinados']
             },
             {
                 id: 'nails',

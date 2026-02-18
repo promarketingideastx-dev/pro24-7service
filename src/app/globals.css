@@ -52,3 +52,19 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
+/* Leaflet Popup Compact Overrides */
+.custom-popup .leaflet-popup-content-wrapper {
+    padding: 0 !important;
+    border-radius: 8px !important;
+    overflow: hidden;
+}
+
+.custom-popup .leaflet-popup-content {
+    margin: 0 !important;
+    width: auto !important;
+}
+
+.custom-popup .leaflet-popup-tip {
+    background: white;
+}
