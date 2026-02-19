@@ -82,6 +82,19 @@ export interface BusinessTaxonomy {
     specialties: string[]; // Array de strings
 }
 
+export interface PaymentSettings {
+    acceptsCash: boolean;
+    acceptsBankTransfer: boolean;
+    bankTransferDetails?: string; // Limit 500 chars
+    acceptsDigitalWallet: boolean;
+    digitalWalletDetails?: string; // "PayPal: x@x.com"
+    requiresDeposit: boolean;
+    depositType?: 'percent' | 'fixed';
+    depositValue?: number;
+    depositNotes?: string;
+    updatedAt?: any; // Timestamp
+}
+
 export interface BusinessProfile {
     id: string;
     ownerUid: string;
@@ -97,6 +110,9 @@ export interface BusinessProfile {
 
     // Privacidad / Contacto
     contact: BusinessContact;
+
+    // Payment Settings (New)
+    paymentSettings?: PaymentSettings;
 
     // Ubicación
     location: BusinessLocation;

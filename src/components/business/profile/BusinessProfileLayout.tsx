@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Share2, ArrowLeft, Star, MapPin, Heart, Award, CheckCircle2 } from 'lucide-react';
+import { Share2, ArrowLeft, Star, MapPin, Heart, Award, CheckCircle2, Phone, MessageCircle, Calendar } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
@@ -11,9 +11,10 @@ interface ProfileLayoutProps {
     onTabChange: (tab: string) => void;
     children: React.ReactNode;
     isOwner?: boolean;
+    onBookClick: () => void; // New Prop for booking action
 }
 
-export default function BusinessProfileLayout({ business, activeTab, onTabChange, children, isOwner }: ProfileLayoutProps) {
+export default function BusinessProfileLayout({ business, activeTab, onTabChange, children, isOwner, onBookClick }: ProfileLayoutProps) {
     const router = useRouter();
     const { user } = useAuth();
     const [isSticky, setIsSticky] = useState(false);
@@ -35,10 +36,23 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
         { id: 'details', label: 'Detalles' }
     ];
 
+    const handleWhatsApp = () => {
+        if (business.phone) {
+            const phone = business.phone.replace(/\D/g, ''); // Remove non-digits
+            window.open(`https://wa.me/${phone}`, '_blank');
+        }
+    };
+
+    const handleCall = () => {
+        if (business.phone) {
+            window.open(`tel:${business.phone}`, '_self');
+        }
+    };
+
     if (!business) return null;
 
     return (
-        <main className="min-h-screen bg-[#0B0F19] text-white font-sans pb-20">
+        <main className="min-h-screen bg-[#0B0F19] text-white font-sans pb-24 md:pb-20">
 
             {/* --- 1. PREMIUM HEADER --- */}
             <header className="relative w-full">
@@ -64,6 +78,17 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                         <ArrowLeft className="w-5 h-5" />
                     </button>
                     <div className="flex gap-3">
+                        {/* Desktop Booking CTA */}
+                        {!isOwner && (
+                            <button
+                                onClick={onBookClick}
+                                className="hidden md:flex bg-brand-neon-cyan/90 hover:bg-cyan-400 text-black px-4 py-2 rounded-full text-sm font-bold backdrop-blur-md transition-all shadow-lg shadow-cyan-500/20 items-center gap-2"
+                            >
+                                <Calendar className="w-4 h-4" />
+                                Reservar Cita
+                            </button>
+                        )}
+
                         {/* Owner Actions */}
                         {isOwner && (
                             <button
@@ -98,33 +123,30 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                         {/* Verified Badge Overlay */}
                         {business.verified && (
                             <div className="absolute bottom-1 right-1 bg-green-500 text-white rounded-full p-0.5 border-2 border-[#0B0F19]">
-                                <CheckCircle2 className="w-3 h-3" />
+                                <CheckCircle2 className="w-4 h-4" />
                             </div>
                         )}
                     </div>
 
                     {/* Text Info */}
-                    <div className="flex-1 pt-2 md:pt-0 md:pb-2">
-                        <h1 className="text-2xl md:text-3xl font-bold text-white leading-tight shadow-black drop-shadow-lg">
-                            {business.name}
-                        </h1>
+                    <div className="flex-1 pb-2">
+                        <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-3">
+                            <div>
+                                <h1 className="text-2xl md:text-4xl font-bold text-white mb-1 leading-tight">{business.name}</h1>
 
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-sm">
-                            <span className="text-brand-neon-cyan font-semibold flex items-center gap-1">
-                                {business.category}
-                                <span className="text-slate-500">•</span>
-                                {business.subcategory}
-                            </span>
-
-                            <div className="flex items-center gap-1 text-slate-300">
-                                <MapPin className="w-3.5 h-3.5" />
-                                {business.city || 'Ubicación'}
-                            </div>
-
-                            <div className="flex items-center gap-1 bg-white/10 px-2 py-0.5 rounded-md border border-white/5">
-                                <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-                                <span className="font-bold text-white">{business.rating || '5.0'}</span>
-                                <span className="text-slate-400 text-xs">({business.reviewCount || 0})</span>
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-400">
+                                    <span className="flex items-center text-brand-neon-cyan font-medium bg-brand-neon-cyan/10 px-2 py-0.5 rounded">
+                                        <Award className="w-4 h-4 mr-1" />
+                                        {business.rating || '5.0'}
+                                    </span>
+                                    <span>•</span>
+                                    <span className="flex items-center">
+                                        <MapPin className="w-4 h-4 mr-1 text-slate-500" />
+                                        {business.city}, {business.country || 'HN'}
+                                    </span>
+                                    <span>•</span>
+                                    <span className="text-slate-500">{business.category}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -132,33 +154,57 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
             </header>
 
             {/* --- 2. STICKY TABS --- */}
-            <nav className="sticky top-0 z-40 bg-[#0B0F19]/95 backdrop-blur-md border-b border-white/10 mt-6 md:mt-8">
-                <div className="flex items-center px-4 overflow-x-auto no-scrollbar">
+            <div className={`sticky top-0 z-40 bg-[#0B0F19]/80 backdrop-blur-xl border-b border-white/5 mt-6 transition-all duration-300 ${isSticky ? 'shadow-lg shadow-black/50' : ''}`}>
+                <div className="flex overflow-x-auto no-scrollbar justify-start md:justify-center px-4">
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => onTabChange(tab.id)}
-                            className={`
-                                relative px-4 py-4 text-sm font-bold transition-colors whitespace-nowrap min-w-[max-content]
-                                ${activeTab === tab.id ? 'text-brand-neon-cyan' : 'text-slate-400 hover:text-white'}
-                            `}
+                            className={`px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 transition-all ${activeTab === tab.id
+                                ? 'border-brand-neon-cyan text-brand-neon-cyan'
+                                : 'border-transparent text-slate-400 hover:text-white'
+                                }`}
                         >
                             {tab.label}
-                            {activeTab === tab.id && (
-                                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-neon-cyan shadow-[0_0_10px_rgba(0,240,255,0.5)] rounded-t-full"></div>
-                            )}
                         </button>
                     ))}
                 </div>
-            </nav>
+            </div>
 
             {/* --- 3. CONTENT AREA --- */}
             <div className="min-h-[50vh] bg-[#0B0F19]">
                 {children}
             </div>
 
-            {/* --- 4. FLOATING CTA (Mobile) or SIDE ACTION (Desktop) --- */}
-            {/* Note: Specific tabs might have their own actions, but a global "Book" is good */}
+            {/* --- 4. MOBILE STICKY ACTION BAR --- */}
+            {!isOwner && (
+                <div className="fixed bottom-0 left-0 right-0 bg-[#0B0F19]/90 backdrop-blur-lg border-t border-white/10 p-4 md:hidden z-50 flex gap-3 animate-in slide-in-from-bottom-full duration-500">
+                    {/* WhatsApp Button */}
+                    <button
+                        onClick={handleWhatsApp}
+                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-green-500/10 text-green-500 border border-green-500/20 hover:bg-green-500/20 active:scale-95 transition-all"
+                    >
+                        <MessageCircle className="w-6 h-6" />
+                    </button>
+
+                    {/* Call Button (Optional, can be hidden if no phone) */}
+                    <button
+                        onClick={handleCall}
+                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-800 text-slate-300 border border-white/10 hover:bg-slate-700 active:scale-95 transition-all"
+                    >
+                        <Phone className="w-5 h-5" />
+                    </button>
+
+                    {/* Book Action - Main */}
+                    <button
+                        onClick={onBookClick}
+                        className="flex-1 bg-brand-neon-cyan hover:bg-cyan-400 text-black px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all"
+                    >
+                        <Calendar className="w-5 h-5" />
+                        Reservar Cita
+                    </button>
+                </div>
+            )}
         </main>
     );
 }

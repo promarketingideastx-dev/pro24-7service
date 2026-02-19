@@ -1,6 +1,7 @@
 import { db } from '@/lib/firebase';
 import { doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, writeBatch, serverTimestamp, query, orderBy, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { WeeklySchedule } from './employee.service';
+import { PaymentSettings } from '@/types/firestore-schema';
 
 export interface BusinessProfileData {
     businessName: string;
@@ -23,6 +24,7 @@ export interface BusinessProfileData {
     phone?: string;
     website?: string;
     openingHours?: WeeklySchedule;
+    paymentSettings?: PaymentSettings;
 }
 
 // --- Services Subcollection Types ---
@@ -191,6 +193,88 @@ export const PortfolioService = {
 
         } catch (error) {
             console.error("Error deleting portfolio item:", error);
+            throw error;
+        }
+    }
+};
+
+// --- Reviews Subcollection Types ---
+export interface Review {
+    id?: string;
+    userId: string;
+    userName: string;
+    userAvatar?: string;
+    rating: number; // 1-5
+    comment: string;
+    createdAt: any;
+    serviceId?: string; // Optional: specific service reviewed
+}
+
+export const ReviewsService = {
+    /**
+     * Get reviews for a business
+     */
+    async getReviews(businessId: string): Promise<Review[]> {
+        try {
+            const reviewsRef = collection(db, 'businesses_public', businessId, 'reviews');
+            // Order by createdAt desc
+            const q = query(reviewsRef, orderBy('createdAt', 'desc'));
+            const snapshot = await getDocs(q);
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Review));
+        } catch (error) {
+            console.error("Error fetching reviews:", error);
+            return [];
+        }
+    },
+
+    /**
+     * Add a new review and update business rating
+     */
+    async addReview(businessId: string, review: Omit<Review, 'id'>): Promise<string> {
+        try {
+            const reviewsRef = collection(db, 'businesses_public', businessId, 'reviews');
+            const businessRef = doc(db, 'businesses_public', businessId);
+
+            // 1. Add Review Doc
+            const docRef = await addDoc(reviewsRef, {
+                ...review,
+                createdAt: serverTimestamp()
+            });
+
+            // 2. Update Aggregates (Rating & Count)
+            // We need to read the business doc to get current rating/count
+            const businessSnap = await getDoc(businessRef);
+            if (businessSnap.exists()) {
+                const data = businessSnap.data();
+                const currentRating = data.rating || 0; // Default 0 if none
+                const currentCount = data.reviewCount || 0;
+
+                // Calculate new average
+                // If it's the first real review (maybe we had a default 5.0 with 0 count? Logic in creation says rating: 5.0, count: 0)
+                // If count is 0, we can just take the new rating (or average with the initial 5.0 boost? Let's just be real mathematics)
+                // If count is 0, let's treat the new rating as the first one, ignoring the "boost" for the average calculation,
+                // OR we accept the boost as a "seed".
+                // Let's go with: if count is 0, new rating is the rating.
+
+                let newRating = review.rating;
+                let newCount = currentCount + 1;
+
+                if (currentCount > 0) {
+                    newRating = ((currentRating * currentCount) + review.rating) / newCount;
+                }
+
+                // Round to 1 decimal
+                newRating = Math.round(newRating * 10) / 10;
+
+                await updateDoc(businessRef, {
+                    rating: newRating,
+                    reviewCount: newCount
+                });
+            }
+
+            return docRef.id;
+        } catch (error) {
+            console.error("Error adding review:", error);
             throw error;
         }
     }
@@ -415,7 +499,8 @@ export const BusinessProfileService = {
                 images: privateData.gallery || (publicData.coverImage ? [publicData.coverImage] : []),
                 coverImage: publicData.coverImage,
                 logoUrl: publicData.logoUrl,
-                openingHours: publicData.openingHours || undefined
+                openingHours: publicData.openingHours || undefined,
+                paymentSettings: privateData.paymentSettings || undefined
             };
         } catch (error) {
             console.error("Error getting profile:", error);
@@ -497,5 +582,33 @@ export const BusinessProfileService = {
             logoUrl: imageUrl,
             updatedAt: serverTimestamp()
         });
+    },
+
+    /**
+     * Update Payment Settings (Private Collection)
+     */
+    async updatePaymentSettings(businessId: string, settings: PaymentSettings) {
+        try {
+            const privateRef = doc(db, 'businesses_private', businessId);
+            const publicRef = doc(db, 'businesses_public', businessId);
+            const batch = writeBatch(db);
+
+            // 1. Save FULL settings to Private
+            batch.set(privateRef, {
+                paymentSettings: settings,
+                updatedAt: serverTimestamp()
+            }, { merge: true });
+
+            // 2. Sync DISPLAY settings to Public (Safe to expose)
+            batch.update(publicRef, {
+                paymentSettings: settings, // We expose all for now as Client needs to see Account Numbers to pay
+                updatedAt: serverTimestamp()
+            });
+
+            await batch.commit();
+        } catch (error) {
+            console.error("Error updating payment settings:", error);
+            throw error;
+        }
     }
 };

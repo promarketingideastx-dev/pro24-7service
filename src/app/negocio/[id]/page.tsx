@@ -108,6 +108,7 @@ export default function BusinessProfilePage() {
             activeTab={activeTab}
             onTabChange={setActiveTab}
             isOwner={isOwner}
+            onBookClick={() => setIsBookingOpen(true)}
         >
             {activeTab === 'services' && (
                 <ServicesTab
@@ -139,6 +140,7 @@ export default function BusinessProfilePage() {
                 businessId={id}
                 businessName={displayData.name}
                 openingHours={displayData.openingHours}
+                paymentSettings={displayData.paymentSettings}
             />
         </BusinessProfileLayout>
     );

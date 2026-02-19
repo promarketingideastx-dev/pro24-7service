@@ -3,7 +3,12 @@
 import { MapPin, Phone, Globe, Clock, Mail } from 'lucide-react';
 import WeeklyScheduleView from '@/components/business/public/WeeklyScheduleView';
 import OpeningHoursStatus from '@/components/business/public/OpeningHoursStatus';
+import dynamic from 'next/dynamic';
 
+const MapWidget = dynamic(() => import('@/components/ui/MapWidget'), {
+    ssr: false,
+    loading: () => <div className="h-64 w-full bg-slate-900 rounded-2xl animate-pulse" />
+});
 interface DetailsTabProps {
     business: any;
 }
@@ -38,6 +43,25 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                 {business.address ? business.address : `${business.city || ''}, ${business.department || 'Honduras'}`}
                             </span>
                         </div>
+                    </div>
+
+                    {/* MAP WIDGET INTEGRATION */}
+                    <div className="h-64 w-full rounded-2xl overflow-hidden border border-white/10 mt-4 relative z-0">
+                        <MapWidget
+                            businesses={[{
+                                id: business.id || 'preview',
+                                name: business.name,
+                                category: business.category,
+                                subcategory: business.subcategory || '',
+                                tags: business.tags || [],
+                                lat: business.lat || business.location?.lat || 15.50417,
+                                lng: business.lng || business.location?.lng || -88.02500,
+                                icon: '📍',
+                                color: 'bg-brand-neon-cyan',
+                                description: business.description || '',
+                                countryCode: business.country || 'HN'
+                            }]}
+                        />
                     </div>
 
                     {business.phone && (

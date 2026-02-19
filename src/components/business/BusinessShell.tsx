@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Store, Calendar, Settings, LogOut, Menu, X, PlusCircle, Users } from 'lucide-react';
+import { LayoutDashboard, Store, Calendar, Settings, LogOut, Menu, X, PlusCircle, Users, CreditCard } from 'lucide-react';
 import GlassPanel from '@/components/ui/GlassPanel';
 import BusinessGuard from '@/components/auth/BusinessGuard';
 import { AuthService } from '@/services/auth.service';
@@ -18,6 +18,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
         { name: 'Clientes', href: '/business/clients', icon: <Users size={20} /> },
         { name: 'Mis Servicios', href: '/business/services', icon: <Store size={20} /> },
         { name: 'Equipo', href: '/business/team', icon: <Users size={20} /> },
+        { name: 'Pagos', href: '/business/dashboard/settings/payments', icon: <CreditCard size={20} /> },
         { name: 'Configuración', href: '/business/profile', icon: <Settings size={20} /> },
     ];
 

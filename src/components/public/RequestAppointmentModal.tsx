@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 import { WeeklySchedule } from '@/services/employee.service';
+import { PaymentSettings } from '@/types/firestore-schema';
 
 interface RequestAppointmentModalProps {
     isOpen: boolean;
@@ -17,11 +18,12 @@ interface RequestAppointmentModalProps {
     businessId: string;
     businessName: string;
     openingHours?: WeeklySchedule;
+    paymentSettings?: PaymentSettings;
 }
 
-type Step = 'service' | 'datetime' | 'contact' | 'review';
+type Step = 'service' | 'datetime' | 'payment' | 'contact' | 'review';
 
-export default function RequestAppointmentModal({ isOpen, onClose, businessId, businessName, openingHours }: RequestAppointmentModalProps) {
+export default function RequestAppointmentModal({ isOpen, onClose, businessId, businessName, openingHours, paymentSettings }: RequestAppointmentModalProps) {
     const [step, setStep] = useState<Step>('service');
     const [loading, setLoading] = useState(false);
     const [services, setServices] = useState<ServiceData[]>([]);
@@ -114,7 +116,19 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
 
     const handleDateTimeSubmit = () => {
         if (selectedDate && selectedTime) {
-            setStep('contact');
+            // Check if we need to show payment step
+            const hasPaymentSettings = paymentSettings && (
+                paymentSettings.acceptsCash ||
+                paymentSettings.acceptsBankTransfer ||
+                paymentSettings.acceptsDigitalWallet ||
+                paymentSettings.requiresDeposit
+            );
+
+            if (hasPaymentSettings) {
+                setStep('payment');
+            } else {
+                setStep('contact');
+            }
         } else {
             toast.warning("Por favor selecciona una fecha y hora para continuar.", {
                 style: { background: '#f59e0b', color: 'black', border: 'none' },
@@ -189,7 +203,17 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                         {step !== 'service' && (
                             <button onClick={() => {
                                 if (step === 'datetime') setStep('service');
-                                if (step === 'contact') setStep('datetime');
+                                if (step === 'payment') setStep('datetime');
+                                if (step === 'contact') {
+                                    // Go back to payment if enabled, else datetime
+                                    const hasPayment = paymentSettings && (
+                                        paymentSettings.acceptsCash ||
+                                        paymentSettings.acceptsBankTransfer ||
+                                        paymentSettings.acceptsDigitalWallet ||
+                                        paymentSettings.requiresDeposit
+                                    );
+                                    setStep(hasPayment ? 'payment' : 'datetime');
+                                }
                             }} className="p-1 hover:bg-white/10 rounded-full">
                                 <ChevronLeft className="w-5 h-5 text-white" />
                             </button>
@@ -203,8 +227,9 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
 
                 {/* Progress Bar */}
                 <div className="flex gap-1 p-1 bg-black/20">
-                    <div className={`h-1 flex-1 rounded-full ${['service', 'datetime', 'contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-white/10'}`} />
-                    <div className={`h-1 flex-1 rounded-full ${['datetime', 'contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-white/10'}`} />
+                    <div className={`h-1 flex-1 rounded-full ${['service', 'datetime', 'payment', 'contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-white/10'}`} />
+                    <div className={`h-1 flex-1 rounded-full ${['datetime', 'payment', 'contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-white/10'}`} />
+                    <div className={`h-1 flex-1 rounded-full ${['payment', 'contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-white/10'}`} />
                     <div className={`h-1 flex-1 rounded-full ${['contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-white/10'}`} />
                 </div>
 
@@ -300,6 +325,92 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                     }`}
                             >
                                 Continuar
+                            </button>
+                        </div>
+                    )}
+
+                    {/* STEP 2.5: PAYMENT INFO */}
+                    {step === 'payment' && paymentSettings && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                            <h3 className="text-white font-medium mb-4">Información de Pago</h3>
+
+                            {/* Deposit Warning */}
+                            {paymentSettings.requiresDeposit && (
+                                <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl mb-4">
+                                    <h4 className="text-yellow-500 font-bold text-sm mb-1 flex items-center gap-2">
+                                        <Briefcase size={16} />
+                                        Política de Anticipo
+                                    </h4>
+                                    <p className="text-slate-300 text-sm mb-2">
+                                        Este negocio requiere un anticipo para confirmar la cita.
+                                    </p>
+                                    <div className="bg-black/20 p-3 rounded-lg flex justify-between items-center">
+                                        <span className="text-slate-400 text-sm">Monto Requerido:</span>
+                                        <span className="text-white font-bold">
+                                            {paymentSettings.depositType === 'percent'
+                                                ? `${paymentSettings.depositValue}%`
+                                                : `L. ${paymentSettings.depositValue}`
+                                            }
+                                        </span>
+                                    </div>
+                                    {paymentSettings.depositNotes && (
+                                        <p className="text-xs text-slate-400 mt-2 italic">"{paymentSettings.depositNotes}"</p>
+                                    )}
+                                </div>
+                            )}
+
+                            <div className="space-y-3">
+                                <label className="text-slate-400 text-sm">Métodos Aceptados:</label>
+                                <div className="grid grid-cols-1 gap-3">
+                                    {paymentSettings.acceptsCash && (
+                                        <div className="p-3 bg-white/5 border border-white/10 rounded-xl flex items-center gap-3">
+                                            <div className="p-2 bg-green-500/10 rounded-lg text-green-500">
+                                                <Briefcase className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <p className="text-white font-medium text-sm">Efectivo</p>
+                                                <p className="text-xs text-slate-500">Pago en el local</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                    {paymentSettings.acceptsBankTransfer && (
+                                        <div className="p-3 bg-white/5 border border-white/10 rounded-xl">
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+                                                    <Briefcase className="w-4 h-4" />
+                                                </div>
+                                                <p className="text-white font-medium text-sm">Transferencia Bancaria</p>
+                                            </div>
+                                            {paymentSettings.bankTransferDetails && (
+                                                <div className="bg-black/20 p-2 rounded text-xs text-slate-400 whitespace-pre-line">
+                                                    {paymentSettings.bankTransferDetails}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    {paymentSettings.acceptsDigitalWallet && (
+                                        <div className="p-3 bg-white/5 border border-white/10 rounded-xl">
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500">
+                                                    <Briefcase className="w-4 h-4" />
+                                                </div>
+                                                <p className="text-white font-medium text-sm">Billetera Digital</p>
+                                            </div>
+                                            {paymentSettings.digitalWalletDetails && (
+                                                <div className="bg-black/20 p-2 rounded text-xs text-slate-400 whitespace-pre-line">
+                                                    {paymentSettings.digitalWalletDetails}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={() => setStep('contact')}
+                                className="w-full py-3 bg-brand-neon-cyan text-black font-bold rounded-xl mt-4 hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+                            >
+                                Entendido, Continuar
                             </button>
                         </div>
                     )}

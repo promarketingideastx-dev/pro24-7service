@@ -99,13 +99,48 @@ export const AppointmentService = {
                 ...doc.data()
             } as Appointment));
 
-            // Sort client-side to avoid index requirement for now
-            return appointments.sort((a, b) => b.date.toMillis() - a.date.toMillis());
+            return appointments;
         } catch (error) {
             console.error("Error fetching employee appointments:", error);
             throw error;
         }
     },
+
+    // Read by Status (Pending, Confirmed, etc.)
+    async getAppointmentsByStatus(businessId: string, status: AppointmentStatus) {
+        try {
+            const q = query(
+                collection(db, COLLECTION_NAME),
+                where('businessId', '==', businessId),
+                where('status', '==', status)
+            );
+
+            const snapshot = await getDocs(q);
+            return snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            } as Appointment));
+        } catch (error) {
+            console.error("Error fetching appointments by status:", error);
+            throw error;
+        }
+    },
+
+    // Update Status
+    async updateStatus(appointmentId: string, status: AppointmentStatus, notes?: string) {
+        try {
+            const ref = doc(db, COLLECTION_NAME, appointmentId);
+            const data: any = { status, updatedAt: serverTimestamp() };
+            if (notes) data.notes = notes;
+
+            await updateDoc(ref, data);
+        } catch (error) {
+            console.error("Error updating status:", error);
+            throw error;
+        }
+    },
+
+
 
     // Read by Customer (for History or Deletion check)
     async getAppointmentsByCustomer(businessId: string, customerId: string) {
