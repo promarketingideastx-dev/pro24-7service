@@ -5,7 +5,9 @@ import { Plus, Users } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { CustomerService, Customer } from '@/services/customer.service';
 import CustomerList from '@/components/business/clients/CustomerList';
+
 import CustomerFormModal from '@/components/business/clients/CustomerFormModal';
+import SmartDeleteCustomerModal from '@/components/business/clients/SmartDeleteCustomerModal';
 import { toast } from 'sonner';
 
 export default function ClientsPage() {
@@ -14,6 +16,8 @@ export default function ClientsPage() {
     const [loading, setLoading] = useState(true);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
 
     const fetchCustomers = async () => {
         if (!user) return;
@@ -45,6 +49,16 @@ export default function ClientsPage() {
 
     const handleSave = () => {
         fetchCustomers();
+    };
+
+    const handleDelete = (customer: Customer) => {
+        setCustomerToDelete(customer);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleDeleteSuccess = () => {
+        fetchCustomers();
+        // Toast is handled in the modal
     };
 
     if (!user) return null;
@@ -79,7 +93,11 @@ export default function ClientsPage() {
                     ))}
                 </div>
             ) : (
-                <CustomerList customers={customers} onEdit={handleEdit} />
+                <CustomerList
+                    customers={customers}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
             )}
 
             {/* Modal */}
@@ -89,6 +107,14 @@ export default function ClientsPage() {
                 onSave={handleSave}
                 businessId={user.uid}
                 customerToEdit={selectedCustomer}
+            />
+
+            <SmartDeleteCustomerModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onSuccess={handleDeleteSuccess}
+                customer={customerToDelete}
+                businessId={user.uid}
             />
         </div>
     );

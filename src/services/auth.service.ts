@@ -4,12 +4,25 @@ import {
     signInWithPopup,
     signOut,
     createUserWithEmailAndPassword,
-    signInWithEmailAndPassword
+    signInWithEmailAndPassword,
+    fetchSignInMethodsForEmail
 } from 'firebase/auth';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { UserService } from './user.service';
 
 export const AuthService = {
+    // Check if email exists to prevent duplicate account creation attempts
+    checkEmailExists: async (email: string) => {
+        try {
+            const methods = await fetchSignInMethodsForEmail(auth, email);
+            return methods.length > 0;
+        } catch (error) {
+            console.error('Error checking email existence:', error);
+            // Default to false to not block user, or handle specific error codes if needed
+            return false;
+        }
+    },
+
     // ... existing login methods ...
     loginWithGoogle: async () => {
         const provider = new GoogleAuthProvider();

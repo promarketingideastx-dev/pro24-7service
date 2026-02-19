@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Edit2, Phone, Mail, MapPin, Calendar, MessageSquare } from 'lucide-react';
+import { Search, Edit2, Phone, Mail, MapPin, Calendar, MessageSquare, Trash2 } from 'lucide-react';
 import { Customer } from '@/services/customer.service';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -9,9 +9,10 @@ import { es } from 'date-fns/locale';
 interface CustomerListProps {
     customers: Customer[];
     onEdit: (customer: Customer) => void;
+    onDelete: (customer: Customer) => void;
 }
 
-export default function CustomerList({ customers, onEdit }: CustomerListProps) {
+export default function CustomerList({ customers, onEdit, onDelete }: CustomerListProps) {
     const [searchTerm, setSearchTerm] = useState('');
 
     const filteredCustomers = customers.filter(c =>
@@ -118,6 +119,13 @@ export default function CustomerList({ customers, onEdit }: CustomerListProps) {
                                         title="Ver Historial (Próximamente)"
                                     >
                                         <MessageSquare className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => onDelete(customer)}
+                                        className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-red-500 transition-colors"
+                                        title="Eliminar Cliente"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
                                     </button>
                                 </div>
                             </div>

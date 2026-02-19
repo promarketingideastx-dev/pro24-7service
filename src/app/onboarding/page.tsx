@@ -17,13 +17,13 @@ export default function OnboardingPage() {
     const [loading, setLoading] = useState(false);
 
     const handleRoleSelection = async (role: 'client' | 'provider') => {
+        // 1. Pre-Auth Logic: Redirect to Register with Intent
         if (!user) {
-            // Should not happen due to guard, but safe check
-            toast.error("Error: No se encontró usuario autenticado. Por favor, intenta iniciar sesión de nuevo.");
-            router.push('/auth/login');
+            router.push(`/auth/register?intent=${role === 'provider' ? 'business' : 'client'}`);
             return;
         }
 
+        // 2. Post-Auth Logic (Existing)
         setLoading(true);
         try {
             // 0. Force Online (Robustness)

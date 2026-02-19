@@ -107,6 +107,22 @@ export const AppointmentService = {
         }
     },
 
+    // Read by Customer (for History or Deletion check)
+    async getAppointmentsByCustomer(businessId: string, customerId: string) {
+        try {
+            const q = query(
+                collection(db, COLLECTION_NAME),
+                where('businessId', '==', businessId),
+                where('customerId', '==', customerId)
+            );
+            const snapshot = await getDocs(q);
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
+        } catch (error) {
+            console.error("Error fetching customer appointments:", error);
+            throw error;
+        }
+    },
+
     // Update
     async updateAppointment(id: string, updates: Partial<Appointment>) {
         try {

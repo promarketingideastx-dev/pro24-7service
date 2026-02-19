@@ -27,7 +27,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
         // 1. Unauthenticated User
         if (!user) {
-            if (startsWithAny(ONBOARDING_PREFIXES) || startsWithAny(PROTECTED_PREFIXES) || startsWithAny(PROVIDER_ONLY_PREFIXES)) {
+            // Remove ONBOARDING_PREFIXES from protected list
+            if (startsWithAny(PROTECTED_PREFIXES) || startsWithAny(PROVIDER_ONLY_PREFIXES)) {
                 router.replace(`/auth/login?returnTo=${encodeURIComponent(currentPathWithQuery)}`);
             } else {
                 setIsAuthorized(true);
@@ -89,8 +90,9 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
                 return;
             }
 
-            // User HAS role -> cannot be on auth or onboarding
-            if (startsWithAny(AUTH_PREFIXES) || startsWithAny(ONBOARDING_PREFIXES)) {
+            // User HAS role -> cannot be on auth pages (login/register)
+            // But ALLOW Onboarding (to change role/view options)
+            if (startsWithAny(AUTH_PREFIXES)) {
                 if (userProfile.roles.provider) {
                     router.replace("/business/dashboard");
                 } else {

@@ -11,7 +11,7 @@ function LoginForm() {
     const searchParams = useSearchParams();
     const returnTo = searchParams.get('returnTo') || '/';
 
-    const [email, setEmail] = useState('');
+    const [email, setEmail] = useState(searchParams.get('email') || '');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -26,7 +26,13 @@ function LoginForm() {
 
         try {
             await AuthService.loginWithEmail(email, password);
-            router.replace(returnTo);
+            // Default to Map (Home) if no specific returnTo, or if returnTo is just '/'
+            // Actually Home IS Map, so just pushing returnTo (which defaults to '/') is correct.
+            // But user explicitly asked for "Redirect post-login to map".
+            // Since Map is at '/', router.replace('/') is fine. 
+            // We'll trust returnTo param first.
+            const target = returnTo && returnTo !== '/' ? returnTo : '/';
+            router.replace(target);
         } catch (err: any) {
             console.error(err);
             if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
@@ -46,7 +52,8 @@ function LoginForm() {
         setError(null);
         try {
             await AuthService.loginWithGoogle();
-            router.replace(returnTo);
+            const target = returnTo && returnTo !== '/' ? returnTo : '/';
+            router.replace(target);
         } catch (err: any) {
             console.error(err);
             setError('No se pudo iniciar sesión con Google.');

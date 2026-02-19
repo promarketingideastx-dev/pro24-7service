@@ -1,5 +1,5 @@
 import { WeeklySchedule } from '@/services/employee.service';
-import { getDayLabel } from '@/lib/timeHelpers';
+import { getDayLabel, formatTime } from '@/lib/timeHelpers';
 import { Clock } from 'lucide-react';
 
 interface WeeklyScheduleViewProps {
@@ -33,7 +33,7 @@ export default function WeeklyScheduleView({ schedule }: WeeklyScheduleViewProps
                             <span>{getDayLabel(dayKey)}</span>
                             <span>
                                 {daySchedule?.enabled
-                                    ? `${daySchedule.start} - ${daySchedule.end}`
+                                    ? `${formatTime(daySchedule.start)} - ${formatTime(daySchedule.end)}`
                                     : 'Cerrado'}
                             </span>
                         </div>

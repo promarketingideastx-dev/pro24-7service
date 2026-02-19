@@ -19,6 +19,20 @@ export const minutesToTime = (minutes: number): string => {
 };
 
 /**
+ * Formats "HH:mm" string to 12h (AM/PM) or 24h format.
+ * Defaults to 12h as requested for LATAM/US.
+ */
+export const formatTime = (time: string, format: '12h' | '24h' = '12h'): string => {
+    if (!time) return '';
+    if (format === '24h') return time;
+
+    const [hours, minutes] = time.split(':').map(Number);
+    const suffix = hours >= 12 ? 'PM' : 'AM';
+    const h = hours % 12 || 12;
+    return `${h}:${minutes.toString().padStart(2, '0')} ${suffix}`;
+};
+
+/**
  * Checks if the business is currently open.
  */
 export const isBusinessOpen = (schedule?: WeeklySchedule): { isOpen: boolean; nextStatusTime?: string; nextStatusLabel?: string } => {
@@ -41,7 +55,7 @@ export const isBusinessOpen = (schedule?: WeeklySchedule): { isOpen: boolean; ne
             return {
                 isOpen: true,
                 nextStatusTime: currentDaySchedule.end,
-                nextStatusLabel: `Cierra a las ${currentDaySchedule.end}`
+                nextStatusLabel: `Cierra a las ${formatTime(currentDaySchedule.end)}`
             };
         }
     }

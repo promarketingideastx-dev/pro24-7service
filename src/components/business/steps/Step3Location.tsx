@@ -52,6 +52,18 @@ export function Step3Location({ data, update }: any) {
                         </select>
                     </div>
 
+                    {/* Department Input */}
+                    <div>
+                        <label className="text-sm text-slate-400 mb-1 block">Departamento / Estado</label>
+                        <input
+                            type="text"
+                            value={data.department || ''}
+                            onChange={(e) => update('department', e.target.value)}
+                            placeholder="Ej. Cortés"
+                            className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500"
+                        />
+                    </div>
+
                     {/* City Input */}
                     <div>
                         <label className="text-sm text-slate-400 mb-1 block">Ciudad</label>
@@ -92,6 +104,18 @@ export function Step3Location({ data, update }: any) {
                             <option value="SV">El Salvador 🇸🇻</option>
                             <option value="GT">Guatemala 🇬🇹</option>
                         </select>
+                    </div>
+
+                    {/* Department Input */}
+                    <div>
+                        <label className="text-sm text-slate-400 mb-1 block">Departamento Base</label>
+                        <input
+                            type="text"
+                            value={data.department || ''}
+                            onChange={(e) => update('department', e.target.value)}
+                            placeholder="Ej. Francisco Morazán"
+                            className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500"
+                        />
                     </div>
 
                     <div>

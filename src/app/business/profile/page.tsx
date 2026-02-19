@@ -3,24 +3,28 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { BusinessProfileService, BusinessProfileData } from '@/services/businessProfile.service';
+import { StorageService } from '@/services/storage.service';
 import GlassPanel from '@/components/ui/GlassPanel';
-import ImageUploader from '@/components/ui/ImageUploader';
+
 import { TAXONOMY } from '@/lib/taxonomy';
 import {
     Save, Building, MapPin, Tag, Camera, ArrowLeft, Check,
     Palette, Wrench, Sparkles, MonitorPlay, Music, Scissors, Shield,
-    Zap, Droplets, PaintBucket, Truck, Key, Car, Bike, Leaf, Clock
+    Zap, Droplets, PaintBucket, Truck, Key, Car, Bike, Leaf, Clock,
+    Upload, Trash2, Loader2, Image as ImageIcon
 } from 'lucide-react';
 import WeeklyScheduleEditor from '@/components/business/WeeklyScheduleEditor';
 import { WeeklySchedule } from '@/services/employee.service';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import PortfolioManager from '@/components/business/profile/PortfolioManager';
 
 export default function BusinessProfilePage() {
     const { user, userProfile } = useAuth(); // Assuming userProfile has businessProfileId
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [uploadingImage, setUploadingImage] = useState<'cover' | 'logo' | null>(null);
 
     const [formData, setFormData] = useState<Partial<BusinessProfileData>>({});
     const [showMultiArea, setShowMultiArea] = useState(false);
@@ -65,13 +69,48 @@ export default function BusinessProfilePage() {
         if (!user) return;
         setSaving(true);
         try {
-            await BusinessProfileService.updateProfile(user.uid, formData);
+            // Exclude images from general profile save to avoid overwriting PortfolioManager changes
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { images, ...dataToSave } = formData;
+
+            await BusinessProfileService.updateProfile(user.uid, dataToSave);
             toast.success("Perfil actualizado correctamente");
         } catch (error) {
             console.error("Error updating", error);
             toast.error("Error al actualizar perfil");
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleImageUpload = async (type: 'cover' | 'logo', e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !user) return;
+
+        setUploadingImage(type);
+        try {
+            const url = await StorageService.uploadBusinessImage(user.uid, file);
+
+            // Update local state
+            if (type === 'cover') {
+                setFormData(prev => ({ ...prev, coverImage: url }));
+            } else {
+                setFormData(prev => ({ ...prev, logoUrl: url }));
+            }
+
+            // Optional: Auto-save immediately for images? 
+            // Often better UX for large files to save reference immediately, 
+            // but sticking to "Save" button for consistency is safer.
+            // HOWEVER, since we upload to storage, the file is already "live". 
+            // It might be confusing if they leave without saving.
+            // Let's just update state and let them hit Save.
+            toast.success("Imagen subida. No olvides guardar cambios.");
+
+        } catch (error) {
+            console.error("Error uploading:", error);
+            toast.error("Error al subir imagen");
+        } finally {
+            setUploadingImage(null);
         }
     };
 
@@ -92,6 +131,92 @@ export default function BusinessProfilePage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Left Column: Navigation / Summary (Optional, keeping simple for now) */}
                 <div className="md:col-span-2 space-y-6">
+
+                    {/* Images Section (Cover & Logo) */}
+                    <GlassPanel className="p-6">
+                        <div className="flex items-center gap-2 mb-4 text-brand-neon-cyan">
+                            <ImageIcon size={20} />
+                            <h2 className="font-bold text-white">Imágenes de Perfil</h2>
+                        </div>
+
+                        <div className="space-y-6">
+                            {/* Cover Image */}
+                            <div>
+                                <label className="block text-slate-400 text-xs uppercase mb-2">Imagen de Portada (Cabecera)</label>
+                                <div className="relative w-full h-48 bg-black/40 rounded-xl overflow-hidden border border-white/10 group">
+                                    {formData.coverImage ? (
+                                        <img src={formData.coverImage} alt="Cover" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-slate-600">
+                                            <ImageIcon size={48} className="opacity-50" />
+                                        </div>
+                                    )}
+
+                                    {/* Overlay Actions */}
+                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                        <label className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg flex items-center gap-2 backdrop-blur-sm transition-colors">
+                                            {uploadingImage === 'cover' ? <Loader2 className="animate-spin w-5 h-5" /> : <Upload size={18} />}
+                                            <span className="text-sm font-medium">Cambiar Portada</span>
+                                            <input
+                                                type="file"
+                                                className="hidden"
+                                                accept="image/*"
+                                                onChange={(e) => handleImageUpload('cover', e)}
+                                                disabled={uploadingImage !== null}
+                                            />
+                                        </label>
+                                    </div>
+                                </div>
+                                <p className="text-xs text-slate-500 mt-1">Recomendado: 1200x400px o superior.</p>
+                            </div>
+
+                            {/* Logo / Profile Image */}
+                            <div>
+                                <label className="block text-slate-400 text-xs uppercase mb-2">Logo / Foto de Perfil</label>
+                                <div className="flex items-center gap-4">
+                                    <div className="relative w-24 h-24 rounded-full bg-black/40 border-2 border-white/10 overflow-hidden group shrink-0">
+                                        {formData.logoUrl ? (
+                                            <img src={formData.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-slate-600">
+                                                <Building size={32} className="opacity-50" />
+                                            </div>
+                                        )}
+
+                                        {/* Overlay Actions */}
+                                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <label className="cursor-pointer p-2 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-sm transition-colors">
+                                                {uploadingImage === 'logo' ? <Loader2 className="animate-spin w-5 h-5" /> : <Upload size={18} />}
+                                                <input
+                                                    type="file"
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleImageUpload('logo', e)}
+                                                    disabled={uploadingImage !== null}
+                                                />
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="text-sm text-slate-300 mb-1">
+                                            Una imagen cuadrada funciona mejor aquí.
+                                        </div>
+                                        <label className="inline-flex cursor-pointer px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 rounded-lg items-center gap-2 transition-colors">
+                                            {uploadingImage === 'logo' ? <Loader2 className="animate-spin w-4 h-4" /> : <Upload size={16} />}
+                                            <span className="text-sm">Subir Logo</span>
+                                            <input
+                                                type="file"
+                                                className="hidden"
+                                                accept="image/*"
+                                                onChange={(e) => handleImageUpload('logo', e)}
+                                                disabled={uploadingImage !== null}
+                                            />
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </GlassPanel>
 
                     {/* Basic Info */}
                     <GlassPanel className="p-6">
@@ -140,19 +265,17 @@ export default function BusinessProfilePage() {
                         </div>
                     </GlassPanel>
 
-                    {/* Gallery - This is what the user wants! */}
+
+
+                    {/* Gallery - Replalced by PortfolioManager */}
                     <GlassPanel className="p-6">
                         <div className="flex items-center gap-2 mb-4 text-brand-neon-cyan">
                             <Camera size={20} />
                             <h2 className="font-bold text-white">Galería de Fotos</h2>
                         </div>
-                        <p className="text-slate-400 text-sm mb-4">Sube fotos de tus mejores trabajos. La primera será tu portada.</p>
+                        <p className="text-slate-400 text-sm mb-4">Sube fotos de tus mejores trabajos y agrega descripciones para atraer clientes.</p>
 
-                        <ImageUploader
-                            images={formData.images || []}
-                            onImagesChange={urls => setFormData({ ...formData, images: urls })}
-                            maxImages={5}
-                        />
+                        <PortfolioManager businessId={user?.uid || ''} />
                     </GlassPanel>
 
                     {/* Opening Hours Section */}

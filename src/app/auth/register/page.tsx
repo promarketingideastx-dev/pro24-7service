@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { AuthService } from '@/services/auth.service';
+import { UserService } from '@/services/user.service'; // Add Import
 import { Mail, Lock, UserPlus, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 function RegisterForm() {
@@ -20,15 +21,53 @@ function RegisterForm() {
     const [error, setError] = useState<string | null>(null);
 
 
+    const [emailCheckStatus, setEmailCheckStatus] = useState<'idle' | 'checking' | 'exists' | 'available'>('idle');
+
+    // Email Exist Check
+    const handleEmailBlur = async () => {
+        if (!email || !email.includes('@')) return;
+
+        setEmailCheckStatus('checking');
+        try {
+            const exists = await AuthService.checkEmailExists(email);
+            if (exists) {
+                setEmailCheckStatus('exists');
+                // Optional: Clear other errors to focus on this
+                setError(null);
+            } else {
+                setEmailCheckStatus('available');
+            }
+        } catch (error) {
+            console.error("Failed email check", error);
+            setEmailCheckStatus('idle');
+        }
+    };
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
+        // Pre-flight check if we haven't checked yet
+        if (emailCheckStatus === 'idle') {
+            // Logic to check could go here, but let's assume blur caught it or just let firebase throw error
+            // Actually, the requirement says "Detect and redirect". 
+            // If user rushed to click Submit without blur, we should check now.
+            const exists = await AuthService.checkEmailExists(email);
+            if (exists) {
+                setEmailCheckStatus('exists');
+                setLoading(false);
+                return;
+            }
+        } else if (emailCheckStatus === 'exists') {
+            setLoading(false);
+            return; // Don't proceed
+        }
+
         if (password !== confirmPassword) {
             setError('Las contraseñas no coinciden.');
             setLoading(false);
+            // ... rest of validation
             return;
         }
 
@@ -39,13 +78,37 @@ function RegisterForm() {
         }
 
         try {
-            await AuthService.registerWithEmail(email, password);
-            // Force onboarding for new accounts
-            router.replace('/onboarding');
+            const user = await AuthService.registerWithEmail(email, password);
+
+            // Check for Intent
+            const intent = searchParams.get('intent');
+
+            if (intent === 'client' || intent === 'business') {
+                const role = intent === 'business' ? 'provider' : 'client';
+                await UserService.setUserRole(user.uid, role);
+
+                // UX: Persist in local storage just in case
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('pro247_user_mode', intent);
+                }
+
+                if (role === 'provider') {
+                    router.replace('/business/setup');
+                } else {
+                    router.replace('/');
+                }
+            } else {
+                // Legacy / Fallback
+                router.replace('/onboarding');
+            }
+
         } catch (err: any) {
+            // ... existing error handling
             console.error(err);
             if (err.code === 'auth/email-already-in-use') {
-                setError('Este correo ya está registrado.');
+                // Fallback if check failed or race condition
+                setEmailCheckStatus('exists');
+                setError(null); // Clear generic error, show specific UI
             } else if (err.code === 'auth/invalid-email') {
                 setError('Correo electrónico inválido.');
             } else if (err.code === 'auth/weak-password') {
@@ -80,6 +143,29 @@ function RegisterForm() {
             <h2 className="text-xl font-bold text-white mb-2">Crear Cuenta Gratis 🚀</h2>
             <p className="text-slate-400 text-sm mb-6">Únete a la mejor comunidad de profesionales.</p>
 
+            {/* Email Exists Warning */}
+            {emailCheckStatus === 'exists' && (
+                <div className="mb-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 animate-in fade-in slide-in-from-top-2">
+                    <div className="flex items-start gap-3">
+                        <div className="p-2 bg-blue-500/20 rounded-full text-blue-400">
+                            <UserPlus size={18} />
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="text-blue-100 font-semibold text-sm mb-1">¡Esta cuenta ya existe!</h3>
+                            <p className="text-blue-200/70 text-xs mb-3">
+                                Parece que ya te has registrado con <strong>{email}</strong>.
+                            </p>
+                            <Link
+                                href={`/auth/login?email=${encodeURIComponent(email)}&returnTo=${encodeURIComponent(returnTo)}`}
+                                className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors"
+                            >
+                                Iniciar Sesión con este correo
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {error && (
                 <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center gap-2 text-red-200 text-sm">
                     <AlertCircle className="w-4 h-4" />
@@ -96,12 +182,25 @@ function RegisterForm() {
                             type="email"
                             required
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full bg-[#0B0F19] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all"
+                            onChange={(e) => {
+                                setEmail(e.target.value);
+                                if (emailCheckStatus === 'exists') setEmailCheckStatus('idle'); // Reset on change
+                            }}
+                            onBlur={handleEmailBlur}
+                            className={`w-full bg-[#0B0F19] border rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none transition-all
+                                ${emailCheckStatus === 'exists' ? 'border-blue-500/50 focus:border-blue-500' : 'border-white/10 focus:border-cyan-500/50'}
+                            `}
                             placeholder="tucorreo@ejemplo.com"
                         />
+                        {/* Loading Indicator inside input */}
+                        {emailCheckStatus === 'checking' && (
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                <span className="block w-4 h-4 border-2 border-slate-500 border-t-brand-neon-cyan rounded-full animate-spin"></span>
+                            </div>
+                        )}
                     </div>
                 </div>
+
 
                 <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Contraseña</label>
@@ -154,10 +253,10 @@ function RegisterForm() {
 
                 <button
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || emailCheckStatus === 'checking'}
                     className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-sm shadow-lg hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {loading ? (
+                    {loading || emailCheckStatus === 'checking' ? (
                         <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                     ) : (
                         <>
@@ -167,6 +266,7 @@ function RegisterForm() {
                     )}
                 </button>
             </form >
+
 
             <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">

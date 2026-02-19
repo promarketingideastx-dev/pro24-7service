@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase';
-import { doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, writeBatch, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, writeBatch, serverTimestamp, query, orderBy, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { WeeklySchedule } from './employee.service';
 
 export interface BusinessProfileData {
@@ -16,6 +16,8 @@ export interface BusinessProfileData {
     department: string; // Added Department
     country?: string;
     images: string[];
+    coverImage?: string; // New: Header image
+    logoUrl?: string; // New: Avatar/Logo
     userId: string;
     email: string;
     phone?: string;
@@ -93,6 +95,102 @@ export const ServicesService = {
             await deleteDoc(serviceRef);
         } catch (error) {
             console.error("Error deleting service:", error);
+            throw error;
+        }
+    }
+};
+
+// --- Portfolio Subcollection Types ---
+export interface PortfolioItem {
+    id?: string;
+    url: string;
+    description?: string;
+    title?: string;
+    createdAt?: any;
+}
+
+export const PortfolioService = {
+    /**
+     * Get portfolio items for a business
+     */
+    async getPortfolio(businessId: string): Promise<PortfolioItem[]> {
+        try {
+            // We use businesses_public for portfolio to make it easily accessible
+            const portfolioRef = collection(db, 'businesses_public', businessId, 'portfolio_posts');
+
+            // Order by createdAt desc
+            const q = query(portfolioRef, orderBy('createdAt', 'desc'));
+
+            const snapshot = await getDocs(q);
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any } as PortfolioItem));
+        } catch (error) {
+            console.error("Error fetching portfolio:", error);
+            // Fallback to empty if collection doesn't exist yet
+            return [];
+        }
+    },
+
+    /**
+     * Add a new portfolio item
+     */
+    async addPortfolioItem(businessId: string, item: Omit<PortfolioItem, 'id'>): Promise<string> {
+        try {
+            const portfolioRef = collection(db, 'businesses_public', businessId, 'portfolio_posts');
+
+            // 1. Add to subcollection
+            const docRef = await addDoc(portfolioRef, {
+                ...item,
+                createdAt: serverTimestamp()
+            });
+
+            // 2. Optional: Keep the main doc 'images' array in sync for legacy compatibility
+            // We'll append the NEW url to the start of the array, limit to 10
+            const publicRef = doc(db, 'businesses_public', businessId);
+            const privateRef = doc(db, 'businesses_private', businessId);
+
+            // Use arrayUnion to add. Limiting array size in Firestore is hard atomically without reading.
+            // For now, just add. A cloud function would be better to trim.
+            // Or we just read-modify-write if we want to be strict.
+
+            // Let's just do arrayUnion for now to ensure it appears in legacy views.
+            await updateDoc(publicRef, {
+                images: arrayUnion(item.url),
+                updatedAt: serverTimestamp()
+            });
+            await updateDoc(privateRef, {
+                gallery: arrayUnion(item.url),
+                updatedAt: serverTimestamp()
+            });
+
+            return docRef.id;
+        } catch (error) {
+            console.error("Error adding portfolio item:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * Delete a portfolio item
+     */
+    async deletePortfolioItem(businessId: string, itemId: string, imageUrl: string): Promise<void> {
+        try {
+            // 1. Delete from subcollection
+            const itemRef = doc(db, 'businesses_public', businessId, 'portfolio_posts', itemId);
+            await deleteDoc(itemRef);
+
+            // 2. Remove from legacy arrays
+            const publicRef = doc(db, 'businesses_public', businessId);
+            const privateRef = doc(db, 'businesses_private', businessId);
+
+            await updateDoc(publicRef, {
+                images: arrayRemove(imageUrl)
+            });
+            await updateDoc(privateRef, {
+                gallery: arrayRemove(imageUrl)
+            });
+
+        } catch (error) {
+            console.error("Error deleting portfolio item:", error);
             throw error;
         }
     }
@@ -315,6 +413,8 @@ export const BusinessProfileService = {
                 address: privateData.address || '',
                 website: publicData.website || '',
                 images: privateData.gallery || (publicData.coverImage ? [publicData.coverImage] : []),
+                coverImage: publicData.coverImage,
+                logoUrl: publicData.logoUrl,
                 openingHours: publicData.openingHours || undefined
             };
         } catch (error) {
@@ -353,9 +453,13 @@ export const BusinessProfileService = {
 
         // Handle images
         if (data.images) {
-            publicUpdate.coverImage = data.images[0] || null;
+            // Only update cover frame if not explicitly set
+            if (!data.coverImage) publicUpdate.coverImage = data.images[0] || null;
             privateUpdate.gallery = data.images;
         }
+
+        if (data.coverImage) publicUpdate.coverImage = data.coverImage;
+        if (data.logoUrl) publicUpdate.logoUrl = data.logoUrl;
 
         if (data.email) privateUpdate.email = data.email;
         if (data.phone) privateUpdate.phone = data.phone;
@@ -371,5 +475,27 @@ export const BusinessProfileService = {
         batch.update(privateRef, privateUpdate);
 
         await batch.commit();
+    },
+
+    /**
+     * Set a specific image as the cover image
+     */
+    async setAsCover(userId: string, imageUrl: string) {
+        const publicRef = doc(db, 'businesses_public', userId);
+        await updateDoc(publicRef, {
+            coverImage: imageUrl,
+            updatedAt: serverTimestamp()
+        });
+    },
+
+    /**
+     * Set a specific image as the logo/profile image
+     */
+    async setAsLogo(userId: string, imageUrl: string) {
+        const publicRef = doc(db, 'businesses_public', userId);
+        await updateDoc(publicRef, {
+            logoUrl: imageUrl,
+            updatedAt: serverTimestamp()
+        });
     }
 };

@@ -195,9 +195,11 @@ export default function ServicesPage() {
                                             type="number"
                                             required
                                             min="0"
-                                            value={formData.price}
-                                            onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
-                                            className="w-full bg-[#0B0F19] border border-white/10 rounded-lg pl-8 pr-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                            step="any"
+                                            placeholder="0.00"
+                                            value={formData.price === 0 ? '' : formData.price}
+                                            onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
+                                            className="w-full bg-[#0B0F19] border border-white/10 rounded-lg pl-8 pr-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                     </div>
                                 </div>

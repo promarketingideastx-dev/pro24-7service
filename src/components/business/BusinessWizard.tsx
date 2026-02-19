@@ -27,6 +27,7 @@ export default function BusinessWizard() {
         modality: '', // 'home', 'local', 'both'
         address: '',
         country: 'HN', // Default
+        department: '', // Added Department
         city: '',
         images: [] as any[]
     });
@@ -74,6 +75,7 @@ export default function BusinessWizard() {
                 userId: user.uid,
                 email: user.email || '',
                 images: [],
+                department: formData.department || 'Cortés', // Fallback for build safety if UI missed
                 location: mockLocation, // Ensure map has data
                 modality: formData.modality as 'home' | 'local' | 'both'
             };

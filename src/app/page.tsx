@@ -253,7 +253,7 @@ export default function Home() {
                         <div className="flex items-center gap-4">
                             {/* Business CTA - Keep this for professionals */}
                             <button
-                                onClick={() => router.push('/auth/register')} // Direct to register, pre-selection handled in onboarding if implemented later
+                                onClick={() => router.push('/onboarding')} // Direct to choice screen
                                 className="hidden md:block text-xs font-bold text-slate-400 hover:text-white transition-colors"
                             >
                                 ¿Eres profesional? <span className="text-brand-neon-cyan">Regístrate</span>
@@ -269,7 +269,7 @@ export default function Home() {
                             </button>
                             {/* White Button - Only visible when NOT logged in */}
                             <button
-                                onClick={() => router.push('/auth/register')}
+                                onClick={() => router.push('/onboarding')}
                                 className="bg-white text-slate-900 px-4 py-2 rounded-full text-sm font-bold hover:bg-slate-100 transition-colors"
                             >
                                 Crear Cuenta
