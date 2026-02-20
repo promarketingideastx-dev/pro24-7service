@@ -179,7 +179,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                         {!isOwner && (
                             <button
                                 onClick={onBookClick}
-                                className="hidden md:flex bg-brand-neon-cyan/90 hover:bg-cyan-400 text-black px-4 py-2 rounded-full text-sm font-bold backdrop-blur-md transition-all shadow-lg shadow-cyan-500/20 items-center gap-2"
+                                className="hidden md:flex bg-brand-neon-purple/90 hover:bg-violet-500 text-white px-4 py-2 rounded-full text-sm font-bold backdrop-blur-md transition-all shadow-lg shadow-purple-500/20 items-center gap-2"
                             >
                                 <Calendar className="w-4 h-4" />
                                 Reservar Cita
@@ -270,7 +270,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                             key={tab.id}
                             onClick={() => onTabChange(tab.id)}
                             className={`px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 transition-all ${activeTab === tab.id
-                                ? 'border-brand-neon-cyan text-brand-neon-cyan'
+                                ? 'border-brand-neon-purple text-brand-neon-purple'
                                 : 'border-transparent text-slate-400 hover:text-white'
                                 }`}
                         >
@@ -307,7 +307,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                     {/* Book Action - Main */}
                     <button
                         onClick={onBookClick}
-                        className="flex-1 bg-brand-neon-purple hover:bg-violet-500 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all"
+                        className="flex-1 bg-brand-neon-purple hover:bg-violet-500 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 active:scale-95 transition-all"
                     >
                         <Calendar className="w-5 h-5" />
                         Reservar Cita
