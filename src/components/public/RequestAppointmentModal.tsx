@@ -482,7 +482,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-4 bg-gradient-to-r from-brand-neon-purple to-brand-neon-teal text-black font-bold rounded-xl mt-4 hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all flex items-center justify-center gap-2 text-base"
+                                className="w-full py-4 bg-gradient-to-r from-brand-neon-cyan to-brand-neon-purple text-black font-bold rounded-xl mt-4 hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all flex items-center justify-center gap-2 text-base"
                             >
                                 {loading ? 'Enviando...' : 'Confirmar Solicitud'}
                             </button>
