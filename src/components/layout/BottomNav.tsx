@@ -28,7 +28,7 @@ export function BottomNav() {
                         return (
                             <Link key={item.name} href={item.href}>
                                 <div className="relative -top-5">
-                                    <div className="w-14 h-14 rounded-full bg-gradient-to-r from-brand-neon-cyan to-brand-neon-purple p-[1px] shadow-[0_0_20px_rgba(0,240,255,0.4)]">
+                                    <div className="w-14 h-14 rounded-full bg-gradient-to-r from-brand-neon-purple to-brand-neon-teal p-[1px] shadow-[0_0_20px_rgba(0,240,255,0.4)]">
                                         <div className="w-full h-full rounded-full bg-brand-dark flex items-center justify-center">
                                             <PlusCircle className="w-8 h-8 text-white" />
                                         </div>

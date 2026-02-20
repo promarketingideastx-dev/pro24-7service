@@ -18,7 +18,8 @@ const config: Config = {
                     neon: {
                         cyan: '#00F0FF',
                         magenta: '#FF003C',
-                        purple: '#BD00FF',
+                        purple: '#7c3aed',  // NexaVerse purple
+                        teal: '#4db6ac',    // NexaVerse teal
                     }
                 }
             },
@@ -26,7 +27,7 @@ const config: Config = {
                 "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
                 "glass": "linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.00) 100%)",
                 "glass-hover": "linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%)",
-                "neon-gradient": "linear-gradient(to right, #00F0FF, #BD00FF)",
+                "neon-gradient": "linear-gradient(to right, #7c3aed, #4db6ac)",
             },
             boxShadow: {
                 "neon": "0 0 10px rgba(0, 240, 255, 0.5), 0 0 20px rgba(0, 240, 255, 0.3)",

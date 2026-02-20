@@ -360,7 +360,7 @@ export default function AppointmentModal({
                     <button
                         onClick={handleSubmit(onSubmit)}
                         disabled={loading}
-                        className="px-6 py-2 bg-gradient-to-r from-brand-neon-cyan to-brand-neon-purple text-black font-bold rounded-xl text-sm hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all disabled:opacity-50"
+                        className="px-6 py-2 bg-gradient-to-r from-brand-neon-purple to-brand-neon-teal text-black font-bold rounded-xl text-sm hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all disabled:opacity-50"
                     >
                         {loading ? 'Guardando...' : (appointment ? 'Guardar Cambios' : 'Crear Cita')}
                     </button>

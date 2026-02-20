@@ -132,7 +132,7 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
             <div className="p-6 border-t border-white/5 bg-[#0f172a] space-y-3">
                 <button
                     onClick={() => setIsBookingOpen(true)}
-                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-brand-neon-cyan to-brand-neon-purple text-black font-bold text-sm shadow-lg hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-brand-neon-purple to-brand-neon-teal text-black font-bold text-sm shadow-lg hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-2"
                 >
                     <Calendar className="w-4 h-4" />
                     Agendar Cita

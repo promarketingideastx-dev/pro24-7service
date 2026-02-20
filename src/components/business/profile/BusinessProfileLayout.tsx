@@ -307,7 +307,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                     {/* Book Action - Main */}
                     <button
                         onClick={onBookClick}
-                        className="flex-1 bg-brand-neon-cyan hover:bg-cyan-400 text-black px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all"
+                        className="flex-1 bg-brand-neon-purple hover:bg-violet-500 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all"
                     >
                         <Calendar className="w-5 h-5" />
                         Reservar Cita

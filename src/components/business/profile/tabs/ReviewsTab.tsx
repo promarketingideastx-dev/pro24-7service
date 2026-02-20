@@ -93,7 +93,7 @@ export default function ReviewsTab({ business }: ReviewsTabProps) {
                 <div className="flex flex-col items-center md:items-end gap-2 text-center md:text-right">
                     <button
                         onClick={handleWriteReview}
-                        className="bg-brand-neon-cyan hover:bg-cyan-400 text-black px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-cyan-500/20"
+                        className="bg-brand-neon-purple hover:bg-violet-500 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-cyan-500/20"
                     >
                         <PenTool size={18} />
                         Escribir Reseña
