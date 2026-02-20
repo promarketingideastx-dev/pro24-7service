@@ -21,6 +21,7 @@ export interface Appointment {
     serviceId: string;
     serviceName: string; // Store for faster rendering
     serviceDuration: number; // Store for faster rendering
+    servicePrice?: number; // For LTV calculation in CRM
     customerId?: string; // If registered user
     customerName: string; // Fallback or Guest name
     customerEmail?: string;
@@ -178,6 +179,21 @@ export const AppointmentService = {
             await deleteDoc(doc(db, COLLECTION_NAME, id));
         } catch (error) {
             console.error("Error deleting appointment:", error);
+            throw error;
+        }
+    },
+
+    // Get ALL appointments for a business (no date filter) — used by CRM
+    async getAllByBusiness(businessId: string): Promise<Appointment[]> {
+        try {
+            const q = query(
+                collection(db, COLLECTION_NAME),
+                where('businessId', '==', businessId)
+            );
+            const snapshot = await getDocs(q);
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
+        } catch (error) {
+            console.error("Error fetching all appointments:", error);
             throw error;
         }
     }

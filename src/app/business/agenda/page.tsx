@@ -13,6 +13,7 @@ import { startOfWeek, endOfWeek, startOfDay, endOfDay } from 'date-fns';
 import { toast } from 'sonner';
 import { ActiveCountry } from '@/lib/activeCountry';
 import { getCountryConfig } from '@/lib/locations';
+import { useAppointmentRefresh } from '@/context/AppointmentRefreshContext';
 
 export default function AgendaPage() {
     const { user } = useAuth();
@@ -28,6 +29,7 @@ export default function AgendaPage() {
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+    const { lastRefresh } = useAppointmentRefresh();
 
     // Fetch dependencies
     useEffect(() => {
@@ -72,6 +74,13 @@ export default function AgendaPage() {
     useEffect(() => {
         fetchAppointments();
     }, [user, currentDate, view]);
+
+    // Listen to global refresh signal from Inbox (cross-page bridge)
+    useEffect(() => {
+        if (lastRefresh > 0) {
+            fetchAppointments();
+        }
+    }, [lastRefresh]);
 
     const handleSaveAppointment = async (appointmentData: any) => {
         if (!user) return;

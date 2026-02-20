@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, User, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAppointmentRefresh } from '@/context/AppointmentRefreshContext';
 
 interface AppointmentInboxProps {
     businessId: string;
@@ -16,6 +17,7 @@ export default function AppointmentInbox({ businessId }: AppointmentInboxProps) 
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [loading, setLoading] = useState(true);
     const [processingId, setProcessingId] = useState<string | null>(null);
+    const { triggerRefresh } = useAppointmentRefresh();
 
     const fetchAppointments = async () => {
         setLoading(true);
@@ -78,10 +80,24 @@ export default function AppointmentInbox({ businessId }: AppointmentInboxProps) 
         setProcessingId(appointmentId);
         try {
             await AppointmentService.updateStatus(appointmentId, newStatus);
-            toast.success(`Cita ${newStatus === 'confirmed' ? 'aceptada' : 'rechazada'} exitosamente`);
-            // Refresh list
+
+            // Optimistic update: update local state immediately without waiting for fetchAppointments
+            setAppointments(prev =>
+                prev.map(a =>
+                    a.id === appointmentId ? { ...a, status: newStatus } : a
+                )
+            );
+
+            const label = newStatus === 'confirmed' ? 'aceptada' :
+                newStatus === 'cancelled' ? 'rechazada' :
+                    newStatus === 'completed' ? 'marcada como completada' : 'actualizada';
+            toast.success(`Cita ${label} exitosamente`);
+
+            // Signal Agenda page to re-fetch (cross-page bridge)
+            triggerRefresh();
+
+            // Refresh Inbox list
             fetchAppointments();
-            // Trigger a global refresh if needed, or rely on parent
         } catch (error) {
             console.error("Error updating status:", error);
             toast.error("No se pudo actualizar la cita");
@@ -140,8 +156,8 @@ export default function AppointmentInbox({ businessId }: AppointmentInboxProps) 
                                 {/* Info */}
                                 <div className="flex items-start gap-4">
                                     <div className={`p-3 rounded-full ${apt.status === 'confirmed' ? 'bg-green-500/10 text-green-500' :
-                                            apt.status === 'pending' ? 'bg-yellow-500/10 text-yellow-500' :
-                                                'bg-slate-500/10 text-slate-500'
+                                        apt.status === 'pending' ? 'bg-yellow-500/10 text-yellow-500' :
+                                            'bg-slate-500/10 text-slate-500'
                                         }`}>
                                         <User size={20} />
                                     </div>
@@ -193,13 +209,21 @@ export default function AppointmentInbox({ businessId }: AppointmentInboxProps) 
                                 )}
 
                                 {activeTab !== 'pending' && (
-                                    <div className={`px-3 py-1 rounded-full text-xs font-medium border ${apt.status === 'confirmed' ? 'border-green-500/30 text-green-400 bg-green-500/5' :
-                                            apt.status === 'cancelled' ? 'border-red-500/30 text-red-400 bg-red-500/5' :
-                                                'border-slate-500/30 text-slate-400 bg-slate-500/5'
+                                    <div className={`shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border ${apt.status === 'confirmed'
+                                            ? 'border-green-500/30 text-green-400 bg-green-500/5'
+                                            : apt.status === 'cancelled'
+                                                ? 'border-red-500/30 text-red-400 bg-red-500/5'
+                                                : apt.status === 'completed'
+                                                    ? 'border-slate-500/30 text-slate-300 bg-slate-500/5'
+                                                    : apt.status === 'no-show'
+                                                        ? 'border-slate-600/30 text-slate-500 bg-slate-600/5'
+                                                        : 'border-yellow-500/30 text-yellow-400 bg-yellow-500/5'
                                         }`}>
-                                        {apt.status === 'confirmed' ? 'Confirmada' :
-                                            apt.status === 'cancelled' ? 'Cancelada' :
-                                                apt.status === 'completed' ? 'Completada' : apt.status}
+                                        {apt.status === 'confirmed' && <><CheckCircle size={11} /> Confirmada</>}
+                                        {apt.status === 'cancelled' && <><XCircle size={11} />    Cancelada</>}
+                                        {apt.status === 'completed' && <><CheckCircle size={11} /> Completada</>}
+                                        {apt.status === 'no-show' && <><XCircle size={11} />    No Asistió</>}
+                                        {apt.status === 'pending' && <><AlertCircle size={11} /> Pendiente</>}
                                     </div>
                                 )}
                             </div>

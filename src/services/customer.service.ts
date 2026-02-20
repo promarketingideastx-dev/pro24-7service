@@ -23,6 +23,7 @@ export interface Customer {
     address?: string;
     notes?: string; // MVP: Single note field
     tags?: string[];
+    archived?: boolean; // Soft-delete: hides from list but keeps data
     createdAt?: any;
     updatedAt?: any;
     lastInteractionAt?: any;
@@ -40,7 +41,6 @@ export const CustomerService = {
             const q = query(
                 customersRef,
                 where('businessId', '==', businessId)
-                // orderBy('fullName') // Requires index, skipping for MVP/dev to avoid errors
             );
 
             const snapshot = await getDocs(q);
@@ -49,8 +49,10 @@ export const CustomerService = {
                 ...doc.data()
             } as Customer));
 
-            // Client-side sort for MVP
-            return customers.sort((a, b) => a.fullName.localeCompare(b.fullName));
+            // Exclude archived, sort by name
+            return customers
+                .filter(c => !c.archived)
+                .sort((a, b) => a.fullName.localeCompare(b.fullName));
         } catch (error) {
             console.error("Error fetching customers:", error);
             throw error;
@@ -179,6 +181,86 @@ export const CustomerService = {
             await deleteDoc(doc(db, COLLECTION_NAME, id));
         } catch (error) {
             console.error("Error deleting customer:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * Archive a customer (soft-delete). Hides from CRM list but preserves all data.
+     * Use instead of deleting when the customer has appointment history.
+     */
+    async archiveCustomer(id: string): Promise<void> {
+        try {
+            const docRef = doc(db, COLLECTION_NAME, id);
+            await updateDoc(docRef, {
+                archived: true,
+                updatedAt: serverTimestamp()
+            });
+        } catch (error) {
+            console.error("Error archiving customer:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * Upsert a customer from booking data.
+     * Looks up by email (preferred) or phone. Creates if not found, updates if found.
+     * Returns the customer ID for linking to the appointment.
+     */
+    async upsertFromAppointment(businessId: string, data: {
+        fullName: string;
+        email?: string;
+        phone?: string;
+    }): Promise<string> {
+        try {
+            const customersRef = collection(db, COLLECTION_NAME);
+
+            // Try to find by email first
+            if (data.email) {
+                const qEmail = query(customersRef, where('businessId', '==', businessId), where('email', '==', data.email));
+                const snap = await getDocs(qEmail);
+                if (!snap.empty) {
+                    const existing = snap.docs[0];
+                    // Update lastInteractionAt and fill in any missing fields
+                    await updateDoc(doc(db, COLLECTION_NAME, existing.id), {
+                        lastInteractionAt: serverTimestamp(),
+                        ...(data.phone && !existing.data().phone ? { phone: data.phone } : {}),
+                        updatedAt: serverTimestamp()
+                    });
+                    return existing.id;
+                }
+            }
+
+            // Try by phone if no email match
+            if (data.phone) {
+                const qPhone = query(customersRef, where('businessId', '==', businessId), where('phone', '==', data.phone));
+                const snap = await getDocs(qPhone);
+                if (!snap.empty) {
+                    const existing = snap.docs[0];
+                    await updateDoc(doc(db, COLLECTION_NAME, existing.id), {
+                        lastInteractionAt: serverTimestamp(),
+                        ...(data.email && !existing.data().email ? { email: data.email } : {}),
+                        updatedAt: serverTimestamp()
+                    });
+                    return existing.id;
+                }
+            }
+
+            // Not found — create new customer
+            const newCustomer = {
+                businessId,
+                fullName: data.fullName,
+                email: data.email || '',
+                phone: data.phone || '',
+                archived: false,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+                lastInteractionAt: serverTimestamp()
+            };
+            const docRef = await addDoc(customersRef, newCustomer);
+            return docRef.id;
+        } catch (error) {
+            console.error("Error upserting customer from appointment:", error);
             throw error;
         }
     }

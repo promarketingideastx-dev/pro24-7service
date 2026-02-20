@@ -143,19 +143,17 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
         setLoading(true);
 
         try {
+            // Auto-sync CRM: Upsert customer (create or update if already exists)
             let customerId: string | undefined = undefined;
             try {
-                const newCustomer = await CustomerService.createCustomer({
-                    businessId,
+                customerId = await CustomerService.upsertFromAppointment(businessId, {
                     fullName: data.name,
-                    phone: data.phone,
-                    email: data.email,
-                    notes: `Creado desde Solicitud Pública. Nota: ${data.notes || 'Ninguna'}`,
-                    tags: ['public_request']
+                    phone: data.phone || undefined,
+                    email: data.email || undefined,
                 });
-                customerId = newCustomer.id;
-            } catch (err: any) {
-                console.log("Customer might exist or error:", err);
+            } catch (err) {
+                // Non-blocking: booking proceeds even if CRM sync fails
+                console.warn("CRM sync failed silently:", err);
             }
 
             const startDateTime = new Date(`${selectedDate}T${selectedTime}`);
@@ -169,6 +167,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 serviceId: selectedService.id!,
                 serviceName: selectedService.name || 'Servicio',
                 serviceDuration: selectedService.durationMinutes || 30,
+                servicePrice: selectedService.price || 0,
                 employeeId: 'pending',
                 date: Timestamp.fromDate(startDateTime),
                 status: 'pending',

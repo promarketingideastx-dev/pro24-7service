@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, AlertTriangle, Trash2, Calendar, Loader2 } from 'lucide-react';
+import { X, AlertTriangle, Trash2, Calendar, Loader2, Archive } from 'lucide-react';
 import { Customer, CustomerService } from '@/services/customer.service';
 import { Appointment, AppointmentService } from '@/services/appointment.service';
 import { toast } from 'sonner';
@@ -23,7 +23,7 @@ export default function SmartDeleteCustomerModal({
 }: SmartDeleteCustomerModalProps) {
     const [step, setStep] = useState<'checking' | 'confirm' | 'deleting'>('checking');
     const [appointments, setAppointments] = useState<Appointment[]>([]);
-    const [action, setAction] = useState<'client_only' | 'all' | 'appointments_only' | null>(null);
+    const [action, setAction] = useState<'archive' | 'client_only' | 'all' | 'appointments_only' | null>(null);
 
     useEffect(() => {
         if (isOpen && customer && businessId) {
@@ -50,36 +50,38 @@ export default function SmartDeleteCustomerModal({
         }
     };
 
-    const handleDelete = async (deleteAction: 'appointments_only' | 'all' | 'client_only') => {
+    const handleDelete = async (deleteAction: 'archive' | 'appointments_only' | 'all' | 'client_only') => {
         if (!customer?.id) return;
 
-        setAction(deleteAction);
+        setAction(deleteAction as any);
         setStep('deleting');
 
         try {
-            if (deleteAction === 'all' || deleteAction === 'appointments_only') {
-                // Delete appointments
-                const deletePromises = appointments.map(apt => AppointmentService.deleteAppointment(apt.id!));
-                await Promise.all(deletePromises);
+            if (deleteAction === 'archive') {
+                await CustomerService.archiveCustomer(customer.id);
+                toast.success("Cliente archivado. Sus citas se mantienen intactas.");
+            } else {
+                if (deleteAction === 'all' || deleteAction === 'appointments_only') {
+                    const deletePromises = appointments.map(apt => AppointmentService.deleteAppointment(apt.id!));
+                    await Promise.all(deletePromises);
+                }
+                if (deleteAction === 'all' || deleteAction === 'client_only') {
+                    await CustomerService.deleteCustomer(customer.id);
+                }
+
+                let message = "Operación exitosa";
+                if (deleteAction === 'all') message = "Cliente y sus citas eliminados correctamente";
+                if (deleteAction === 'appointments_only') message = "Historial de citas eliminado correctamente";
+                if (deleteAction === 'client_only') message = "Cliente eliminado correctamente";
+                toast.success(message);
             }
 
-            if (deleteAction === 'all' || deleteAction === 'client_only') {
-                // Delete client
-                await CustomerService.deleteCustomer(customer.id);
-            }
-
-            let message = "Operación exitosa";
-            if (deleteAction === 'all') message = "Cliente y sus citas eliminados correctamente";
-            if (deleteAction === 'appointments_only') message = "Historial de citas eliminado correctamente";
-            if (deleteAction === 'client_only') message = "Cliente eliminado correctamente";
-
-            toast.success(message);
             onSuccess();
             onClose();
         } catch (error) {
             console.error("Error deleting:", error);
             toast.error("Error al eliminar. Intenta de nuevo.");
-            setStep('confirm'); // Go back on error
+            setStep('confirm');
         }
     };
 
@@ -123,34 +125,40 @@ export default function SmartDeleteCustomerModal({
                             <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 text-left">
                                 <h4 className="flex items-center gap-2 text-amber-500 font-bold text-sm mb-2">
                                     <AlertTriangle size={16} />
-                                    Atención: Datos Relacionados
+                                    Este cliente tiene {appointments.length} cita(s)
                                 </h4>
-                                <p className="text-slate-300 text-sm mb-3">
-                                    Este cliente tiene <strong>{appointments.length} citas(s)</strong> registradas en el sistema.
-                                </p>
 
-                                <div className="space-y-3">
+                                <div className="space-y-2">
+                                    {/* ARCHIVE - Primary / Safest Option */}
+                                    <button
+                                        onClick={() => handleDelete('archive')}
+                                        className="w-full p-3 bg-brand-neon-cyan/10 hover:bg-brand-neon-cyan/20 border border-brand-neon-cyan/30 rounded-lg text-left transition-colors group"
+                                    >
+                                        <span className="flex items-center gap-2 text-brand-neon-cyan font-medium text-sm">
+                                            <Archive size={14} /> Archivar Cliente (Recomendado)
+                                        </span>
+                                        <span className="block text-slate-500 text-xs mt-0.5 pl-5">
+                                            Se oculta de la lista pero conserva citas e historial.
+                                        </span>
+                                    </button>
+
                                     <button
                                         onClick={() => handleDelete('appointments_only')}
                                         className="w-full p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-left transition-colors group"
                                     >
-                                        <span className="block text-white font-medium group-hover:text-amber-400 transition-colors">
-                                            Eliminar Solo Citas
-                                        </span>
-                                        <span className="block text-slate-500 text-xs mt-1">
-                                            Se borrará todo el historial de citas, pero el perfil del cliente se mantendrá activo.
+                                        <span className="block text-white font-medium text-sm">Eliminar Solo Citas</span>
+                                        <span className="block text-slate-500 text-xs mt-0.5">
+                                            Borra historial de citas, perfil del cliente se mantiene.
                                         </span>
                                     </button>
 
                                     <button
                                         onClick={() => handleDelete('all')}
-                                        className="w-full p-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg text-left transition-colors group"
+                                        className="w-full p-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg text-left transition-colors"
                                     >
-                                        <span className="block text-red-400 font-medium group-hover:text-red-300 transition-colors">
-                                            Eliminar Todo (Cliente + Citas)
-                                        </span>
-                                        <span className="block text-red-500/60 text-xs mt-1">
-                                            Se borrará el perfil y todas las citas asociadas permanentemente.
+                                        <span className="block text-red-400 font-medium text-sm">Eliminar Todo (Cliente + Citas)</span>
+                                        <span className="block text-red-500/60 text-xs mt-0.5">
+                                            Eliminación permanente. No se puede deshacer.
                                         </span>
                                     </button>
                                 </div>
