@@ -56,7 +56,7 @@ export default function CountrySelector() {
                 <div className="shrink-0 px-6 md:px-12 py-6 z-10 w-full max-w-2xl mx-auto">
                     <div className="relative group">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-neon-cyan to-brand-accent rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-                        <div className="relative bg-[#1a2f4e] rounded-2xl flex items-center px-6 h-16 shadow-lg border border-white/5">
+                        <div className="relative bg-[#0b0f19] rounded-2xl flex items-center px-6 h-16 shadow-lg border border-white/5">
                             <Search className="w-6 h-6 text-slate-400 mr-4 group-focus-within:text-brand-neon-cyan transition-colors" />
                             <input
                                 type="text"

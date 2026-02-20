@@ -151,7 +151,7 @@ export default function ServicesPage() {
             {/* Service Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-[#1e3a5f] border border-white/10 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
+                    <div className="bg-[#151b2e] border border-white/10 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
                         <button
                             onClick={() => setIsModalOpen(false)}
                             className="absolute top-4 right-4 text-slate-500 hover:text-white"
@@ -171,7 +171,7 @@ export default function ServicesPage() {
                                     required
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full bg-[#1a2f4e] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
                                     placeholder="Ej. Corte Regular"
                                 />
                             </div>
@@ -181,7 +181,7 @@ export default function ServicesPage() {
                                 <textarea
                                     value={formData.description}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full bg-[#1a2f4e] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none resize-none h-24"
+                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none resize-none h-24"
                                     placeholder="Detalles sobre el servicio..."
                                 />
                             </div>
@@ -199,7 +199,7 @@ export default function ServicesPage() {
                                             placeholder="0.00"
                                             value={formData.price === 0 ? '' : formData.price}
                                             onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
-                                            className="w-full bg-[#1a2f4e] border border-white/10 rounded-lg pl-8 pr-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            className="w-full bg-[#0B0F19] border border-white/10 rounded-lg pl-8 pr-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                     </div>
                                 </div>
@@ -220,7 +220,7 @@ export default function ServicesPage() {
             {/* Delete Confirmation Modal */}
             {serviceToDelete && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-[#1e3a5f] border border-white/10 w-full max-w-sm rounded-2xl p-6 shadow-2xl relative">
+                    <div className="bg-[#151b2e] border border-white/10 w-full max-w-sm rounded-2xl p-6 shadow-2xl relative">
                         <div className="flex flex-col items-center text-center mb-6">
                             <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-4 text-red-500">
                                 <AlertTriangle size={24} />

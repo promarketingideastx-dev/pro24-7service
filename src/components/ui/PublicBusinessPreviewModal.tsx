@@ -27,7 +27,7 @@ export default function PublicBusinessPreviewModal({ isOpen, onClose, business }
             {/* Click outside to close */}
             <div className="absolute inset-0" onClick={onClose}></div>
 
-            <div className="relative bg-[#1e3a5f] w-full max-w-lg sm:rounded-3xl rounded-t-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh] animate-in slide-in-from-bottom duration-300">
+            <div className="relative bg-[#151b2e] w-full max-w-lg sm:rounded-3xl rounded-t-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh] animate-in slide-in-from-bottom duration-300">
 
                 {/* Close Button */}
                 <button
@@ -46,7 +46,7 @@ export default function PublicBusinessPreviewModal({ isOpen, onClose, business }
                             <span className="text-4xl">🏢</span>
                         </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1e3a5f] via-transparent to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#151b2e] via-transparent to-transparent"></div>
 
                     <div className="absolute bottom-4 left-6 right-6">
                         <div className="flex items-start justify-between">
