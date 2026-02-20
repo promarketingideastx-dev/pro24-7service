@@ -18,15 +18,14 @@ export function CountryProvider({ children }: { children: React.ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Load from Helper
-        const saved = ActiveCountry.get();
-        setSelectedCountry(getCountryConfig(saved));
-        // Force loading state to show selector even if null? 
-        // Logic change: If we have a default/saved, we are NOT loading.
-        // But if we want to force selector on first visit ever?
-        // ActiveCountry.get() returns DEFAULT if nothing found, so we always have one.
-        // We might want to check if it was *actually* saved vs default to show selector?
-        // For now, adhering to instruction: Persist and read.
+        // Only load a saved country if the user has explicitly selected one before.
+        // First-time visitors (no saved preference) get null → shows CountrySelector.
+        if (ActiveCountry.hasExplicitSelection()) {
+            const saved = ActiveCountry.get();
+            setSelectedCountry(getCountryConfig(saved));
+        } else {
+            setSelectedCountry(null);
+        }
         setIsLoading(false);
     }, []);
 

@@ -48,7 +48,30 @@ export const ActiveCountry = {
         if (cookieVal && isSupportedCountry(cookieVal)) return cookieVal as CountryCode;
 
         // 3. Fallback
-        // 3. Fallback
         return DEFAULT_COUNTRY;
+    },
+
+    /**
+     * Returns true only if the user has EXPLICITLY selected a country
+     * (i.e., a value is saved in localStorage or cookie).
+     * Returns false for first-time visitors who have never chosen.
+     */
+    hasExplicitSelection(): boolean {
+        if (typeof window === 'undefined') return false;
+
+        // Check LocalStorage
+        try {
+            const local = localStorage.getItem(STORAGE_KEY);
+            if (local && isSupportedCountry(local)) return true;
+        } catch (e) {
+            // Ignore error
+        }
+
+        // Check Cookie
+        const match = document.cookie.match(new RegExp('(^| )' + COOKIE_NAME + '=([^;]+)'));
+        const cookieVal = match ? match[2] : null;
+        if (cookieVal && isSupportedCountry(cookieVal)) return true;
+
+        return false;
     }
 };
