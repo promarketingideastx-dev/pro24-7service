@@ -5,13 +5,14 @@ import { updateProfile } from 'firebase/auth';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import {
-    User, Mail, Phone, MapPin, Calendar, Edit2, LogOut, Camera, Shield, X, Trash2, AlertTriangle, Heart, Save
+    User, Mail, Phone, MapPin, Calendar, Edit2, LogOut, Camera, Shield, X, Trash2, AlertTriangle, Heart, Save, ExternalLink, Building2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
-import { UserService } from '@/services/user.service'; // Assuming this service exists or we'll add methods
-import { StorageService } from '@/services/storage.service'; // For avatar upload
-import ImageUploader from '@/components/ui/ImageUploader'; // Reuse our component!
+import { UserService } from '@/services/user.service';
+import { StorageService } from '@/services/storage.service';
+import ImageUploader from '@/components/ui/ImageUploader';
+import { FavoritesService, FavoriteRecord } from '@/services/favorites.service';
 
 export default function UserProfilePage() {
     const { user, userProfile } = useAuth();
@@ -19,15 +20,17 @@ export default function UserProfilePage() {
 
     const [loading, setLoading] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null); // For non-intrusive feedback
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         displayName: '',
         phoneNumber: '',
         address: '',
     });
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [favorites, setFavorites] = useState<FavoriteRecord[]>([]);
+    const [favLoading, setFavLoading] = useState(true);
 
-    // Load initial data
+    // Load initial data + favorites
     useEffect(() => {
         if (user && userProfile) {
             setFormData({
@@ -35,6 +38,14 @@ export default function UserProfilePage() {
                 phoneNumber: userProfile.phoneNumber || '',
                 address: userProfile.address || '',
             });
+        }
+        if (user) {
+            FavoritesService.getFavorites(user.uid)
+                .then(setFavorites)
+                .catch(() => { })
+                .finally(() => setFavLoading(false));
+        } else {
+            setFavLoading(false);
         }
     }, [user, userProfile]);
 
@@ -235,20 +246,59 @@ export default function UserProfilePage() {
                     </div>
                 </div>
 
-                {/* 2. Engagement Section (Favorites / Etc) */}
-                <div className="bg-[#151b2e] border border-white/5 rounded-3xl p-6 md:p-8 opacity-50 relative overflow-hidden group">
-                    {/* Work in progress overlay */}
-                    <div className="absolute inset-0 z-10 bg-[#151b2e]/60 flex items-center justify-center">
-                        <span className="bg-black/50 px-4 py-2 rounded-full text-xs font-bold border border-white/10 text-slate-300">Próximamente: Favoritos y Chats</span>
+                {/* 2. Mis Favoritos (Negocios Guardados) */}
+                <div className="bg-[#151b2e] border border-white/5 rounded-3xl p-6 md:p-8">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-red-500/10 rounded-xl">
+                            <Heart className="w-6 h-6 text-red-400 fill-red-400" />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-bold">Mis Negocios Guardados</h2>
+                            <p className="text-slate-500 text-xs">Negocios a los que les diste ❤️</p>
+                        </div>
+                        <span className="ml-auto bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-bold px-2.5 py-1 rounded-full">
+                            {favorites.length}
+                        </span>
                     </div>
 
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 bg-pink-500/10 rounded-xl">
-                            <Heart className="w-6 h-6 text-pink-400" />
+                    {favLoading ? (
+                        <div className="flex justify-center py-8">
+                            <div className="w-6 h-6 rounded-full border-2 border-red-400/30 border-t-red-400 animate-spin" />
                         </div>
-                        <h2 className="text-xl font-bold">Mis Favoritos</h2>
-                    </div>
-                    <p className="text-slate-400 text-sm">Aquí verás los negocios que has guardado.</p>
+                    ) : favorites.length === 0 ? (
+                        <div className="text-center py-8 text-slate-600">
+                            <Heart className="w-10 h-10 mx-auto mb-3 opacity-20" />
+                            <p className="text-sm">Aún no has guardado ningún negocio.</p>
+                            <Link href="/" className="mt-3 inline-block text-xs text-brand-neon-cyan hover:underline">Explorar negocios →</Link>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {favorites.map((fav) => (
+                                <Link
+                                    key={fav.businessId}
+                                    href={`/negocio/${fav.businessId}`}
+                                    className="group flex items-center gap-4 p-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl transition-all active:scale-[0.98]"
+                                >
+                                    {/* Logo / Avatar */}
+                                    <div className="w-12 h-12 rounded-xl bg-slate-800 border border-white/10 shrink-0 overflow-hidden flex items-center justify-center">
+                                        {fav.businessLogoUrl ? (
+                                            <img src={fav.businessLogoUrl} alt={fav.businessName} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <Building2 className="w-5 h-5 text-slate-500" />
+                                        )}
+                                    </div>
+                                    {/* Info */}
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-white font-semibold text-sm truncate group-hover:text-brand-neon-cyan transition-colors">{fav.businessName}</p>
+                                        <p className="text-slate-500 text-xs truncate">
+                                            {[fav.businessCategory, fav.businessCity].filter(Boolean).join(' · ')}
+                                        </p>
+                                    </div>
+                                    <ExternalLink className="w-4 h-4 text-slate-600 group-hover:text-brand-neon-cyan transition-colors shrink-0" />
+                                </Link>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* 3. Danger Zone */}

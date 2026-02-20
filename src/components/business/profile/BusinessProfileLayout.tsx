@@ -5,6 +5,7 @@ import { Share2, ArrowLeft, Star, MapPin, Heart, Award, CheckCircle2, Phone, Mes
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
+import { FavoritesService } from '@/services/favorites.service';
 
 interface ProfileLayoutProps {
     business: any;
@@ -23,33 +24,76 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     const [isFavorited, setIsFavorited] = useState(false);
     const [heartAnim, setHeartAnim] = useState(false);
 
-    // ─── Favorites: load from localStorage ──────────────────────────────────
+    // ─── Favorites: load from Firestore (if logged in) or localStorage ────
     const favKey = 'pro247_favorites';
 
     useEffect(() => {
-        try {
-            const stored = JSON.parse(localStorage.getItem(favKey) || '[]') as string[];
-            setIsFavorited(stored.includes(business?.id));
-        } catch { /* ignore */ }
-    }, [business?.id]);
-
-    const handleFavorite = () => {
-        try {
-            const stored = JSON.parse(localStorage.getItem(favKey) || '[]') as string[];
-            let updated: string[];
-            if (isFavorited) {
-                updated = stored.filter((id) => id !== business.id);
-                toast('Eliminado de favoritos', { icon: '💔' });
-            } else {
-                updated = Array.from(new Set([...stored, business.id]));
-                toast.success('¡Agregado a favoritos!', { icon: '❤️' });
+        const loadFav = async () => {
+            if (user && business?.id) {
+                try {
+                    const favd = await FavoritesService.isFavorited(user.uid, business.id);
+                    setIsFavorited(favd);
+                    return;
+                } catch { /* fallback to localStorage */ }
             }
-            localStorage.setItem(favKey, JSON.stringify(updated));
-            setIsFavorited(!isFavorited);
-            // Trigger heart pop animation
+            // localStorage fallback (guest)
+            try {
+                const stored = JSON.parse(localStorage.getItem(favKey) || '[]') as string[];
+                setIsFavorited(stored.includes(business?.id));
+            } catch { /* ignore */ }
+        };
+        loadFav();
+    }, [user, business?.id]);
+
+    const handleFavorite = async () => {
+        if (!business?.id) return;
+
+        if (user) {
+            // — Logged in: use Firestore bidirectional toggle—
             setHeartAnim(true);
             setTimeout(() => setHeartAnim(false), 400);
-        } catch { /* ignore */ }
+            try {
+                const added = await FavoritesService.toggle(
+                    user.uid,
+                    {
+                        name: user.displayName || undefined,
+                        email: user.email || undefined,
+                    },
+                    {
+                        id: business.id,
+                        name: business.name,
+                        category: business.category,
+                        city: business.city,
+                        logoUrl: business.logoUrl,
+                    }
+                );
+                setIsFavorited(added);
+                if (added) {
+                    toast.success('Negocio guardado en tus favoritos ❤️', { description: 'Lo puedes ver en tu perfil' });
+                } else {
+                    toast('Eliminado de favoritos', { icon: '💔' });
+                }
+            } catch (e) {
+                toast.error('Error al guardar favorito');
+            }
+        } else {
+            // — Guest: localStorage only + prompt to login —
+            try {
+                const stored = JSON.parse(localStorage.getItem(favKey) || '[]') as string[];
+                let updated: string[];
+                if (isFavorited) {
+                    updated = stored.filter((id) => id !== business.id);
+                    toast('Eliminado de favoritos', { icon: '💔' });
+                } else {
+                    updated = Array.from(new Set([...stored, business.id]));
+                    toast.success('¡Guardado! Inicia sesión para sincronizar tus favoritos', { icon: '❤️' });
+                }
+                localStorage.setItem(favKey, JSON.stringify(updated));
+                setIsFavorited(!isFavorited);
+                setHeartAnim(true);
+                setTimeout(() => setHeartAnim(false), 400);
+            } catch { /* ignore */ }
+        }
     };
 
     const handleShare = async () => {
