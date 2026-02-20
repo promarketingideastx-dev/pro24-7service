@@ -133,6 +133,8 @@ export default function DashboardPage() {
 
     useEffect(() => { fetchStats(); }, [user]);
 
+    if (!user) return null;
+
     if (loading || !stats) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
