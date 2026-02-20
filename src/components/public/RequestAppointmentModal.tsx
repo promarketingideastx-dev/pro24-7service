@@ -193,8 +193,8 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div className="bg-[#151b2e] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/80 backdrop-blur-sm">
+            <div className="bg-[#151b2e] border border-white/10 rounded-t-3xl sm:rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
 
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-white/10">
@@ -233,7 +233,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 </div>
 
                 {/* Body */}
-                <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-5 sm:p-6 pb-8 custom-scrollbar">
 
                     {/* STEP 1: SERVICE */}
                     {step === 'service' && (
@@ -447,7 +447,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 <label className="text-slate-400 text-sm">Tu Nombre <span className="text-red-500">*</span></label>
                                 <input
                                     {...register('name', { required: true })}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2 px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
+                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-brand-neon-cyan text-base"
                                     placeholder="Ej. Juan Pérez"
                                 />
                             </div>
@@ -456,7 +456,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 <label className="text-slate-400 text-sm">Teléfono <span className="text-red-500">*</span></label>
                                 <input
                                     {...register('phone', { required: true })}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2 px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
+                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-brand-neon-cyan text-base"
                                     placeholder="+504..."
                                 />
                             </div>
@@ -465,7 +465,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 <label className="text-slate-400 text-sm">Email (Opcional)</label>
                                 <input
                                     {...register('email')}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2 px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
+                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-brand-neon-cyan text-base"
                                     placeholder="juan@ejemplo.com"
                                 />
                             </div>
@@ -482,7 +482,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-3 bg-gradient-to-r from-brand-neon-cyan to-brand-neon-purple text-black font-bold rounded-xl mt-4 hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all flex items-center justify-center gap-2"
+                                className="w-full py-4 bg-gradient-to-r from-brand-neon-cyan to-brand-neon-purple text-black font-bold rounded-xl mt-4 hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all flex items-center justify-center gap-2 text-base"
                             >
                                 {loading ? 'Enviando...' : 'Confirmar Solicitud'}
                             </button>
