@@ -34,7 +34,7 @@ export default function WizardSteps({ currentStep, steps }: WizardStepsProps) {
                                         ? 'border-brand-neon-cyan bg-brand-neon-cyan/20 text-white shadow-[0_0_15px_rgba(0,240,255,0.3)] scale-110'
                                         : isCompleted
                                             ? 'border-green-500 bg-green-500/20 text-green-400'
-                                            : 'border-white/10 bg-[#0B0F19] text-slate-500'
+                                            : 'border-white/10 bg-[#154040] text-slate-500'
                                     }
                                 `}
                             >

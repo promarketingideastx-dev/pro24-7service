@@ -194,7 +194,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
 
     return (
         <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center sm:p-4 bg-black/80 backdrop-blur-sm">
-            <div className="bg-[#151b2e] border border-white/10 rounded-t-3xl sm:rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
+            <div className="bg-[#1e5555] border border-white/10 rounded-t-3xl sm:rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
 
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-white/10">

@@ -71,7 +71,7 @@ export default function ReviewsTab({ business }: ReviewsTabProps) {
             )}
 
             {/* Summary Card */}
-            <div className="bg-[#151b2e] rounded-3xl p-8 border border-white/5 flex flex-col md:flex-row items-center justify-between gap-8 mb-8">
+            <div className="bg-[#1e5555] rounded-3xl p-8 border border-white/5 flex flex-col md:flex-row items-center justify-between gap-8 mb-8">
 
                 {/* Left: Rating */}
                 <div className="flex flex-col items-center md:items-start">
@@ -116,7 +116,7 @@ export default function ReviewsTab({ business }: ReviewsTabProps) {
                     </div>
                 ) : (
                     reviews.map((review) => (
-                        <div key={review.id} className="bg-[#151b2e] p-6 rounded-2xl border border-white/5 flex gap-4 transition-all hover:bg-white/5">
+                        <div key={review.id} className="bg-[#1e5555] p-6 rounded-2xl border border-white/5 flex gap-4 transition-all hover:bg-white/5">
                             {/* Avatar */}
                             <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-700 shrink-0 border border-white/10">
                                 {review.userAvatar ? (

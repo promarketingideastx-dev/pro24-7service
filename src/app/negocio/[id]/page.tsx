@@ -77,13 +77,13 @@ export default function BusinessProfilePage() {
     }, [user, id]);
 
     if (loading || pageLoading) {
-        return <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center text-slate-400">Cargando perfil...</div>;
+        return <div className="min-h-screen bg-[#154040] flex items-center justify-center text-slate-400">Cargando perfil...</div>;
     }
 
     // 1. Error State
     if (error) {
         return (
-            <div className="min-h-screen bg-[#0B0F19] flex flex-col items-center justify-center text-white gap-4">
+            <div className="min-h-screen bg-[#154040] flex flex-col items-center justify-center text-white gap-4">
                 <p className="text-red-400">Ocurrió un error al cargar el negocio.</p>
                 <button
                     onClick={loadPublic}
@@ -97,7 +97,7 @@ export default function BusinessProfilePage() {
 
     // 2. If no public data found -> 404 (Real 404, no mocks)
     if (!publicData) {
-        return <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center text-white">Negocio no encontrado</div>;
+        return <div className="min-h-screen bg-[#154040] flex items-center justify-center text-white">Negocio no encontrado</div>;
     }
 
     // 4. Unified "Mini-App" View for ALL users (Guest & Logged In)

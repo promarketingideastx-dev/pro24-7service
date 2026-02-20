@@ -62,7 +62,7 @@ export default function AppInstallBanner({ businessName }: AppInstallBannerProps
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-[80] px-4 pb-4 animate-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-[#151b2e] border border-brand-neon-cyan/20 rounded-2xl shadow-2xl shadow-black/60 p-4 flex items-center gap-3 relative overflow-hidden">
+            <div className="bg-[#1e5555] border border-brand-neon-cyan/20 rounded-2xl shadow-2xl shadow-black/60 p-4 flex items-center gap-3 relative overflow-hidden">
                 {/* Subtle glow bg */}
                 <div className="absolute inset-0 bg-gradient-to-r from-brand-neon-cyan/5 to-brand-neon-purple/5 pointer-events-none" />
 

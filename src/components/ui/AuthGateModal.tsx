@@ -31,7 +31,7 @@ export default function AuthGateModal({ isOpen, onClose, businessName, metrics, 
 
     return (
         <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="relative bg-[#151b2e] w-full max-w-md rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col animate-in scale-95 duration-200">
+            <div className="relative bg-[#1e5555] w-full max-w-md rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col animate-in scale-95 duration-200">
 
                 {/* Background Decor */}
                 <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-brand-neon-cyan/20 to-transparent opacity-50 pointer-events-none"></div>

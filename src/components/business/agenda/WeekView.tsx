@@ -20,7 +20,7 @@ export default function WeekView({ date, appointments, onAppointmentClick, onSlo
     return (
         <div className="flex flex-col h-full bg-[#0F131F]">
             {/* Header Row */}
-            <div className="flex border-b border-white/10 bg-[#151b2e]">
+            <div className="flex border-b border-white/10 bg-[#1e5555]">
                 <div className="w-16 flex-shrink-0 border-r border-white/10" />
                 {weekDays.map((day, i) => (
                     <div key={i} className="flex-1 flex flex-col items-center justify-center py-2 border-r border-white/10 last:border-r-0">
@@ -38,7 +38,7 @@ export default function WeekView({ date, appointments, onAppointmentClick, onSlo
             {/* Grid Body */}
             <div className="flex-1 overflow-y-auto overflow-x-auto custom-scrollbar relative flex">
                 {/* Time Labels Column */}
-                <div className="w-16 flex-shrink-0 border-r border-white/10 bg-[#151b2e] sticky left-0 z-10">
+                <div className="w-16 flex-shrink-0 border-r border-white/10 bg-[#1e5555] sticky left-0 z-10">
                     {timeSlots.map((time, i) => (
                         <div
                             key={time}

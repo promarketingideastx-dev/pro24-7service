@@ -4,9 +4,9 @@
 
 :root {
     --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 11, 15, 25;
-    /* #0B0F19 Deep Space */
-    --background-end-rgb: 0, 0, 0;
+    --background-start-rgb: 21, 64, 64;
+    /* #154040 Glacier Mint */
+    --background-end-rgb: 10, 32, 32;
 }
 
 body {
@@ -23,7 +23,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: #0f172a;
+    background: #0d2e2e;
 }
 
 ::-webkit-scrollbar-thumb {

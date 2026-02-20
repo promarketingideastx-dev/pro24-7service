@@ -113,7 +113,7 @@ export default function AppointmentInbox({ businessId }: AppointmentInboxProps) 
     ];
 
     return (
-        <div className="bg-[#151b2e]/50 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm">
+        <div className="bg-[#1e5555]/50 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm">
             {/* Tabs Header */}
             <div className="flex border-b border-white/10">
                 {tabs.map((tab) => (

@@ -149,7 +149,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     if (!business) return null;
 
     return (
-        <main className="min-h-screen bg-[#0B0F19] text-white font-sans pb-24 md:pb-20">
+        <main className="min-h-screen bg-[#154040] text-white font-sans pb-24 md:pb-20">
 
             {/* --- 1. PREMIUM HEADER --- */}
             <header className="relative w-full">
@@ -163,7 +163,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                             <span className="text-6xl opacity-20">🏢</span>
                         </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-[#0B0F19]/60 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#154040] via-[#154040]/60 to-transparent"></div>
                 </div>
 
                 {/* Top Nav (Absolute) */}
@@ -220,7 +220,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                 <div className="px-6 -mt-12 relative flex flex-col md:flex-row gap-4 md:items-end">
 
                     {/* Avatar / Logo */}
-                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl md:rounded-3xl bg-slate-800 border-4 border-[#0B0F19] shadow-2xl overflow-hidden shrink-0 relative z-10 group">
+                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl md:rounded-3xl bg-slate-800 border-4 border-[#154040] shadow-2xl overflow-hidden shrink-0 relative z-10 group">
                         {/* Fallback logic for avatar if needed, using coverImage as proxy or first gallery image */}
                         {business.logoUrl || business.coverImage ? (
                             <img src={business.logoUrl || business.coverImage} className="w-full h-full object-cover" alt="Logo" />
@@ -231,7 +231,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                         )}
                         {/* Verified Badge Overlay */}
                         {business.verified && (
-                            <div className="absolute bottom-1 right-1 bg-green-500 text-white rounded-full p-0.5 border-2 border-[#0B0F19]">
+                            <div className="absolute bottom-1 right-1 bg-green-500 text-white rounded-full p-0.5 border-2 border-[#154040]">
                                 <CheckCircle2 className="w-4 h-4" />
                             </div>
                         )}
@@ -263,7 +263,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
             </header>
 
             {/* --- 2. STICKY TABS --- */}
-            <div className={`sticky top-0 z-40 bg-[#0B0F19]/80 backdrop-blur-xl border-b border-white/5 mt-6 transition-all duration-300 ${isSticky ? 'shadow-lg shadow-black/50' : ''}`}>
+            <div className={`sticky top-0 z-40 bg-[#154040]/80 backdrop-blur-xl border-b border-white/5 mt-6 transition-all duration-300 ${isSticky ? 'shadow-lg shadow-black/50' : ''}`}>
                 <div className="flex overflow-x-auto no-scrollbar justify-start md:justify-center px-4">
                     {tabs.map((tab) => (
                         <button
@@ -281,13 +281,13 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
             </div>
 
             {/* --- 3. CONTENT AREA --- */}
-            <div className="min-h-[50vh] bg-[#0B0F19]">
+            <div className="min-h-[50vh] bg-[#154040]">
                 {children}
             </div>
 
             {/* --- 4. MOBILE STICKY ACTION BAR (hidden when modal is open) --- */}
             {!isOwner && !isModalOpen && (
-                <div className="fixed bottom-0 left-0 right-0 bg-[#0B0F19]/90 backdrop-blur-lg border-t border-white/10 p-4 md:hidden z-50 flex gap-3 animate-in slide-in-from-bottom-full duration-500">
+                <div className="fixed bottom-0 left-0 right-0 bg-[#154040]/90 backdrop-blur-lg border-t border-white/10 p-4 md:hidden z-50 flex gap-3 animate-in slide-in-from-bottom-full duration-500">
                     {/* WhatsApp Button */}
                     <button
                         onClick={handleWhatsApp}

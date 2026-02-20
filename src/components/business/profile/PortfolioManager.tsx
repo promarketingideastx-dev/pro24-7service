@@ -139,7 +139,7 @@ export default function PortfolioManager({ businessId }: PortfolioManagerProps) 
 
             {/* Add New Form */}
             {isAdding && (
-                <div className="bg-[#151b2e] border border-white/10 rounded-xl p-6 animate-in fade-in slide-in-from-top-4">
+                <div className="bg-[#1e5555] border border-white/10 rounded-xl p-6 animate-in fade-in slide-in-from-top-4">
                     <div className="flex justify-between items-start mb-4">
                         <h4 className="text-white font-medium">Nueva Publicación</h4>
                         <button onClick={() => setIsAdding(false)} className="text-slate-400 hover:text-white"><X size={20} /></button>
