@@ -311,17 +311,17 @@ export default function Home() {
                             <div
                                 key={idx}
                                 onClick={() => handleCategoryClick(cat.id)}
-                                className="flex flex-col items-center gap-2 min-w-[90px] cursor-pointer group"
+                                className="flex flex-col items-center gap-2.5 min-w-[80px] flex-1 cursor-pointer group"
                             >
                                 <div className={`
-                     w-14 h-14 rounded-2xl flex items-center justify-center text-xl
+                     w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-3xl
                      ${cat.bg} border ${cat.border}
-                     shadow-[0_0_15px_rgba(0,0,0,0.2)]
-                     group-hover:scale-105 transition-transform duration-300
+                     shadow-[0_0_20px_rgba(0,0,0,0.3)]
+                     group-hover:scale-110 group-active:scale-95 transition-transform duration-200
                    `}>
-                                    <span className="filter drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">{cat.icon}</span>
+                                    <span className="filter drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]">{cat.icon}</span>
                                 </div>
-                                <span className="text-[10px] sm:text-xs font-medium text-slate-400 group-hover:text-white transition-colors text-center leading-tight">{cat.name}</span>
+                                <span className="text-xs sm:text-sm font-semibold text-slate-300 group-hover:text-white transition-colors text-center leading-tight">{cat.name}</span>
                             </div>
                         ))}
                     </div>

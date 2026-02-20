@@ -269,7 +269,7 @@ export default function AppointmentModal({
                                 <option value="">Seleccionar servicio...</option>
                                 {services.map(s => (
                                     <option key={s.id} value={s.id}>
-                                        {s.name} ({s.durationMinutes || 30} min) - ${s.price}
+                                        {s.name} - ${s.price}
                                     </option>
                                 ))}
                             </select>

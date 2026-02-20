@@ -173,7 +173,7 @@ export default function AppointmentInbox({ businessId }: AppointmentInboxProps) 
                                             <div className="flex items-center gap-2">
                                                 <Clock size={14} className="text-purple-400" />
                                                 <span>
-                                                    {format(apt.date.toDate(), 'p', { locale: es })} ({apt.serviceDuration} min)
+                                                    {format(apt.date.toDate(), 'p', { locale: es })}
                                                 </span>
                                                 <span className="text-slate-600">•</span>
                                                 <span className="text-white font-medium">{apt.serviceName}</span>
@@ -210,14 +210,14 @@ export default function AppointmentInbox({ businessId }: AppointmentInboxProps) 
 
                                 {activeTab !== 'pending' && (
                                     <div className={`shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border ${apt.status === 'confirmed'
-                                            ? 'border-green-500/30 text-green-400 bg-green-500/5'
-                                            : apt.status === 'cancelled'
-                                                ? 'border-red-500/30 text-red-400 bg-red-500/5'
-                                                : apt.status === 'completed'
-                                                    ? 'border-slate-500/30 text-slate-300 bg-slate-500/5'
-                                                    : apt.status === 'no-show'
-                                                        ? 'border-slate-600/30 text-slate-500 bg-slate-600/5'
-                                                        : 'border-yellow-500/30 text-yellow-400 bg-yellow-500/5'
+                                        ? 'border-green-500/30 text-green-400 bg-green-500/5'
+                                        : apt.status === 'cancelled'
+                                            ? 'border-red-500/30 text-red-400 bg-red-500/5'
+                                            : apt.status === 'completed'
+                                                ? 'border-slate-500/30 text-slate-300 bg-slate-500/5'
+                                                : apt.status === 'no-show'
+                                                    ? 'border-slate-600/30 text-slate-500 bg-slate-600/5'
+                                                    : 'border-yellow-500/30 text-yellow-400 bg-yellow-500/5'
                                         }`}>
                                         {apt.status === 'confirmed' && <><CheckCircle size={11} /> Confirmada</>}
                                         {apt.status === 'cancelled' && <><XCircle size={11} />    Cancelada</>}

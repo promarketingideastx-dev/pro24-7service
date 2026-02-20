@@ -68,3 +68,13 @@ body {
 .custom-popup .leaflet-popup-tip {
     background: white;
 }
+
+/* Hide native browser calendar icon on styled date inputs */
+input[type="date"].styled-date::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    width: 140px;
+    height: 100%;
+    cursor: pointer;
+}

@@ -249,9 +249,7 @@ export default function CustomerDetailPage() {
                                                             <Clock className="w-3 h-3" />
                                                             {format(aptDate, 'p', { locale: es })}
                                                         </span>
-                                                        {apt.serviceDuration > 0 && (
-                                                            <span className="text-slate-600">{apt.serviceDuration} min</span>
-                                                        )}
+
                                                     </div>
                                                     {apt.notes && (
                                                         <p className="mt-1.5 text-xs text-slate-500 italic">"{apt.notes}"</p>

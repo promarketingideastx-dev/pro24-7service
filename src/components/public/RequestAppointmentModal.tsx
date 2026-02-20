@@ -251,7 +251,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                         >
                                             <div className="text-left">
                                                 <p className="font-bold text-white group-hover:text-brand-neon-cyan transition-colors">{service.name}</p>
-                                                <p className="text-sm text-slate-400">{service.durationMinutes} min • ${service.price}</p>
+                                                <p className="text-sm text-slate-400">${service.price}</p>
                                             </div>
                                             <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-brand-neon-cyan" />
                                         </button>
@@ -264,17 +264,30 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                     {/* STEP 2: DATE & TIME */}
                     {step === 'datetime' && (
                         <div className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-slate-400 text-sm">Fecha Preferida</label>
-                                <div className="relative">
-                                    <Calendar className="absolute left-3 top-3 text-slate-500 w-5 h-5" />
+                            <div className="space-y-3">
+                                <label className="text-white text-sm font-semibold flex items-center gap-2">
+                                    <Calendar className="w-4 h-4 text-brand-neon-cyan" />
+                                    Fecha Preferida
+                                </label>
+                                <div className="relative group">
+                                    {/* Glowing border effect */}
+                                    <div className="absolute inset-0 rounded-xl bg-brand-neon-cyan/10 blur-sm opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none" />
+
+                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-neon-cyan w-5 h-5 z-10 pointer-events-none" />
+
                                     <input
                                         type="date"
                                         min={new Date().toISOString().split('T')[0]}
                                         value={selectedDate}
                                         onChange={handleDateChange}
-                                        className="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-brand-neon-cyan"
+                                        className="styled-date w-full bg-[#0f1623] border-2 border-brand-neon-cyan/40 hover:border-brand-neon-cyan/70 focus:border-brand-neon-cyan rounded-xl py-4 pl-12 pr-36 text-white text-base focus:outline-none transition-all cursor-pointer"
                                     />
+
+                                    {/* Visible "open calendar" CTA — stretched native indicator sits on top */}
+                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-brand-neon-cyan/20 border border-brand-neon-cyan/50 rounded-xl px-4 py-2">
+                                        <Calendar className="w-5 h-5 text-brand-neon-cyan" />
+                                        <span className="text-brand-neon-cyan text-sm font-bold whitespace-nowrap">Abrir</span>
+                                    </div>
                                 </div>
                                 {!dayStatus.isOpen && selectedDate && (
                                     <div className="flex items-center gap-2 text-amber-500 text-sm bg-amber-500/10 p-3 rounded-lg border border-amber-500/20">
@@ -283,6 +296,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                     </div>
                                 )}
                             </div>
+
 
                             <div className="space-y-2">
                                 <label className="text-slate-400 text-sm">Horarios Disponibles</label>
