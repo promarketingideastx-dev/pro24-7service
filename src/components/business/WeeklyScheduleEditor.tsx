@@ -85,7 +85,7 @@ export default function WeeklyScheduleEditor({
 
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-[#1a1030] border border-white/10 w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div className="bg-[#151b2e] border border-white/10 w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 text-slate-500 hover:text-white"
@@ -133,7 +133,7 @@ export default function WeeklyScheduleEditor({
                                         value={schedule[day].start}
                                         disabled={!isEnabled}
                                         onChange={e => setSchedule({ ...schedule, [day]: { ...schedule[day], start: e.target.value } })}
-                                        className="bg-[#0f0d1a] border border-white/10 rounded px-2 py-1 text-white text-sm focus:border-brand-neon-cyan focus:outline-none disabled:opacity-30"
+                                        className="bg-[#0B0F19] border border-white/10 rounded px-2 py-1 text-white text-sm focus:border-brand-neon-cyan focus:outline-none disabled:opacity-30"
                                     />
                                     <span className="text-slate-500">-</span>
                                     <input
@@ -141,7 +141,7 @@ export default function WeeklyScheduleEditor({
                                         value={schedule[day].end}
                                         disabled={!isEnabled}
                                         onChange={e => setSchedule({ ...schedule, [day]: { ...schedule[day], end: e.target.value } })}
-                                        className="bg-[#0f0d1a] border border-white/10 rounded px-2 py-1 text-white text-sm focus:border-brand-neon-cyan focus:outline-none disabled:opacity-30"
+                                        className="bg-[#0B0F19] border border-white/10 rounded px-2 py-1 text-white text-sm focus:border-brand-neon-cyan focus:outline-none disabled:opacity-30"
                                     />
                                 </div>
                             </div>

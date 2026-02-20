@@ -231,7 +231,7 @@ export default function BusinessProfilePage() {
                                     type="text"
                                     value={formData.businessName || ''}
                                     onChange={e => setFormData({ ...formData, businessName: e.target.value })}
-                                    className="w-full bg-[#0f0d1a] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
                                 />
                             </div>
                             <div>
@@ -239,7 +239,7 @@ export default function BusinessProfilePage() {
                                 <textarea
                                     value={formData.description || ''}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full bg-[#0f0d1a] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none h-24 resize-none"
+                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none h-24 resize-none"
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
@@ -249,7 +249,7 @@ export default function BusinessProfilePage() {
                                         type="tel"
                                         value={formData.phone || ''}
                                         onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                        className="w-full bg-[#0f0d1a] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
                                     />
                                 </div>
                                 <div>
@@ -258,7 +258,7 @@ export default function BusinessProfilePage() {
                                         type="url"
                                         value={formData.website || ''}
                                         onChange={e => setFormData({ ...formData, website: e.target.value })}
-                                        className="w-full bg-[#0f0d1a] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
                                     />
                                 </div>
                             </div>
@@ -287,7 +287,7 @@ export default function BusinessProfilePage() {
                         <p className="text-slate-400 text-sm mb-4">
                             Define el horario general de tu negocio. Esto servirá como base para la agenda.
                         </p>
-                        <div className="flex items-center justify-between bg-[#0f0d1a] p-4 rounded-lg border border-white/5">
+                        <div className="flex items-center justify-between bg-[#0B0F19] p-4 rounded-lg border border-white/5">
                             <div>
                                 <span className="block text-white font-medium mb-1">
                                     {formData.openingHours ? "Horario Definido" : "Horario no configurado"}
@@ -328,7 +328,7 @@ export default function BusinessProfilePage() {
                                         type="text"
                                         value={formData.city || ''}
                                         onChange={e => setFormData({ ...formData, city: e.target.value })} // Allow fix if needed, but usually linked to region
-                                        className="w-full bg-[#0f0d1a] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
                                     />
                                 </div>
                             </div>
@@ -338,7 +338,7 @@ export default function BusinessProfilePage() {
                                     type="text"
                                     value={formData.address || ''}
                                     onChange={e => setFormData({ ...formData, address: e.target.value })}
-                                    className="w-full bg-[#0f0d1a] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
                                 />
                             </div>
                         </div>
@@ -427,7 +427,7 @@ export default function BusinessProfilePage() {
                                                         ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan text-white'
                                                         : isAdditional
                                                             ? 'bg-brand-neon-cyan/5 border-brand-neon-cyan/50 text-slate-200'
-                                                            : 'bg-[#0f0d1a] border-white/5 text-slate-400 hover:border-white/20'
+                                                            : 'bg-[#0B0F19] border-white/5 text-slate-400 hover:border-white/20'
                                                     }
                                                 `}
                                             >
@@ -480,7 +480,7 @@ export default function BusinessProfilePage() {
                                                         flex items-center gap-2 p-2 rounded border text-left transition-all
                                                         ${isSelected
                                                             ? 'bg-brand-neon-cyan/20 border-brand-neon-cyan text-white'
-                                                            : 'bg-[#0f0d1a] border-white/5 text-slate-400 hover:border-white/20'
+                                                            : 'bg-[#0B0F19] border-white/5 text-slate-400 hover:border-white/20'
                                                         }
                                                     `}
                                                 >

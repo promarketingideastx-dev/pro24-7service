@@ -16,7 +16,7 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
     if (!business) return null;
 
     return (
-        <div className="flex flex-col h-full bg-[#1a1030] text-white">
+        <div className="flex flex-col h-full bg-[#151b2e] text-white">
 
             {/* Cover Image & Header */}
             <div className="relative h-48 sm:h-56 shrink-0 w-full">
@@ -27,7 +27,7 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
                         <span className="text-4xl">🏢</span>
                     </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1a1030] via-transparent to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#151b2e] via-transparent to-transparent"></div>
 
                 <div className="absolute bottom-4 left-6 right-6">
                     <div className="flex items-start justify-between">

@@ -4,9 +4,9 @@
 
 :root {
     --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 15, 13, 26;
-    /* #0f0d1a NexaVerse Dark */
-    --background-end-rgb: 8, 6, 16;
+    --background-start-rgb: 11, 15, 25;
+    /* #0B0F19 Deep Space */
+    --background-end-rgb: 0, 0, 0;
 }
 
 body {
@@ -23,7 +23,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: #130f22;
+    background: #0f172a;
 }
 
 ::-webkit-scrollbar-thumb {

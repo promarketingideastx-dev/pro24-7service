@@ -88,7 +88,7 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-[#1a1030] w-full max-w-md rounded-2xl border border-white/10 shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="bg-[#151b2e] w-full max-w-md rounded-2xl border border-white/10 shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
 
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-white/5 bg-white/5">

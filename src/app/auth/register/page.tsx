@@ -139,7 +139,7 @@ function RegisterForm() {
     };
 
     return (
-        <div className="bg-[#1a1030]/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl">
+        <div className="bg-[#151b2e]/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl">
             <h2 className="text-xl font-bold text-white mb-2">Crear Cuenta Gratis 🚀</h2>
             <p className="text-slate-400 text-sm mb-6">Únete a la mejor comunidad de profesionales.</p>
 
@@ -187,7 +187,7 @@ function RegisterForm() {
                                 if (emailCheckStatus === 'exists') setEmailCheckStatus('idle'); // Reset on change
                             }}
                             onBlur={handleEmailBlur}
-                            className={`w-full bg-[#0f0d1a] border rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none transition-all
+                            className={`w-full bg-[#0B0F19] border rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none transition-all
                                 ${emailCheckStatus === 'exists' ? 'border-blue-500/50 focus:border-blue-500' : 'border-white/10 focus:border-cyan-500/50'}
                             `}
                             placeholder="tucorreo@ejemplo.com"
@@ -211,7 +211,7 @@ function RegisterForm() {
                             required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-[#0f0d1a] border border-white/10 rounded-xl py-3 pl-10 pr-10 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all"
+                            className="w-full bg-[#0B0F19] border border-white/10 rounded-xl py-3 pl-10 pr-10 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all"
                             placeholder="Mínimo 6 caracteres"
                         />
                         <button
@@ -235,7 +235,7 @@ function RegisterForm() {
                             required
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full bg-[#0f0d1a] border border-white/10 rounded-xl py-3 pl-10 pr-10 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all"
+                            className="w-full bg-[#0B0F19] border border-white/10 rounded-xl py-3 pl-10 pr-10 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all"
                             placeholder="Repite tu contraseña"
                         />
                         <button
@@ -273,7 +273,7 @@ function RegisterForm() {
                     <div className="w-full border-t border-white/10"></div>
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-[#1a1030] px-2 text-slate-500">O continúa con</span>
+                    <span className="bg-[#151b2e] px-2 text-slate-500">O continúa con</span>
                 </div>
             </div>
 
