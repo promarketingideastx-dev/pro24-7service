@@ -13,6 +13,7 @@ import ServicesTab from '@/components/business/profile/tabs/ServicesTab';
 import GalleryTab from '@/components/business/profile/tabs/GalleryTab';
 import ReviewsTab from '@/components/business/profile/tabs/ReviewsTab';
 import DetailsTab from '@/components/business/profile/tabs/DetailsTab';
+import AppInstallBanner from '@/components/ui/AppInstallBanner';
 
 export default function BusinessProfilePage() {
     const params = useParams();
@@ -143,6 +144,9 @@ export default function BusinessProfilePage() {
                 openingHours={displayData.openingHours}
                 paymentSettings={displayData.paymentSettings}
             />
+
+            {/* App Install Banner — shows to mobile visitors who don't have the app */}
+            {!isOwner && <AppInstallBanner businessName={displayData.name} />}
         </BusinessProfileLayout>
     );
 }
