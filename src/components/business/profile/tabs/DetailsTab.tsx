@@ -20,7 +20,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
         <div className="p-6 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
             {/* About */}
-            <div className="bg-[#1e5555] rounded-3xl p-6 border border-white/5">
+            <div className="bg-[#151b2e] rounded-3xl p-6 border border-white/5">
                 <h3 className="font-bold text-white text-lg mb-4 flex items-center gap-2">
                     Sobre Nosotros
                 </h3>
@@ -30,7 +30,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
             </div>
 
             {/* Contact Info */}
-            <div className="bg-[#1e5555] rounded-3xl p-6 border border-white/5">
+            <div className="bg-[#151b2e] rounded-3xl p-6 border border-white/5">
                 <h3 className="font-bold text-white text-lg mb-4">Información de Contacto</h3>
                 <div className="space-y-4">
                     <div className="flex items-start gap-4">
@@ -100,7 +100,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
             </div>
 
             {/* Hours */}
-            <div className="bg-[#1e5555] rounded-3xl p-6 border border-white/5">
+            <div className="bg-[#151b2e] rounded-3xl p-6 border border-white/5">
                 <h3 className="font-bold text-white text-lg mb-4 flex items-center gap-2">
                     <Clock className="w-5 h-5 text-brand-neon-cyan" />
                     Horarios de Atención

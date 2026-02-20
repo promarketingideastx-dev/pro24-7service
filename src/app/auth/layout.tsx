@@ -4,7 +4,7 @@ export default function AuthLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="min-h-screen bg-[#154040] text-white flex flex-col justify-center items-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-[#0B0F19] text-white flex flex-col justify-center items-center p-4 relative overflow-hidden">
             {/* Ambient Background */}
             <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
             <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none"></div>

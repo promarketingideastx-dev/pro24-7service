@@ -112,21 +112,21 @@ export default function CustomerDetailPage() {
 
             {/* Stats Row */}
             <div className="grid grid-cols-3 gap-3">
-                <div className="bg-[#1e5555] border border-brand-neon-cyan/20 rounded-xl p-4 text-center">
+                <div className="bg-[#151b2e] border border-brand-neon-cyan/20 rounded-xl p-4 text-center">
                     <TrendingUp className="w-4 h-4 text-brand-neon-cyan mx-auto mb-1" />
                     <p className="text-xl font-bold text-brand-neon-cyan">
                         {ltv > 0 ? `L ${ltv.toLocaleString()}` : '—'}
                     </p>
                     <p className="text-[10px] text-slate-500 mt-0.5">LTV Total</p>
                 </div>
-                <div className="bg-[#1e5555] border border-white/5 rounded-xl p-4 text-center">
+                <div className="bg-[#151b2e] border border-white/5 rounded-xl p-4 text-center">
                     <Clock className="w-4 h-4 text-slate-500 mx-auto mb-1" />
                     <p className="text-sm font-bold text-white">
                         {lastVisit ? format(lastVisit.date.toDate(), 'd MMM', { locale: es }) : '—'}
                     </p>
                     <p className="text-[10px] text-slate-500 mt-0.5">Última Visita</p>
                 </div>
-                <div className="bg-[#1e5555] border border-white/5 rounded-xl p-4 text-center">
+                <div className="bg-[#151b2e] border border-white/5 rounded-xl p-4 text-center">
                     <Calendar className="w-4 h-4 text-green-400 mx-auto mb-1" />
                     <p className="text-sm font-bold text-green-400">
                         {nextAppt ? format(nextAppt.date.toDate(), 'd MMM', { locale: es }) : '—'}
@@ -140,7 +140,7 @@ export default function CustomerDetailPage() {
 
                 {/* Left Column: Profile Card */}
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="bg-[#1e5555] border border-white/5 rounded-2xl p-6 relative overflow-hidden">
+                    <div className="bg-[#151b2e] border border-white/5 rounded-2xl p-6 relative overflow-hidden">
                         <div className="absolute top-4 right-4">
                             <button
                                 onClick={() => setIsEditOpen(true)}
@@ -151,7 +151,7 @@ export default function CustomerDetailPage() {
                         </div>
 
                         <div className="flex flex-col items-center text-center">
-                            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center border-4 border-[#154040] shadow-xl mb-4">
+                            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center border-4 border-[#0B0F19] shadow-xl mb-4">
                                 <span className="text-2xl font-bold text-white">{customer.fullName.charAt(0).toUpperCase()}</span>
                             </div>
                             <h2 className="text-xl font-bold text-white mb-1">{customer.fullName}</h2>
@@ -184,7 +184,7 @@ export default function CustomerDetailPage() {
                     </div>
 
                     {/* Private Notes — Inline Editor */}
-                    <div className="bg-[#1e5555] border border-white/5 rounded-2xl p-5">
+                    <div className="bg-[#151b2e] border border-white/5 rounded-2xl p-5">
                         <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
                             <FileText className="w-3 h-3" /> Notas Privadas
                         </h3>
@@ -210,7 +210,7 @@ export default function CustomerDetailPage() {
 
                 {/* Right Column: Appointment History */}
                 <div className="lg:col-span-2">
-                    <div className="bg-[#1e5555] border border-white/5 rounded-2xl p-6">
+                    <div className="bg-[#151b2e] border border-white/5 rounded-2xl p-6">
                         <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                             <Calendar className="w-5 h-5 text-brand-neon-cyan" />
                             Historial de Citas

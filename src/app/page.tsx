@@ -142,13 +142,13 @@ export default function Home() {
     const selectedTaxonomy = selectedCategory ? TAXONOMY[selectedCategory as keyof typeof TAXONOMY] : null;
 
     // Show Loader or Country Selector
-    if (isCountryLoading) return <div className="h-screen bg-[#154040] flex items-center justify-center text-white">Cargando...</div>;
+    if (isCountryLoading) return <div className="h-screen bg-[#0B0F19] flex items-center justify-center text-white">Cargando...</div>;
     if (!selectedCountry) return <CountrySelector />;
 
     return (
-        <main className="h-screen bg-[#154040] text-white overflow-hidden font-sans flex flex-col">
+        <main className="h-screen bg-[#0B0F19] text-white overflow-hidden font-sans flex flex-col">
             {/* Header with Dynamic Location */}
-            <header className="shrink-0 px-6 py-4 flex justify-between items-center z-50 bg-[#154040]">
+            <header className="shrink-0 px-6 py-4 flex justify-between items-center z-50 bg-[#0B0F19]">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center shadow-[0_0_15px_rgba(0,240,255,0.3)]">
                         <span className="font-bold text-xs text-black">P24</span>
@@ -210,7 +210,7 @@ export default function Home() {
                             </button>
 
                             {/* Simple Dropdown for Logout */}
-                            <div className="absolute top-12 right-0 w-48 bg-[#1e5555] border border-white/10 rounded-xl shadow-2xl p-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all z-50">
+                            <div className="absolute top-12 right-0 w-48 bg-[#151b2e] border border-white/10 rounded-xl shadow-2xl p-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all z-50">
                                 <div className="px-3 py-2 border-b border-white/5 mb-1">
                                     <p className="text-xs text-slate-400">Conectado como</p>
                                     <p className="text-sm text-white font-medium truncate">{user.email}</p>
@@ -286,7 +286,7 @@ export default function Home() {
                 <div className="shrink-0 px-6 pb-4 z-40">
                     <div className="relative group">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-purple-600 opacity-20 rounded-2xl blur-md group-hover:opacity-40 transition duration-500"></div>
-                        <div className="relative flex items-center bg-[#1e5555] border border-white/10 rounded-2xl px-5 py-3 shadow-2xl">
+                        <div className="relative flex items-center bg-[#151b2e] border border-white/10 rounded-2xl px-5 py-3 shadow-2xl">
                             <Search className="w-6 h-6 text-slate-400 mr-3" />
                             <input
                                 type="text"
@@ -341,7 +341,7 @@ export default function Home() {
 
                     {/* Map Label (Overlay) */}
                     <div className="absolute bottom-4 left-4 z-[1000] pointer-events-none">
-                        <div className="bg-[#154040]/80 backdrop-blur px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
+                        <div className="bg-[#0B0F19]/80 backdrop-blur px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
                             <MapPin className="w-3 h-3 text-cyan-400" />
                             <span className="text-xs font-bold text-white">{selectedCountry?.mainCity || 'San Pedro Sula'} (En Vivo)</span>
                             <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
@@ -355,7 +355,7 @@ export default function Home() {
                         <div
                             key={biz.id}
                             onClick={() => handleBusinessClick(biz)}
-                            className={`flex items-center p-3 bg-[#1e5555] border rounded-2xl transition-all cursor-pointer group
+                            className={`flex items-center p-3 bg-[#151b2e] border rounded-2xl transition-all cursor-pointer group
                                 ${selectedBusiness?.id === biz.id ? 'border-brand-neon-cyan shadow-[0_0_15px_rgba(0,240,255,0.2)]' : 'border-white/5 hover:border-white/10'}
                             `}
                         >
@@ -409,7 +409,7 @@ export default function Home() {
                 {/* Categories Detail Modal */}
                 {selectedCategory && selectedTaxonomy && (
                     <div className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                        <div className="bg-[#1e5555] w-full max-w-lg rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom duration-300">
+                        <div className="bg-[#151b2e] w-full max-w-lg rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom duration-300">
 
                             {/* Header */}
                             <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#0f172a]">

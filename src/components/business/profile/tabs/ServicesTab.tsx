@@ -58,7 +58,7 @@ export default function ServicesTab({ businessId, services: initialServices, onB
                 <div
                     key={service.id}
                     onClick={() => onBook(service)}
-                    className="group bg-[#1e5555] border border-white/5 rounded-2xl p-4 hover:border-brand-neon-cyan/30 hover:bg-white/5 transition-all cursor-pointer flex justify-between gap-4"
+                    className="group bg-[#151b2e] border border-white/5 rounded-2xl p-4 hover:border-brand-neon-cyan/30 hover:bg-white/5 transition-all cursor-pointer flex justify-between gap-4"
                 >
                     <div className="flex-1">
                         <h3 className="font-bold text-white text-base mb-1 group-hover:text-brand-neon-cyan transition-colors">
