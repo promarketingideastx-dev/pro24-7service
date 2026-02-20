@@ -109,6 +109,7 @@ export default function BusinessProfilePage() {
             onTabChange={setActiveTab}
             isOwner={isOwner}
             onBookClick={() => setIsBookingOpen(true)}
+            isModalOpen={isBookingOpen}
         >
             {activeTab === 'services' && (
                 <ServicesTab

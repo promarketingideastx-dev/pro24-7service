@@ -1,23 +1,75 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Share2, ArrowLeft, Star, MapPin, Heart, Award, CheckCircle2, Phone, MessageCircle, Calendar } from 'lucide-react';
+import { Share2, ArrowLeft, Star, MapPin, Heart, Award, CheckCircle2, Phone, MessageCircle, Calendar, Link } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
 interface ProfileLayoutProps {
-    business: any; // Using 'any' to fit existing data shape easily
+    business: any;
     activeTab: string;
     onTabChange: (tab: string) => void;
     children: React.ReactNode;
     isOwner?: boolean;
-    onBookClick: () => void; // New Prop for booking action
+    onBookClick: () => void;
+    isModalOpen?: boolean; // Hide sticky bar when booking modal is open
 }
 
-export default function BusinessProfileLayout({ business, activeTab, onTabChange, children, isOwner, onBookClick }: ProfileLayoutProps) {
+export default function BusinessProfileLayout({ business, activeTab, onTabChange, children, isOwner, onBookClick, isModalOpen }: ProfileLayoutProps) {
     const router = useRouter();
     const { user } = useAuth();
     const [isSticky, setIsSticky] = useState(false);
+    const [isFavorited, setIsFavorited] = useState(false);
+    const [heartAnim, setHeartAnim] = useState(false);
+
+    // ─── Favorites: load from localStorage ──────────────────────────────────
+    const favKey = 'pro247_favorites';
+
+    useEffect(() => {
+        try {
+            const stored = JSON.parse(localStorage.getItem(favKey) || '[]') as string[];
+            setIsFavorited(stored.includes(business?.id));
+        } catch { /* ignore */ }
+    }, [business?.id]);
+
+    const handleFavorite = () => {
+        try {
+            const stored = JSON.parse(localStorage.getItem(favKey) || '[]') as string[];
+            let updated: string[];
+            if (isFavorited) {
+                updated = stored.filter((id) => id !== business.id);
+                toast('Eliminado de favoritos', { icon: '💔' });
+            } else {
+                updated = Array.from(new Set([...stored, business.id]));
+                toast.success('¡Agregado a favoritos!', { icon: '❤️' });
+            }
+            localStorage.setItem(favKey, JSON.stringify(updated));
+            setIsFavorited(!isFavorited);
+            // Trigger heart pop animation
+            setHeartAnim(true);
+            setTimeout(() => setHeartAnim(false), 400);
+        } catch { /* ignore */ }
+    };
+
+    const handleShare = async () => {
+        const url = window.location.href;
+        const title = business?.name || 'Negocio en PRO24/7';
+        const text = `¡Mira este negocio en PRO24/7: ${title}`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({ title, text, url });
+            } catch { /* user cancelled */ }
+        } else {
+            try {
+                await navigator.clipboard.writeText(url);
+                toast.success('¡Enlace copiado!', { icon: '🔗' });
+            } catch {
+                toast.error('No se pudo copiar el enlace');
+            }
+        }
+    };
 
     // Handle Scroll for Sticky Tabs visual effect (optional)
     useEffect(() => {
@@ -98,11 +150,22 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                                 Editar Perfil
                             </button>
                         )}
-                        <button className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white border border-white/10 hover:bg-black/60 transition-all">
+                        <button
+                            onClick={handleShare}
+                            className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white border border-white/10 hover:bg-brand-neon-cyan/20 hover:border-brand-neon-cyan/40 hover:text-brand-neon-cyan active:scale-90 transition-all"
+                            title="Compartir"
+                        >
                             <Share2 className="w-5 h-5" />
                         </button>
-                        <button className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white border border-white/10 hover:bg-black/60 transition-all">
-                            <Heart className="w-5 h-5" />
+                        <button
+                            onClick={handleFavorite}
+                            className={`p-2 rounded-full backdrop-blur-md border transition-all active:scale-90 ${isFavorited
+                                ? 'bg-red-500/20 border-red-500/40 text-red-400 shadow-[0_0_12px_rgba(239,68,68,0.4)]'
+                                : 'bg-black/40 border-white/10 text-white hover:bg-red-500/10 hover:border-red-400/30 hover:text-red-400'
+                                } ${heartAnim ? 'scale-125' : 'scale-100'}`}
+                            title={isFavorited ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                        >
+                            <Heart className={`w-5 h-5 transition-all ${isFavorited ? 'fill-red-400' : ''}`} />
                         </button>
                     </div>
                 </div>
@@ -176,8 +239,8 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                 {children}
             </div>
 
-            {/* --- 4. MOBILE STICKY ACTION BAR --- */}
-            {!isOwner && (
+            {/* --- 4. MOBILE STICKY ACTION BAR (hidden when modal is open) --- */}
+            {!isOwner && !isModalOpen && (
                 <div className="fixed bottom-0 left-0 right-0 bg-[#0B0F19]/90 backdrop-blur-lg border-t border-white/10 p-4 md:hidden z-50 flex gap-3 animate-in slide-in-from-bottom-full duration-500">
                     {/* WhatsApp Button */}
                     <button

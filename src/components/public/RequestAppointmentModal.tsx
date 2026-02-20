@@ -193,7 +193,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center sm:p-4 bg-black/80 backdrop-blur-sm">
             <div className="bg-[#151b2e] border border-white/10 rounded-t-3xl sm:rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
 
                 {/* Header */}
@@ -233,7 +233,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 </div>
 
                 {/* Body */}
-                <div className="flex-1 overflow-y-auto p-5 sm:p-6 pb-8 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-5 sm:p-6 pb-20 sm:pb-8 custom-scrollbar">
 
                     {/* STEP 1: SERVICE */}
                     {step === 'service' && (
