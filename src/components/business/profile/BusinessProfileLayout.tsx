@@ -23,6 +23,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     const [isSticky, setIsSticky] = useState(false);
     const [isFavorited, setIsFavorited] = useState(false);
     const [heartAnim, setHeartAnim] = useState(false);
+    const [favProcessing, setFavProcessing] = useState(false); // prevents double-tap
 
     // ─── Favorites: load from Firestore (if logged in) or localStorage ────
     const favKey = 'pro247_favorites';
@@ -46,35 +47,33 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     }, [user, business?.id]);
 
     const handleFavorite = async () => {
-        if (!business?.id) return;
+        if (!business?.id || favProcessing) return; // guard against double-tap
+        setFavProcessing(true);
 
         if (user) {
-            // — Logged in: use Firestore bidirectional toggle—
+            // — Optimistic UI: flip immediately so first tap feels instant —
+            const wasAlreadyFav = isFavorited;
+            setIsFavorited(!wasAlreadyFav);
             setHeartAnim(true);
             setTimeout(() => setHeartAnim(false), 400);
-            try {
-                const added = await FavoritesService.toggle(
-                    user.uid,
-                    {
-                        name: user.displayName || undefined,
-                        email: user.email || undefined,
-                    },
-                    {
-                        id: business.id,
-                        name: business.name,
-                        category: business.category,
-                        city: business.city,
-                        logoUrl: business.logoUrl,
-                    }
-                );
-                setIsFavorited(added);
-                if (added) {
-                    toast.success('Negocio guardado en tus favoritos ❤️', { description: 'Lo puedes ver en tu perfil' });
-                } else {
-                    toast('Eliminado de favoritos', { icon: '💔' });
+
+            const added = await FavoritesService.toggle(
+                user.uid,
+                { name: user.displayName || undefined, email: user.email || undefined },
+                {
+                    id: business.id,
+                    name: business.name,
+                    category: business.category,
+                    city: business.city,
+                    logoUrl: business.logoUrl,
                 }
-            } catch (e) {
-                toast.error('Error al guardar favorito');
+            );
+            // Sync with real server response
+            setIsFavorited(added);
+            if (added) {
+                toast.success('Negocio guardado en tus favoritos ❤️', { description: 'Lo puedes ver en tu perfil' });
+            } else {
+                toast('Eliminado de favoritos', { icon: '💔' });
             }
         } else {
             // — Guest: localStorage only + prompt to login —
@@ -94,6 +93,8 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                 setTimeout(() => setHeartAnim(false), 400);
             } catch { /* ignore */ }
         }
+
+        setFavProcessing(false);
     };
 
     const handleShare = async () => {
@@ -203,7 +204,8 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                         </button>
                         <button
                             onClick={handleFavorite}
-                            className={`p-2 rounded-full backdrop-blur-md border transition-all active:scale-90 ${isFavorited
+                            disabled={favProcessing}
+                            className={`p-2 rounded-full backdrop-blur-md border transition-all ${favProcessing ? 'opacity-60 cursor-wait' : 'active:scale-90'} ${isFavorited
                                 ? 'bg-red-500/20 border-red-500/40 text-red-400 shadow-[0_0_12px_rgba(239,68,68,0.4)]'
                                 : 'bg-black/40 border-white/10 text-white hover:bg-red-500/10 hover:border-red-400/30 hover:text-red-400'
                                 } ${heartAnim ? 'scale-125' : 'scale-100'}`}
