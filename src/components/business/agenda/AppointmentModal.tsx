@@ -153,7 +153,7 @@ export default function AppointmentModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="bg-[#151b2e] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[90vh]">
+            <div className="bg-[#1a1030] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[90vh]">
 
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-white/10">
@@ -223,7 +223,7 @@ export default function AppointmentModal({
 
                         {/* Typeahead Results */}
                         {showCustomerResults && customerSearch && filteredCustomers.length > 0 && !currentCustomerId && (
-                            <div className="absolute z-10 w-full bg-[#151b2e] border border-white/10 rounded-xl shadow-xl mt-1 max-h-40 overflow-y-auto custom-scrollbar">
+                            <div className="absolute z-10 w-full bg-[#1a1030] border border-white/10 rounded-xl shadow-xl mt-1 max-h-40 overflow-y-auto custom-scrollbar">
                                 {filteredCustomers.map(c => (
                                     <button
                                         key={c.id}

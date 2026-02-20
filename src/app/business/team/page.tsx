@@ -294,7 +294,7 @@ export default function TeamPage() {
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-[#151b2e] border border-white/10 w-full max-w-md rounded-2xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+                    <div className="bg-[#1a1030] border border-white/10 w-full max-w-md rounded-2xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
                         <button
                             onClick={() => setIsModalOpen(false)}
                             className="absolute top-4 right-4 text-slate-500 hover:text-white"
@@ -314,7 +314,7 @@ export default function TeamPage() {
                                     required
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                    className="w-full bg-[#0f0d1a] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
                                     placeholder="Ej. Nombre Completo"
                                 />
                             </div>
@@ -326,7 +326,7 @@ export default function TeamPage() {
                                 <select
                                     value={formData.roleType || 'technician'}
                                     onChange={e => setFormData({ ...formData, roleType: e.target.value as any })}
-                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none appearance-none"
+                                    className="w-full bg-[#0f0d1a] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none appearance-none"
                                 >
                                     <option value="manager">Manager / Administrador</option>
                                     <option value="reception">Recepción / Front Desk</option>
@@ -346,7 +346,7 @@ export default function TeamPage() {
                                         required
                                         value={formData.roleCustom || ''}
                                         onChange={e => setFormData({ ...formData, roleCustom: e.target.value })}
-                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        className="w-full bg-[#0f0d1a] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
                                         placeholder="Ej. Fotógrafo"
                                     />
                                 </div>
@@ -358,14 +358,14 @@ export default function TeamPage() {
                                     type="text"
                                     value={formData.role}
                                     onChange={e => setFormData({ ...formData, role: e.target.value })}
-                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                    className="w-full bg-[#0f0d1a] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
                                     placeholder="Ej. Especialista Senior"
                                 />
                             </div>
 
                             <div>
                                 <label className="block text-xs font-medium text-slate-400 mb-2 uppercase">Servicios que realiza</label>
-                                <div className="bg-[#0B0F19] border border-white/10 rounded-lg p-2 max-h-40 overflow-y-auto custom-scrollbar space-y-1">
+                                <div className="bg-[#0f0d1a] border border-white/10 rounded-lg p-2 max-h-40 overflow-y-auto custom-scrollbar space-y-1">
                                     {services.length === 0 ? (
                                         <p className="text-xs text-slate-500 p-2 text-center">No hay servicios creados aún.</p>
                                     ) : (
@@ -424,7 +424,7 @@ export default function TeamPage() {
             {
                 memberToDelete && (
                     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-                        <div className="bg-[#151b2e] border border-white/10 w-full max-w-sm rounded-2xl p-6 shadow-2xl relative">
+                        <div className="bg-[#1a1030] border border-white/10 w-full max-w-sm rounded-2xl p-6 shadow-2xl relative">
                             <div className="flex flex-col items-center text-center gap-4">
                                 <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-2">
                                     <AlertTriangle size={24} />

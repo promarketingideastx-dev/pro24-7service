@@ -45,24 +45,24 @@ export default function CustomerList({ customers, appointmentStats, onEdit, onDe
                     placeholder="Buscar por nombre, teléfono o email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full bg-[#151b2e] border border-white/5 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-500 focus:outline-none focus:border-white/10 focus:ring-1 focus:ring-white/10 transition-all"
+                    className="w-full bg-[#1a1030] border border-white/5 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-500 focus:outline-none focus:border-white/10 focus:ring-1 focus:ring-white/10 transition-all"
                 />
             </div>
 
             {/* Stats Summary */}
             {customers.length > 0 && (
                 <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-[#151b2e] border border-white/5 rounded-xl p-3 text-center">
+                    <div className="bg-[#1a1030] border border-white/5 rounded-xl p-3 text-center">
                         <p className="text-2xl font-bold text-white">{customers.length}</p>
                         <p className="text-xs text-slate-500 mt-0.5">Clientes</p>
                     </div>
-                    <div className="bg-[#151b2e] border border-white/5 rounded-xl p-3 text-center">
+                    <div className="bg-[#1a1030] border border-white/5 rounded-xl p-3 text-center">
                         <p className="text-2xl font-bold text-brand-neon-cyan">
                             L {Object.values(appointmentStats).reduce((sum, s) => sum + s.ltv, 0).toLocaleString()}
                         </p>
                         <p className="text-xs text-slate-500 mt-0.5">LTV Total</p>
                     </div>
-                    <div className="bg-[#151b2e] border border-white/5 rounded-xl p-3 text-center">
+                    <div className="bg-[#1a1030] border border-white/5 rounded-xl p-3 text-center">
                         <p className="text-2xl font-bold text-green-400">
                             {Object.values(appointmentStats).reduce((sum, s) => sum + s.appointmentCount, 0)}
                         </p>
@@ -84,7 +84,7 @@ export default function CustomerList({ customers, appointmentStats, onEdit, onDe
             {/* List */}
             <div className="space-y-2">
                 {filteredCustomers.length === 0 ? (
-                    <div className="text-center py-12 text-slate-500 bg-[#151b2e]/50 rounded-xl border border-white/5 border-dashed">
+                    <div className="text-center py-12 text-slate-500 bg-[#1a1030]/50 rounded-xl border border-white/5 border-dashed">
                         {searchTerm ? 'No se encontraron clientes con esa búsqueda.' : 'No tienes clientes registrados aún.'}
                     </div>
                 ) : (
@@ -93,7 +93,7 @@ export default function CustomerList({ customers, appointmentStats, onEdit, onDe
                         return (
                             <div
                                 key={customer.id}
-                                className="group bg-[#151b2e] hover:bg-[#1a2138] border border-white/5 rounded-xl p-4 transition-all hover:shadow-lg hover:border-white/10 cursor-pointer"
+                                className="group bg-[#1a1030] hover:bg-[#1a2138] border border-white/5 rounded-xl p-4 transition-all hover:shadow-lg hover:border-white/10 cursor-pointer"
                                 onClick={() => router.push(`/business/clients/${customer.id}`)}
                             >
                                 <div className="flex flex-col md:grid md:grid-cols-12 gap-3 items-center">
@@ -107,7 +107,7 @@ export default function CustomerList({ customers, appointmentStats, onEdit, onDe
                                                 </span>
                                             </div>
                                             {stats.appointmentCount > 0 && (
-                                                <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-[#151b2e] flex items-center justify-center">
+                                                <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-[#1a1030] flex items-center justify-center">
                                                     <span className="text-[8px] font-bold text-black">{stats.appointmentCount}</span>
                                                 </div>
                                             )}
