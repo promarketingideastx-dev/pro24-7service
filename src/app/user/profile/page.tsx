@@ -121,12 +121,12 @@ export default function UserProfilePage() {
         }
     };
 
-    if (!user) return <div className="min-h-screen bg-[#0B0F19] text-white flex items-center justify-center">Cargando...</div>;
+    if (!user) return <div className="min-h-screen bg-[#1a2f4e] text-white flex items-center justify-center">Cargando...</div>;
 
     return (
-        <div className="min-h-screen bg-[#0B0F19] text-white pb-20">
+        <div className="min-h-screen bg-[#1a2f4e] text-white pb-20">
             {/* Header / Nav Back */}
-            <div className="bg-[#151b2e] border-b border-white/5 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+            <div className="bg-[#1e3a5f] border-b border-white/5 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
                 <Link href="/" className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
                     PRO24/7
                 </Link>
@@ -138,7 +138,7 @@ export default function UserProfilePage() {
             <div className="max-w-3xl mx-auto px-6 py-10 space-y-8">
 
                 {/* 1. Identity Section */}
-                <div className="bg-[#151b2e] border border-white/5 rounded-3xl p-6 md:p-8">
+                <div className="bg-[#1e3a5f] border border-white/5 rounded-3xl p-6 md:p-8">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-blue-500/10 rounded-xl">
                             <User className="w-6 h-6 text-blue-400" />
@@ -193,7 +193,7 @@ export default function UserProfilePage() {
                                     type="text"
                                     value={formData.displayName}
                                     onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-xl px-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
+                                    className="w-full bg-[#1a2f4e] border border-white/10 rounded-xl px-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
                                     placeholder="Tu nombre"
                                 />
                             </div>
@@ -206,7 +206,7 @@ export default function UserProfilePage() {
                                         type="tel"
                                         value={formData.phoneNumber}
                                         onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
+                                        className="w-full bg-[#1a2f4e] border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
                                         placeholder="+504 9999-9999"
                                     />
                                 </div>
@@ -220,7 +220,7 @@ export default function UserProfilePage() {
                                         type="text"
                                         value={formData.address}
                                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
+                                        className="w-full bg-[#1a2f4e] border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
                                         placeholder="Dirección completa (calle, colonia/sector, ciudad)"
                                     />
                                 </div>
@@ -247,7 +247,7 @@ export default function UserProfilePage() {
                 </div>
 
                 {/* 2. Mis Favoritos (Negocios Guardados) */}
-                <div className="bg-[#151b2e] border border-white/5 rounded-3xl p-6 md:p-8">
+                <div className="bg-[#1e3a5f] border border-white/5 rounded-3xl p-6 md:p-8">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-red-500/10 rounded-xl">
                             <Heart className="w-6 h-6 text-red-400 fill-red-400" />
@@ -325,7 +325,7 @@ export default function UserProfilePage() {
             {/* Delete Account Modal */}
             {showDeleteModal && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-[#151b2e] border border-red-500/20 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative ring-1 ring-red-500/20">
+                    <div className="bg-[#1e3a5f] border border-red-500/20 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative ring-1 ring-red-500/20">
                         <div className="flex flex-col items-center text-center gap-4">
                             <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-2 animate-pulse">
                                 <AlertTriangle size={32} />

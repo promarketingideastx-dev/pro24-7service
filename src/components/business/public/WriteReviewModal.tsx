@@ -71,7 +71,7 @@ export default function WriteReviewModal({ isOpen, onClose, onSuccess, businessI
             ></div>
 
             {/* Modal */}
-            <div className="relative w-full max-w-lg bg-[#151b2e] rounded-2xl border border-white/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="relative w-full max-w-lg bg-[#1e3a5f] rounded-2xl border border-white/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
 
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-white/5">

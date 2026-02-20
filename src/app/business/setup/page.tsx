@@ -150,7 +150,7 @@ export default function BusinessSetupPage() {
                                 type="text"
                                 value={formData.businessName}
                                 onChange={e => setFormData({ ...formData, businessName: e.target.value })}
-                                className="w-full h-12 bg-[#151b2e] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
+                                className="w-full h-12 bg-[#1e3a5f] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
                                 placeholder="Ej: Mi Negocio Profesional"
                             />
                         </div>
@@ -159,7 +159,7 @@ export default function BusinessSetupPage() {
                             <textarea
                                 value={formData.description}
                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                className="w-full h-24 bg-[#151b2e] border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-neon-cyan resize-none"
+                                className="w-full h-24 bg-[#1e3a5f] border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-neon-cyan resize-none"
                                 placeholder="Ej: Soluciones profesionales para ti."
                             />
                         </div>
@@ -170,7 +170,7 @@ export default function BusinessSetupPage() {
                                     type="tel"
                                     value={formData.phone}
                                     onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                    className="w-full h-12 bg-[#151b2e] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
+                                    className="w-full h-12 bg-[#1e3a5f] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
                                     placeholder={`${getCountryConfig((formData.country as any) || 'HN').phonePrefix} 0000-0000`}
                                 />
                             </div>
@@ -180,7 +180,7 @@ export default function BusinessSetupPage() {
                                     type="url"
                                     value={formData.website}
                                     onChange={e => setFormData({ ...formData, website: e.target.value })}
-                                    className="w-full h-12 bg-[#151b2e] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
+                                    className="w-full h-12 bg-[#1e3a5f] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
                                     placeholder="https://..."
                                 />
                             </div>
@@ -196,7 +196,7 @@ export default function BusinessSetupPage() {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-slate-400 text-sm mb-1">País</label>
-                                <div className="w-full h-12 bg-[#151b2e]/50 border border-white/5 rounded-lg px-4 flex items-center text-slate-400 cursor-not-allowed">
+                                <div className="w-full h-12 bg-[#1e3a5f]/50 border border-white/5 rounded-lg px-4 flex items-center text-slate-400 cursor-not-allowed">
                                     {currentCountryConfig.name} ({currentCountryConfig.code})
                                 </div>
                             </div>
@@ -213,7 +213,7 @@ export default function BusinessSetupPage() {
                                             city: selectedRegion?.cities?.[0] || ''
                                         });
                                     }}
-                                    className="w-full h-12 bg-[#151b2e] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
+                                    className="w-full h-12 bg-[#1e3a5f] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
                                 >
                                     <option value="">Selecciona...</option>
                                     {regions.map(reg => (
@@ -237,8 +237,8 @@ export default function BusinessSetupPage() {
                                         onChange={e => !hasPredefinedCities && setFormData({ ...formData, city: e.target.value })}
                                         className={`w-full h-12 rounded-lg px-4 focus:outline-none transition-colors
                                             ${hasPredefinedCities
-                                                ? 'bg-[#151b2e]/50 border border-white/5 text-slate-400 cursor-not-allowed'
-                                                : 'bg-[#151b2e] border border-white/10 text-white focus:border-brand-neon-cyan'
+                                                ? 'bg-[#1e3a5f]/50 border border-white/5 text-slate-400 cursor-not-allowed'
+                                                : 'bg-[#1e3a5f] border border-white/10 text-white focus:border-brand-neon-cyan'
                                             }
                                         `}
                                         placeholder={hasPredefinedCities ? "Se selecciona automáticamente" : "Escribe tu ciudad"}
@@ -259,7 +259,7 @@ export default function BusinessSetupPage() {
                                 type="text"
                                 value={formData.address}
                                 onChange={e => setFormData({ ...formData, address: e.target.value })}
-                                className="w-full h-12 bg-[#151b2e] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
+                                className="w-full h-12 bg-[#1e3a5f] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
                                 placeholder="Colonia, Calle, # de Casa/Local"
                             />
                         </div>
@@ -273,7 +273,7 @@ export default function BusinessSetupPage() {
                                         className={`h-10 rounded border text-sm font-medium transition-colors
                                             ${formData.modality === m
                                                 ? 'bg-brand-neon-cyan/20 border-brand-neon-cyan text-white'
-                                                : 'bg-[#151b2e] border-white/10 text-slate-400 hover:border-white/30'
+                                                : 'bg-[#1e3a5f] border-white/10 text-slate-400 hover:border-white/30'
                                             }
                                         `}
                                     >
@@ -353,7 +353,7 @@ export default function BusinessSetupPage() {
                                                     ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan text-white shadow-[0_0_15px_rgba(0,240,255,0.15)] ring-1 ring-brand-neon-cyan'
                                                     : isAdditional
                                                         ? 'bg-brand-neon-cyan/5 border-brand-neon-cyan/50 text-slate-200'
-                                                        : 'bg-[#151b2e] border-white/5 text-slate-400 hover:border-white/20 hover:bg-[#1a233b]'
+                                                        : 'bg-[#1e3a5f] border-white/5 text-slate-400 hover:border-white/20 hover:bg-[#1a233b]'
                                                 }
                                             `}
                                         >
@@ -422,7 +422,7 @@ export default function BusinessSetupPage() {
                                                     flex items-center gap-3 p-3 rounded-lg border text-left transition-all
                                                     ${isSelected
                                                         ? 'bg-brand-neon-cyan/20 border-brand-neon-cyan text-white'
-                                                        : 'bg-[#151b2e]/50 border-white/5 text-slate-400 hover:border-white/20 hover:text-slate-200'
+                                                        : 'bg-[#1e3a5f]/50 border-white/5 text-slate-400 hover:border-white/20 hover:text-slate-200'
                                                     }
                                                 `}
                                             >
@@ -454,7 +454,7 @@ export default function BusinessSetupPage() {
                                     }
 
                                     return (
-                                        <div className="bg-[#151b2e]/30 border border-white/5 rounded-xl p-4">
+                                        <div className="bg-[#1e3a5f]/30 border border-white/5 rounded-xl p-4">
                                             <div className="flex flex-wrap gap-2">
                                                 {availableSpecialties.map(spec => {
                                                     const isSelected = formData.specialties?.includes(spec);
@@ -521,7 +521,7 @@ export default function BusinessSetupPage() {
                 // Review Step (moved from 4)
                 return (
                     <div className="space-y-4 text-sm">
-                        <div className="bg-[#151b2e]/50 p-4 rounded-lg border border-white/5">
+                        <div className="bg-[#1e3a5f]/50 p-4 rounded-lg border border-white/5">
                             <h3 className="text-white font-bold mb-2">Resumen del Negocio</h3>
                             <div className="grid grid-cols-[100px_1fr] gap-2">
                                 <span className="text-slate-500">Nombre:</span>
