@@ -277,21 +277,73 @@ export default function AppointmentModal({
                         {errors.serviceId && <p className="text-red-400 text-xs ml-1">{errors.serviceId.message as string}</p>}
                     </div>
 
-                    {/* Employee Selection */}
-                    <div className="space-y-1">
-                        <label className="text-xs text-slate-400 font-medium ml-1">Profesional <span className="text-red-500">*</span></label>
-                        <div className="relative">
-                            <User className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
-                            <select
-                                {...register('employeeId', { required: 'Selecciona un profesional' })}
-                                className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50 appearance-none"
+                    {/* Team Member Assignment */}
+                    <div className="space-y-2">
+                        <label className="text-xs text-slate-400 font-medium ml-1">
+                            Asignar a miembro del equipo
+                        </label>
+                        {/* Hidden field for react-hook-form */}
+                        <input type="hidden" {...register('employeeId')} />
+                        <div className="flex gap-2 flex-wrap">
+                            {/* "Sin asignar" option */}
+                            <button
+                                type="button"
+                                onClick={() => setValue('employeeId', '')}
+                                className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all w-16 ${!watch('employeeId')
+                                        ? 'border-brand-neon-cyan bg-brand-neon-cyan/10 shadow-[0_0_10px_rgba(0,240,255,0.15)]'
+                                        : 'border-white/10 bg-white/3 hover:border-white/20'
+                                    }`}
                             >
-                                <option value="">Cualquiera disponible...</option>
-                                {employees.map(e => (
-                                    <option key={e.id} value={e.id}>{e.name}</option>
-                                ))}
-                            </select>
+                                <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-slate-400">
+                                    <User className="w-5 h-5" />
+                                </div>
+                                <span className="text-[10px] text-slate-400 leading-tight text-center">Sin asignar</span>
+                            </button>
+
+                            {/* Employee chips */}
+                            {employees.filter(e => e.active !== false).map(emp => {
+                                const GRADIENTS = [
+                                    'from-violet-500 to-indigo-600',
+                                    'from-rose-500 to-pink-600',
+                                    'from-amber-500 to-orange-600',
+                                    'from-emerald-500 to-teal-600',
+                                    'from-sky-500 to-blue-600',
+                                    'from-fuchsia-500 to-purple-600',
+                                ];
+                                const gradient = GRADIENTS[emp.name.charCodeAt(0) % GRADIENTS.length];
+                                const isSelected = watch('employeeId') === emp.id;
+
+                                return (
+                                    <button
+                                        key={emp.id}
+                                        type="button"
+                                        onClick={() => setValue('employeeId', emp.id!)}
+                                        className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all w-16 ${isSelected
+                                                ? 'border-brand-neon-cyan bg-brand-neon-cyan/10 shadow-[0_0_10px_rgba(0,240,255,0.15)]'
+                                                : 'border-white/10 bg-white/3 hover:border-white/20'
+                                            }`}
+                                    >
+                                        {emp.photoUrl ? (
+                                            <img
+                                                src={emp.photoUrl}
+                                                alt={emp.name}
+                                                className="w-10 h-10 rounded-full object-cover border border-white/10"
+                                            />
+                                        ) : (
+                                            <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-bold text-sm`}>
+                                                {emp.name.charAt(0).toUpperCase()}
+                                            </div>
+                                        )}
+                                        <span className={`text-[10px] leading-tight text-center line-clamp-1 ${isSelected ? 'text-brand-neon-cyan font-semibold' : 'text-slate-400'}`}>
+                                            {emp.name.split(' ')[0]}
+                                        </span>
+                                    </button>
+                                );
+                            })}
                         </div>
+                        {employees.length === 0 && (
+                            <p className="text-xs text-slate-500 italic ml-1">Sin miembros de equipo configurados</p>
+                        )}
                     </div>
 
                     {/* Date & Time */}

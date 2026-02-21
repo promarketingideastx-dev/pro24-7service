@@ -17,21 +17,26 @@ export type AppointmentStatus = 'confirmed' | 'pending' | 'cancelled' | 'complet
 export interface Appointment {
     id?: string;
     businessId: string;
-    employeeId: string; // resourceId
+    employeeId: string; // resourceId (kept for calendar grid)
     serviceId: string;
-    serviceName: string; // Store for faster rendering
-    serviceDuration: number; // Store for faster rendering
-    servicePrice?: number; // For LTV calculation in CRM
-    customerId?: string; // If registered user
-    customerName: string; // Fallback or Guest name
+    serviceName: string;
+    serviceDuration: number;
+    servicePrice?: number;
+    customerId?: string;
+    customerName: string;
     customerEmail?: string;
     customerPhone?: string;
-    date: Timestamp; // Start time
+    date: Timestamp;
     status: AppointmentStatus;
     notes?: string;
+    // ── Team assignment (admin assigns from inbox) ──
+    assignedEmployeeId?: string;
+    assignedEmployeeName?: string;
+    assignedEmployeePhoto?: string;
     createdAt?: any;
     updatedAt?: any;
 }
+
 
 const COLLECTION_NAME = 'appointments';
 
