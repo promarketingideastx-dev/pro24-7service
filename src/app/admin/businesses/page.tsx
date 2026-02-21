@@ -3,13 +3,21 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { AdminService, AdminBusinessRecord } from '@/services/admin.service';
+import { useAdminContext } from '@/context/AdminContext';
 import { BusinessPlan } from '@/types/firestore-schema';
-import { PlanService } from '@/services/plan.service';
 import {
     Building2, Search, RefreshCw, ChevronDown,
     CheckCircle, XCircle, Crown, Zap, Users, Star
 } from 'lucide-react';
 import { toast } from 'sonner';
+
+// Plan helpers (using PLAN_LABELS directly from PlanService)
+const PLAN_LABEL: Record<BusinessPlan, string> = {
+    free: 'Free',
+    premium: 'Premium',
+    plus_team: 'Plus Equipo',
+    vip: 'VIP',
+};
 
 const PLAN_OPTIONS: { value: BusinessPlan; label: string; color: string }[] = [
     { value: 'free', label: 'Free', color: 'text-slate-400' },
@@ -44,9 +52,9 @@ function PlanDropdown({ business, onChanged }: { business: AdminBusinessRecord; 
         setOpen(false);
         try {
             await AdminService.setPlan(business.id, plan, user?.email ?? 'admin');
-            toast.success(`Plan actualizado → ${PlanService.getPlanLabel(plan)}`);
+            toast.success(`Plan actualizado → ${PLAN_LABEL[plan]}`);
             onChanged();
-        } catch (e) {
+        } catch {
             toast.error('Error actualizando plan');
         } finally {
             setSaving(false);
@@ -61,7 +69,7 @@ function PlanDropdown({ business, onChanged }: { business: AdminBusinessRecord; 
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-semibold transition-all ${PLAN_BADGE[currentPlan]} hover:opacity-80`}
             >
                 {PLAN_ICONS[currentPlan]}
-                <span>{PlanService.getPlanLabel(currentPlan)}</span>
+                <span>{PLAN_LABEL[currentPlan]}</span>
                 <ChevronDown size={10} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
             </button>
             {open && (
@@ -84,6 +92,7 @@ function PlanDropdown({ business, onChanged }: { business: AdminBusinessRecord; 
 }
 
 export default function AdminBusinessesPage() {
+    const { selectedCountry } = useAdminContext();
     const [businesses, setBusinesses] = useState<AdminBusinessRecord[]>([]);
     const [filtered, setFiltered] = useState<AdminBusinessRecord[]>([]);
     const [loading, setLoading] = useState(true);
@@ -93,27 +102,31 @@ export default function AdminBusinessesPage() {
     const load = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await AdminService.getBusinesses();
+            // Pass the country filter from global context
+            const data = await AdminService.getBusinesses(selectedCountry);
             setBusinesses(data);
             setFiltered(data);
         } catch (e) {
             toast.error('Error cargando negocios');
+            console.error(e);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [selectedCountry]);
 
+    // Reload when country filter changes
     useEffect(() => { load(); }, [load]);
 
-    // Filter locally
+    // Local filters (search + plan)
     useEffect(() => {
         let result = businesses;
         if (search.trim()) {
             const q = search.toLowerCase();
             result = result.filter(b =>
-                b.businessName?.toLowerCase().includes(q) ||
-                b.ownerEmail?.toLowerCase().includes(q) ||
-                b.phone?.includes(q)
+                b.name?.toLowerCase().includes(q) ||
+                b.email?.toLowerCase().includes(q) ||
+                b.phone?.includes(q) ||
+                b.city?.toLowerCase().includes(q)
             );
         }
         if (planFilter !== 'all') {
@@ -141,14 +154,17 @@ export default function AdminBusinessesPage() {
 
     return (
         <div>
-            {/* Page Header */}
+            {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-white flex items-center gap-2">
                         <Building2 size={24} className="text-brand-neon-cyan" />
                         Negocios
                     </h1>
-                    <p className="text-slate-400 text-sm mt-0.5">{businesses.length} negocios registrados</p>
+                    <p className="text-slate-400 text-sm mt-0.5">
+                        {businesses.length} negocios
+                        {selectedCountry !== 'ALL' && <span> en {selectedCountry}</span>}
+                    </p>
                 </div>
                 <button onClick={load} disabled={loading}
                     className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm text-slate-300 transition-colors">
@@ -174,14 +190,14 @@ export default function AdminBusinessesPage() {
                 ))}
             </div>
 
-            {/* Search + Filter */}
-            <div className="flex gap-3 mb-4">
-                <div className="relative flex-1">
+            {/* Search */}
+            <div className="mb-4">
+                <div className="relative">
                     <Search size={14} className="absolute left-3 top-2.5 text-slate-500" />
                     <input
                         value={search}
                         onChange={e => setSearch(e.target.value)}
-                        placeholder="Buscar por nombre, email, teléfono..."
+                        placeholder="Buscar por nombre, email, ciudad, teléfono..."
                         className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
                     />
                 </div>
@@ -201,7 +217,8 @@ export default function AdminBusinessesPage() {
                             <thead>
                                 <tr className="border-b border-white/5 text-xs text-slate-500 uppercase">
                                     <th className="text-left px-4 py-3">Negocio</th>
-                                    <th className="text-left px-4 py-3">País</th>
+                                    <th className="text-left px-4 py-3">País / Ciudad</th>
+                                    <th className="text-left px-4 py-3">Categoría</th>
                                     <th className="text-left px-4 py-3">Plan</th>
                                     <th className="text-left px-4 py-3">Estado</th>
                                     <th className="text-left px-4 py-3">Registro</th>
@@ -210,30 +227,34 @@ export default function AdminBusinessesPage() {
                             </thead>
                             <tbody className="divide-y divide-white/5">
                                 {filtered.map(b => {
-                                    const isSuspended = (b as any).suspended === true;
+                                    const isSuspended = b.suspended === true;
                                     const plan = (b.planData?.plan ?? 'free') as BusinessPlan;
-                                    const createdDate = b.createdAt?.toDate?.()?.toLocaleDateString('es-HN', { day: 'numeric', month: 'short', year: 'numeric' });
+                                    const createdDate = b.createdAt?.toDate?.()?.toLocaleDateString('es-HN', {
+                                        day: 'numeric', month: 'short', year: 'numeric'
+                                    });
 
                                     return (
                                         <tr key={b.id} className={`hover:bg-white/3 transition-colors ${isSuspended ? 'opacity-50' : ''}`}>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-3">
-                                                    {b.logoUrl ? (
-                                                        <img src={b.logoUrl} alt="" className="w-8 h-8 rounded-lg object-cover border border-white/10" />
+                                                    {b.coverImage ? (
+                                                        <img src={b.coverImage} alt="" className="w-8 h-8 rounded-lg object-cover border border-white/10" />
                                                     ) : (
                                                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-neon-cyan/20 to-brand-neon-purple/20 flex items-center justify-center text-white font-bold text-xs border border-white/10">
-                                                            {b.businessName?.charAt(0) ?? '?'}
+                                                            {b.name?.charAt(0) ?? '?'}
                                                         </div>
                                                     )}
                                                     <div>
-                                                        <p className="text-sm font-medium text-white truncate max-w-[180px]">{b.businessName}</p>
-                                                        <p className="text-xs text-slate-500 truncate max-w-[180px]">{b.ownerEmail ?? b.phone ?? '—'}</p>
+                                                        <p className="text-sm font-medium text-white truncate max-w-[180px]">{b.name ?? '—'}</p>
+                                                        <p className="text-xs text-slate-500 truncate max-w-[180px]">{b.email ?? b.phone ?? '—'}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className="text-sm text-slate-300">{b.countryCode ?? b.location?.countryCode ?? '—'}</span>
+                                                <p className="text-sm text-slate-300">{b.country ?? '—'}</p>
+                                                <p className="text-xs text-slate-500">{b.city ?? ''}</p>
                                             </td>
+                                            <td className="px-4 py-3 text-xs text-slate-400">{b.category ?? '—'}</td>
                                             <td className="px-4 py-3">
                                                 <PlanDropdown business={b} onChanged={load} />
                                             </td>
@@ -252,7 +273,9 @@ export default function AdminBusinessesPage() {
                                             <td className="px-4 py-3 text-right">
                                                 <button
                                                     onClick={() => handleSuspend(b)}
-                                                    className={`text-xs px-2.5 py-1 rounded-lg border transition-colors ${isSuspended ? 'border-green-500/30 text-green-400 hover:bg-green-500/10' : 'border-red-500/30 text-red-400 hover:bg-red-500/10'}`}
+                                                    className={`text-xs px-2.5 py-1 rounded-lg border transition-colors ${isSuspended
+                                                        ? 'border-green-500/30 text-green-400 hover:bg-green-500/10'
+                                                        : 'border-red-500/30 text-red-400 hover:bg-red-500/10'}`}
                                                 >
                                                     {isSuspended ? 'Reactivar' : 'Suspender'}
                                                 </button>

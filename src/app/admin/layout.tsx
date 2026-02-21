@@ -7,6 +7,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
+import { AdminContextProvider } from '@/context/AdminContext';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const { user, loading } = useAuth();
@@ -44,14 +45,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (isAdmin === false) return null;
 
     return (
-        <div className="min-h-screen bg-[#060d1f] flex">
-            <AdminSidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(p => !p)} />
-            <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
-                <AdminHeader onMenuToggle={() => setSidebarOpen(p => !p)} />
-                <main className="flex-1 p-6 overflow-auto">
-                    {children}
-                </main>
+        <AdminContextProvider>
+            <div className="min-h-screen bg-[#060d1f] flex">
+                <AdminSidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(p => !p)} />
+                <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
+                    <AdminHeader onMenuToggle={() => setSidebarOpen(p => !p)} />
+                    <main className="flex-1 p-6 overflow-auto">
+                        {children}
+                    </main>
+                </div>
             </div>
-        </div>
+        </AdminContextProvider>
     );
 }
