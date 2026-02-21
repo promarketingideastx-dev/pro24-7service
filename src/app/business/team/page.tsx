@@ -59,6 +59,9 @@ export default function TeamPage() {
     const [workloadAppointments, setWorkloadAppointments] = useState<Appointment[]>([]);
     const [workloadLoading, setWorkloadLoading] = useState(false);
 
+    // All appointments for card display (loaded once)
+    const [allAppointments, setAllAppointments] = useState<Appointment[]>([]);
+
     const fetchData = async () => {
         if (!user) return;
         setLoading(true);
@@ -69,6 +72,12 @@ export default function TeamPage() {
             ]);
             setEmployees(emps);
             setServices(servs);
+            // Load appointments for last 60 days + next 30 days
+            const past = new Date(); past.setDate(past.getDate() - 60);
+            const future = new Date(); future.setDate(future.getDate() + 30);
+            AppointmentService.getAppointments(user.uid, past, future)
+                .then(apps => setAllAppointments(apps))
+                .catch(() => { });
             BusinessProfileService.getProfile(user.uid).then(profile => {
                 if (profile?.specialties?.length) setBusinessSpecialties(profile.specialties);
             }).catch(() => { });
@@ -319,27 +328,70 @@ export default function TeamPage() {
                                 </div>
                             </div>
 
-                            <div className="mb-4 min-h-[40px]">
-                                {emp.description ? (
-                                    <>
+                            {/* ── Trabajos Asignados ── */}
+                            {(() => {
+                                const now = new Date();
+                                const empAppts = allAppointments
+                                    .filter(a => a.employeeId === emp.id)
+                                    .sort((a, b) => {
+                                        const aDate = a.date?.toDate?.() ?? new Date(0);
+                                        const bDate = b.date?.toDate?.() ?? new Date(0);
+                                        // Upcoming first, then recent past
+                                        const aFut = aDate >= now;
+                                        const bFut = bDate >= now;
+                                        if (aFut && !bFut) return -1;
+                                        if (!aFut && bFut) return 1;
+                                        return aFut ? aDate.getTime() - bDate.getTime() : bDate.getTime() - aDate.getTime();
+                                    })
+                                    .slice(0, 4);
+
+                                const statusCfg: Record<string, { label: string; cls: string }> = {
+                                    pending: { label: 'Pendiente', cls: 'bg-amber-500/20 text-amber-400 border-amber-500/20' },
+                                    confirmed: { label: 'Confirmada', cls: 'bg-blue-500/20 text-blue-400 border-blue-500/20' },
+                                    completed: { label: 'Completada', cls: 'bg-green-500/20 text-green-400 border-green-500/20' },
+                                    cancelled: { label: 'Cancelada', cls: 'bg-red-500/20 text-red-400 border-red-500/20' },
+                                    'no-show': { label: 'No Asistió', cls: 'bg-slate-500/20 text-slate-400 border-slate-500/20' },
+                                };
+
+                                return (
+                                    <div className="mb-3">
                                         <p className="text-xs text-slate-500 uppercase font-bold mb-2 flex items-center gap-1">
-                                            <Shield size={10} /> Especialidad
+                                            <Clock size={10} /> Trabajos Asignados
+                                            {empAppts.length > 0 && (
+                                                <span className="ml-auto text-brand-neon-cyan font-bold">{empAppts.length}</span>
+                                            )}
                                         </p>
-                                        <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
-                                            {emp.description}
-                                        </p>
-                                    </>
-                                ) : emp.role ? (
-                                    <>
-                                        <p className="text-xs text-slate-500 uppercase font-bold mb-2 flex items-center gap-1">
-                                            <Shield size={10} /> Especialidad
-                                        </p>
-                                        <span className="px-2 py-0.5 bg-brand-neon-cyan/10 rounded text-[11px] text-brand-neon-cyan border border-brand-neon-cyan/20">
-                                            {emp.role}
-                                        </span>
-                                    </>
-                                ) : null}
-                            </div>
+                                        {empAppts.length === 0 ? (
+                                            <p className="text-xs text-slate-600 italic">Sin trabajos asignados</p>
+                                        ) : (
+                                            <div className="flex flex-col gap-1.5">
+                                                {empAppts.map(appt => {
+                                                    const apptDate = appt.date?.toDate?.();
+                                                    const cfg = statusCfg[appt.status] ?? statusCfg.pending;
+                                                    const isPast = apptDate && apptDate < now;
+                                                    return (
+                                                        <div key={appt.id}
+                                                            className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 border ${isPast ? 'bg-white/2 border-white/5 opacity-60' : 'bg-white/5 border-white/8'}`}>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-[11px] text-white font-medium truncate">{appt.customerName}</p>
+                                                                <p className="text-[10px] text-slate-500 truncate">
+                                                                    {appt.serviceName} · {apptDate ? apptDate.toLocaleDateString('es-HN', { month: 'short', day: 'numeric' }) : '—'}
+                                                                </p>
+                                                            </div>
+                                                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border shrink-0 ${cfg.cls}`}>
+                                                                {cfg.label}
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                        {emp.description && (
+                                            <p className="text-[10px] text-slate-600 italic mt-2 line-clamp-2">{emp.description}</p>
+                                        )}
+                                    </div>
+                                );
+                            })()}
 
                             <div className="mt-auto pt-3 border-t border-white/5 flex items-center justify-between">
                                 <span className={`text-xs px-2 py-0.5 rounded-full ${emp.active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
