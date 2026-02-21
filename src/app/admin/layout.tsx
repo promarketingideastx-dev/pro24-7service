@@ -48,7 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <AdminContextProvider>
             <div className="h-screen bg-[#060d1f] flex overflow-hidden">
                 <AdminSidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(p => !p)} />
-                <div className={`flex-1 flex flex-col transition-all duration-300 min-w-0 ${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
+                <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                     <AdminHeader onMenuToggle={() => setSidebarOpen(p => !p)} />
                     <main className="flex-1 p-6 overflow-y-auto">
                         {children}

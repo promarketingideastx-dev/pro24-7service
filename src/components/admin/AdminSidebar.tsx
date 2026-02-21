@@ -29,7 +29,7 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
     const pathname = usePathname();
 
     return (
-        <aside className={`fixed left-0 top-0 h-full bg-[#0a1128] border-r border-white/5 flex flex-col z-40 transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'}`}>
+        <aside className={`sticky top-0 h-screen shrink-0 bg-[#0a1128] border-r border-white/5 flex flex-col z-40 transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'}`}>
             {/* Logo */}
             <div className="flex items-center gap-3 px-4 py-5 border-b border-white/5">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-neon-cyan to-brand-neon-purple flex items-center justify-center shrink-0">
@@ -58,8 +58,8 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
                             key={item.href}
                             href={item.href}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${active
-                                    ? 'bg-brand-neon-cyan/10 text-brand-neon-cyan border border-brand-neon-cyan/20'
-                                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                ? 'bg-brand-neon-cyan/10 text-brand-neon-cyan border border-brand-neon-cyan/20'
+                                : 'text-slate-400 hover:text-white hover:bg-white/5'
                                 }`}
                         >
                             <item.icon size={18} className="shrink-0" />
