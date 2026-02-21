@@ -100,4 +100,74 @@ export const AdminService = {
         const snap = await getDocs(q);
         return snap.docs.map(d => ({ id: d.id, ...d.data() }));
     },
+
+    // ── Dashboard Stats ──
+
+    async getDashboardStats(countryFilter?: string) {
+        const [bizSnap, usersSnap] = await Promise.all([
+            getDocs(query(collection(db, 'businesses_public'), limit(500))),
+            getDocs(query(collection(db, 'users'), limit(500))),
+        ]);
+
+        let businesses = bizSnap.docs.map(d => ({ id: d.id, ...d.data() } as any));
+        if (countryFilter && countryFilter !== 'ALL') {
+            businesses = businesses.filter((b: any) => b.country === countryFilter);
+        }
+
+        const now = Date.now();
+        const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
+        const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+
+        const toMs = (ts: any) => ts?.toMillis?.() ?? (ts?.seconds ? ts.seconds * 1000 : 0);
+
+        // Business counts
+        const totalBusinesses = businesses.length;
+        const activeBusinesses = businesses.filter((b: any) => b.status !== 'suspended').length;
+        const newLast30d = businesses.filter((b: any) => toMs(b.createdAt) > thirtyDaysAgo).length;
+        const newLast7d = businesses.filter((b: any) => toMs(b.createdAt) > sevenDaysAgo).length;
+        const suspended = businesses.filter((b: any) => b.suspended === true).length;
+
+        // Plan distribution
+        const planCounts: Record<string, number> = { free: 0, premium: 0, plus_team: 0, vip: 0 };
+        businesses.forEach((b: any) => {
+            const plan = b.planData?.plan ?? 'free';
+            planCounts[plan] = (planCounts[plan] ?? 0) + 1;
+        });
+
+        // Estimated MRR (USD)
+        const PLAN_PRICE: Record<string, number> = { free: 0, premium: 29, plus_team: 79, vip: 199 };
+        const mrr = Object.entries(planCounts).reduce((sum, [plan, count]) => sum + (PLAN_PRICE[plan] ?? 0) * count, 0);
+
+        // Users
+        let users = usersSnap.docs.map(d => ({ id: d.id, ...d.data() } as any));
+        if (countryFilter && countryFilter !== 'ALL') {
+            users = users.filter((u: any) => u.country_code === countryFilter || u.countryCode === countryFilter);
+        }
+        const totalUsers = users.length;
+        const newUsers30d = users.filter((u: any) => toMs(u.createdAt) > thirtyDaysAgo).length;
+        const providers = users.filter((u: any) => u.isProvider === true).length;
+
+        // Country distribution
+        const countryMap: Record<string, number> = {};
+        businesses.forEach((b: any) => {
+            const c = b.country ?? 'N/A';
+            countryMap[c] = (countryMap[c] ?? 0) + 1;
+        });
+        const topCountries = Object.entries(countryMap)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 6)
+            .map(([code, count]) => ({ code, count }));
+
+        // Recent businesses (last 5)
+        const recent = [...businesses]
+            .sort((a: any, b: any) => toMs(b.createdAt) - toMs(a.createdAt))
+            .slice(0, 5);
+
+        return {
+            totalBusinesses, activeBusinesses, newLast30d, newLast7d, suspended,
+            planCounts, mrr,
+            totalUsers, newUsers30d, providers,
+            topCountries, recent,
+        };
+    },
 };
