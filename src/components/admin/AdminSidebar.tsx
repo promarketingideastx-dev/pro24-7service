@@ -2,32 +2,44 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import {
     LayoutDashboard, Building2, Users, FileImage,
     Bell, CreditCard, Settings, Scale, BookOpen,
     ChevronLeft, ChevronRight, Shield, Map
 } from 'lucide-react';
+import { AdminNotificationService } from '@/services/adminNotification.service';
+import { DisputeService } from '@/services/dispute.service';
 
 interface AdminSidebarProps {
     isOpen: boolean;
     onToggle: () => void;
 }
 
-const NAV_ITEMS = [
-    { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { href: '/admin/businesses', icon: Building2, label: 'Negocios' },
-    { href: '/admin/users', icon: Users, label: 'Usuarios' },
-    { href: '/admin/map', icon: Map, label: 'Mapa' },
-    { href: '/admin/media', icon: FileImage, label: 'Archivos' },
-    { href: '/admin/notifications', icon: Bell, label: 'Notificaciones' },
-    { href: '/admin/plans', icon: CreditCard, label: 'Planes & Pagos' },
-    { href: '/admin/disputes', icon: Scale, label: 'Disputas' },
-    { href: '/admin/audit', icon: BookOpen, label: 'Audit Log' },
-    { href: '/admin/settings', icon: Settings, label: 'Configuración' },
-];
-
 export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
     const pathname = usePathname();
+    const [unreadNotifs, setUnreadNotifs] = useState(0);
+    const [openDisputes, setOpenDisputes] = useState(0);
+
+    // Real-time badge counters
+    useEffect(() => {
+        const unsubN = AdminNotificationService.onUnreadCount(setUnreadNotifs);
+        const unsubD = DisputeService.onUnreadCount(setOpenDisputes);
+        return () => { unsubN(); unsubD(); };
+    }, []);
+
+    const NAV_ITEMS = [
+        { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: 0 },
+        { href: '/admin/businesses', icon: Building2, label: 'Negocios', badge: 0 },
+        { href: '/admin/users', icon: Users, label: 'Usuarios', badge: 0 },
+        { href: '/admin/map', icon: Map, label: 'Mapa', badge: 0 },
+        { href: '/admin/media', icon: FileImage, label: 'Archivos', badge: 0 },
+        { href: '/admin/notifications', icon: Bell, label: 'Notificaciones', badge: unreadNotifs },
+        { href: '/admin/plans', icon: CreditCard, label: 'Planes & Pagos', badge: 0 },
+        { href: '/admin/disputes', icon: Scale, label: 'Disputas', badge: openDisputes },
+        { href: '/admin/audit', icon: BookOpen, label: 'Audit Log', badge: 0 },
+        { href: '/admin/settings', icon: Settings, label: 'Configuración', badge: 0 },
+    ];
 
     return (
         <aside className={`sticky top-0 h-screen shrink-0 bg-[#0a1128] border-r border-white/5 flex flex-col z-40 transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'}`}>
@@ -42,18 +54,17 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
                         <p className="text-brand-neon-cyan text-[10px] font-semibold mt-0.5">Admin CRM</p>
                     </div>
                 )}
-                <button
-                    onClick={onToggle}
-                    className="ml-auto text-slate-500 hover:text-white transition-colors"
-                >
+                <button onClick={onToggle} className="ml-auto text-slate-500 hover:text-white transition-colors">
                     {isOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
                 </button>
             </div>
 
             {/* Nav */}
-            <nav className="flex-1 py-4 space-y-1 px-2 overflow-y-auto">
+            <nav className="flex-1 py-4 space-y-0.5 px-2 overflow-y-auto">
                 {NAV_ITEMS.map(item => {
                     const active = pathname.startsWith(item.href);
+                    const hasBadge = item.badge > 0;
+
                     return (
                         <Link
                             key={item.href}
@@ -63,10 +74,31 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
                                 : 'text-slate-400 hover:text-white hover:bg-white/5'
                                 }`}
                         >
-                            <item.icon size={18} className="shrink-0" />
-                            {isOpen && <span className="text-sm font-medium">{item.label}</span>}
-                            {active && isOpen && (
-                                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-brand-neon-cyan" />
+                            {/* Icon + badge indicator when collapsed */}
+                            <div className="relative shrink-0">
+                                <item.icon size={18} />
+                                {!isOpen && hasBadge && (
+                                    <span className="absolute -top-1 -right-1 min-w-[14px] h-[14px] bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none">
+                                        {item.badge > 99 ? '99+' : item.badge}
+                                    </span>
+                                )}
+                            </div>
+
+                            {isOpen && (
+                                <>
+                                    <span className="text-sm font-medium flex-1">{item.label}</span>
+                                    {hasBadge && (
+                                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center leading-none ${active
+                                            ? 'bg-brand-neon-cyan text-black'
+                                            : 'bg-red-500 text-white'
+                                            }`}>
+                                            {item.badge > 99 ? '99+' : item.badge}
+                                        </span>
+                                    )}
+                                    {active && !hasBadge && (
+                                        <span className="w-1.5 h-1.5 rounded-full bg-brand-neon-cyan" />
+                                    )}
+                                </>
                             )}
                         </Link>
                     );
