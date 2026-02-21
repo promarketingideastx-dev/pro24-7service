@@ -319,19 +319,26 @@ export default function TeamPage() {
                                 </div>
                             </div>
 
-                            <div className="mb-4">
-                                <p className="text-xs text-slate-500 uppercase font-bold mb-2 flex items-center gap-1">
-                                    <Shield size={10} /> Servicios Asignados
-                                </p>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {getServiceNames(emp.serviceIds).length > 0 ? (
-                                        getServiceNames(emp.serviceIds).map((name, i) => (
-                                            <span key={i} className="px-2 py-0.5 bg-white/5 rounded text-[10px] text-slate-300 border border-white/5">{name}</span>
-                                        ))
-                                    ) : (
-                                        <span className="text-xs text-slate-600 italic">Ninguno asignado</span>
-                                    )}
-                                </div>
+                            <div className="mb-4 min-h-[40px]">
+                                {emp.description ? (
+                                    <>
+                                        <p className="text-xs text-slate-500 uppercase font-bold mb-2 flex items-center gap-1">
+                                            <Shield size={10} /> Especialidad
+                                        </p>
+                                        <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
+                                            {emp.description}
+                                        </p>
+                                    </>
+                                ) : emp.role ? (
+                                    <>
+                                        <p className="text-xs text-slate-500 uppercase font-bold mb-2 flex items-center gap-1">
+                                            <Shield size={10} /> Especialidad
+                                        </p>
+                                        <span className="px-2 py-0.5 bg-brand-neon-cyan/10 rounded text-[11px] text-brand-neon-cyan border border-brand-neon-cyan/20">
+                                            {emp.role}
+                                        </span>
+                                    </>
+                                ) : null}
                             </div>
 
                             <div className="mt-auto pt-3 border-t border-white/5 flex items-center justify-between">
