@@ -5,7 +5,7 @@ import { updateProfile } from 'firebase/auth';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import {
-    User, Mail, Phone, MapPin, Calendar, Edit2, LogOut, Camera, Shield, X, Trash2, AlertTriangle, Heart, Save, ExternalLink, Building2
+    User, Mail, Phone, MapPin, Calendar, Edit2, LogOut, Camera, Shield, X, Trash2, AlertTriangle, Heart, Save, ExternalLink, Building2, Lock
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -27,6 +27,9 @@ export default function UserProfilePage() {
         address: '',
     });
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showReauthModal, setShowReauthModal] = useState(false);
+    const [reauthPassword, setReauthPassword] = useState('');
+    const [isDeleting, setIsDeleting] = useState(false);
     const [favorites, setFavorites] = useState<FavoriteRecord[]>([]);
     const [favLoading, setFavLoading] = useState(true);
 
@@ -110,14 +113,50 @@ export default function UserProfilePage() {
     };
 
     const confirmDeleteAccount = async () => {
+        setIsDeleting(true);
         try {
             const { AuthService } = await import('@/services/auth.service');
             await AuthService.deleteAccount();
+            // Success — Firebase Auth is deleted, signOut is implicit
+            toast.success('Cuenta eliminada correctamente');
             router.push('/');
-            toast.success("Cuenta eliminada correctamente");
-        } catch (error) {
-            console.error("Error deleting account:", error);
-            toast.error("Error al eliminar cuenta. Es posible que necesites volver a iniciar sesión por seguridad.");
+        } catch (error: any) {
+            setIsDeleting(false);
+            if (error.code === 'auth/requires-recent-login') {
+                // Session too old — check if user is Google or email
+                const isGoogle = user?.providerData?.[0]?.providerId === 'google.com';
+                setShowDeleteModal(false);
+                if (isGoogle) {
+                    // For Google users: sign out and redirect to login with a message
+                    toast.error('Por seguridad, vuelve a iniciar sesión con Google y luego elimina la cuenta.');
+                    const { AuthService } = await import('@/services/auth.service');
+                    await AuthService.logout();
+                    router.push('/auth/login?reason=reauth');
+                } else {
+                    // For email users: show password re-auth modal
+                    setShowReauthModal(true);
+                }
+            } else {
+                toast.error('Error al eliminar cuenta: ' + (error.message || 'Intenta de nuevo'));
+            }
+        }
+    };
+
+    const handleReauthAndDelete = async () => {
+        if (!reauthPassword) return;
+        setIsDeleting(true);
+        try {
+            const { AuthService } = await import('@/services/auth.service');
+            await AuthService.reauthAndDelete(reauthPassword);
+            toast.success('Cuenta eliminada correctamente');
+            router.push('/');
+        } catch (error: any) {
+            setIsDeleting(false);
+            if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                toast.error('Contraseña incorrecta. Intenta de nuevo.');
+            } else {
+                toast.error('Error: ' + (error.message || 'Intenta de nuevo'));
+            }
         }
     };
 
@@ -342,16 +381,69 @@ export default function UserProfilePage() {
                             <div className="flex flex-col gap-3 w-full mt-4">
                                 <button
                                     onClick={confirmDeleteAccount}
-                                    className="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] flex items-center justify-center gap-2"
+                                    disabled={isDeleting}
+                                    className="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
-                                    <Trash2 size={18} />
-                                    Sí, eliminar todo
+                                    {isDeleting ? (
+                                        <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Eliminando...</>
+                                    ) : (
+                                        <><Trash2 size={18} /> Sí, eliminar todo</>
+                                    )}
                                 </button>
                                 <button
                                     onClick={() => setShowDeleteModal(false)}
-                                    className="w-full py-3 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl font-medium transition-colors border border-white/5 hover:border-white/10"
+                                    disabled={isDeleting}
+                                    className="w-full py-3 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl font-medium transition-colors border border-white/5 hover:border-white/10 disabled:opacity-50"
                                 >
                                     Cancelar, quiero quedarme
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Re-authentication Modal (for email/pass users) */}
+            {showReauthModal && (
+                <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-[#151b2e] border border-orange-500/20 w-full max-w-sm rounded-3xl p-6 shadow-2xl ring-1 ring-orange-500/20">
+                        <div className="flex flex-col items-center text-center gap-4">
+                            <div className="w-14 h-14 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-400">
+                                <Lock size={28} />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-white mb-1">Confirma tu identidad</h3>
+                                <p className="text-slate-400 text-sm">
+                                    Por seguridad, ingresa tu contraseña actual para continuar con la eliminación de tu cuenta.
+                                </p>
+                            </div>
+                            <input
+                                type="password"
+                                value={reauthPassword}
+                                onChange={e => setReauthPassword(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && handleReauthAndDelete()}
+                                placeholder="Tu contraseña actual"
+                                className="w-full bg-[#0B0F19] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-400 transition-colors text-sm"
+                                autoFocus
+                            />
+                            <div className="flex flex-col gap-3 w-full">
+                                <button
+                                    onClick={handleReauthAndDelete}
+                                    disabled={isDeleting || !reauthPassword}
+                                    className="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    {isDeleting ? (
+                                        <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Eliminando...</>
+                                    ) : (
+                                        <><Trash2 size={18} /> Eliminar cuenta</>
+                                    )}
+                                </button>
+                                <button
+                                    onClick={() => { setShowReauthModal(false); setReauthPassword(''); }}
+                                    disabled={isDeleting}
+                                    className="w-full py-3 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl font-medium transition-colors border border-white/5"
+                                >
+                                    Cancelar
                                 </button>
                             </div>
                         </div>

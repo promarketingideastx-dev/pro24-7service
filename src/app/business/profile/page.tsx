@@ -11,7 +11,7 @@ import {
     Save, Building, MapPin, Tag, Camera, ArrowLeft, Check,
     Palette, Wrench, Sparkles, MonitorPlay, Music, Scissors, Shield,
     Zap, Droplets, PaintBucket, Truck, Key, Car, Bike, Leaf, Clock,
-    Upload, Trash2, Loader2, Image as ImageIcon
+    Upload, Trash2, Loader2, Image as ImageIcon, Instagram, Facebook, Share2
 } from 'lucide-react';
 import WeeklyScheduleEditor from '@/components/business/WeeklyScheduleEditor';
 import { WeeklySchedule } from '@/services/employee.service';
@@ -262,6 +262,58 @@ export default function BusinessProfilePage() {
                                     />
                                 </div>
                             </div>
+
+                            {/* Redes Sociales */}
+                            <div className="pt-2 border-t border-white/5">
+                                <label className="block text-slate-400 text-xs uppercase mb-3 flex items-center gap-2">
+                                    <Share2 size={14} /> Redes Sociales
+                                </label>
+                                <div className="space-y-2">
+                                    {/* Instagram */}
+                                    <div className="flex items-center gap-3 bg-[#0d1120] border border-white/8 rounded-xl px-3 h-12 focus-within:border-pink-500/60 focus-within:bg-pink-500/5 transition-all">
+                                        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shrink-0">
+                                            <Instagram size={14} className="text-white" />
+                                        </div>
+                                        <span className="text-slate-500 text-sm shrink-0">@</span>
+                                        <input
+                                            type="text"
+                                            value={(formData as any).socialMedia?.instagram || ''}
+                                            onChange={e => setFormData({ ...formData, socialMedia: { ...(formData as any).socialMedia, instagram: e.target.value } } as any)}
+                                            placeholder="tu_negocio"
+                                            className="flex-1 bg-transparent text-white text-sm focus:outline-none placeholder:text-slate-600"
+                                        />
+                                    </div>
+                                    {/* Facebook */}
+                                    <div className="flex items-center gap-3 bg-[#0d1120] border border-white/8 rounded-xl px-3 h-12 focus-within:border-blue-500/60 focus-within:bg-blue-500/5 transition-all">
+                                        <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
+                                            <Facebook size={14} className="text-white" />
+                                        </div>
+                                        <span className="text-slate-600 text-xs shrink-0">fb.com/</span>
+                                        <input
+                                            type="text"
+                                            value={(formData as any).socialMedia?.facebook || ''}
+                                            onChange={e => setFormData({ ...formData, socialMedia: { ...(formData as any).socialMedia, facebook: e.target.value } } as any)}
+                                            placeholder="tu.negocio"
+                                            className="flex-1 bg-transparent text-white text-sm focus:outline-none placeholder:text-slate-600"
+                                        />
+                                    </div>
+                                    {/* TikTok */}
+                                    <div className="flex items-center gap-3 bg-[#0d1120] border border-white/8 rounded-xl px-3 h-12 focus-within:border-slate-400/60 focus-within:bg-white/5 transition-all">
+                                        <div className="w-7 h-7 rounded-lg bg-[#111] border border-white/10 flex items-center justify-center shrink-0">
+                                            <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-white"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.17 8.17 0 0 0 4.78 1.53V6.79a4.85 4.85 0 0 1-1.01-.1z" /></svg>
+                                        </div>
+                                        <span className="text-slate-500 text-sm shrink-0">@</span>
+                                        <input
+                                            type="text"
+                                            value={(formData as any).socialMedia?.tiktok || ''}
+                                            onChange={e => setFormData({ ...formData, socialMedia: { ...(formData as any).socialMedia, tiktok: e.target.value } } as any)}
+                                            placeholder="tu_negocio"
+                                            className="flex-1 bg-transparent text-white text-sm focus:outline-none placeholder:text-slate-600"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </GlassPanel>
 

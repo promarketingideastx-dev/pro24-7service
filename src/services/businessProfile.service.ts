@@ -23,6 +23,11 @@ export interface BusinessProfileData {
     email: string;
     phone?: string;
     website?: string;
+    socialMedia?: {
+        instagram?: string;
+        facebook?: string;
+        tiktok?: string;
+    };
     openingHours?: WeeklySchedule;
     paymentSettings?: PaymentSettings;
 }
@@ -33,8 +38,11 @@ export interface ServiceData {
     name: string;
     description?: string;
     price: number;
-    durationMinutes?: number;
+    durationMinutes: number;   // Duration in minutes (required for scheduling)
     currency: string;
+    category?: string;         // Tied to business specialty
+    isExtra?: boolean;         // Add-on service (optional when booking)
+    isActive?: boolean;        // Can be toggled off without deleting
     createdAt?: any;
     updatedAt?: any;
 }
@@ -316,6 +324,8 @@ export const BusinessProfileService = {
                 coverImage: data.images[0] || null, // First image as cover
                 shortDescription: data.description.substring(0, 150),
                 website: data.website || '', // Added website
+                phone: data.phone || '', // Public phone for contact
+                socialMedia: data.socialMedia || { instagram: '', facebook: '', tiktok: '' },
                 location: {
                     lat: 15.50417 + (Math.random() - 0.5) * 0.02, // Mock Geocoding
                     lng: -88.02500 + (Math.random() - 0.5) * 0.02
@@ -336,6 +346,7 @@ export const BusinessProfileService = {
                 address: data.address || '',
                 department: data.department || '', // Also save in private for querying ease if needed
                 gallery: data.images || [],
+                socialMedia: data.socialMedia || { instagram: '', facebook: '', tiktok: '' },
                 verificationStatus: 'pending',
                 updatedAt: serverTimestamp()
             };
@@ -496,6 +507,7 @@ export const BusinessProfileService = {
                 email: privateData.email || '',
                 address: privateData.address || '',
                 website: publicData.website || '',
+                socialMedia: privateData.socialMedia || { instagram: '', facebook: '', tiktok: '' },
                 images: privateData.gallery || (publicData.coverImage ? [publicData.coverImage] : []),
                 coverImage: publicData.coverImage,
                 logoUrl: publicData.logoUrl,
@@ -534,6 +546,8 @@ export const BusinessProfileService = {
             privateUpdate.fullDescription = data.description;
         }
         if (data.website !== undefined) publicUpdate.website = data.website;
+        if (data.phone !== undefined) publicUpdate.phone = data.phone;
+        if (data.socialMedia !== undefined) publicUpdate.socialMedia = data.socialMedia;
         if (data.openingHours) publicUpdate.openingHours = data.openingHours;
 
         // Handle images
@@ -549,6 +563,7 @@ export const BusinessProfileService = {
         if (data.email) privateUpdate.email = data.email;
         if (data.phone) privateUpdate.phone = data.phone;
         if (data.address) privateUpdate.address = data.address;
+        if (data.socialMedia !== undefined) privateUpdate.socialMedia = data.socialMedia;
 
         // Also update private department if present
         if (data.department) privateUpdate.department = data.department;

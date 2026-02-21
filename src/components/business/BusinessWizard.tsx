@@ -6,6 +6,7 @@ import { ChevronRight, ChevronLeft, Check, Loader2, LogIn } from 'lucide-react';
 import { Step1Identity } from './steps/Step1Identity';
 import { Step2Category } from './steps/Step2Category';
 import { Step3Location } from './steps/Step3Location';
+import { Step4Contact } from './steps/Step4Contact';
 import { Step4Portfolio } from './steps/Step4Portfolio';
 import Link from 'next/link';
 import { BusinessProfileService } from '@/services/businessProfile.service';
@@ -29,10 +30,13 @@ export default function BusinessWizard() {
         country: 'HN', // Default
         department: '', // Added Department
         city: '',
+        phone: '',
+        website: '',
+        socialMedia: { instagram: '', facebook: '', tiktok: '' },
         images: [] as any[]
     });
 
-    const totalSteps = 4;
+    const totalSteps = 5;
 
     const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, totalSteps + 1));
     const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
@@ -75,6 +79,9 @@ export default function BusinessWizard() {
                 userId: user.uid,
                 email: user.email || '',
                 images: [],
+                phone: formData.phone || '',
+                website: formData.website || '',
+                socialMedia: formData.socialMedia,
                 department: formData.department || 'Cortés', // Fallback for build safety if UI missed
                 location: mockLocation, // Ensure map has data
                 modality: formData.modality as 'home' | 'local' | 'both'
@@ -121,7 +128,8 @@ export default function BusinessWizard() {
                         <StepIndicator step={1} current={currentStep} label="Identidad del Negocio" />
                         <StepIndicator step={2} current={currentStep} label="Especialidad y Servicios" />
                         <StepIndicator step={3} current={currentStep} label="Ubicación y Modalidad" />
-                        <StepIndicator step={4} current={currentStep} label="Portafolio Visual" />
+                        <StepIndicator step={4} current={currentStep} label="Contacto & Redes" />
+                        <StepIndicator step={5} current={currentStep} label="Portafolio Visual" />
                     </div>
                 </div>
 
@@ -180,6 +188,9 @@ export default function BusinessWizard() {
                                     <Step3Location data={formData} update={updateData} />
                                 )}
                                 {currentStep === 4 && (
+                                    <Step4Contact data={formData} update={updateData} />
+                                )}
+                                {currentStep === 5 && (
                                     <Step4Portfolio data={formData} update={updateData} />
                                 )}
                             </motion.div>

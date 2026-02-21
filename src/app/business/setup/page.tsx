@@ -7,6 +7,7 @@ import { BusinessProfileService, BusinessProfileData } from '@/services/business
 import WizardSteps from '@/components/business/setup/WizardSteps';
 import GlassPanel from '@/components/ui/GlassPanel';
 import ImageUploader from '@/components/ui/ImageUploader';
+import { Instagram, Facebook, Globe } from 'lucide-react';
 import {
     Building, MapPin, Tag, Check, ArrowRight, ArrowLeft,
     MonitorPlay, Camera, Palette, Music, Scissors, Shield, // Art
@@ -57,7 +58,8 @@ export default function BusinessSetupPage() {
         additionalCategories: [], // New: Multi-select areas
         additionalSpecialties: [], // New: Multi-select specialties (reserved if needed, but we use 'specialties' for chips)
         modality: 'local',
-        images: []
+        images: [],
+        socialMedia: { instagram: '', facebook: '', tiktok: '' }
     });
 
     // Effect: Enforce Active Country alignment on mount
@@ -124,7 +126,8 @@ export default function BusinessSetupPage() {
                 images: formData.images || [],
                 userId: user.uid,
                 email: formData.email!,
-                phone: formData.phone
+                phone: formData.phone,
+                socialMedia: (formData as any).socialMedia || { instagram: '', facebook: '', tiktok: '' }
             };
 
             await BusinessProfileService.createProfile(user.uid, payload);
@@ -183,6 +186,68 @@ export default function BusinessSetupPage() {
                                     className="w-full h-12 bg-[#151b2e] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
                                     placeholder="https://..."
                                 />
+                            </div>
+                        </div>
+
+                        {/* Redes Sociales */}
+                        <div>
+                            <label className="block text-slate-400 text-sm mb-3">
+                                Redes Sociales <span className="text-slate-600">(Opcional)</span>
+                            </label>
+                            <div className="space-y-2">
+
+                                {/* Instagram */}
+                                <div className="flex items-center gap-3 bg-[#0d1120] border border-white/8 rounded-xl px-3 h-14 focus-within:border-pink-500/60 focus-within:bg-pink-500/5 transition-all group">
+                                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shrink-0">
+                                        <Instagram size={16} className="text-white" />
+                                    </div>
+                                    <div className="flex items-center flex-1 min-w-0">
+                                        <span className="text-slate-500 text-sm mr-1 shrink-0">@</span>
+                                        <input
+                                            type="text"
+                                            value={(formData as any).socialMedia?.instagram || ''}
+                                            onChange={e => setFormData({ ...formData, socialMedia: { ...(formData as any).socialMedia, instagram: e.target.value } } as any)}
+                                            placeholder="tu_negocio"
+                                            className="flex-1 bg-transparent text-white text-sm focus:outline-none placeholder:text-slate-600"
+                                        />
+                                    </div>
+                                    <span className="text-xs text-slate-600 shrink-0 hidden group-focus-within:text-pink-400 group-focus-within:block">Instagram</span>
+                                </div>
+
+                                {/* Facebook */}
+                                <div className="flex items-center gap-3 bg-[#0d1120] border border-white/8 rounded-xl px-3 h-14 focus-within:border-blue-500/60 focus-within:bg-blue-500/5 transition-all group">
+                                    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
+                                        <Facebook size={16} className="text-white" />
+                                    </div>
+                                    <div className="flex items-center flex-1 min-w-0">
+                                        <span className="text-slate-600 text-xs mr-1 shrink-0">fb.com/</span>
+                                        <input
+                                            type="text"
+                                            value={(formData as any).socialMedia?.facebook || ''}
+                                            onChange={e => setFormData({ ...formData, socialMedia: { ...(formData as any).socialMedia, facebook: e.target.value } } as any)}
+                                            placeholder="tu.negocio"
+                                            className="flex-1 bg-transparent text-white text-sm focus:outline-none placeholder:text-slate-600"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* TikTok */}
+                                <div className="flex items-center gap-3 bg-[#0d1120] border border-white/8 rounded-xl px-3 h-14 focus-within:border-slate-400/60 focus-within:bg-white/5 transition-all group">
+                                    <div className="w-8 h-8 rounded-lg bg-[#111] border border-white/10 flex items-center justify-center shrink-0">
+                                        <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.17 8.17 0 0 0 4.78 1.53V6.79a4.85 4.85 0 0 1-1.01-.1z" /></svg>
+                                    </div>
+                                    <div className="flex items-center flex-1 min-w-0">
+                                        <span className="text-slate-500 text-sm mr-1 shrink-0">@</span>
+                                        <input
+                                            type="text"
+                                            value={(formData as any).socialMedia?.tiktok || ''}
+                                            onChange={e => setFormData({ ...formData, socialMedia: { ...(formData as any).socialMedia, tiktok: e.target.value } } as any)}
+                                            placeholder="tu_negocio"
+                                            className="flex-1 bg-transparent text-white text-sm focus:outline-none placeholder:text-slate-600"
+                                        />
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -471,7 +536,15 @@ export default function BusinessSetupPage() {
                                                                     if (current.length < 6) {
                                                                         setFormData({ ...formData, specialties: [...current, spec] });
                                                                     } else {
-                                                                        toast.error("Máximo 6 especialidades permitidas.");
+                                                                        toast('Máximo 6 especialidades permitidas.', {
+                                                                            icon: '⚡',
+                                                                            style: {
+                                                                                background: '#0f1e2e',
+                                                                                border: '1px solid rgba(0,240,255,0.3)',
+                                                                                color: '#00f0ff',
+                                                                                fontWeight: '600',
+                                                                            },
+                                                                        });
                                                                     }
                                                                 }
                                                             }}
@@ -581,54 +654,115 @@ export default function BusinessSetupPage() {
         }
     };
 
+    const progressPercent = Math.round(((currentStep - 1) / (STEPS.length - 1)) * 100);
+
     return (
-        <div className="max-w-xl mx-auto mt-8">
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold text-white mb-1">Configura tu Negocio</h1>
-                <p className="text-slate-400 text-sm">Paso {currentStep} de {STEPS.length}</p>
-            </div>
+        <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center p-4 md:p-8">
+            <div className="w-full max-w-5xl bg-[#0f1629] rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-white/5 min-h-[600px]">
 
-            <WizardSteps currentStep={currentStep} steps={STEPS} />
+                {/* ── LEFT SIDEBAR ── */}
+                <div className="w-full md:w-72 bg-[#0a1020] border-b md:border-b-0 md:border-r border-white/5 flex flex-col p-6 shrink-0">
+                    {/* Logo / Header */}
+                    <div className="flex items-center gap-3 mb-8">
+                        <div className="w-10 h-10 rounded-xl bg-brand-neon-cyan/10 border border-brand-neon-cyan/20 flex items-center justify-center">
+                            <Building size={20} className="text-brand-neon-cyan" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-slate-500 uppercase tracking-wider">PRO24/7</p>
+                            <p className="text-sm font-bold text-white">Registro de Negocio</p>
+                        </div>
+                    </div>
 
-            <GlassPanel className="p-6 md:p-8">
-                {renderStepContent()}
+                    {/* Step List */}
+                    <nav className="flex-1 space-y-1">
+                        {STEPS.map((step, idx) => {
+                            const stepNum = idx + 1;
+                            const isDone = stepNum < currentStep;
+                            const isActive = stepNum === currentStep;
+                            const isPending = stepNum > currentStep;
 
-                <div className="flex items-center justify-between mt-8 pt-6 border-t border-white/5">
-                    {currentStep > 1 ? (
-                        <button
-                            onClick={handleBack}
-                            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
-                        >
-                            <ArrowLeft size={18} /> Atrás
-                        </button>
-                    ) : (
-                        <button
-                            onClick={() => router.push('/')}
-                            className="text-slate-500 hover:text-slate-300 text-sm"
-                        >
-                            Volver al Inicio
-                        </button>
-                    )}
+                            return (
+                                <div key={step.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors"
+                                    style={{ background: isActive ? 'rgba(0,240,255,0.06)' : 'transparent' }}
+                                >
+                                    {/* Step indicator */}
+                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold transition-all
+                                        ${isDone ? 'bg-green-500 text-white' : isActive ? 'bg-brand-neon-cyan text-black' : 'bg-white/5 text-slate-500 border border-white/10'}`}>
+                                        {isDone ? <Check size={12} /> : stepNum}
+                                    </div>
+                                    <span className={`text-sm font-medium transition-colors ${isActive ? 'text-white' : isDone ? 'text-green-400' : 'text-slate-500'}`}>
+                                        {stepNum}. {step.title}
+                                    </span>
+                                    {isDone && <Check size={14} className="text-green-400 ml-auto shrink-0" />}
+                                </div>
+                            );
+                        })}
+                    </nav>
 
-                    {currentStep < STEPS.length ? (
-                        <button
-                            onClick={handleNext}
-                            disabled={!isStepValid()}
-                            className="flex items-center gap-2 bg-brand-neon-cyan/10 text-brand-neon-cyan hover:bg-brand-neon-cyan/20 border border-brand-neon-cyan/50 px-6 py-2 rounded-full font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Siguiente <ArrowRight size={18} />
-                        </button>
-                    ) : (
-                        <button
-                            onClick={handleSubmit}
-                            disabled={isSubmitting}
-                            className="flex items-center gap-2 bg-brand-neon-cyan text-black px-8 py-2 rounded-full font-bold hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
-                        >
-                            {isSubmitting ? 'Creando...' : 'Crear Negocio'}
-                        </button>
-                    )}
+                    {/* Progress bar */}
+                    <div className="mt-6 pt-4 border-t border-white/5">
+                        <div className="flex justify-between text-xs text-slate-500 mb-2">
+                            <span>Progreso</span>
+                            <span>{progressPercent}%</span>
+                        </div>
+                        <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-gradient-to-r from-brand-neon-cyan to-blue-500 rounded-full transition-all duration-500"
+                                style={{ width: `${progressPercent}%` }}
+                            />
+                        </div>
+                    </div>
                 </div>
-            </GlassPanel>
+
+                {/* ── RIGHT CONTENT ── */}
+                <div className="flex-1 flex flex-col min-h-0">
+                    {/* Scrollable content */}
+                    <div className="flex-1 overflow-y-auto p-6 md:p-10">
+                        {renderStepContent()}
+                    </div>
+
+                    {/* Footer Navigation */}
+                    <div className="shrink-0 border-t border-white/5 px-6 md:px-10 py-5 flex items-center justify-between bg-[#0f1629]">
+                        {currentStep > 1 ? (
+                            <button
+                                onClick={handleBack}
+                                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition-all text-sm font-medium"
+                            >
+                                <ArrowLeft size={16} /> Atrás
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => router.push('/')}
+                                className="text-slate-500 hover:text-slate-300 text-sm transition-colors"
+                            >
+                                Volver al Inicio
+                            </button>
+                        )}
+
+                        {currentStep < STEPS.length ? (
+                            <button
+                                onClick={handleNext}
+                                disabled={!isStepValid()}
+                                className="flex items-center gap-2 bg-brand-neon-cyan hover:bg-brand-neon-cyan/90 text-black px-6 py-2.5 rounded-xl font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(0,240,255,0.2)] hover:shadow-[0_0_30px_rgba(0,240,255,0.35)]"
+                            >
+                                Continuar <ArrowRight size={16} />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={handleSubmit}
+                                disabled={isSubmitting}
+                                className="flex items-center gap-2 bg-brand-neon-cyan hover:bg-brand-neon-cyan/90 text-black px-8 py-2.5 rounded-xl font-bold text-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(0,240,255,0.3)]"
+                            >
+                                {isSubmitting ? (
+                                    <><div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> Creando...</>
+                                ) : (
+                                    <><Check size={16} /> Crear Negocio</>
+                                )}
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

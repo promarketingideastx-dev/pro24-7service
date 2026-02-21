@@ -13,6 +13,11 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const pathname = usePathname();
 
+    // The setup wizard has its own full-screen layout — skip the shell
+    if (pathname === '/business/setup') {
+        return <>{children}</>;
+    }
+
     const menuItems = [
         { name: 'Dashboard', href: '/business/dashboard', icon: <LayoutDashboard size={20} /> },
         { name: 'Agenda', href: '/business/agenda', icon: <Calendar size={20} /> },

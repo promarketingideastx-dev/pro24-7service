@@ -70,10 +70,17 @@ export interface BusinessLocation {
     coverageRadiusKm: number;
 }
 
+export interface SocialMedia {
+    instagram?: string | null;
+    facebook?: string | null;
+    tiktok?: string | null;
+}
+
 export interface BusinessContact {
     contactPhone?: string | null; // PRIVADO (Solo registrados)
     whatsapp?: string | null;     // PRIVADO (Solo registrados)
     website?: string | null;
+    socialMedia?: SocialMedia;
 }
 
 export interface BusinessTaxonomy {

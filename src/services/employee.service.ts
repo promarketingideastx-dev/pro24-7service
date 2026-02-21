@@ -23,6 +23,7 @@ export interface EmployeeData {
     role: string; // Now used as "Title / Description"
     roleType: 'manager' | 'reception' | 'customer_service' | 'sales_marketing' | 'technician' | 'assistant' | 'other';
     roleCustom?: string;
+    description?: string;  // Free-text description, max 200 words
     photoUrl?: string;
     active: boolean;
     serviceIds: string[]; // List of service IDs this employee performs
