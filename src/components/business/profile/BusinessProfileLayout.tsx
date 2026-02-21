@@ -14,10 +14,11 @@ interface ProfileLayoutProps {
     children: React.ReactNode;
     isOwner?: boolean;
     onBookClick: () => void;
-    isModalOpen?: boolean; // Hide sticky bar when booking modal is open
+    isModalOpen?: boolean;
+    showTeamTab?: boolean; // true when business plan is plus_team or vip
 }
 
-export default function BusinessProfileLayout({ business, activeTab, onTabChange, children, isOwner, onBookClick, isModalOpen }: ProfileLayoutProps) {
+export default function BusinessProfileLayout({ business, activeTab, onTabChange, children, isOwner, onBookClick, isModalOpen, showTeamTab }: ProfileLayoutProps) {
     const router = useRouter();
     const { user } = useAuth();
     const [isSticky, setIsSticky] = useState(false);
@@ -130,7 +131,8 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
         { id: 'services', label: 'Servicios' },
         { id: 'gallery', label: 'Galería' },
         { id: 'reviews', label: 'Reseñas' },
-        { id: 'details', label: 'Detalles' }
+        { id: 'details', label: 'Detalles' },
+        ...(showTeamTab ? [{ id: 'team', label: '👥 Equipo' }] : []),
     ];
 
     const handleWhatsApp = () => {

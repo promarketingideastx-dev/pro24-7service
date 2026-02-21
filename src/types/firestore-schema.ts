@@ -60,7 +60,26 @@ export interface UserDocument {
 // ==========================================
 
 export type BusinessStatus = 'draft' | 'pending_review' | 'active' | 'suspended';
+
+// Legacy — kept for DB back-compat, use BusinessPlan going forward
 export type BusinessTier = 'free' | 'pro' | 'enterprise';
+
+// ── Subscription Plans ──
+export type BusinessPlan = 'free' | 'premium' | 'plus_team' | 'vip';
+export type BusinessPlanStatus = 'active' | 'trialing' | 'expired' | 'cancelled';
+export type BusinessPlanSource = 'revenuecat' | 'stripe' | 'pagadito' | 'crm_override';
+
+export interface BusinessPlanData {
+    plan: BusinessPlan;                 // Current active plan
+    planStatus: BusinessPlanStatus;     // Billing status
+    planSource: BusinessPlanSource;     // Which gateway originated the plan
+    planExpiresAt?: any;                // Timestamp — null = no expiry (VIP/override)
+    teamMemberLimit: number;            // 0=free/premium  5=plus_team  999=vip
+    overriddenByCRM: boolean;           // Admin manually set the plan
+    revenueCatUserId?: string;
+    stripeCustomerId?: string;
+    pagaditoToken?: string;
+}
 
 export interface BusinessLocation {
     lat: number;
@@ -134,6 +153,9 @@ export interface BusinessProfile {
 
     createdAt: Timestamp;
     updatedAt: Timestamp;
+
+    // ── Subscription plan (defaults to premium during beta) ──
+    planData?: BusinessPlanData;
 }
 
 // ==========================================

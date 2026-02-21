@@ -1,0 +1,109 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { EmployeeService, EmployeeData } from '@/services/employee.service';
+import { Users } from 'lucide-react';
+
+interface TeamTabProps {
+    businessId: string;
+}
+
+function AvatarCircle({ emp }: { emp: EmployeeData }) {
+    const GRADIENTS = [
+        'from-violet-500 to-indigo-600',
+        'from-rose-500 to-pink-600',
+        'from-amber-500 to-orange-600',
+        'from-emerald-500 to-teal-600',
+        'from-sky-500 to-blue-600',
+        'from-fuchsia-500 to-purple-600',
+    ];
+    const gradient = GRADIENTS[emp.name.charCodeAt(0) % GRADIENTS.length];
+
+    if (emp.photoUrl) {
+        return (
+            <img
+                src={emp.photoUrl}
+                alt={emp.name}
+                className="w-20 h-20 rounded-full object-cover border-2 border-white/10 mx-auto"
+            />
+        );
+    }
+    return (
+        <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-bold text-2xl mx-auto border-2 border-white/10`}>
+            {emp.name.charAt(0).toUpperCase()}
+        </div>
+    );
+}
+
+export default function TeamTab({ businessId }: TeamTabProps) {
+    const [members, setMembers] = useState<EmployeeData[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        EmployeeService.getEmployees(businessId)
+            .then(emps => setMembers(emps.filter(e => e.active)))
+            .finally(() => setLoading(false));
+    }, [businessId]);
+
+    if (loading) {
+        return (
+            <div className="flex justify-center py-12">
+                <div className="w-7 h-7 border-2 border-white/20 border-t-brand-neon-cyan rounded-full animate-spin" />
+            </div>
+        );
+    }
+
+    if (members.length === 0) {
+        return (
+            <div className="flex flex-col items-center py-16 text-center gap-3">
+                <div className="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center text-slate-500">
+                    <Users size={28} />
+                </div>
+                <p className="text-slate-400 text-sm">Este negocio aún no tiene miembros del equipo registrados.</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="px-4 py-6">
+            <h3 className="text-sm font-semibold text-slate-400 uppercase mb-5 tracking-wider">
+                Nuestro Equipo
+            </h3>
+            <div className="grid grid-cols-2 gap-5 sm:grid-cols-3">
+                {members.map(emp => {
+                    const roleLabel = emp.roleType === 'other'
+                        ? emp.roleCustom || 'Equipo'
+                        : {
+                            manager: 'Manager',
+                            reception: 'Recepción',
+                            customer_service: 'Servicio al Cliente',
+                            sales_marketing: 'Ventas / Marketing',
+                            technician: 'Especialista',
+                            assistant: 'Asistente',
+                        }[emp.roleType] ?? 'Equipo';
+
+                    return (
+                        <div
+                            key={emp.id}
+                            className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white/3 border border-white/5 hover:border-brand-neon-cyan/20 transition-colors"
+                        >
+                            <AvatarCircle emp={emp} />
+                            <div className="text-center mt-1">
+                                <p className="text-white font-semibold text-sm leading-tight">{emp.name}</p>
+                                {emp.role && (
+                                    <p className="text-brand-neon-cyan text-xs font-medium mt-0.5">{emp.role}</p>
+                                )}
+                                <p className="text-slate-500 text-[11px] mt-0.5">{roleLabel}</p>
+                                {emp.description && (
+                                    <p className="text-slate-400 text-[11px] mt-2 leading-relaxed line-clamp-3">
+                                        {emp.description}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}

@@ -13,7 +13,9 @@ import ServicesTab from '@/components/business/profile/tabs/ServicesTab';
 import GalleryTab from '@/components/business/profile/tabs/GalleryTab';
 import ReviewsTab from '@/components/business/profile/tabs/ReviewsTab';
 import DetailsTab from '@/components/business/profile/tabs/DetailsTab';
+import TeamTab from '@/components/business/profile/tabs/TeamTab';
 import AppInstallBanner from '@/components/ui/AppInstallBanner';
+import { PlanService } from '@/services/plan.service';
 
 export default function BusinessProfilePage() {
     const params = useParams();
@@ -103,6 +105,10 @@ export default function BusinessProfilePage() {
     // 4. Unified "Mini-App" View for ALL users (Guest & Logged In)
     // (State moved to top)
 
+    // Determine if team tab should be shown
+    const effectivePlan = PlanService.getEffectivePlan(displayData || {});
+    const showTeamTab = PlanService.canUseTeam(effectivePlan);
+
     return (
         <BusinessProfileLayout
             business={displayData}
@@ -111,6 +117,7 @@ export default function BusinessProfilePage() {
             isOwner={isOwner}
             onBookClick={() => setIsBookingOpen(true)}
             isModalOpen={isBookingOpen}
+            showTeamTab={showTeamTab}
         >
             {activeTab === 'services' && (
                 <ServicesTab
@@ -134,6 +141,10 @@ export default function BusinessProfilePage() {
 
             {activeTab === 'details' && (
                 <DetailsTab business={displayData} />
+            )}
+
+            {activeTab === 'team' && showTeamTab && (
+                <TeamTab businessId={id} />
             )}
 
             <RequestAppointmentModal
