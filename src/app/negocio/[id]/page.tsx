@@ -16,6 +16,8 @@ import DetailsTab from '@/components/business/profile/tabs/DetailsTab';
 import TeamTab from '@/components/business/profile/tabs/TeamTab';
 import AppInstallBanner from '@/components/ui/AppInstallBanner';
 import { PlanService } from '@/services/plan.service';
+import { AnalyticsService } from '@/services/analytics.service';
+
 
 export default function BusinessProfilePage() {
     const params = useParams();
@@ -46,6 +48,14 @@ export default function BusinessProfilePage() {
 
             if (pub) {
                 setPublicData(pub);
+                // ── Track profile view (fire and forget) ──
+                AnalyticsService.track({
+                    type: 'profile_view',
+                    businessId: id,
+                    userUid: user?.uid,
+                    country: (pub as any).country ?? (pub as any).location?.country ?? undefined,
+                    deviceType: window.innerWidth < 768 ? 'mobile' : window.innerWidth < 1024 ? 'tablet' : 'desktop',
+                });
             } else {
                 // Not found (404)
                 setPublicData(null);
@@ -115,7 +125,10 @@ export default function BusinessProfilePage() {
             activeTab={activeTab}
             onTabChange={setActiveTab}
             isOwner={isOwner}
-            onBookClick={() => setIsBookingOpen(true)}
+            onBookClick={() => {
+                setIsBookingOpen(true);
+                AnalyticsService.track({ type: 'booking_modal_open', businessId: id, userUid: user?.uid });
+            }}
             isModalOpen={isBookingOpen}
             showTeamTab={showTeamTab}
         >

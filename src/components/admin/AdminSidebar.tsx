@@ -6,8 +6,9 @@ import { useEffect, useState } from 'react';
 import {
     LayoutDashboard, Building2, Users, FileImage,
     Bell, CreditCard, Settings, Scale, BookOpen,
-    ChevronLeft, ChevronRight, Shield, Map
+    ChevronLeft, ChevronRight, Shield, Map, BarChart2
 } from 'lucide-react';
+
 import { AdminNotificationService } from '@/services/adminNotification.service';
 import { DisputeService } from '@/services/dispute.service';
 
@@ -33,6 +34,7 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
         { href: '/admin/businesses', icon: Building2, label: 'Negocios', badge: 0 },
         { href: '/admin/users', icon: Users, label: 'Usuarios', badge: 0 },
         { href: '/admin/map', icon: Map, label: 'Mapa', badge: 0 },
+        { href: '/admin/analytics', icon: BarChart2, label: 'Analytics', badge: 0 },
         { href: '/admin/media', icon: FileImage, label: 'Archivos', badge: 0 },
         { href: '/admin/notifications', icon: Bell, label: 'Notificaciones', badge: unreadNotifs },
         { href: '/admin/plans', icon: CreditCard, label: 'Planes & Pagos', badge: 0 },

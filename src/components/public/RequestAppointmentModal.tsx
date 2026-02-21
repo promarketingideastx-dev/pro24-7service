@@ -11,6 +11,8 @@ import { es } from 'date-fns/locale';
 
 import { WeeklySchedule } from '@/services/employee.service';
 import { PaymentSettings } from '@/types/firestore-schema';
+import { AnalyticsService } from '@/services/analytics.service';
+
 
 interface RequestAppointmentModalProps {
     isOpen: boolean;
@@ -243,7 +245,9 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
     const handleServiceSelect = (service: ServiceData) => {
         setSelectedService(service);
         setStep('datetime');
+        AnalyticsService.track({ type: 'booking_step_service', businessId });
     };
+
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const dateStr = e.target.value;
