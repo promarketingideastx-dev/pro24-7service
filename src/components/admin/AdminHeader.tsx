@@ -60,7 +60,7 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
     };
 
     return (
-        <header className="h-14 bg-[#0a1128] border-b border-white/5 flex items-center px-4 gap-3 sticky top-0 z-30">
+        <header className="h-14 bg-[#0a1128] border-b border-white/5 flex items-center px-4 gap-3 sticky top-0 z-[2000]">
             <button onClick={onMenuToggle} className="text-slate-400 hover:text-white transition-colors lg:hidden">
                 <Menu size={18} />
             </button>
@@ -78,7 +78,7 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
                     <ChevronDown size={12} className="text-slate-400" />
                 </button>
                 {countryOpen && (
-                    <div className="absolute right-0 top-full mt-1 bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl w-52 z-50 overflow-y-auto max-h-80">
+                    <div className="absolute right-0 top-full mt-1 bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl w-52 z-[2100] overflow-y-auto max-h-80">
                         {COUNTRIES.map(c => (
                             <button
                                 key={c.code}
@@ -104,7 +104,7 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
                     <ChevronDown size={12} className="text-slate-400" />
                 </button>
                 {langOpen && (
-                    <div className="absolute right-0 top-full mt-1 bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl w-48 z-50 overflow-hidden">
+                    <div className="absolute right-0 top-full mt-1 bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl w-48 z-[2100] overflow-hidden">
                         {LANGS.map(l => (
                             <button
                                 key={l.code}
