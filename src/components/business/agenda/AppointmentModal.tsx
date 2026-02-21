@@ -173,89 +173,94 @@ export default function AppointmentModal({
                 {/* Form */}
                 <form onSubmit={handleSubmit(onSubmit)} className="p-6 overflow-y-auto custom-scrollbar space-y-4">
 
-                    {/* Customer Selection / Entry */}
-                    <div className="space-y-1 relative">
-                        <label className="text-xs text-slate-400 font-medium ml-1">Cliente <span className="text-red-500">*</span></label>
-
-                        {/* Hidden ID Field */}
-                        <input type="hidden" {...register('customerId')} />
-
-                        <div className="relative">
-                            <User className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
-                            <input
-                                value={customerSearch}
-                                onChange={(e) => {
-                                    setCustomerSearch(e.target.value);
-                                    setValue('customerName', e.target.value); // Sync manual input
-                                    setValue('customerId', ''); // Clear ID if typing manually
-                                    setShowCustomerResults(true);
-                                }}
-                                onFocus={() => setShowCustomerResults(true)}
-                                className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 pr-10 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50"
-                                placeholder="Buscar cliente existente o escribir nombre..."
-                                autoComplete="off"
-                            />
-                            {/* Clear/Status Icon */}
-                            {currentCustomerId ? (
-                                <button
-                                    type="button"
-                                    onClick={handleClearCustomer}
-                                    className="absolute right-3 top-2.5 text-brand-neon-cyan text-xs font-bold hover:underline"
-                                >
-                                    Linked
-                                </button>
-                            ) : (
-                                customerSearch && (
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setCustomerSearch('');
-                                            setValue('customerName', '');
-                                            setValue('customerId', '');
-                                        }}
-                                        className="absolute right-3 top-2.5 text-slate-500 hover:text-white"
-                                    >
-                                        <X className="w-4 h-4" />
-                                    </button>
-                                )
-                            )}
-                        </div>
-
-                        {/* Typeahead Results */}
-                        {showCustomerResults && customerSearch && filteredCustomers.length > 0 && !currentCustomerId && (
-                            <div className="absolute z-10 w-full bg-[#151b2e] border border-white/10 rounded-xl shadow-xl mt-1 max-h-40 overflow-y-auto custom-scrollbar">
-                                {filteredCustomers.map(c => (
-                                    <button
-                                        key={c.id}
-                                        type="button"
-                                        onClick={() => handleSelectCustomer(c)}
-                                        className="w-full text-left px-4 py-2 hover:bg-white/5 text-sm flex items-center justify-between group"
-                                    >
-                                        <div>
-                                            <p className="font-medium text-white">{c.fullName}</p>
-                                            <p className="text-xs text-slate-500">{c.phone}</p>
-                                        </div>
-                                        <div className="opacity-0 group-hover:opacity-100 text-brand-neon-cyan text-xs">
-                                            Seleccionar
-                                        </div>
-                                    </button>
-                                ))}
+                    {/* ── Customer Section ── */}
+                    {appointment ? (
+                        /* ── EDIT MODE: show locked client info card ── */
+                        <div className="space-y-1">
+                            <label className="text-xs text-slate-400 font-medium ml-1">Cliente</label>
+                            <div className="flex items-center gap-3 bg-white/5 border border-white/8 rounded-xl px-4 py-3">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                                    {(appointment.customerName || '?').charAt(0).toUpperCase()}
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-white font-medium text-sm leading-tight truncate">
+                                        {appointment.customerName || 'Sin nombre'}
+                                    </p>
+                                    {appointment.customerPhone && (
+                                        <p className="text-slate-500 text-xs">{appointment.customerPhone}</p>
+                                    )}
+                                </div>
+                                <span className="ml-auto text-[10px] text-slate-600 bg-white/5 px-2 py-0.5 rounded-full shrink-0">
+                                    bloqueado
+                                </span>
                             </div>
-                        )}
+                            {/* Hidden fields to preserve values in form */}
+                            <input type="hidden" {...register('customerId')} />
+                            <input type="hidden" {...register('customerName')} />
+                            <input type="hidden" {...register('customerPhone')} />
+                        </div>
+                    ) : (
+                        /* ── CREATE MODE: searchable customer field ── */
+                        <div className="space-y-1 relative">
+                            <label className="text-xs text-slate-400 font-medium ml-1">Cliente <span className="text-red-500">*</span></label>
+                            <input type="hidden" {...register('customerId')} />
+                            <div className="relative">
+                                <User className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
+                                <input
+                                    value={customerSearch}
+                                    onChange={(e) => {
+                                        setCustomerSearch(e.target.value);
+                                        setValue('customerName', e.target.value);
+                                        setValue('customerId', '');
+                                        setShowCustomerResults(true);
+                                    }}
+                                    onFocus={() => setShowCustomerResults(true)}
+                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 pr-10 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50"
+                                    placeholder="Buscar cliente existente o escribir nombre..."
+                                    autoComplete="off"
+                                />
+                                {currentCustomerId ? (
+                                    <button type="button" onClick={handleClearCustomer}
+                                        className="absolute right-3 top-2.5 text-brand-neon-cyan text-xs font-bold hover:underline">
+                                        Linked
+                                    </button>
+                                ) : (
+                                    customerSearch && (
+                                        <button type="button"
+                                            onClick={() => { setCustomerSearch(''); setValue('customerName', ''); setValue('customerId', ''); }}
+                                            className="absolute right-3 top-2.5 text-slate-500 hover:text-white">
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    )
+                                )}
+                            </div>
+                            {showCustomerResults && customerSearch && filteredCustomers.length > 0 && !currentCustomerId && (
+                                <div className="absolute z-10 w-full bg-[#151b2e] border border-white/10 rounded-xl shadow-xl mt-1 max-h-40 overflow-y-auto custom-scrollbar">
+                                    {filteredCustomers.map(c => (
+                                        <button key={c.id} type="button" onClick={() => handleSelectCustomer(c)}
+                                            className="w-full text-left px-4 py-2 hover:bg-white/5 text-sm flex items-center justify-between group">
+                                            <div>
+                                                <p className="font-medium text-white">{c.fullName}</p>
+                                                <p className="text-xs text-slate-500">{c.phone}</p>
+                                            </div>
+                                            <div className="opacity-0 group-hover:opacity-100 text-brand-neon-cyan text-xs">Seleccionar</div>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                            {errors.customerName && <p className="text-red-400 text-xs ml-1">El nombre del cliente es obligatorio</p>}
+                        </div>
+                    )}
 
-                        {/* Manual fields fallback */}
-                        {errors.customerName && <p className="text-red-400 text-xs ml-1">El nombre del cliente es obligatorio</p>}
-                    </div>
-
-                    {/* Phone (Auto-filled or Manual) */}
-                    <div className="space-y-1">
-                        <label className="text-xs text-slate-400 font-medium ml-1">Teléfono</label>
-                        <input
-                            {...register('customerPhone')}
-                            className="w-full bg-black/20 border border-white/10 rounded-xl py-2 px-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
-                            placeholder="+504 9999-9999"
-                        />
-                    </div>
+                    {/* Phone — only shown in create mode (in edit mode it's inside the card) */}
+                    {!appointment && (
+                        <div className="space-y-1">
+                            <label className="text-xs text-slate-400 font-medium ml-1">Teléfono</label>
+                            <input {...register('customerPhone')}
+                                className="w-full bg-black/20 border border-white/10 rounded-xl py-2 px-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
+                                placeholder="+504 9999-9999" />
+                        </div>
+                    )}
 
                     {/* Service Selection */}
                     <div className="space-y-1">
@@ -290,8 +295,8 @@ export default function AppointmentModal({
                                 type="button"
                                 onClick={() => setValue('employeeId', '')}
                                 className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all w-16 ${!watch('employeeId')
-                                        ? 'border-brand-neon-cyan bg-brand-neon-cyan/10 shadow-[0_0_10px_rgba(0,240,255,0.15)]'
-                                        : 'border-white/10 bg-white/3 hover:border-white/20'
+                                    ? 'border-brand-neon-cyan bg-brand-neon-cyan/10 shadow-[0_0_10px_rgba(0,240,255,0.15)]'
+                                    : 'border-white/10 bg-white/3 hover:border-white/20'
                                     }`}
                             >
                                 <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-slate-400">
@@ -319,8 +324,8 @@ export default function AppointmentModal({
                                         type="button"
                                         onClick={() => setValue('employeeId', emp.id!)}
                                         className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all w-16 ${isSelected
-                                                ? 'border-brand-neon-cyan bg-brand-neon-cyan/10 shadow-[0_0_10px_rgba(0,240,255,0.15)]'
-                                                : 'border-white/10 bg-white/3 hover:border-white/20'
+                                            ? 'border-brand-neon-cyan bg-brand-neon-cyan/10 shadow-[0_0_10px_rgba(0,240,255,0.15)]'
+                                            : 'border-white/10 bg-white/3 hover:border-white/20'
                                             }`}
                                     >
                                         {emp.photoUrl ? (
