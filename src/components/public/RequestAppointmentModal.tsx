@@ -23,6 +23,175 @@ interface RequestAppointmentModalProps {
 
 type Step = 'service' | 'datetime' | 'payment' | 'contact' | 'review';
 
+// ── Inline calendar component ──────────────────────────────────────────────
+const DAYS_ES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+const MONTHS_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+interface DateTimeStepProps {
+    selectedDate: string;
+    selectedTime: string;
+    availableSlots: string[];
+    dayStatus: { isOpen: boolean; message: string };
+    onDateChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onTimeSelect: (t: string) => void;
+    onSubmit: () => void;
+    minutesToTime: (m: number) => string;
+    timeToMinutes: (t: string) => number;
+}
+
+function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, onDateChange, onTimeSelect, onSubmit, minutesToTime, timeToMinutes }: DateTimeStepProps) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [calYear, setCalYear] = useState(today.getFullYear());
+    const [calMonth, setCalMonth] = useState(today.getMonth());
+
+    // Build day grid
+    const firstDay = new Date(calYear, calMonth, 1).getDay(); // 0=Sun
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const cells: (number | null)[] = [
+        ...Array(firstDay).fill(null),
+        ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+    ];
+    // Pad to full weeks
+    while (cells.length % 7 !== 0) cells.push(null);
+
+    const toDateStr = (day: number) => {
+        const m = String(calMonth + 1).padStart(2, '0');
+        const d = String(day).padStart(2, '0');
+        return `${calYear}-${m}-${d}`;
+    };
+
+    const handleDayClick = (day: number) => {
+        const dateStr = toDateStr(day);
+        const cellDate = new Date(`${dateStr}T12:00:00`);
+        if (cellDate < today) return; // disabled — past
+        // Simulate change event
+        const syntheticEvent = { target: { value: dateStr } } as React.ChangeEvent<HTMLInputElement>;
+        onDateChange(syntheticEvent);
+    };
+
+    const prevMonth = () => {
+        if (calMonth === 0) { setCalYear(y => y - 1); setCalMonth(11); }
+        else setCalMonth(m => m - 1);
+    };
+    const nextMonth = () => {
+        if (calMonth === 11) { setCalYear(y => y + 1); setCalMonth(0); }
+        else setCalMonth(m => m + 1);
+    };
+
+    return (
+        <div className="space-y-5">
+            {/* Calendar card */}
+            <div className="bg-[#0d1526] border border-white/8 rounded-2xl overflow-hidden">
+                {/* Month header */}
+                <div className="flex items-center justify-between px-4 py-3 border-b border-white/8">
+                    <button onClick={prevMonth} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white">
+                        <ChevronLeft size={18} />
+                    </button>
+                    <span className="text-white font-semibold text-sm">
+                        {MONTHS_ES[calMonth]} {calYear}
+                    </span>
+                    <button onClick={nextMonth} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white">
+                        <ChevronRight size={18} />
+                    </button>
+                </div>
+
+                {/* Day names */}
+                <div className="grid grid-cols-7 px-2 pt-2">
+                    {DAYS_ES.map(d => (
+                        <div key={d} className="text-center text-[10px] font-semibold text-slate-500 uppercase py-1">{d}</div>
+                    ))}
+                </div>
+
+                {/* Day cells */}
+                <div className="grid grid-cols-7 gap-0.5 px-2 pb-3">
+                    {cells.map((day, i) => {
+                        if (!day) return <div key={i} />;
+                        const dateStr = toDateStr(day);
+                        const cellDate = new Date(`${dateStr}T12:00:00`);
+                        const isPast = cellDate < today;
+                        const isSelected = dateStr === selectedDate;
+                        const isToday = cellDate.toDateString() === today.toDateString();
+
+                        return (
+                            <button
+                                key={i}
+                                disabled={isPast}
+                                onClick={() => handleDayClick(day)}
+                                className={`
+                                    relative h-9 w-full flex items-center justify-center rounded-xl text-sm font-medium transition-all
+                                    ${isPast ? 'text-white/15 cursor-not-allowed' : 'cursor-pointer hover:bg-white/10'}
+                                    ${isSelected ? 'bg-brand-neon-cyan text-black font-bold shadow-lg shadow-cyan-500/30 hover:bg-brand-neon-cyan' : ''}
+                                    ${isToday && !isSelected ? 'ring-1 ring-brand-neon-cyan/50 text-brand-neon-cyan' : ''}
+                                    ${!isPast && !isSelected ? 'text-white' : ''}
+                                `}
+                            >
+                                {day}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Selected date display */}
+            {selectedDate && (
+                <div className={`flex items-center gap-2 text-sm px-3 py-2 rounded-xl border ${dayStatus.isOpen ? 'bg-brand-neon-cyan/8 border-brand-neon-cyan/20 text-brand-neon-cyan' : 'bg-amber-500/10 border-amber-500/20 text-amber-400'}`}>
+                    <Calendar size={14} className="shrink-0" />
+                    <span>
+                        {dayStatus.isOpen
+                            ? `${selectedDate} — Disponible`
+                            : dayStatus.message}
+                    </span>
+                </div>
+            )}
+
+            {/* Time slots */}
+            <div className="space-y-2">
+                <label className="text-white text-sm font-semibold flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-brand-neon-cyan" />
+                    Horario
+                </label>
+                {!selectedDate ? (
+                    <p className="text-slate-500 text-sm italic text-center py-3">← Selecciona una fecha en el calendario</p>
+                ) : !dayStatus.isOpen ? (
+                    <p className="text-slate-500 text-sm italic text-center py-3">Cerrado este día</p>
+                ) : availableSlots.length === 0 ? (
+                    <p className="text-slate-500 text-sm italic text-center py-3">Sin horarios disponibles</p>
+                ) : (
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                        {availableSlots.map(time => {
+                            const display = minutesToTime(timeToMinutes(time));
+                            const active = selectedTime === time;
+                            return (
+                                <button key={time} onClick={() => onTimeSelect(time)}
+                                    className={`py-2.5 px-1 text-sm rounded-xl border font-medium transition-all ${active
+                                        ? 'bg-brand-neon-cyan text-black border-brand-neon-cyan shadow-lg shadow-cyan-500/20'
+                                        : 'bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-brand-neon-cyan/30'
+                                        }`}>
+                                    {display}
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+
+            <button
+                onClick={onSubmit}
+                disabled={!selectedDate || !selectedTime}
+                className={`w-full py-3.5 font-bold rounded-xl transition-all text-base ${(!selectedDate || !selectedTime)
+                    ? 'bg-white/10 text-slate-500 cursor-not-allowed'
+                    : 'bg-brand-neon-cyan text-black hover:opacity-90 hover:shadow-lg hover:shadow-cyan-500/30'
+                    }`}
+            >
+                {selectedDate && selectedTime ? `Continuar → ${selectedDate}` : 'Continuar'}
+            </button>
+        </div>
+    );
+}
+
+
 export default function RequestAppointmentModal({ isOpen, onClose, businessId, businessName, openingHours, paymentSettings }: RequestAppointmentModalProps) {
     const [step, setStep] = useState<Step>('service');
     const [loading, setLoading] = useState(false);
@@ -263,83 +432,17 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
 
                     {/* STEP 2: DATE & TIME */}
                     {step === 'datetime' && (
-                        <div className="space-y-6">
-                            <div className="space-y-3">
-                                <label className="text-white text-sm font-semibold flex items-center gap-2">
-                                    <Calendar className="w-4 h-4 text-brand-neon-cyan" />
-                                    Fecha Preferida
-                                </label>
-                                <div className="relative group">
-                                    {/* Glowing border effect */}
-                                    <div className="absolute inset-0 rounded-xl bg-brand-neon-cyan/10 blur-sm opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none" />
-
-                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-neon-cyan w-5 h-5 z-10 pointer-events-none" />
-
-                                    <input
-                                        type="date"
-                                        min={new Date().toISOString().split('T')[0]}
-                                        value={selectedDate}
-                                        onChange={handleDateChange}
-                                        className="styled-date w-full bg-[#0f1623] border-2 border-brand-neon-cyan/40 hover:border-brand-neon-cyan/70 focus:border-brand-neon-cyan rounded-xl py-4 pl-12 pr-36 text-white text-base focus:outline-none transition-all cursor-pointer"
-                                    />
-
-                                    {/* Visible "open calendar" CTA — stretched native indicator sits on top */}
-                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-brand-neon-cyan/20 border border-brand-neon-cyan/50 rounded-xl px-4 py-2">
-                                        <Calendar className="w-5 h-5 text-brand-neon-cyan" />
-                                        <span className="text-brand-neon-cyan text-sm font-bold whitespace-nowrap">Abrir</span>
-                                    </div>
-                                </div>
-                                {!dayStatus.isOpen && selectedDate && (
-                                    <div className="flex items-center gap-2 text-amber-500 text-sm bg-amber-500/10 p-3 rounded-lg border border-amber-500/20">
-                                        <Briefcase size={16} />
-                                        {dayStatus.message}
-                                    </div>
-                                )}
-                            </div>
-
-
-                            <div className="space-y-2">
-                                <label className="text-slate-400 text-sm">Horarios Disponibles</label>
-                                {!selectedDate ? (
-                                    <p className="text-slate-500 text-sm italic">Selecciona una fecha para ver horarios.</p>
-                                ) : !dayStatus.isOpen ? (
-                                    <p className="text-slate-500 text-sm italic">El negocio está cerrado en esta fecha.</p>
-                                ) : availableSlots.length === 0 ? (
-                                    <p className="text-slate-500 text-sm italic">No hay horarios disponibles.</p>
-                                ) : (
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                                        {availableSlots.map((time) => {
-                                            const displayTime = minutesToTime(timeToMinutes(time));
-                                            const isSelected = selectedTime === time;
-
-                                            return (
-                                                <button
-                                                    key={time}
-                                                    onClick={() => handleTimeSelect(time)}
-                                                    className={`py-2 px-1 text-sm rounded-lg border transition-all ${isSelected
-                                                        ? 'bg-brand-neon-cyan text-black border-brand-neon-cyan font-bold shadow-lg shadow-cyan-500/20'
-                                                        : 'bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-white/20'
-                                                        }`}
-                                                >
-                                                    {displayTime}
-                                                </button>
-                                            )
-                                        })}
-                                    </div>
-                                )}
-                            </div>
-
-                            <button
-                                onClick={handleDateTimeSubmit}
-                                disabled={!selectedDate || !selectedTime}
-                                className={`w-full py-3 font-bold rounded-xl mt-4 transition-all ${(!selectedDate || !selectedTime)
-                                    ? 'bg-white/10 text-slate-500 cursor-not-allowed'
-                                    : 'bg-brand-neon-cyan text-black hover:opacity-90 hover:shadow-lg hover:shadow-cyan-500/30'
-                                    }`}
-                            >
-                                Continuar
-                            </button>
-                        </div>
+                        <DateTimeStep
+                            selectedDate={selectedDate}
+                            selectedTime={selectedTime}
+                            availableSlots={availableSlots}
+                            dayStatus={dayStatus}
+                            onDateChange={handleDateChange}
+                            onTimeSelect={handleTimeSelect}
+                            onSubmit={handleDateTimeSubmit}
+                            minutesToTime={minutesToTime}
+                            timeToMinutes={timeToMinutes}
+                        />
                     )}
 
                     {/* STEP 2.5: PAYMENT INFO */}
