@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 export interface MapPoint {
+    id?: string;
     lat: number;
     lng: number;
     name: string;
@@ -22,6 +23,7 @@ interface BusinessMapProps {
     center?: [number, number];
     zoom?: number;
     colorBy?: ColorBy;
+    onSelect?: (id: string, point: MapPoint) => void;
 }
 
 const STATUS_COLOR: Record<string, string> = {
@@ -63,7 +65,7 @@ function categoryEmoji(cat?: string): string {
     return '💼';
 }
 
-export default function BusinessMap({ points, center = [14.5, -86.5], zoom = 7, colorBy = 'status' }: BusinessMapProps) {
+export default function BusinessMap({ points, center = [14.5, -86.5], zoom = 7, colorBy = 'status', onSelect }: BusinessMapProps) {
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<any>(null);
 
@@ -149,25 +151,14 @@ export default function BusinessMap({ points, center = [14.5, -86.5], zoom = 7, 
 
                 L.marker([p.lat, p.lng], { icon })
                     .addTo(map)
-                    .bindPopup(`
-                        <div style="font-family:system-ui;min-width:350px;padding:6px 0;">
-                            <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
-                                ${p.coverImage
-                            ? `<img src="${p.coverImage}" style="width:72px;height:72px;border-radius:14px;object-fit:cover;border:2px solid #e5e7eb;flex-shrink:0;" />`
-                            : `<div style="width:72px;height:72px;border-radius:14px;background:${color}20;border:2px solid ${color}50;display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;">${emoji}</div>`
-                        }
-                                <div style="min-width:0;">
-                                    <strong style="font-size:20px;color:#111;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</strong>
-                                    <span style="font-size:15px;color:#6b7280;">${p.city ?? ''}${p.city && p.country ? ', ' : ''}${p.country ?? ''}</span>
-                                </div>
-                            </div>
-                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                                <span style="background:${statusColor}15;color:${statusColor};border:1.5px solid ${statusColor}40;border-radius:99px;padding:5px 16px;font-size:14px;font-weight:700;">${statusLabel}</span>
-                                <span style="background:#f3f4f6;color:#374151;border-radius:99px;padding:5px 16px;font-size:14px;">${plan}</span>
-                            </div>
-                            ${p.category ? `<div style="color:#9ca3af;font-size:13px;margin-top:6px;">${p.category}</div>` : ''}
-                        </div>
-                    `, { maxWidth: 400 });
+                    .on('click', () => {
+                        if (onSelect && p.id) onSelect(p.id, p);
+                    })
+                    .bindTooltip(`
+                        <div style="font-family:system-ui;padding:4px 2px;">
+                            <strong style="font-size:13px;color:#111;">${p.name}</strong><br/>
+                            <span style="font-size:11px;color:#6b7280;">${p.city ?? ''}${p.city && p.country ? ', ' : ''}${p.country ?? ''}</span>
+                        </div>`, { direction: 'top', offset: [0, -26], opacity: 1 });
             });
         })();
 
