@@ -29,23 +29,30 @@ export interface AdminBusinessRecord {
 export const AdminService = {
     // ── Businesses ──
 
-    async getBusinesses(countryFilter?: string, lastDoc?: DocumentSnapshot): Promise<AdminBusinessRecord[]> {
+    async getBusinesses(countryFilter?: string): Promise<AdminBusinessRecord[]> {
         let q = query(
             collection(db, 'businesses'),
-            orderBy('createdAt', 'desc'),
-            limit(50)
+            limit(200)
         );
+        const snap = await getDocs(q);
+        let results = snap.docs.map(d => ({ id: d.id, ...d.data() } as AdminBusinessRecord));
+
+        // Filter by country client-side
         if (countryFilter && countryFilter !== 'ALL') {
-            q = query(
-                collection(db, 'businesses'),
-                where('countryCode', '==', countryFilter),
-                orderBy('createdAt', 'desc'),
-                limit(50)
+            results = results.filter(b =>
+                b.countryCode === countryFilter ||
+                b.location?.countryCode === countryFilter
             );
         }
-        if (lastDoc) q = query(q, startAfter(lastDoc));
-        const snap = await getDocs(q);
-        return snap.docs.map(d => ({ id: d.id, ...d.data() } as AdminBusinessRecord));
+
+        // Sort by createdAt descending client-side
+        results.sort((a, b) => {
+            const aTime = a.createdAt?.toMillis?.() ?? (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0);
+            const bTime = b.createdAt?.toMillis?.() ?? (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0);
+            return bTime - aTime;
+        });
+
+        return results;
     },
 
     async setPlan(businessId: string, plan: BusinessPlan, adminEmail: string): Promise<void> {

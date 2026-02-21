@@ -9,18 +9,38 @@ import { useRouter } from 'next/navigation';
 
 const COUNTRIES = [
     { code: 'ALL', flag: '🌍', label: 'Todos los países' },
+    // Centroamérica
     { code: 'HN', flag: '🇭🇳', label: 'Honduras' },
-    { code: 'US', flag: '🇺🇸', label: 'Estados Unidos' },
-    { code: 'MX', flag: '🇲🇽', label: 'México' },
-    { code: 'BR', flag: '🇧🇷', label: 'Brasil' },
     { code: 'GT', flag: '🇬🇹', label: 'Guatemala' },
     { code: 'SV', flag: '🇸🇻', label: 'El Salvador' },
+    { code: 'NI', flag: '🇳🇮', label: 'Nicaragua' },
+    { code: 'CR', flag: '🇨🇷', label: 'Costa Rica' },
+    { code: 'PA', flag: '🇵🇦', label: 'Panamá' },
+    // Norteamérica
+    { code: 'MX', flag: '🇲🇽', label: 'México' },
+    { code: 'US', flag: '🇺🇸', label: 'Estados Unidos' },
+    { code: 'CA', flag: '🇨🇦', label: 'Canadá' },
+    // Sudamérica
+    { code: 'CO', flag: '🇨🇴', label: 'Colombia' },
+    { code: 'BR', flag: '🇧🇷', label: 'Brasil' },
+    { code: 'AR', flag: '🇦🇷', label: 'Argentina' },
+    { code: 'CL', flag: '🇨🇱', label: 'Chile' },
+    { code: 'PE', flag: '🇵🇪', label: 'Perú' },
+    { code: 'EC', flag: '🇪🇨', label: 'Ecuador' },
+    { code: 'VE', flag: '🇻🇪', label: 'Venezuela' },
+    { code: 'BO', flag: '🇧🇴', label: 'Bolivia' },
+    { code: 'PY', flag: '🇵🇾', label: 'Paraguay' },
+    { code: 'UY', flag: '🇺🇾', label: 'Uruguay' },
+    { code: 'DO', flag: '🇩🇴', label: 'Rep. Dominicana' },
+    { code: 'CU', flag: '🇨🇺', label: 'Cuba' },
+    // Europa
+    { code: 'ES', flag: '🇪🇸', label: 'España' },
 ];
 
 const LANGS = [
-    { code: 'es', label: 'Español' },
-    { code: 'en', label: 'English' },
-    { code: 'pt-BR', label: 'Português BR' },
+    { code: 'es', label: 'Español', ready: true },
+    { code: 'en', label: 'English', ready: false },
+    { code: 'pt-BR', label: 'Português BR', ready: false },
 ];
 
 interface AdminHeaderProps {
@@ -59,7 +79,7 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
                     <ChevronDown size={12} className="text-slate-400" />
                 </button>
                 {countryOpen && (
-                    <div className="absolute right-0 top-full mt-1 bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl w-52 z-50 overflow-hidden">
+                    <div className="absolute right-0 top-full mt-1 bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl w-52 z-50 overflow-y-auto max-h-80">
                         {COUNTRIES.map(c => (
                             <button
                                 key={c.code}
@@ -68,6 +88,7 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
                             >
                                 <span>{c.flag}</span>
                                 <span>{c.label}</span>
+                                {selectedCountry.code === c.code && <span className="ml-auto text-brand-neon-cyan">✓</span>}
                             </button>
                         ))}
                     </div>
@@ -84,14 +105,18 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
                     <ChevronDown size={12} className="text-slate-400" />
                 </button>
                 {langOpen && (
-                    <div className="absolute right-0 top-full mt-1 bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl w-40 z-50 overflow-hidden">
+                    <div className="absolute right-0 top-full mt-1 bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl w-48 z-50 overflow-hidden">
                         {LANGS.map(l => (
                             <button
                                 key={l.code}
-                                onClick={() => { setSelectedLang(l); setLangOpen(false); }}
-                                className={`w-full text-left px-4 py-2.5 text-sm hover:bg-white/5 transition-colors ${selectedLang.code === l.code ? 'text-brand-neon-cyan' : 'text-slate-300'}`}
+                                onClick={() => { if (l.ready) { setSelectedLang(l); setLangOpen(false); } }}
+                                className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 transition-colors
+                                    ${!l.ready ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/5'}
+                                    ${selectedLang.code === l.code ? 'text-brand-neon-cyan' : 'text-slate-300'}`}
                             >
-                                {l.label}
+                                <span className="flex-1">{l.label}</span>
+                                {!l.ready && <span className="text-[9px] bg-slate-700 text-slate-400 px-1.5 py-0.5 rounded-full">🔜 Fase C</span>}
+                                {l.ready && selectedLang.code === l.code && <span className="text-brand-neon-cyan text-xs">✓</span>}
                             </button>
                         ))}
                     </div>
