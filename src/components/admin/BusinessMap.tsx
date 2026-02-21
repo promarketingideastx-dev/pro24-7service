@@ -150,24 +150,24 @@ export default function BusinessMap({ points, center = [14.5, -86.5], zoom = 7, 
                 L.marker([p.lat, p.lng], { icon })
                     .addTo(map)
                     .bindPopup(`
-                        <div style="font-family:system-ui;min-width:175px;padding:2px 0;">
-                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                        <div style="font-family:system-ui;min-width:350px;padding:6px 0;">
+                            <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
                                 ${p.coverImage
-                            ? `<img src="${p.coverImage}" style="width:36px;height:36px;border-radius:8px;object-fit:cover;border:1px solid #e5e7eb;" />`
-                            : `<div style="width:36px;height:36px;border-radius:8px;background:${color}20;border:1px solid ${color}50;display:flex;align-items:center;justify-content:center;font-size:18px;">${emoji}</div>`
+                            ? `<img src="${p.coverImage}" style="width:72px;height:72px;border-radius:14px;object-fit:cover;border:2px solid #e5e7eb;flex-shrink:0;" />`
+                            : `<div style="width:72px;height:72px;border-radius:14px;background:${color}20;border:2px solid ${color}50;display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;">${emoji}</div>`
                         }
-                                <div>
-                                    <strong style="font-size:13px;color:#111;display:block;">${p.name}</strong>
-                                    <span style="font-size:11px;color:#6b7280;">${p.city ?? ''}${p.city && p.country ? ', ' : ''}${p.country ?? ''}</span>
+                                <div style="min-width:0;">
+                                    <strong style="font-size:20px;color:#111;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</strong>
+                                    <span style="font-size:15px;color:#6b7280;">${p.city ?? ''}${p.city && p.country ? ', ' : ''}${p.country ?? ''}</span>
                                 </div>
                             </div>
-                            <div style="display:flex;gap:5px;flex-wrap:wrap;">
-                                <span style="background:${statusColor}15;color:${statusColor};border:1px solid ${statusColor}40;border-radius:99px;padding:2px 8px;font-size:10px;font-weight:600;">${statusLabel}</span>
-                                <span style="background:#f3f4f6;color:#374151;border-radius:99px;padding:2px 8px;font-size:10px;">${plan}</span>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                <span style="background:${statusColor}15;color:${statusColor};border:1.5px solid ${statusColor}40;border-radius:99px;padding:5px 16px;font-size:14px;font-weight:700;">${statusLabel}</span>
+                                <span style="background:#f3f4f6;color:#374151;border-radius:99px;padding:5px 16px;font-size:14px;">${plan}</span>
                             </div>
-                            ${p.category ? `<div style="color:#9ca3af;font-size:10px;margin-top:4px;">${p.category}</div>` : ''}
+                            ${p.category ? `<div style="color:#9ca3af;font-size:13px;margin-top:6px;">${p.category}</div>` : ''}
                         </div>
-                    `, { maxWidth: 240 });
+                    `, { maxWidth: 400 });
             });
         })();
 
