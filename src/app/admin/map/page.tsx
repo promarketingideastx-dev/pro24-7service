@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useAdminContext } from '@/context/AdminContext';
-import { getDocs, query, collection, limit } from 'firebase/firestore';
+import { onSnapshot, query, collection, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Map, RefreshCw, Building2, Crown, Star, Zap, Users, ToggleLeft, ToggleRight } from 'lucide-react';
 import { toast } from 'sonner';
@@ -41,12 +41,13 @@ export default function AdminMapPage() {
     const [statusFilter, setStatusFilter] = useState('all');
     const [loading, setLoading] = useState(true);
 
-    const load = useCallback(async () => {
+    // Real-time listener
+    useEffect(() => {
         setLoading(true);
-        try {
-            const snap = await getDocs(query(collection(db, 'businesses_public'), limit(500)));
+        const q = query(collection(db, 'businesses_public'), limit(500));
+        const unsub = onSnapshot(q, (snap) => {
             const pts: MapPoint[] = [];
-            snap.docs.forEach(d => {
+            snap.docs.forEach((d) => {
                 const data = d.data();
                 const lat = data.location?.lat ?? data.lat;
                 const lng = data.location?.lng ?? data.lng;
@@ -60,18 +61,19 @@ export default function AdminMapPage() {
                         category: data.category,
                         status: data.status ?? 'active',
                         suspended: data.suspended === true,
+                        coverImage: data.coverImage,
                     });
                 }
             });
             setAllPoints(pts);
-        } catch {
-            toast.error('Error cargando mapa');
-        } finally {
             setLoading(false);
-        }
+        }, () => {
+            toast.error('Error cargando mapa');
+            setLoading(false);
+        });
+        return () => unsub();
     }, []);
 
-    useEffect(() => { load(); }, [load]);
 
     useEffect(() => {
         let pts = allPoints;
@@ -137,10 +139,7 @@ export default function AdminMapPage() {
                     Color por: <strong className="text-white">{colorBy === 'status' ? 'Estado' : 'Plan'}</strong>
                 </button>
 
-                <button onClick={load} disabled={loading}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs text-slate-300 transition-colors">
-                    <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
-                </button>
+
             </div>
 
             {/* ── Map ── */}

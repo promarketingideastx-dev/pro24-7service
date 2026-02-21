@@ -3,6 +3,44 @@ import { doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc,
 import { WeeklySchedule } from './employee.service';
 import { PaymentSettings } from '@/types/firestore-schema';
 
+// ── Country fallback coordinates ──
+const COUNTRY_COORDS: Record<string, { lat: number; lng: number }> = {
+    HN: { lat: 14.9, lng: -87.2 }, MX: { lat: 23.6, lng: -102.5 },
+    GT: { lat: 15.5, lng: -90.2 }, SV: { lat: 13.8, lng: -89.2 },
+    NI: { lat: 12.9, lng: -85.2 }, CR: { lat: 9.7, lng: -84.0 },
+    PA: { lat: 8.5, lng: -80.8 }, CO: { lat: 4.5, lng: -74.3 },
+    US: { lat: 37.1, lng: -95.7 }, CA: { lat: 56.1, lng: -106.3 },
+    BR: { lat: -14.2, lng: -51.9 }, AR: { lat: -38.4, lng: -63.6 },
+    ES: { lat: 40.4, lng: -3.7 }, PE: { lat: -9.2, lng: -75.0 },
+    CL: { lat: -35.7, lng: -71.5 },
+};
+
+/**
+ * Geocode a city/state/country to lat/lng using OpenStreetMap Nominatim.
+ * Free, no API key required. Returns country centroid as fallback.
+ */
+async function geocodeAddress(
+    city?: string, state?: string, country?: string
+): Promise<{ lat: number; lng: number }> {
+    const fallback = COUNTRY_COORDS[country ?? 'HN'] ?? { lat: 14.9, lng: -87.2 };
+    try {
+        const parts = [city, state, country].filter(Boolean).join(', ');
+        if (!parts) return fallback;
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(parts)}&format=json&limit=1`;
+        const res = await fetch(url, {
+            headers: { 'User-Agent': 'PRO247CRM/1.0 (admin@pro247.app)' },
+        });
+        const json = await res.json();
+        if (json?.[0]) {
+            return { lat: parseFloat(json[0].lat), lng: parseFloat(json[0].lon) };
+        }
+    } catch {
+        // Silently fallback
+    }
+    return fallback;
+}
+
+
 export interface BusinessProfileData {
     businessName: string;
     description: string;
@@ -326,10 +364,7 @@ export const BusinessProfileService = {
                 website: data.website || '', // Added website
                 phone: data.phone || '', // Public phone for contact
                 socialMedia: data.socialMedia || { instagram: '', facebook: '', tiktok: '' },
-                location: {
-                    lat: 15.50417 + (Math.random() - 0.5) * 0.02, // Mock Geocoding
-                    lng: -88.02500 + (Math.random() - 0.5) * 0.02
-                },
+                location: await geocodeAddress(data.city, data.department, data.country),
                 modality: data.modality,
                 status: 'active',
                 openingHours: data.openingHours || null, // Shared
