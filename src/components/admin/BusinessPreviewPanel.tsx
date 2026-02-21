@@ -3,11 +3,7 @@
 import { useEffect, useState } from 'react';
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import {
-    X, ExternalLink, Building2, MapPin, Phone,
-    Globe, Instagram, Facebook, CreditCard, Shield,
-    Smartphone, RefreshCw
-} from 'lucide-react';
+import { X, ExternalLink, Building2, RefreshCw, Smartphone } from 'lucide-react';
 
 interface BusinessPreviewPanelProps {
     businessId: string | null;
@@ -32,117 +28,110 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
         getDoc(doc(db, 'businesses_public', businessId)).then(d => {
             if (d.exists()) setBiz({ id: d.id, ...d.data() });
         }).finally(() => setLoading(false));
-        setIframeKey(k => k + 1); // reload iframe on new business
+        setIframeKey(k => k + 1);
     }, [businessId]);
 
     const profileUrl = businessId ? `/negocio/${businessId}` : null;
     const plan = biz?.planData?.plan ?? 'free';
-    const statusColor = biz?.suspended ? '#ef4444'
-        : biz?.status === 'pending' ? '#f59e0b' : '#22c55e';
-    const statusLabel = biz?.suspended ? 'Suspendido'
-        : biz?.status === 'pending' ? 'Pendiente' : 'Activo';
+    const statusColor = biz?.suspended ? '#ef4444' : biz?.status === 'pending' ? '#f59e0b' : '#22c55e';
+    const statusLabel = biz?.suspended ? 'Suspendido' : biz?.status === 'pending' ? 'Pendiente' : 'Activo';
 
     return (
         <div
-            className={`fixed top-0 right-0 h-full z-[3000] flex flex-col transition-all duration-300 ease-in-out ${businessId ? 'translate-x-0' : 'translate-x-full'}`}
-            style={{ width: '420px' }}
+            className={`fixed top-0 right-0 h-full z-[3000] transition-transform duration-300 ease-in-out ${businessId ? 'translate-x-0' : 'translate-x-full'}`}
+            style={{ width: '720px' }}
         >
-            {/* Backdrop */}
+            {/* Dim backdrop (click to close) */}
             {businessId && (
-                <div className="fixed inset-0 z-[-1]" onClick={onClose} />
+                <div className="fixed inset-0 z-[-1] bg-black/20" onClick={onClose} />
             )}
 
-            {/* Panel */}
-            <div className="h-full bg-[#0a1128] border-l border-white/10 flex flex-col shadow-2xl">
+            {/* Outer panel */}
+            <div className="h-full bg-[#070e20] border-l border-white/10 flex flex-col shadow-2xl">
 
-                {/* Header */}
-                <div className="flex items-center gap-3 px-4 py-3 border-b border-white/5">
-                    <Smartphone size={16} className="text-brand-neon-cyan" />
+                {/* ── Header bar ── */}
+                <div className="flex items-center gap-3 px-5 py-3 border-b border-white/5 shrink-0">
+                    <Smartphone size={15} className="text-brand-neon-cyan shrink-0" />
                     <div className="flex-1 min-w-0">
-                        {loading ? (
-                            <div className="h-4 w-32 bg-white/10 rounded animate-pulse" />
-                        ) : (
-                            <p className="text-sm font-semibold text-white truncate">{biz?.name ?? '...'}</p>
-                        )}
-                        <p className="text-[10px] text-slate-500">{biz?.city ?? ''}{biz?.city && biz?.country ? ', ' : ''}{biz?.country ?? ''}</p>
+                        {loading
+                            ? <div className="h-4 w-40 bg-white/10 rounded animate-pulse" />
+                            : <p className="text-sm font-semibold text-white truncate">{biz?.name ?? '—'}</p>
+                        }
+                        <p className="text-[10px] text-slate-500">
+                            {biz?.city ?? ''}{biz?.city && biz?.country ? ', ' : ''}{biz?.country ?? ''}
+                        </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                         {profileUrl && (
                             <a href={profileUrl} target="_blank" rel="noopener noreferrer"
                                 title="Abrir en nueva pestaña"
-                                className="text-slate-400 hover:text-brand-neon-cyan transition-colors">
+                                className="text-slate-400 hover:text-brand-neon-cyan transition-colors p-1">
                                 <ExternalLink size={14} />
                             </a>
                         )}
                         <button onClick={() => setIframeKey(k => k + 1)} title="Recargar"
-                            className="text-slate-400 hover:text-white transition-colors">
+                            className="text-slate-400 hover:text-white transition-colors p-1">
                             <RefreshCw size={14} />
                         </button>
-                        <button onClick={onClose} className="text-slate-400 hover:text-red-400 transition-colors ml-1">
+                        <button onClick={onClose}
+                            className="text-slate-400 hover:text-red-400 transition-colors p-1">
                             <X size={18} />
                         </button>
                     </div>
                 </div>
 
-                {/* Quick info bar */}
+                {/* ── Status / plan bar ── */}
                 {biz && (
-                    <div className="flex items-center gap-3 px-4 py-2 bg-white/3 border-b border-white/5 text-xs">
-                        <span className="flex items-center gap-1" style={{ color: statusColor }}>
-                            <span className="w-1.5 h-1.5 rounded-full" style={{ background: statusColor }} />
+                    <div className="flex items-center gap-3 px-5 py-2 bg-white/3 border-b border-white/5 shrink-0 text-xs">
+                        <span className="flex items-center gap-1.5 font-medium" style={{ color: statusColor }}>
+                            <span className="w-2 h-2 rounded-full" style={{ background: statusColor }} />
                             {statusLabel}
                         </span>
-                        <span className={`px-2 py-0.5 rounded-full border text-[10px] font-semibold ${PLAN_BADGE[plan]}`}>
+                        <span className={`px-2.5 py-0.5 rounded-full border text-[10px] font-bold ${PLAN_BADGE[plan]}`}>
                             {plan.toUpperCase()}
                         </span>
-                        {biz.category && (
-                            <span className="text-slate-500 truncate">{biz.category}</span>
-                        )}
-                        <span className="ml-auto text-slate-600 text-[10px]">#{businessId?.slice(0, 8)}</span>
+                        {biz.category && <span className="text-slate-500 truncate">{biz.category}</span>}
+                        <span className="ml-auto text-slate-700 text-[10px]">ID: {businessId?.slice(0, 10)}</span>
                     </div>
                 )}
 
-                {/* Phone frame (main content) */}
-                <div className="flex-1 overflow-hidden flex items-start justify-center bg-[#060d1f] p-4">
-                    <div className="w-full max-w-[360px] mx-auto flex flex-col h-full">
-                        {/* Phone bezel */}
-                        <div className="bg-[#1a1a2e] rounded-[2.5rem] p-3 flex flex-col flex-1 shadow-2xl border border-white/10">
-                            {/* Notch */}
-                            <div className="flex items-center justify-center mb-2">
-                                <div className="w-20 h-5 bg-black rounded-full flex items-center justify-center gap-1">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-slate-700" />
-                                    <div className="w-3 h-3 rounded-full bg-slate-800 border border-slate-700" />
+                {/* ── Tablet frame ── */}
+                <div className="flex-1 overflow-hidden flex items-center justify-center bg-[#050c1a] p-5">
+                    {/* Tablet bezel — portrait tablet proportions */}
+                    <div
+                        className="flex flex-col bg-[#111827] rounded-[2.25rem] border-4 border-[#1f2937] shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full h-full"
+                        style={{ maxWidth: '640px' }}
+                    >
+                        {/* Top bar: camera */}
+                        <div className="flex items-center justify-center pt-3 pb-1 shrink-0">
+                            <div className="w-2.5 h-2.5 rounded-full bg-[#1f2937] border border-white/10" />
+                        </div>
+
+                        {/* Screen */}
+                        <div className="flex-1 bg-white rounded-2xl mx-3 mb-3 overflow-hidden relative">
+                            {loading ? (
+                                <div className="absolute inset-0 flex items-center justify-center bg-white">
+                                    <div className="w-8 h-8 border-2 border-slate-200 border-t-indigo-500 rounded-full animate-spin" />
                                 </div>
-                            </div>
+                            ) : profileUrl ? (
+                                <iframe
+                                    key={iframeKey}
+                                    src={profileUrl}
+                                    className="w-full h-full border-0"
+                                    title={biz?.name ?? 'Business Profile'}
+                                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                                />
+                            ) : (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-3">
+                                    <Building2 size={40} className="opacity-20" />
+                                    <p className="text-sm">Haz clic en un negocio en el mapa</p>
+                                </div>
+                            )}
+                        </div>
 
-                            {/* Screen */}
-                            <div className="flex-1 bg-white rounded-[1.8rem] overflow-hidden relative">
-                                {loading ? (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-white">
-                                        <div className="w-8 h-8 border-2 border-slate-200 border-t-brand-neon-cyan rounded-full animate-spin" />
-                                    </div>
-                                ) : profileUrl ? (
-                                    <iframe
-                                        key={iframeKey}
-                                        src={profileUrl}
-                                        className="w-full h-full border-0"
-                                        style={{ minHeight: '500px' }}
-                                        title={biz?.name ?? 'Business Profile'}
-                                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                                    />
-                                ) : (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-slate-50">
-                                        <div className="text-center text-slate-400">
-                                            <Building2 size={32} className="mx-auto mb-2 opacity-30" />
-                                            <p className="text-sm">Selecciona un negocio</p>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Home bar */}
-                            <div className="flex items-center justify-center mt-2.5">
-                                <div className="w-20 h-1 bg-white/30 rounded-full" />
-                            </div>
+                        {/* Home bar */}
+                        <div className="flex justify-center pb-3 shrink-0">
+                            <div className="w-20 h-1 rounded-full bg-white/20" />
                         </div>
                     </div>
                 </div>
