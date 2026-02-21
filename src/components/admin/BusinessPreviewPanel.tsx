@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { X, ExternalLink, Building2, RefreshCw, Smartphone } from 'lucide-react';
+import { X, ExternalLink, Building2, RefreshCw, Tablet } from 'lucide-react';
 
 interface BusinessPreviewPanelProps {
     businessId: string | null;
@@ -25,9 +25,9 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
     useEffect(() => {
         if (!businessId) { setBiz(null); return; }
         setLoading(true);
-        getDoc(doc(db, 'businesses_public', businessId)).then(d => {
-            if (d.exists()) setBiz({ id: d.id, ...d.data() });
-        }).finally(() => setLoading(false));
+        getDoc(doc(db, 'businesses_public', businessId))
+            .then(d => { if (d.exists()) setBiz({ id: d.id, ...d.data() }); })
+            .finally(() => setLoading(false));
         setIframeKey(k => k + 1);
     }, [businessId]);
 
@@ -37,53 +37,49 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
     const statusLabel = biz?.suspended ? 'Suspendido' : biz?.status === 'pending' ? 'Pendiente' : 'Activo';
 
     return (
+        /* Panel slides in from the right — 900 px wide so the tablet frame has room */
         <div
             className={`fixed top-0 right-0 h-full z-[3000] transition-transform duration-300 ease-in-out ${businessId ? 'translate-x-0' : 'translate-x-full'}`}
-            style={{ width: '720px' }}
+            style={{ width: '900px' }}
         >
-            {/* Dim backdrop (click to close) */}
-            {businessId && (
-                <div className="fixed inset-0 z-[-1] bg-black/20" onClick={onClose} />
-            )}
+            {/* Dim click-outside area */}
+            {businessId && <div className="fixed inset-0 z-[-1] bg-black/25" onClick={onClose} />}
 
-            {/* Outer panel */}
             <div className="h-full bg-[#070e20] border-l border-white/10 flex flex-col shadow-2xl">
 
-                {/* ── Header bar ── */}
+                {/* ── Top bar ── */}
                 <div className="flex items-center gap-3 px-5 py-3 border-b border-white/5 shrink-0">
-                    <Smartphone size={15} className="text-brand-neon-cyan shrink-0" />
+                    <Tablet size={15} className="text-brand-neon-cyan shrink-0" />
                     <div className="flex-1 min-w-0">
                         {loading
-                            ? <div className="h-4 w-40 bg-white/10 rounded animate-pulse" />
-                            : <p className="text-sm font-semibold text-white truncate">{biz?.name ?? '—'}</p>
-                        }
+                            ? <div className="h-4 w-48 bg-white/10 rounded animate-pulse" />
+                            : <p className="text-sm font-semibold text-white truncate">{biz?.name ?? '—'}</p>}
                         <p className="text-[10px] text-slate-500">
                             {biz?.city ?? ''}{biz?.city && biz?.country ? ', ' : ''}{biz?.country ?? ''}
                         </p>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
                         {profileUrl && (
                             <a href={profileUrl} target="_blank" rel="noopener noreferrer"
-                                title="Abrir en nueva pestaña"
-                                className="text-slate-400 hover:text-brand-neon-cyan transition-colors p-1">
+                                className="p-2 text-slate-400 hover:text-brand-neon-cyan transition-colors">
                                 <ExternalLink size={14} />
                             </a>
                         )}
-                        <button onClick={() => setIframeKey(k => k + 1)} title="Recargar"
-                            className="text-slate-400 hover:text-white transition-colors p-1">
+                        <button onClick={() => setIframeKey(k => k + 1)}
+                            className="p-2 text-slate-400 hover:text-white transition-colors">
                             <RefreshCw size={14} />
                         </button>
                         <button onClick={onClose}
-                            className="text-slate-400 hover:text-red-400 transition-colors p-1">
+                            className="p-2 text-slate-400 hover:text-red-400 transition-colors">
                             <X size={18} />
                         </button>
                     </div>
                 </div>
 
-                {/* ── Status / plan bar ── */}
+                {/* ── Status / plan info bar ── */}
                 {biz && (
                     <div className="flex items-center gap-3 px-5 py-2 bg-white/3 border-b border-white/5 shrink-0 text-xs">
-                        <span className="flex items-center gap-1.5 font-medium" style={{ color: statusColor }}>
+                        <span className="flex items-center gap-1.5 font-semibold" style={{ color: statusColor }}>
                             <span className="w-2 h-2 rounded-full" style={{ background: statusColor }} />
                             {statusLabel}
                         </span>
@@ -95,23 +91,35 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
                     </div>
                 )}
 
-                {/* ── Tablet frame ── */}
-                <div className="flex-1 overflow-hidden flex items-center justify-center bg-[#050c1a] p-5">
-                    {/* Tablet bezel — portrait tablet proportions */}
+                {/* ── Tablet frame — iPad portrait proportions (3:4) ── */}
+                <div className="flex-1 overflow-hidden flex items-center justify-center bg-[#040a16] p-5">
+                    {/*
+                      iPad portrait  ≈   768 × 1024
+                      We cap width at 600px and height fills the panel.
+                      3:4 ratio → if height is H, width = H * (3/4).
+                      We let the height be `100%` and use CSS aspect-ratio on the
+                      bezel so it always looks like a tablet regardless of screen size.
+                    */}
                     <div
-                        className="flex flex-col bg-[#111827] rounded-[2.25rem] border-4 border-[#1f2937] shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full h-full"
-                        style={{ maxWidth: '640px' }}
+                        className="flex flex-col bg-[#131927] rounded-[2rem] border-[10px] border-[#1f2937] shadow-[0_0_80px_rgba(0,0,0,0.7)]"
+                        style={{
+                            /* portrait iPad: 3/4 */
+                            aspectRatio: '3 / 4',
+                            height: '100%',
+                            maxHeight: '100%',
+                            maxWidth: '820px',
+                        }}
                     >
-                        {/* Top bar: camera */}
-                        <div className="flex items-center justify-center pt-3 pb-1 shrink-0">
-                            <div className="w-2.5 h-2.5 rounded-full bg-[#1f2937] border border-white/10" />
+                        {/* Camera dot — centered top */}
+                        <div className="flex items-center justify-center py-3 shrink-0">
+                            <div className="w-2.5 h-2.5 rounded-full bg-[#232e42] border border-white/10 shadow-inner" />
                         </div>
 
-                        {/* Screen */}
-                        <div className="flex-1 bg-white rounded-2xl mx-3 mb-3 overflow-hidden relative">
+                        {/* Screen — fills remaining space */}
+                        <div className="flex-1 bg-white rounded-xl mx-2 mb-2 overflow-hidden relative min-h-0">
                             {loading ? (
                                 <div className="absolute inset-0 flex items-center justify-center bg-white">
-                                    <div className="w-8 h-8 border-2 border-slate-200 border-t-indigo-500 rounded-full animate-spin" />
+                                    <div className="w-9 h-9 border-2 border-slate-100 border-t-brand-neon-cyan rounded-full animate-spin" />
                                 </div>
                             ) : profileUrl ? (
                                 <iframe
@@ -123,14 +131,14 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
                                 />
                             ) : (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-3">
-                                    <Building2 size={40} className="opacity-20" />
-                                    <p className="text-sm">Haz clic en un negocio en el mapa</p>
+                                    <Building2 size={48} className="opacity-15" />
+                                    <p className="text-sm">Haz clic en un marcador del mapa</p>
                                 </div>
                             )}
                         </div>
 
                         {/* Home bar */}
-                        <div className="flex justify-center pb-3 shrink-0">
+                        <div className="flex justify-center py-3 shrink-0">
                             <div className="w-20 h-1 rounded-full bg-white/20" />
                         </div>
                     </div>
