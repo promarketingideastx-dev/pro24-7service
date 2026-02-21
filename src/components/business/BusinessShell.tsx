@@ -1,17 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Store, Calendar, Settings, LogOut, Menu, X, PlusCircle, Users, CreditCard } from 'lucide-react';
+import { LayoutDashboard, Store, Calendar, Settings, LogOut, Menu, X, Users, CreditCard, Shield } from 'lucide-react';
 import GlassPanel from '@/components/ui/GlassPanel';
 import BusinessGuard from '@/components/auth/BusinessGuard';
 import { AuthService } from '@/services/auth.service';
 import { AppointmentRefreshProvider } from '@/context/AppointmentRefreshContext';
+import { useAuth } from '@/context/AuthContext';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 export default function BusinessShell({ children }: { children: React.ReactNode }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const { user } = useAuth();
     const pathname = usePathname();
+
+    useEffect(() => {
+        if (!user) return;
+        getDoc(doc(db, 'users', user.uid)).then(snap => {
+            if (snap.data()?.isAdmin === true) setIsAdmin(true);
+        });
+    }, [user]);
 
     // The setup wizard has its own full-screen layout — skip the shell
     if (pathname === '/business/setup') {
@@ -103,6 +115,18 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                                     </Link>
                                 ))}
                             </nav>
+
+                            {/* Admin CRM — solo visible para admin */}
+                            {isAdmin && (
+                                <Link
+                                    href="/admin"
+                                    className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all mb-2 bg-gradient-to-r from-brand-neon-cyan/10 to-brand-neon-purple/10 border border-brand-neon-cyan/25 text-brand-neon-cyan hover:from-brand-neon-cyan/20 hover:to-brand-neon-purple/20"
+                                >
+                                    <Shield size={18} className="text-brand-neon-cyan" />
+                                    <span className="font-bold text-sm">Admin CRM</span>
+                                    <span className="ml-auto text-[9px] bg-brand-neon-cyan/20 text-brand-neon-cyan px-1.5 py-0.5 rounded-full font-bold">ADMIN</span>
+                                </Link>
+                            )}
 
                             {/* Logout */}
                             <button
