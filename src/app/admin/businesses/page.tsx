@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { AdminService, AdminBusinessRecord } from '@/services/admin.service';
 import { useAdminContext } from '@/context/AdminContext';
@@ -44,7 +44,20 @@ function PlanDropdown({ business, onChanged }: { business: AdminBusinessRecord; 
     const { user } = useAuth();
     const [open, setOpen] = useState(false);
     const [saving, setSaving] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
     const currentPlan = (business.planData?.plan ?? 'free') as BusinessPlan;
+
+    // Close on click outside
+    useEffect(() => {
+        if (!open) return;
+        const handler = (e: MouseEvent) => {
+            if (ref.current && !ref.current.contains(e.target as Node)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [open]);
 
     const handleSet = async (plan: BusinessPlan) => {
         if (plan === currentPlan) { setOpen(false); return; }
@@ -62,7 +75,7 @@ function PlanDropdown({ business, onChanged }: { business: AdminBusinessRecord; 
     };
 
     return (
-        <div className="relative">
+        <div ref={ref} className="relative">
             <button
                 onClick={() => setOpen(p => !p)}
                 disabled={saving}
@@ -73,7 +86,7 @@ function PlanDropdown({ business, onChanged }: { business: AdminBusinessRecord; 
                 <ChevronDown size={10} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
             </button>
             {open && (
-                <div className="absolute left-0 top-full mt-1 bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl z-50 w-40 overflow-hidden">
+                <div className="absolute left-0 top-full mt-1 bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl z-[100] w-40 overflow-hidden">
                     {PLAN_OPTIONS.map(opt => (
                         <button
                             key={opt.value}
