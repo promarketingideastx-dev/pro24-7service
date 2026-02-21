@@ -5,7 +5,7 @@ import Link from 'next/link';
 import {
     LayoutDashboard, Building2, Users, FileImage,
     Bell, CreditCard, Settings, Scale, BookOpen,
-    ChevronLeft, ChevronRight, Shield
+    ChevronLeft, ChevronRight, Shield, Map
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -17,6 +17,7 @@ const NAV_ITEMS = [
     { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { href: '/admin/businesses', icon: Building2, label: 'Negocios' },
     { href: '/admin/users', icon: Users, label: 'Usuarios' },
+    { href: '/admin/map', icon: Map, label: 'Mapa' },
     { href: '/admin/media', icon: FileImage, label: 'Archivos' },
     { href: '/admin/notifications', icon: Bell, label: 'Notificaciones' },
     { href: '/admin/plans', icon: CreditCard, label: 'Planes & Pagos' },
