@@ -44,20 +44,27 @@ function PlanDropdown({ business, onChanged }: { business: AdminBusinessRecord; 
     const { user } = useAuth();
     const [open, setOpen] = useState(false);
     const [saving, setSaving] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
+    const [pos, setPos] = useState({ top: 0, left: 0 });
+    const btnRef = useRef<HTMLButtonElement>(null);
     const currentPlan = (business.planData?.plan ?? 'free') as BusinessPlan;
 
-    // Close on click outside
+    // Close on click outside (anywhere in document)
     useEffect(() => {
         if (!open) return;
-        const handler = (e: MouseEvent) => {
-            if (ref.current && !ref.current.contains(e.target as Node)) {
-                setOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handler);
-        return () => document.removeEventListener('mousedown', handler);
+        const handler = (e: MouseEvent) => setOpen(false);
+        // Use capture so it fires before stopPropagation
+        document.addEventListener('click', handler, true);
+        return () => document.removeEventListener('click', handler, true);
     }, [open]);
+
+    const handleToggle = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!open && btnRef.current) {
+            const rect = btnRef.current.getBoundingClientRect();
+            setPos({ top: rect.bottom + 4, left: rect.left });
+        }
+        setOpen(p => !p);
+    };
 
     const handleSet = async (plan: BusinessPlan) => {
         if (plan === currentPlan) { setOpen(false); return; }
@@ -75,9 +82,10 @@ function PlanDropdown({ business, onChanged }: { business: AdminBusinessRecord; 
     };
 
     return (
-        <div ref={ref} className="relative">
+        <>
             <button
-                onClick={() => setOpen(p => !p)}
+                ref={btnRef}
+                onClick={handleToggle}
                 disabled={saving}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-semibold transition-all ${PLAN_BADGE[currentPlan]} hover:opacity-80`}
             >
@@ -86,7 +94,11 @@ function PlanDropdown({ business, onChanged }: { business: AdminBusinessRecord; 
                 <ChevronDown size={10} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
             </button>
             {open && (
-                <div className="absolute left-0 top-full mt-1 bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl z-[100] w-40 overflow-hidden">
+                <div
+                    style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999 }}
+                    className="bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl w-40 overflow-hidden"
+                    onClick={e => e.stopPropagation()}
+                >
                     {PLAN_OPTIONS.map(opt => (
                         <button
                             key={opt.value}
@@ -100,7 +112,7 @@ function PlanDropdown({ business, onChanged }: { business: AdminBusinessRecord; 
                     ))}
                 </div>
             )}
-        </div>
+        </>
     );
 }
 
@@ -224,8 +236,8 @@ export default function AdminBusinessesPage() {
             ) : filtered.length === 0 ? (
                 <div className="text-center py-16 text-slate-500">No se encontraron negocios</div>
             ) : (
-                <div className="bg-[#0a1128] border border-white/5 rounded-2xl overflow-hidden">
-                    <div className="overflow-x-auto">
+                <div className="bg-[#0a1128] border border-white/5 rounded-2xl">
+                    <div className="overflow-x-auto rounded-2xl">
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-white/5 text-xs text-slate-500 uppercase">
