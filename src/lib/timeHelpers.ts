@@ -35,12 +35,10 @@ export const formatTime = (time: string, format: '12h' | '24h' = '12h'): string 
 /**
  * Checks if the business is currently open.
  */
-export const isBusinessOpen = (schedule?: WeeklySchedule): { isOpen: boolean; nextStatusTime?: string; nextStatusLabel?: string } => {
-    if (!schedule) return { isOpen: false, nextStatusLabel: 'Horario no disponible' };
+export const isBusinessOpen = (schedule?: WeeklySchedule): { isOpen: boolean; closesAt?: string } => {
+    if (!schedule) return { isOpen: false };
 
     const now = new Date();
-    // Get day of week: 0 (Sun) - 6 (Sat)
-    // Map to our keys: mon, tue, wed, thu, fri, sat, sun
     const daysMap = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
     const currentDayKey = daysMap[now.getDay()] as keyof WeeklySchedule;
     const currentDaySchedule = schedule[currentDayKey];
@@ -52,31 +50,18 @@ export const isBusinessOpen = (schedule?: WeeklySchedule): { isOpen: boolean; ne
         const endMinutes = timeToMinutes(currentDaySchedule.end);
 
         if (currentMinutes >= startMinutes && currentMinutes < endMinutes) {
-            return {
-                isOpen: true,
-                nextStatusTime: currentDaySchedule.end,
-                nextStatusLabel: `Cierra a las ${formatTime(currentDaySchedule.end)}`
-            };
+            return { isOpen: true, closesAt: currentDaySchedule.end };
         }
     }
 
-    // Use simple logic for now: "Closed"
-    // TODO: Calculate next opening time (requires looping through next days)
-    return { isOpen: false, nextStatusLabel: 'Cerrado ahora' };
+    return { isOpen: false };
 };
 
 /**
- * Formats the day name key to Spanish label
+ * Returns the day name key mapped to a label.
+ * If a labels map is provided it uses that (for i18n); otherwise falls back to the key.
  */
-export const getDayLabel = (key: string): string => {
-    const labels: Record<string, string> = {
-        mon: 'Lunes',
-        tue: 'Martes',
-        wed: 'Miércoles',
-        thu: 'Jueves',
-        fri: 'Viernes',
-        sat: 'Sábado',
-        sun: 'Domingo'
-    };
-    return labels[key] || key;
+export const getDayLabel = (key: string, labels?: Record<string, string>): string => {
+    if (labels) return labels[key] ?? key;
+    return key;
 };

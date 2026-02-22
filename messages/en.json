@@ -748,5 +748,22 @@
         "loading": "Loading Map...",
         "viewProfile": "View Profile",
         "view": "View"
+    },
+    "schedule": {
+        "businessHours": "Business Hours",
+        "closed": "Closed",
+        "open": "Open",
+        "closedNow": "Closed now",
+        "closesAt": "Closes at {time}",
+        "notAvailable": "Schedule not available",
+        "days": {
+            "mon": "Monday",
+            "tue": "Tuesday",
+            "wed": "Wednesday",
+            "thu": "Thursday",
+            "fri": "Friday",
+            "sat": "Saturday",
+            "sun": "Sunday"
+        }
     }
 }

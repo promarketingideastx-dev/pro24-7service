@@ -747,5 +747,22 @@
         "loading": "Carregando Mapa...",
         "viewProfile": "Ver Perfil",
         "view": "Ver"
+    },
+    "schedule": {
+        "businessHours": "Horário de Atendimento",
+        "closed": "Fechado",
+        "open": "Aberto",
+        "closedNow": "Fechado agora",
+        "closesAt": "Fecha às {time}",
+        "notAvailable": "Horário não disponível",
+        "days": {
+            "mon": "Segunda",
+            "tue": "Terça",
+            "wed": "Quarta",
+            "thu": "Quinta",
+            "fri": "Sexta",
+            "sat": "Sábado",
+            "sun": "Domingo"
+        }
     }
 }
