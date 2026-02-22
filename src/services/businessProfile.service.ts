@@ -15,6 +15,43 @@ const COUNTRY_COORDS: Record<string, { lat: number; lng: number }> = {
     CL: { lat: -35.7, lng: -71.5 },
 };
 
+// ── Honduras — coordenadas por departamento (capital departamental) ──
+const HN_DEPT_COORDS: Record<string, { lat: number; lng: number }> = {
+    'atlántida': { lat: 15.7697, lng: -86.7862 }, // La Ceiba
+    'choluteca': { lat: 13.2999, lng: -87.1919 }, // Choluteca
+    'colón': { lat: 15.8620, lng: -86.0205 }, // Trujillo
+    'comayagua': { lat: 14.4532, lng: -87.6376 }, // Comayagua
+    'copán': { lat: 14.8380, lng: -89.1465 }, // Santa Rosa de Copán
+    'cortés': { lat: 15.5031, lng: -88.0255 }, // San Pedro Sula
+    'el paraíso': { lat: 13.7791, lng: -86.3631 }, // Yuscarán
+    'francisco morazán': { lat: 14.0899, lng: -87.2021 }, // Tegucigalpa
+    'gracias a dios': { lat: 15.9264, lng: -84.5311 }, // Puerto Lempira
+    'intibucá': { lat: 14.3154, lng: -88.1769 }, // La Esperanza
+    'islas de la bahía': { lat: 16.3350, lng: -86.5291 }, // Roatán
+    'la paz': { lat: 14.3200, lng: -87.6738 }, // La Paz
+    'lempira': { lat: 14.4338, lng: -88.5727 }, // Gracias
+    'ocotepeque': { lat: 14.4365, lng: -89.1832 }, // Nueva Ocotepeque
+    'olancho': { lat: 14.7870, lng: -86.2395 }, // Juticalpa
+    'santa bárbara': { lat: 14.9196, lng: -88.2348 }, // Santa Bárbara
+    'valle': { lat: 13.4441, lng: -87.7311 }, // Nacaome
+    'yoro': { lat: 15.1400, lng: -87.1259 }, // Yoro
+};
+
+/** Returns the best fallback coordinates given department, city and country */
+function getLocationFallback(department?: string, country?: string): { lat: number; lng: number } {
+    const cc = (country || 'HN').toUpperCase();
+    // For Honduras, try to find by department name (case-insensitive, accent-tolerant)
+    if (cc === 'HN' && department) {
+        const key = department.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const match = Object.entries(HN_DEPT_COORDS).find(([k]) =>
+            k.normalize('NFD').replace(/[\u0300-\u036f]/g, '').startsWith(key) ||
+            key.startsWith(k.normalize('NFD').replace(/[\u0300-\u036f]/g, ''))
+        );
+        if (match) return match[1];
+    }
+    return COUNTRY_COORDS[cc] ?? { lat: 14.9, lng: -87.2 };
+}
+
 /**
  * Geocode a city/state/country to lat/lng using OpenStreetMap Nominatim.
  * Uses countrycodes param (ISO 3166-1 alpha-2) for accurate country filtering.
@@ -445,14 +482,15 @@ export const BusinessProfileService = {
             return querySnapshot.docs
                 .map(doc => {
                     const data = doc.data();
+                    const fb = getLocationFallback(data.department, data.country);
                     return {
                         id: doc.id,
                         ...data,
-                        // Normalize country field: Firestore stores as 'country', fallback to countryCode
+                        // Normalize country field
                         countryCode: data.countryCode || data.country || 'HN',
-                        // Ensure lat/lng exist for map
-                        lat: data.location?.lat || 15.50417,
-                        lng: data.location?.lng || -88.02500,
+                        // Use stored location if valid, otherwise fall back to department/country coords
+                        lat: (data.location?.lat && data.location.lat !== 0) ? data.location.lat : fb.lat,
+                        lng: (data.location?.lng && data.location.lng !== 0) ? data.location.lng : fb.lng,
                         icon: '💼',
                         color: 'bg-blue-500',
                         description: data.shortDescription || ''
