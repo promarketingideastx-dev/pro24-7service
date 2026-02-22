@@ -13,6 +13,15 @@ service firebase.storage {
       allow write: if request.auth != null && request.auth.uid == businessId;
     }
 
+    // Business images uploaded from profile editor
+    // Path: business_images/{userId}/{timestamp}_{filename}
+    match /business_images/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId
+                   && request.resource.size < 10 * 1024 * 1024  // max 10MB
+                   && request.resource.contentType.matches('image/.*');
+    }
+
     // Deny everything else
     match /{allPaths=**} {
       allow read, write: if false;
