@@ -3,16 +3,21 @@
 import { useState, useEffect } from 'react';
 import { Appointment, AppointmentService, AppointmentStatus } from '@/services/appointment.service';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { es, enUS, ptBR } from 'date-fns/locale';
 import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, User, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppointmentRefresh } from '@/context/AppointmentRefreshContext';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface AppointmentInboxProps {
     businessId: string;
 }
 
 export default function AppointmentInbox({ businessId }: AppointmentInboxProps) {
+    const t = useTranslations('inbox');
+    const locale = useLocale();
+    const dateFnsLocale = locale === 'en' ? enUS : locale === 'pt-BR' ? ptBR : es;
+
     const [activeTab, setActiveTab] = useState<'pending' | 'upcoming' | 'history'>('pending');
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [loading, setLoading] = useState(true);
@@ -22,27 +27,15 @@ export default function AppointmentInbox({ businessId }: AppointmentInboxProps) 
     const fetchAppointments = async () => {
         setLoading(true);
         try {
-            // Fetch all and filter/sort client-side for now to reduce reads/complexity
-            // In a real app, you'd fetch by status separately or use a compound query
-            // Strategy: 
-            // - Pending: status == 'pending'
-            // - Upcoming: status == 'confirmed' && date >= now
-            // - History: status in ['completed', 'cancelled', 'no-show'] OR (status == 'confirmed' && date < now)
-
-            // For MVP, let's fetch 'pending' specifically if tab is pending, etc.
-            // But relying on AppointmentService.getAppointmentsByStatus might be easier.
-
             let data: Appointment[] = [];
 
             if (activeTab === 'pending') {
                 data = await AppointmentService.getAppointmentsByStatus(businessId, 'pending');
             } else if (activeTab === 'upcoming') {
                 data = await AppointmentService.getAppointmentsByStatus(businessId, 'confirmed');
-                // Filter for future dates only
                 const now = new Date();
                 data = data.filter(a => a.date.toDate() >= now);
             } else {
-                // History: confirmed (past), completed, cancelled, no-show
                 const cancelled = await AppointmentService.getAppointmentsByStatus(businessId, 'cancelled');
                 const completed = await AppointmentService.getAppointmentsByStatus(businessId, 'completed');
                 const noshow = await AppointmentService.getAppointmentsByStatus(businessId, 'no-show');
@@ -54,7 +47,6 @@ export default function AppointmentInbox({ businessId }: AppointmentInboxProps) 
                 data = [...cancelled, ...completed, ...noshow, ...pastConfirmed];
             }
 
-            // Sort by date (desc for history, asc for upcoming/pending)
             data.sort((a, b) => {
                 const dateA = a.date.toDate().getTime();
                 const dateB = b.date.toDate().getTime();
@@ -64,7 +56,7 @@ export default function AppointmentInbox({ businessId }: AppointmentInboxProps) 
             setAppointments(data);
         } catch (error) {
             console.error("Error fetching inbox:", error);
-            toast.error("Error al cargar citas");
+            toast.error(t('loadError'));
         } finally {
             setLoading(false);
         }
@@ -81,35 +73,33 @@ export default function AppointmentInbox({ businessId }: AppointmentInboxProps) 
         try {
             await AppointmentService.updateStatus(appointmentId, newStatus);
 
-            // Optimistic update: update local state immediately without waiting for fetchAppointments
             setAppointments(prev =>
                 prev.map(a =>
                     a.id === appointmentId ? { ...a, status: newStatus } : a
                 )
             );
 
-            const label = newStatus === 'confirmed' ? 'aceptada' :
-                newStatus === 'cancelled' ? 'rechazada' :
-                    newStatus === 'completed' ? 'marcada como completada' : 'actualizada';
-            toast.success(`Cita ${label} exitosamente`);
+            const label =
+                newStatus === 'confirmed' ? t('statusAccepted') :
+                    newStatus === 'cancelled' ? t('statusRejected') :
+                        newStatus === 'completed' ? t('statusCompleted') :
+                            t('statusUpdated');
 
-            // Signal Agenda page to re-fetch (cross-page bridge)
+            toast.success(label);
             triggerRefresh();
-
-            // Refresh Inbox list
             fetchAppointments();
         } catch (error) {
             console.error("Error updating status:", error);
-            toast.error("No se pudo actualizar la cita");
+            toast.error(t('updateError'));
         } finally {
             setProcessingId(null);
         }
     };
 
     const tabs = [
-        { id: 'pending', label: 'Pendientes', icon: <AlertCircle size={16} /> },
-        { id: 'upcoming', label: 'Próximas', icon: <Calendar size={16} /> },
-        { id: 'history', label: 'Historial', icon: <Clock size={16} /> },
+        { id: 'pending', label: t('tabPending'), icon: <AlertCircle size={16} /> },
+        { id: 'upcoming', label: t('tabUpcoming'), icon: <Calendar size={16} /> },
+        { id: 'history', label: t('tabHistory'), icon: <Clock size={16} /> },
     ];
 
     return (
@@ -137,14 +127,14 @@ export default function AppointmentInbox({ businessId }: AppointmentInboxProps) 
             <div className="p-4 min-h-[300px]">
                 {loading ? (
                     <div className="flex justify-center items-center h-48 text-slate-500 animate-pulse">
-                        Cargando...
+                        {t('loading')}
                     </div>
                 ) : appointments.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-48 text-slate-500">
                         <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
                             <Clock size={20} className="text-slate-600" />
                         </div>
-                        <p>No hay citas en esta sección.</p>
+                        <p>{t('empty')}</p>
                     </div>
                 ) : (
                     <div className="space-y-3">
@@ -167,13 +157,13 @@ export default function AppointmentInbox({ businessId }: AppointmentInboxProps) 
                                             <div className="flex items-center gap-2">
                                                 <Calendar size={14} className="text-brand-neon-cyan" />
                                                 <span className="text-slate-300">
-                                                    {format(apt.date.toDate(), 'PPP', { locale: es })}
+                                                    {format(apt.date.toDate(), 'PPP', { locale: dateFnsLocale })}
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <Clock size={14} className="text-purple-400" />
                                                 <span>
-                                                    {format(apt.date.toDate(), 'p', { locale: es })}
+                                                    {format(apt.date.toDate(), 'p', { locale: dateFnsLocale })}
                                                 </span>
                                                 <span className="text-slate-600">•</span>
                                                 <span className="text-white font-medium">{apt.serviceName}</span>
@@ -196,14 +186,14 @@ export default function AppointmentInbox({ businessId }: AppointmentInboxProps) 
                                             disabled={!!processingId}
                                             className="flex-1 md:flex-none px-4 py-2 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
                                         >
-                                            Rechazar
+                                            {t('reject')}
                                         </button>
                                         <button
                                             onClick={() => handleStatusUpdate(apt.id!, 'confirmed')}
                                             disabled={!!processingId}
                                             className="flex-1 md:flex-none px-4 py-2 rounded-lg bg-green-500 text-black font-bold hover:shadow-[0_0_15px_rgba(34,197,94,0.4)] transition-all disabled:opacity-50"
                                         >
-                                            {processingId === apt.id ? '...' : 'Aceptar'}
+                                            {processingId === apt.id ? '...' : t('accept')}
                                         </button>
                                     </div>
                                 )}
@@ -219,11 +209,11 @@ export default function AppointmentInbox({ businessId }: AppointmentInboxProps) 
                                                     ? 'border-slate-600/30 text-slate-500 bg-slate-600/5'
                                                     : 'border-yellow-500/30 text-yellow-400 bg-yellow-500/5'
                                         }`}>
-                                        {apt.status === 'confirmed' && <><CheckCircle size={11} /> Confirmada</>}
-                                        {apt.status === 'cancelled' && <><XCircle size={11} />    Cancelada</>}
-                                        {apt.status === 'completed' && <><CheckCircle size={11} /> Completada</>}
-                                        {apt.status === 'no-show' && <><XCircle size={11} />    No Asistió</>}
-                                        {apt.status === 'pending' && <><AlertCircle size={11} /> Pendiente</>}
+                                        {apt.status === 'confirmed' && <><CheckCircle size={11} /> {t('badgeConfirmed')}</>}
+                                        {apt.status === 'cancelled' && <><XCircle size={11} />    {t('badgeCancelled')}</>}
+                                        {apt.status === 'completed' && <><CheckCircle size={11} /> {t('badgeCompleted')}</>}
+                                        {apt.status === 'no-show' && <><XCircle size={11} />    {t('badgeNoShow')}</>}
+                                        {apt.status === 'pending' && <><AlertCircle size={11} /> {t('badgePending')}</>}
                                     </div>
                                 )}
                             </div>

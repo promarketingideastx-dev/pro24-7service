@@ -590,5 +590,25 @@
         "anonymous": "Usuario",
         "thankYou": "¡Gracias por tu reseña!",
         "submitError": "Error al publicar reseña. Intenta de nuevo."
+    },
+    "inbox": {
+        "tabPending": "Pendientes",
+        "tabUpcoming": "Próximas",
+        "tabHistory": "Historial",
+        "loading": "Cargando...",
+        "empty": "No hay citas en esta sección.",
+        "reject": "Rechazar",
+        "accept": "Aceptar",
+        "badgeConfirmed": "Confirmada",
+        "badgeCancelled": "Cancelada",
+        "badgeCompleted": "Completada",
+        "badgeNoShow": "No Asistió",
+        "badgePending": "Pendiente",
+        "statusAccepted": "Cita aceptada exitosamente",
+        "statusRejected": "Cita rechazada exitosamente",
+        "statusCompleted": "Cita marcada como completada",
+        "statusUpdated": "Cita actualizada",
+        "loadError": "Error al cargar citas",
+        "updateError": "No se pudo actualizar la cita"
     }
 }

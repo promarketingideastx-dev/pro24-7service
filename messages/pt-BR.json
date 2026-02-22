@@ -593,5 +593,25 @@
         "anonymous": "Usuário",
         "thankYou": "Obrigado pela sua avaliação!",
         "submitError": "Erro ao publicar avaliação. Tente novamente."
+    },
+    "inbox": {
+        "tabPending": "Pendentes",
+        "tabUpcoming": "Próximas",
+        "tabHistory": "Histórico",
+        "loading": "Carregando...",
+        "empty": "Nenhum agendamento nesta seção.",
+        "reject": "Recusar",
+        "accept": "Aceitar",
+        "badgeConfirmed": "Confirmada",
+        "badgeCancelled": "Cancelada",
+        "badgeCompleted": "Concluída",
+        "badgeNoShow": "Não Compareceu",
+        "badgePending": "Pendente",
+        "statusAccepted": "Consulta aceita com sucesso",
+        "statusRejected": "Consulta recusada com sucesso",
+        "statusCompleted": "Consulta marcada como concluída",
+        "statusUpdated": "Consulta atualizada",
+        "loadError": "Erro ao carregar consultas",
+        "updateError": "Não foi possível atualizar a consulta"
     }
 }

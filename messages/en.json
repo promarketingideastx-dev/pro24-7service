@@ -594,5 +594,25 @@
         "anonymous": "User",
         "thankYou": "Thanks for your review!",
         "submitError": "Error publishing review. Please try again."
+    },
+    "inbox": {
+        "tabPending": "Pending",
+        "tabUpcoming": "Upcoming",
+        "tabHistory": "History",
+        "loading": "Loading...",
+        "empty": "No appointments in this section.",
+        "reject": "Reject",
+        "accept": "Accept",
+        "badgeConfirmed": "Confirmed",
+        "badgeCancelled": "Cancelled",
+        "badgeCompleted": "Completed",
+        "badgeNoShow": "No Show",
+        "badgePending": "Pending",
+        "statusAccepted": "Appointment accepted successfully",
+        "statusRejected": "Appointment rejected successfully",
+        "statusCompleted": "Appointment marked as completed",
+        "statusUpdated": "Appointment updated",
+        "loadError": "Error loading appointments",
+        "updateError": "Could not update the appointment"
     }
 }
