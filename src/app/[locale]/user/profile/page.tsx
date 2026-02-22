@@ -13,10 +13,12 @@ import { UserService } from '@/services/user.service';
 import { StorageService } from '@/services/storage.service';
 import ImageUploader from '@/components/ui/ImageUploader';
 import { FavoritesService, FavoriteRecord } from '@/services/favorites.service';
+import { useLocale } from 'next-intl';
 
 export default function UserProfilePage() {
     const { user, userProfile } = useAuth();
     const router = useRouter();
+    const locale = useLocale();
 
     const [loading, setLoading] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -308,14 +310,14 @@ export default function UserProfilePage() {
                         <div className="text-center py-8 text-slate-600">
                             <Heart className="w-10 h-10 mx-auto mb-3 opacity-20" />
                             <p className="text-sm">Aún no has guardado ningún negocio.</p>
-                            <Link href="/" className="mt-3 inline-block text-xs text-brand-neon-cyan hover:underline">Explorar negocios →</Link>
+                            <Link href={`/${locale}`} className="mt-3 inline-block text-xs text-brand-neon-cyan hover:underline">Explorar negocios →</Link>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {favorites.map((fav) => (
                                 <Link
                                     key={fav.businessId}
-                                    href={`/negocio/${fav.businessId}`}
+                                    href={`/${locale}/negocio/${fav.businessId}`}
                                     className="group flex items-center gap-4 p-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl transition-all active:scale-[0.98]"
                                 >
                                     {/* Logo / Avatar */}
