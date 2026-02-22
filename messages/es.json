@@ -439,7 +439,18 @@
             "titleSpecialtyPlaceholder": "Título o especialidad del miembro",
             "descriptionOptional": "Descripción (Opcional)",
             "descriptionPlaceholder": "Describe brevemente qué hace este miembro del equipo...",
-            "words": "palabras"
+            "words": "palabras",
+            "noShow": "No asistió",
+            "assignedJobs": "Trabajos Asignados",
+            "noJobsAssigned": "Sin trabajos asignados",
+            "photoUpdated": "Foto actualizada correctamente",
+            "photoError": "No se pudo subir la foto. Intenta de nuevo.",
+            "memberUpdated": "Miembro actualizado correctamente",
+            "memberAdded": "Miembro agregado correctamente",
+            "memberSaveError": "Error al guardar miembro",
+            "scheduleSaved": "Horario guardado correctamente",
+            "scheduleError": "Error al guardar horario",
+            "deleteConfirm": "Estás a punto de eliminar a {name}. Esta acción no se puede deshacer."
         },
         "agenda": {
             "title": "Agenda",
@@ -539,6 +550,7 @@
             "editSchedule": "Editar Horario",
             "configure": "Configurar",
             "location": "Ubicación",
+            "country": "País",
             "department": "Departamento/Estado",
             "city": "Ciudad",
             "address": "Dirección Exacta",

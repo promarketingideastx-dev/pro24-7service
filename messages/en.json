@@ -440,7 +440,18 @@
             "titleSpecialtyPlaceholder": "Member title or specialty",
             "descriptionOptional": "Description (Optional)",
             "descriptionPlaceholder": "Briefly describe what this team member does...",
-            "words": "words"
+            "words": "words",
+            "noShow": "No-show",
+            "assignedJobs": "Assigned Jobs",
+            "noJobsAssigned": "No jobs assigned",
+            "photoUpdated": "Photo updated successfully",
+            "photoError": "Could not upload photo. Please try again.",
+            "memberUpdated": "Member updated successfully",
+            "memberAdded": "Member added successfully",
+            "memberSaveError": "Error saving member",
+            "scheduleSaved": "Schedule saved successfully",
+            "scheduleError": "Error saving schedule",
+            "deleteConfirm": "You are about to remove {name}. This action cannot be undone."
         },
         "agenda": {
             "title": "Schedule",
@@ -540,6 +551,7 @@
             "editSchedule": "Edit Schedule",
             "configure": "Configure",
             "location": "Location",
+            "country": "Country",
             "department": "State/Department",
             "city": "City",
             "address": "Street Address",

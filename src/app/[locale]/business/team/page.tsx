@@ -12,7 +12,8 @@ import { ServicesService, ServiceData, BusinessProfileService } from '@/services
 import { AppointmentService, Appointment } from '@/services/appointment.service';
 import EmployeeWorkloadModal from '@/components/business/team/EmployeeWorkloadModal';
 import WeeklyScheduleEditor from '@/components/business/WeeklyScheduleEditor';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { TAXONOMY } from '@/lib/taxonomy';
 
 const AVATAR_COLORS = [
     'from-violet-500 to-indigo-600',
@@ -26,6 +27,25 @@ const AVATAR_COLORS = [
 export default function TeamPage() {
     const { user } = useAuth();
     const t = useTranslations('business.team');
+    const tAgenda = useTranslations('business.agenda');
+    const locale = useLocale();
+    const localeKey = locale === 'en' ? 'en' : locale === 'pt-BR' ? 'pt' : 'es';
+
+    /** Resolve a spec string (stored as ES in Firestore) to active-locale label */
+    const resolveSpecLabel = (specEs: string): string => {
+        for (const cat of Object.values(TAXONOMY)) {
+            for (const sub of cat.subcategories) {
+                for (const spec of sub.specialties) {
+                    if (typeof spec === 'string') { if (spec === specEs) return spec; }
+                    else {
+                        const s = spec as any;
+                        if (s.es === specEs) return s[localeKey] ?? s.es;
+                    }
+                }
+            }
+        }
+        return specEs; // fallback: return as-is if not found
+    };
     const [employees, setEmployees] = useState<EmployeeData[]>([]);
     const [services, setServices] = useState<ServiceData[]>([]);
     const [businessSpecialties, setBusinessSpecialties] = useState<string[]>([]);
@@ -113,7 +133,7 @@ export default function TeamPage() {
         try {
             const url = await uploadEmployeePhoto(file);
             setFormData(prev => ({ ...prev, photoUrl: url }));
-            toast('Foto actualizada correctamente', {
+            toast(t('photoUpdated'), {
                 icon: '✓',
                 style: {
                     background: '#0f1629',
@@ -123,7 +143,7 @@ export default function TeamPage() {
                 },
             });
         } catch {
-            toast.error('No se pudo subir la foto. Intenta de nuevo.');
+            toast.error(t('photoError'));
         } finally {
             setPhotoUploading(false);
         }
@@ -157,7 +177,7 @@ export default function TeamPage() {
         try {
             if (editingId) {
                 await EmployeeService.updateEmployee(user.uid, editingId, formData);
-                toast.success('Miembro actualizado correctamente');
+                toast.success(t('memberUpdated'));
             } else {
                 await EmployeeService.addEmployee(user.uid, {
                     name: formData.name!,
@@ -169,14 +189,14 @@ export default function TeamPage() {
                     serviceIds: formData.serviceIds || [],
                     photoUrl: formData.photoUrl || '',
                 });
-                toast.success('Miembro agregado correctamente');
+                toast.success(t('memberAdded'));
             }
             setIsModalOpen(false);
             resetForm();
             fetchData();
         } catch (error) {
             console.error('Error saving employee:', error);
-            toast.error('Error al guardar miembro.');
+            toast.error(t('memberSaveError'));
         } finally {
             setIsSubmitting(false);
         }
@@ -221,16 +241,16 @@ export default function TeamPage() {
         services.filter(s => ids.includes(s.id!)).map(s => s.name);
 
     const getRoleLabel = (emp: EmployeeData) => {
-        if (emp.roleType === 'other') return emp.roleCustom || 'Otro';
-        const labels: Record<string, string> = {
-            manager: 'Manager / Admin',
-            reception: 'Recepción',
-            customer_service: 'Servicio al Cliente',
-            sales_marketing: 'Ventas / Marketing',
-            technician: 'Técnico / Especialista',
-            assistant: 'Asistente',
+        if (emp.roleType === 'other') return emp.roleCustom || t('roleOther');
+        const labelMap: Record<string, string> = {
+            manager: t('roleManager'),
+            reception: t('roleReception'),
+            customer_service: t('roleCustomerService'),
+            sales_marketing: t('roleSales'),
+            technician: t('roleTechnician'),
+            assistant: t('roleAssistant'),
         };
-        return labels[emp.roleType || 'technician'] || 'Staff';
+        return labelMap[emp.roleType || 'technician'] || tAgenda('staffDefault');
     };
 
     const handleOpenSchedule = (emp: EmployeeData) => {
@@ -242,11 +262,11 @@ export default function TeamPage() {
         if (!user || !currentScheduleMember) return;
         try {
             await EmployeeService.updateEmployee(user.uid, currentScheduleMember.id!, { availabilityWeekly: schedule });
-            toast.success('Horario guardado correctamente');
+            toast.success(t('scheduleSaved'));
             setScheduleModalOpen(false);
             fetchData();
         } catch {
-            toast.error('Error al guardar horario');
+            toast.error(t('scheduleError'));
         }
     };
 
@@ -348,23 +368,23 @@ export default function TeamPage() {
                                     .slice(0, 4);
 
                                 const statusCfg: Record<string, { label: string; cls: string }> = {
-                                    pending: { label: 'Pendiente', cls: 'bg-amber-500/20 text-amber-400 border-amber-500/20' },
-                                    confirmed: { label: 'Confirmada', cls: 'bg-blue-500/20 text-blue-400 border-blue-500/20' },
-                                    completed: { label: 'Completada', cls: 'bg-green-500/20 text-green-400 border-green-500/20' },
-                                    cancelled: { label: 'Cancelada', cls: 'bg-red-500/20 text-red-400 border-red-500/20' },
-                                    'no-show': { label: 'No Asistió', cls: 'bg-slate-500/20 text-slate-400 border-slate-500/20' },
+                                    pending: { label: tAgenda('pending'), cls: 'bg-amber-500/20 text-amber-400 border-amber-500/20' },
+                                    confirmed: { label: tAgenda('confirmed'), cls: 'bg-blue-500/20 text-blue-400 border-blue-500/20' },
+                                    completed: { label: tAgenda('completed'), cls: 'bg-green-500/20 text-green-400 border-green-500/20' },
+                                    cancelled: { label: tAgenda('cancelled'), cls: 'bg-red-500/20 text-red-400 border-red-500/20' },
+                                    'no-show': { label: t('noShow'), cls: 'bg-slate-500/20 text-slate-400 border-slate-500/20' },
                                 };
 
                                 return (
                                     <div className="mb-3">
                                         <p className="text-xs text-slate-500 uppercase font-bold mb-2 flex items-center gap-1">
-                                            <Clock size={10} /> Trabajos Asignados
+                                            <Clock size={10} /> {t('assignedJobs')}
                                             {empAppts.length > 0 && (
                                                 <span className="ml-auto text-brand-neon-cyan font-bold">{empAppts.length}</span>
                                             )}
                                         </p>
                                         {empAppts.length === 0 ? (
-                                            <p className="text-xs text-slate-600 italic">Sin trabajos asignados</p>
+                                            <p className="text-xs text-slate-600 italic">{t('noJobsAssigned')}</p>
                                         ) : (
                                             <div className="flex flex-col gap-1.5">
                                                 {empAppts.map(appt => {
@@ -377,7 +397,7 @@ export default function TeamPage() {
                                                             <div className="flex-1 min-w-0">
                                                                 <p className="text-[11px] text-white font-medium truncate">{appt.customerName}</p>
                                                                 <p className="text-[10px] text-slate-500 truncate">
-                                                                    {appt.serviceName} · {apptDate ? apptDate.toLocaleDateString('es-HN', { month: 'short', day: 'numeric' }) : '—'}
+                                                                    {appt.serviceName} · {apptDate ? apptDate.toLocaleDateString(locale, { month: 'short', day: 'numeric' }) : '—'}
                                                                 </p>
                                                             </div>
                                                             <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border shrink-0 ${cfg.cls}`}>
@@ -570,7 +590,7 @@ export default function TeamPage() {
                                                         ? 'bg-brand-neon-cyan/15 border-brand-neon-cyan text-brand-neon-cyan'
                                                         : 'border-white/10 text-slate-400 hover:border-white/30 hover:text-slate-200'}`}
                                             >
-                                                {spec}
+                                                {resolveSpecLabel(spec)}
                                             </button>
                                         ))}
                                     </div>
@@ -649,7 +669,7 @@ export default function TeamPage() {
                             <div>
                                 <h3 className="text-xl font-bold text-white">{t('deleteTitle')}</h3>
                                 <p className="text-slate-400 text-sm mt-2">
-                                    Estás a punto de eliminar a <span className="text-white font-bold">{memberToDelete.name}</span>. Esta acción no se puede deshacer.
+                                    {t('deleteConfirm', { name: memberToDelete.name })}
                                 </p>
                             </div>
                             <div className="flex gap-3 w-full mt-2">
