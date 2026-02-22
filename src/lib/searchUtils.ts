@@ -75,9 +75,18 @@ export const findSuggestion = (searchTerm: string): string | null => {
 
     Object.values(TAXONOMY).forEach(category => {
         candidates.add(category.label.es);
+        candidates.add(category.label.en);
         category.subcategories.forEach(sub => {
             candidates.add(sub.label.es);
-            sub.specialties.forEach(spec => candidates.add(spec));
+            candidates.add(sub.label.en);
+            sub.specialties.forEach(spec => {
+                // spec is now {es, en, pt} object
+                if (typeof spec === 'string') {
+                    candidates.add(spec);
+                } else {
+                    Object.values(spec).forEach(v => candidates.add(v as string));
+                }
+            });
         });
     });
 

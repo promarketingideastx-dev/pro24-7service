@@ -557,22 +557,26 @@ export default function BusinessProfilePage() {
                                         {(() => {
                                             const categoryData = Object.values(TAXONOMY).find(c => c.id === formData.category);
                                             const subData = categoryData?.subcategories.find(s => s.id === formData.subcategory);
-                                            const availableSpecialties = subData?.specialties || [];
+                                            const rawSpecialties = subData?.specialties || [];
+                                            const availableSpecialties = rawSpecialties.map(s =>
+                                                typeof s === 'string' ? { es: s, en: s, pt: s } : s as any
+                                            );
 
                                             if (availableSpecialties.length === 0) return <p className="text-xs text-slate-500 italic">{t('noOptions')}</p>;
 
                                             return availableSpecialties.map(spec => {
-                                                const isSelected = formData.specialties?.includes(spec);
+                                                const specKey = spec.es;
+                                                const isSelected = formData.specialties?.includes(specKey);
                                                 return (
                                                     <button
-                                                        key={spec}
+                                                        key={specKey}
                                                         onClick={() => {
                                                             const current = formData.specialties || [];
                                                             if (isSelected) {
-                                                                setFormData({ ...formData, specialties: current.filter(t => t !== spec) });
+                                                                setFormData({ ...formData, specialties: current.filter(t => t !== specKey) });
                                                             } else {
                                                                 if (current.length < 6) {
-                                                                    setFormData({ ...formData, specialties: [...current, spec] });
+                                                                    setFormData({ ...formData, specialties: [...current, specKey] });
                                                                 }
                                                             }
                                                         }}

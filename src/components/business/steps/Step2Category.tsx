@@ -39,8 +39,8 @@ export function Step2Category({ data, update }: any) {
                             update('specialties', []);
                         }}
                         className={`cursor-pointer p-4 rounded-xl border transition-all ${data.category === cat.id
-                                ? 'bg-blue-600/20 border-blue-500 text-white'
-                                : 'bg-slate-800 border-white/5 hover:bg-slate-700/50 text-slate-300'
+                            ? 'bg-blue-600/20 border-blue-500 text-white'
+                            : 'bg-slate-800 border-white/5 hover:bg-slate-700/50 text-slate-300'
                             }`}
                     >
                         <div className="text-2xl mb-2">
@@ -71,8 +71,8 @@ export function Step2Category({ data, update }: any) {
                                     update('specialties', []);
                                 }}
                                 className={`cursor-pointer px-4 py-3 rounded-lg border text-sm font-medium transition-all ${data.subcategory === sub.id
-                                        ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20'
-                                        : 'bg-slate-800 border-white/5 hover:border-white/20 text-slate-300'
+                                    ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20'
+                                    : 'bg-slate-800 border-white/5 hover:border-white/20 text-slate-300'
                                     }`}
                             >
                                 {sub.label.es}
@@ -91,18 +91,22 @@ export function Step2Category({ data, update }: any) {
                 >
                     <h3 className="text-xl font-semibold text-white">¿Qué trabajos realizas? (Selecciona varios)</h3>
                     <div className="flex flex-wrap gap-2">
-                        {selectedSubcategory.specialties.map((spec) => (
-                            <span
-                                key={spec}
-                                onClick={() => toggleSpecialty(spec)}
-                                className={`cursor-pointer px-3 py-1.5 rounded-full text-sm border transition-all ${data.specialties.includes(spec)
+                        {selectedSubcategory.specialties.map((spec) => {
+                            const specKey = typeof spec === 'string' ? spec : (spec as any).es;
+                            const specLabel = typeof spec === 'string' ? spec : (spec as any).es;
+                            return (
+                                <span
+                                    key={specKey}
+                                    onClick={() => toggleSpecialty(specKey)}
+                                    className={`cursor-pointer px-3 py-1.5 rounded-full text-sm border transition-all ${data.specialties.includes(specKey)
                                         ? 'bg-green-500/20 border-green-500 text-green-400'
                                         : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'
-                                    }`}
-                            >
-                                {spec}
-                            </span>
-                        ))}
+                                        }`}
+                                >
+                                    {specLabel}
+                                </span>
+                            );
+                        })}
                     </div>
                 </motion.div>
             )}

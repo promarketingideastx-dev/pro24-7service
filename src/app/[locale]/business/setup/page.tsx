@@ -510,31 +510,34 @@ export default function BusinessSetupPage() {
                                 {/* Logic to get available specialties */}
                                 {(() => {
                                     const categoryData = Object.values(TAXONOMY).find(c => c.id === formData.category);
-                                    let availableSpecialties: string[] = [];
+                                    let availableSpecialties: Array<{ es: string; en: string; pt: string }> = [];
 
                                     // Since we force subcategory selection above for flow, we just check subcategory here
                                     if (categoryData && formData.subcategory) {
                                         const subData = categoryData.subcategories.find(s => s.id === formData.subcategory);
-                                        availableSpecialties = subData?.specialties || [];
+                                        availableSpecialties = (subData?.specialties || []).map(s =>
+                                            typeof s === 'string' ? { es: s, en: s, pt: s } : s as any
+                                        );
                                     }
 
                                     return (
                                         <div className="bg-[#151b2e]/30 border border-white/5 rounded-xl p-4">
                                             <div className="flex flex-wrap gap-2">
                                                 {availableSpecialties.map(spec => {
-                                                    const isSelected = formData.specialties?.includes(spec);
+                                                    const specKey = spec.es;
+                                                    const isSelected = formData.specialties?.includes(specKey);
                                                     return (
                                                         <button
-                                                            key={spec}
+                                                            key={specKey}
                                                             onClick={() => {
                                                                 const current = formData.specialties || [];
                                                                 // Toggle logic
                                                                 if (isSelected) {
-                                                                    setFormData({ ...formData, specialties: current.filter(t => t !== spec) });
+                                                                    setFormData({ ...formData, specialties: current.filter(t => t !== specKey) });
                                                                 } else {
                                                                     // Check limit (Max 6)
                                                                     if (current.length < 6) {
-                                                                        setFormData({ ...formData, specialties: [...current, spec] });
+                                                                        setFormData({ ...formData, specialties: [...current, specKey] });
                                                                     } else {
                                                                         toast('Máximo 6 especialidades permitidas.', {
                                                                             icon: '⚡',
@@ -557,7 +560,7 @@ export default function BusinessSetupPage() {
                                                             `}
                                                         >
                                                             {isSelected && <Check size={14} />}
-                                                            {spec}
+                                                            {spec.es}
                                                         </button>
                                                     );
                                                 })}
