@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAdminContext } from '@/context/AdminContext';
 import { AnalyticsService, FunnelStep } from '@/services/analytics.service';
-import { TrendingDown, Users, ChevronRight, BarChart2, Clock } from 'lucide-react';
+import { TrendingDown, ChevronRight, BarChart2, Clock } from 'lucide-react';
 
-function FunnelBar({ step, maxCount, isTop, dropLabel }: {
+// Sub-component receives stepLabels at render time so locale changes are reactive
+function FunnelBar({ step, maxCount, isTop, label, dropLabel }: {
     step: FunnelStep;
     maxCount: number;
     isTop: boolean;
+    label: string;      // translated label passed from parent on every render
     dropLabel: string;
 }) {
     const barWidth = maxCount > 0 ? Math.max((step.count / maxCount) * 100, 2) : 0;
@@ -20,7 +22,7 @@ function FunnelBar({ step, maxCount, isTop, dropLabel }: {
                 <div className="w-8 text-lg shrink-0 text-center">{step.emoji}</div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-sm font-medium text-white truncate">{step.label}</span>
+                        <span className="text-sm font-medium text-white truncate">{label}</span>
                         <div className="flex items-center gap-3 shrink-0">
                             {!isTop && step.dropPct > 0 && (
                                 <span className="flex items-center gap-1 text-[10px] text-red-400">
@@ -45,7 +47,6 @@ function FunnelBar({ step, maxCount, isTop, dropLabel }: {
                     </div>
                 </div>
             </div>
-
             {!isTop && step.dropPct > 0 && (
                 <div className="ml-12 text-[10px] text-red-400/60 flex items-center gap-1 px-4 pb-1">
                     <ChevronRight size={10} className="rotate-90" />
@@ -60,7 +61,13 @@ export default function AdminFunnelPage() {
     const { selectedCountry } = useAdminContext();
     const t = useTranslations('admin.analytics');
 
-    // Map step keys → translated labels (overrides hardcoded service labels)
+    // Raw steps from service — NOT translated at effect time.
+    // Translation happens at render time so locale changes are immediately reactive.
+    const [rawSteps, setRawSteps] = useState<FunnelStep[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [days, setDays] = useState(30);
+
+    // Map step.key → t() — evaluated on every render
     const stepLabels: Record<string, string> = {
         profile_view: t('step1'),
         booking_modal_open: t('step2'),
@@ -77,29 +84,20 @@ export default function AdminFunnelPage() {
         { value: 0, label: t('allTime') },
     ];
 
-    const [steps, setSteps] = useState<FunnelStep[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [days, setDays] = useState(30);
-
     useEffect(() => {
         setLoading(true);
         const unsub = AnalyticsService.onFunnelData(
             { country: selectedCountry === 'ALL' ? undefined : selectedCountry, days: days || undefined },
             (data) => {
-                // Override labels with translated versions
-                const translated = data.map(s => ({
-                    ...s,
-                    label: stepLabels[s.key] ?? s.label,
-                }));
-                setSteps(translated);
+                setRawSteps(data); // Store RAW — labels translated at render time
                 setLoading(false);
             }
         );
         return () => unsub();
     }, [selectedCountry, days]);
 
-    const topCount = steps[0]?.count ?? 0;
-    const bottomCount = steps[steps.length - 1]?.count ?? 0;
+    const topCount = rawSteps[0]?.count ?? 0;
+    const bottomCount = rawSteps[rawSteps.length - 1]?.count ?? 0;
     const overallConversion = topCount > 0 ? ((bottomCount / topCount) * 100).toFixed(1) : '0.0';
 
     return (
@@ -131,7 +129,7 @@ export default function AdminFunnelPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                     { label: t('step1'), value: topCount.toLocaleString(), icon: '👁️', color: 'text-blue-400' },
-                    { label: t('step2'), value: (steps[1]?.count ?? 0).toLocaleString(), icon: '📅', color: 'text-cyan-400' },
+                    { label: t('step2'), value: (rawSteps[1]?.count ?? 0).toLocaleString(), icon: '📅', color: 'text-cyan-400' },
                     { label: t('step6'), value: bottomCount.toLocaleString(), icon: '✅', color: 'text-green-400' },
                     { label: t('totalConversion'), value: `${overallConversion}%`, icon: '📊', color: 'text-purple-400' },
                 ].map(kpi => (
@@ -157,12 +155,13 @@ export default function AdminFunnelPage() {
                     </div>
                 ) : (
                     <div className="py-2">
-                        {steps.map((step, i) => (
+                        {rawSteps.map((step, i) => (
                             <FunnelBar
                                 key={step.key}
                                 step={step}
                                 maxCount={topCount}
                                 isTop={i === 0}
+                                label={stepLabels[step.key] ?? step.label}  // translated at render
                                 dropLabel={t('droppedHere')}
                             />
                         ))}
