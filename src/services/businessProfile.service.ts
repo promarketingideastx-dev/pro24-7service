@@ -17,25 +17,38 @@ const COUNTRY_COORDS: Record<string, { lat: number; lng: number }> = {
 
 /**
  * Geocode a city/state/country to lat/lng using OpenStreetMap Nominatim.
- * Free, no API key required. Returns country centroid as fallback.
+ * Uses countrycodes param (ISO 3166-1 alpha-2) for accurate country filtering.
+ * Falls back to department → country centroid if city not found.
  */
 async function geocodeAddress(
-    city?: string, state?: string, country?: string
+    city?: string, state?: string, country?: string, address?: string
 ): Promise<{ lat: number; lng: number }> {
-    const fallback = COUNTRY_COORDS[country ?? 'HN'] ?? { lat: 14.9, lng: -87.2 };
-    try {
-        const parts = [city, state, country].filter(Boolean).join(', ');
-        if (!parts) return fallback;
-        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(parts)}&format=json&limit=1`;
-        const res = await fetch(url, {
-            headers: { 'User-Agent': 'PRO247CRM/1.0 (admin@pro247.app)' },
-        });
-        const json = await res.json();
-        if (json?.[0]) {
-            return { lat: parseFloat(json[0].lat), lng: parseFloat(json[0].lon) };
+    const countryCode = (country || 'HN').toUpperCase().slice(0, 2);
+    const fallback = COUNTRY_COORDS[countryCode] ?? { lat: 14.9, lng: -87.2 };
+
+    // Build queries from most specific to least specific
+    const queries: string[] = [];
+    if (address && city) queries.push([address, city, state].filter(Boolean).join(', '));
+    if (city && state) queries.push([city, state].filter(Boolean).join(', '));
+    if (city) queries.push(city);
+    if (state) queries.push(state);
+
+    for (const q of queries) {
+        try {
+            const url = `https://nominatim.openstreetmap.org/search` +
+                `?q=${encodeURIComponent(q)}` +
+                `&countrycodes=${countryCode.toLowerCase()}` +
+                `&format=json&limit=1&addressdetails=0`;
+            const res = await fetch(url, {
+                headers: { 'User-Agent': 'PRO247CRM/1.0 (admin@pro247.app)' },
+            });
+            const json = await res.json();
+            if (json?.[0]?.lat) {
+                return { lat: parseFloat(json[0].lat), lng: parseFloat(json[0].lon) };
+            }
+        } catch {
+            // try next level
         }
-    } catch {
-        // Silently fallback
     }
     return fallback;
 }
@@ -363,8 +376,8 @@ export const BusinessProfileService = {
                 subcategory: data.subcategory, // Primary
                 additionalCategories: data.additionalCategories || [], // New
                 additionalSpecialties: data.additionalSpecialties || [], // New
-                city: data.city || 'San Pedro Sula', // Default for now
-                department: data.department || 'Cortés',
+                city: data.city || '',
+                department: data.department || '',
                 country: data.country || 'HN',
                 tags: data.specialties || [], // Primary Specialties
                 rating: 5.0, // Initial boost
@@ -374,7 +387,7 @@ export const BusinessProfileService = {
                 website: data.website || '', // Added website
                 phone: data.phone || '', // Public phone for contact
                 socialMedia: data.socialMedia || { instagram: '', facebook: '', tiktok: '' },
-                location: await geocodeAddress(data.city, data.department, data.country),
+                location: await geocodeAddress(data.city, data.department, data.country, data.address),
                 modality: data.modality,
                 status: 'active',
                 openingHours: data.openingHours || null, // Shared
