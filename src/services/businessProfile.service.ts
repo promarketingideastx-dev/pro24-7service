@@ -652,17 +652,17 @@ export const BusinessProfileService = {
             const publicRef = doc(db, 'businesses_public', businessId);
             const batch = writeBatch(db);
 
-            // 1. Save FULL settings to Private
+            // 1. Save FULL settings to Private (set+merge: works on new and existing docs)
             batch.set(privateRef, {
                 paymentSettings: settings,
                 updatedAt: serverTimestamp()
             }, { merge: true });
 
-            // 2. Sync DISPLAY settings to Public (Safe to expose)
-            batch.update(publicRef, {
-                paymentSettings: settings, // We expose all for now as Client needs to see Account Numbers to pay
+            // 2. Sync DISPLAY settings to Public (set+merge avoids error if field didn't exist)
+            batch.set(publicRef, {
+                paymentSettings: settings,
                 updatedAt: serverTimestamp()
-            });
+            }, { merge: true });
 
             await batch.commit();
         } catch (error) {
