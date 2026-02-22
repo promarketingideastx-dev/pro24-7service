@@ -5,6 +5,7 @@ import { Plus, Users } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { CustomerService, Customer } from '@/services/customer.service';
 import { AppointmentService, Appointment } from '@/services/appointment.service';
+import { BusinessProfileService } from '@/services/businessProfile.service';
 import CustomerList from '@/components/business/clients/CustomerList';
 import CustomerFormModal from '@/components/business/clients/CustomerFormModal';
 import SmartDeleteCustomerModal from '@/components/business/clients/SmartDeleteCustomerModal';
@@ -59,6 +60,7 @@ export default function ClientsPage() {
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [appointmentStats, setAppointmentStats] = useState<Record<string, CustomerStats>>({});
     const [loading, setLoading] = useState(true);
+    const [businessCountry, setBusinessCountry] = useState<string>('HN');
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -68,13 +70,15 @@ export default function ClientsPage() {
         if (!user) return;
         try {
             setLoading(true);
-            // Fetch customers and all appointments in parallel
-            const [customerData, allAppointments] = await Promise.all([
+            // Fetch customers, appointments and business profile in parallel
+            const [customerData, allAppointments, profile] = await Promise.all([
                 CustomerService.getCustomers(user.uid),
                 AppointmentService.getAllByBusiness(user.uid),
+                BusinessProfileService.getProfile(user.uid),
             ]);
             setCustomers(customerData);
             setAppointmentStats(computeStats(allAppointments));
+            if (profile?.country) setBusinessCountry(profile.country);
         } catch (error) {
             console.error(error);
             toast.error("Error al cargar clientes");
@@ -128,6 +132,7 @@ export default function ClientsPage() {
                 <CustomerList
                     customers={customers}
                     appointmentStats={appointmentStats}
+                    businessCountry={businessCountry}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                 />

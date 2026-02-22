@@ -22,7 +22,31 @@
         },
         "header": {
             "allCountries": "Todos los países",
-            "logout": "Cerrar sesión"
+            "logout": "Cerrar sesión",
+            "countries": {
+                "HN": "Honduras",
+                "GT": "Guatemala",
+                "SV": "El Salvador",
+                "NI": "Nicaragua",
+                "CR": "Costa Rica",
+                "PA": "Panamá",
+                "MX": "México",
+                "US": "Estados Unidos",
+                "CA": "Canadá",
+                "CO": "Colombia",
+                "BR": "Brasil",
+                "AR": "Argentina",
+                "CL": "Chile",
+                "PE": "Perú",
+                "EC": "Ecuador",
+                "VE": "Venezuela",
+                "BO": "Bolivia",
+                "PY": "Paraguay",
+                "UY": "Uruguay",
+                "DO": "Rep. Dominicana",
+                "CU": "Cuba",
+                "ES": "España"
+            }
         },
         "common": {
             "loading": "Cargando...",
@@ -37,7 +61,8 @@
             "suspended": "Suspendido",
             "actions": "Acciones",
             "refresh": "Actualizar",
-            "noResults": "Sin resultados"
+            "noResults": "Sin resultados",
+            "country": "País"
         },
         "dashboard": {
             "title": "Dashboard",
@@ -346,6 +371,7 @@
             "noSearchResults": "No se encontraron clientes con esa búsqueda.",
             "appts": "citas",
             "totalAppts": "Citas Totales",
+            "ltvTotal": "LTV Total",
             "lastVisit": "Última visita",
             "colClient": "Cliente",
             "colContact": "Contacto",
@@ -517,7 +543,11 @@
             "reviewPublished": "Reseña publicada ✨",
             "favError": "Error al guardar favorito",
             "ourTeam": "Nuestro Equipo",
-            "noTeamMembers": "Este negocio aún no tiene miembros del equipo registrados."
+            "noTeamMembers": "Este negocio aún no tiene miembros del equipo registrados.",
+            "followUs": "Síguenos",
+            "instagram": "Instagram",
+            "facebook": "Facebook",
+            "tiktok": "TikTok"
         },
         "profile": {
             "title": "Editar Perfil de Negocio",

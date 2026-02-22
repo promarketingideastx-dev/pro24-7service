@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Star, Bell, Filter, Grid, Zap, User, X, ChevronRight, Store } from 'lucide-react';
 import { DEMO_BUSINESSES, BusinessMock } from '@/data/mockBusinesses';
 import { TAXONOMY } from '@/lib/taxonomy';
@@ -100,13 +100,22 @@ export default function Home() {
         }
     };
 
+    // Timestamp-based double-tap: requires 2 intentional taps within 400ms
+    // Fixes mobile phantom-click issue where 1 touch fires 2 click events ~10ms apart
+    const lastTapRef = useRef<{ id: string; time: number } | null>(null);
+    const DOUBLE_TAP_MS = 400;
+
     const handleBusinessClick = (biz: BusinessMock) => {
-        // Double-click logic: 
-        // 1st click = Select & Preview (handled by state + map flyTo)
-        // 2nd click (on same) = Navigate
-        if (selectedBusiness?.id === biz.id) {
+        const now = Date.now();
+        const last = lastTapRef.current;
+
+        if (last && last.id === biz.id && now - last.time < DOUBLE_TAP_MS) {
+            // Genuine double-tap — navigate to profile
+            lastTapRef.current = null;
             handleNavigate(biz);
         } else {
+            // First tap — select & show card
+            lastTapRef.current = { id: biz.id, time: now };
             setSelectedBusiness(biz);
         }
     };
@@ -375,8 +384,17 @@ export default function Home() {
                             `}
                         >
                             <div className="w-12 h-12 rounded-xl bg-slate-700 mr-3 shrink-0 flex items-center justify-center text-xl relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0"></div>
-                                {typeof biz.icon === 'string' ? biz.icon : <Zap className="w-5 h-5 text-white" />}
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0" />
+                                {(biz as any).logoUrl ? (
+                                    <img
+                                        src={(biz as any).logoUrl}
+                                        alt={biz.name}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                    />
+                                ) : (
+                                    typeof biz.icon === 'string' ? biz.icon : <Zap className="w-5 h-5 text-white" />
+                                )}
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h3 className="font-bold text-white text-sm truncate">{biz.name}</h3>

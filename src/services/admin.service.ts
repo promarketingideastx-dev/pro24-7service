@@ -4,6 +4,7 @@ import {
     Timestamp, limit, getDoc
 } from 'firebase/firestore';
 import { BusinessPlan } from '@/types/firestore-schema';
+import { AdminNotificationService } from '@/services/adminNotification.service';
 
 export interface AdminBusinessRecord {
     id: string;
@@ -19,12 +20,14 @@ export interface AdminBusinessRecord {
     status?: string;
     rating?: number;
     coverImage?: string;
+    logoUrl?: string;    // Business logo / avatar uploaded during registration
     createdAt?: any;
     updatedAt?: any;
     modality?: string;
     // businesses_private fields (joined)
     email?: string;
     address?: string;
+    socialMedia?: { instagram?: string; facebook?: string; tiktok?: string };
     // planData (from businesses_public or separate doc)
     planData?: {
         plan: BusinessPlan;
@@ -74,6 +77,13 @@ export const AdminService = {
     },
 
     async setPlan(businessId: string, plan: BusinessPlan, adminEmail: string): Promise<void> {
+        // Read current plan before overwriting (for email diff)
+        let oldPlan: string | undefined;
+        try {
+            const snap = await getDoc(doc(db, 'businesses_public', businessId));
+            oldPlan = (snap.data()?.planData?.plan as string | undefined);
+        } catch { /* best effort */ }
+
         const planData = {
             plan,
             planStatus: 'active',
@@ -84,6 +94,29 @@ export const AdminService = {
         };
         // Write to businesses_public (where the plan data lives)
         await updateDoc(doc(db, 'businesses_public', businessId), { planData });
+
+        // Fire-and-forget: notify admin of plan change
+        const bizSnap = await getDoc(doc(db, 'businesses_public', businessId)).catch(() => null);
+        const bizName: string = (bizSnap?.data()?.name as string | undefined) ?? businessId;
+        const bizCountry: string = (bizSnap?.data()?.country as string | undefined) ?? '';
+        fetch('/api/notify-admin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'plan_upgrade',
+                data: { businessName: bizName, newPlan: plan, oldPlan, adminEmail },
+            }),
+        }).catch(() => { /* silent */ });
+
+        // In-app notification
+        AdminNotificationService.create({
+            type: 'plan_upgrade',
+            title: `⭐ Plan ${plan.toUpperCase()} asignado a ${bizName}`,
+            body: `Plan anterior: ${oldPlan ?? 'free'} → ${plan} · Por: ${adminEmail}`,
+            country: bizCountry,
+            relatedId: businessId,
+            relatedName: bizName,
+        }).catch(() => { /* silent */ });
     },
 
     async suspendBusiness(businessId: string, suspended: boolean): Promise<void> {

@@ -101,7 +101,7 @@ export default function AdminMapPage() {
                     category: data.category,
                     status: data.status ?? 'active',
                     suspended: data.suspended === true,
-                    coverImage: data.coverImage,
+                    coverImage: data.logoUrl || data.coverImage || undefined, // prefer logo (avatar) over cover
                 });
             });
             setAllPoints(pts);
@@ -175,8 +175,8 @@ export default function AdminMapPage() {
                         ].map(f => (
                             <button key={f.key} onClick={() => setStatusFilter(f.key)}
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all border ${statusFilter === f.key
-                                        ? 'border-white/20 bg-white/10 text-white'
-                                        : 'bg-white/3 border-white/8 text-slate-400 hover:text-white'
+                                    ? 'border-white/20 bg-white/10 text-white'
+                                    : 'bg-white/3 border-white/8 text-slate-400 hover:text-white'
                                     }`}>
                                 {f.dot && <span className="w-2 h-2 rounded-full" style={{ background: f.dot }} />}
                                 {f.label}

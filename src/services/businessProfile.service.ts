@@ -491,7 +491,9 @@ export const BusinessProfileService = {
                         // Use stored location if valid, otherwise fall back to department/country coords
                         lat: (data.location?.lat && data.location.lat !== 0) ? data.location.lat : fb.lat,
                         lng: (data.location?.lng && data.location.lng !== 0) ? data.location.lng : fb.lng,
+                        // Keep emoji icon as fallback; real logo is in logoUrl
                         icon: '💼',
+                        logoUrl: data.logoUrl || null, // Real business photo from Firebase Storage
                         color: 'bg-blue-500',
                         description: data.shortDescription || ''
                     } as any;

@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { AdminService, AdminBusinessRecord } from '@/services/admin.service';
 import { useAdminContext } from '@/context/AdminContext';
 import { BusinessPlan } from '@/types/firestore-schema';
+import BusinessPreviewPanel from '@/components/admin/BusinessPreviewPanel';
 import {
     Building2, Search, RefreshCw, ChevronDown,
     CheckCircle, XCircle, Crown, Zap, Users, Star
@@ -123,6 +124,7 @@ export default function AdminBusinessesPage() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [planFilter, setPlanFilter] = useState<string>('all');
+    const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null);
 
     // Plan labels — inside component so they respond to locale changes
     const PLAN_ICONS: Record<BusinessPlan, React.ReactNode> = {
@@ -198,141 +200,153 @@ export default function AdminBusinessesPage() {
     }, {} as Record<string, number>);
 
     return (
-        <div>
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <Building2 size={24} className="text-brand-neon-cyan" />
-                        {t('title')}
-                    </h1>
-                    <p className="text-slate-400 text-sm mt-0.5">
-                        {businesses.length} {t('title').toLowerCase()}
-                        {selectedCountry !== 'ALL' && <span> en {selectedCountry}</span>}
-                    </p>
-                </div>
-                <button onClick={load} disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm text-slate-300 transition-colors">
-                    <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-                    {tc('refresh')}
-                </button>
-            </div>
-
-            {/* Plan Summary Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                {planOptions.map(opt => (
-                    <button
-                        key={opt.value}
-                        onClick={() => setPlanFilter(planFilter === opt.value ? 'all' : opt.value)}
-                        className={`p-4 rounded-xl border transition-all text-left ${planFilter === opt.value ? `${PLAN_BADGE[opt.value]} border-current` : 'bg-white/3 border-white/8 hover:border-white/15'}`}
-                    >
-                        <div className="flex items-center gap-2 mb-1">
-                            {PLAN_ICONS[opt.value]}
-                            <span className={`text-xs font-semibold ${opt.color}`}>{opt.label}</span>
-                        </div>
-                        <p className="text-2xl font-bold text-white">{counts[opt.value] ?? 0}</p>
+        <>
+            <div>
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                            <Building2 size={24} className="text-brand-neon-cyan" />
+                            {t('title')}
+                        </h1>
+                        <p className="text-slate-400 text-sm mt-0.5">
+                            {businesses.length} {t('title').toLowerCase()}
+                            {selectedCountry !== 'ALL' && <span> en {selectedCountry}</span>}
+                        </p>
+                    </div>
+                    <button onClick={load} disabled={loading}
+                        className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm text-slate-300 transition-colors">
+                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+                        {tc('refresh')}
                     </button>
-                ))}
-            </div>
-
-            {/* Search */}
-            <div className="mb-4">
-                <div className="relative">
-                    <Search size={14} className="absolute left-3 top-2.5 text-slate-500" />
-                    <input
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                        placeholder={t('searchPlaceholder')}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
-                    />
                 </div>
-            </div>
 
-            {/* Table */}
-            {loading ? (
-                <div className="flex items-center justify-center py-20">
-                    <div className="w-8 h-8 border-2 border-brand-neon-cyan/30 border-t-brand-neon-cyan rounded-full animate-spin" />
+                {/* Plan Summary Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                    {planOptions.map(opt => (
+                        <button
+                            key={opt.value}
+                            onClick={() => setPlanFilter(planFilter === opt.value ? 'all' : opt.value)}
+                            className={`p-4 rounded-xl border transition-all text-left ${planFilter === opt.value ? `${PLAN_BADGE[opt.value]} border-current` : 'bg-white/3 border-white/8 hover:border-white/15'}`}
+                        >
+                            <div className="flex items-center gap-2 mb-1">
+                                {PLAN_ICONS[opt.value]}
+                                <span className={`text-xs font-semibold ${opt.color}`}>{opt.label}</span>
+                            </div>
+                            <p className="text-2xl font-bold text-white">{counts[opt.value] ?? 0}</p>
+                        </button>
+                    ))}
                 </div>
-            ) : filtered.length === 0 ? (
-                <div className="text-center py-16 text-slate-500">{t('notFound')}</div>
-            ) : (
-                <div className="bg-[#0a1128] border border-white/5 rounded-2xl">
-                    <div className="overflow-x-auto rounded-2xl">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b border-white/5 text-xs text-slate-500 uppercase">
-                                    <th className="text-left px-4 py-3">{t('name')}</th>
-                                    <th className="text-left px-4 py-3">{t('countryCity')}</th>
-                                    <th className="text-left px-4 py-3">{t('category')}</th>
-                                    <th className="text-left px-4 py-3">{t('plan')}</th>
-                                    <th className="text-left px-4 py-3">{t('status')}</th>
-                                    <th className="text-left px-4 py-3">{t('registration')}</th>
-                                    <th className="text-right px-4 py-3">{tc('actions')}</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                                {filtered.map(b => {
-                                    const isSuspended = b.suspended === true;
-                                    const plan = (b.planData?.plan ?? 'free') as BusinessPlan;
-                                    const createdDate = b.createdAt?.toDate?.()?.toLocaleDateString('es-HN', {
-                                        day: 'numeric', month: 'short', year: 'numeric'
-                                    });
 
-                                    return (
-                                        <tr key={b.id} className={`hover:bg-white/3 transition-colors ${isSuspended ? 'opacity-50' : ''}`}>
-                                            <td className="px-4 py-3">
-                                                <div className="flex items-center gap-3">
-                                                    {b.coverImage ? (
-                                                        <img src={b.coverImage} alt="" className="w-8 h-8 rounded-lg object-cover border border-white/10" />
-                                                    ) : (
-                                                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-neon-cyan/20 to-brand-neon-purple/20 flex items-center justify-center text-white font-bold text-xs border border-white/10">
-                                                            {b.name?.charAt(0) ?? '?'}
-                                                        </div>
-                                                    )}
-                                                    <div>
-                                                        <p className="text-sm font-medium text-white truncate max-w-[180px]">{b.name ?? '—'}</p>
-                                                        <p className="text-xs text-slate-500 truncate max-w-[180px]">{b.email ?? b.phone ?? '—'}</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <p className="text-sm text-slate-300">{b.country ?? '—'}</p>
-                                                <p className="text-xs text-slate-500">{b.city ?? ''}</p>
-                                            </td>
-                                            <td className="px-4 py-3 text-xs text-slate-400">{b.category ?? '—'}</td>
-                                            <td className="px-4 py-3">
-                                                <PlanDropdown business={b} planLabels={planLabels} planOptions={planOptions} onChanged={load} />
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                {isSuspended ? (
-                                                    <span className="flex items-center gap-1 text-xs text-red-400">
-                                                        <XCircle size={12} /> {t('suspended')}
-                                                    </span>
-                                                ) : (
-                                                    <span className="flex items-center gap-1 text-xs text-green-400">
-                                                        <CheckCircle size={12} /> {t('active')}
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3 text-xs text-slate-500">{createdDate ?? '—'}</td>
-                                            <td className="px-4 py-3 text-right">
-                                                <button
-                                                    onClick={() => handleSuspend(b)}
-                                                    className={`text-xs px-2.5 py-1 rounded-lg border transition-colors ${isSuspended
-                                                        ? 'border-green-500/30 text-green-400 hover:bg-green-500/10'
-                                                        : 'border-red-500/30 text-red-400 hover:bg-red-500/10'}`}
-                                                >
-                                                    {isSuspended ? t('reactivate') : t('suspend')}
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                {/* Search */}
+                <div className="mb-4">
+                    <div className="relative">
+                        <Search size={14} className="absolute left-3 top-2.5 text-slate-500" />
+                        <input
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            placeholder={t('searchPlaceholder')}
+                            className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
+                        />
                     </div>
                 </div>
-            )}
-        </div>
+
+                {/* Table */}
+                {loading ? (
+                    <div className="flex items-center justify-center py-20">
+                        <div className="w-8 h-8 border-2 border-brand-neon-cyan/30 border-t-brand-neon-cyan rounded-full animate-spin" />
+                    </div>
+                ) : filtered.length === 0 ? (
+                    <div className="text-center py-16 text-slate-500">{t('notFound')}</div>
+                ) : (
+                    <div className="bg-[#0a1128] border border-white/5 rounded-2xl">
+                        <div className="overflow-x-auto rounded-2xl">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b border-white/5 text-xs text-slate-500 uppercase">
+                                        <th className="text-left px-4 py-3">{t('name')}</th>
+                                        <th className="text-left px-4 py-3">{t('countryCity')}</th>
+                                        <th className="text-left px-4 py-3">{t('category')}</th>
+                                        <th className="text-left px-4 py-3">{t('plan')}</th>
+                                        <th className="text-left px-4 py-3">{t('status')}</th>
+                                        <th className="text-left px-4 py-3">{t('registration')}</th>
+                                        <th className="text-right px-4 py-3">{tc('actions')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                    {filtered.map(b => {
+                                        const isSuspended = b.suspended === true;
+                                        const plan = (b.planData?.plan ?? 'free') as BusinessPlan;
+                                        const createdDate = b.createdAt?.toDate?.()?.toLocaleDateString('es-HN', {
+                                            day: 'numeric', month: 'short', year: 'numeric'
+                                        });
+
+                                        return (
+                                            <tr
+                                                key={b.id}
+                                                className={`hover:bg-white/5 transition-colors cursor-pointer ${isSuspended ? 'opacity-50' : ''} ${selectedBusinessId === b.id ? 'ring-1 ring-inset ring-brand-neon-cyan/30 bg-white/5' : ''}`}
+                                                onClick={() => setSelectedBusinessId(b.id)}
+                                            >
+                                                <td className="px-4 py-3">
+                                                    <div className="flex items-center gap-3">
+                                                        {b.logoUrl || b.coverImage ? (
+                                                            <img src={b.logoUrl || b.coverImage} alt="" className="w-8 h-8 rounded-lg object-cover border border-white/10" />
+                                                        ) : (
+                                                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-neon-cyan/20 to-brand-neon-purple/20 flex items-center justify-center text-white font-bold text-xs border border-white/10">
+                                                                {b.name?.charAt(0) ?? '?'}
+                                                            </div>
+                                                        )}
+                                                        <div>
+                                                            <p className="text-sm font-medium text-white truncate max-w-[180px]">{b.name ?? '—'}</p>
+                                                            <p className="text-xs text-slate-500 truncate max-w-[180px]">{b.email ?? b.phone ?? '—'}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <p className="text-sm text-slate-300">{b.country ?? '—'}</p>
+                                                    <p className="text-xs text-slate-500">{b.city ?? ''}</p>
+                                                </td>
+                                                <td className="px-4 py-3 text-xs text-slate-400">{b.category ?? '—'}</td>
+                                                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                                                    <PlanDropdown business={b} planLabels={planLabels} planOptions={planOptions} onChanged={load} />
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    {isSuspended ? (
+                                                        <span className="flex items-center gap-1 text-xs text-red-400">
+                                                            <XCircle size={12} /> {t('suspended')}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="flex items-center gap-1 text-xs text-green-400">
+                                                            <CheckCircle size={12} /> {t('active')}
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td className="px-4 py-3 text-xs text-slate-500">{createdDate ?? '—'}</td>
+                                                <td className="px-4 py-3 text-right">
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); handleSuspend(b); }}
+                                                        className={`text-xs px-2.5 py-1 rounded-lg border transition-colors ${isSuspended
+                                                            ? 'border-green-500/30 text-green-400 hover:bg-green-500/10'
+                                                            : 'border-red-500/30 text-red-400 hover:bg-red-500/10'}`}
+                                                    >
+                                                        {isSuspended ? t('reactivate') : t('suspend')}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Business Preview Panel — slides in from right */}
+            <BusinessPreviewPanel
+                businessId={selectedBusinessId}
+                onClose={() => setSelectedBusinessId(null)}
+            />
+        </>
     );
 }

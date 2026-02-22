@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useTranslations } from 'next-intl';
@@ -58,16 +58,41 @@ function MapUpdater({ businesses, selectedBusiness, countryCoordinates }: {
     return null;
 }
 
-const createCustomIcon = (icon: any, colorClass: string) => {
+// Tap empty map area → zoom in one level at that point
+// Marker clicks don't propagate to the map, so this only fires on the background
+function TapToZoom() {
+    useMapEvents({
+        click(e) {
+            const map = e.target;
+            map.setView(e.latlng, Math.min(map.getZoom() + 1, 18), {
+                animate: true,
+                duration: 0.4,
+            });
+        },
+    });
+    return null;
+}
+
+const createCustomIcon = (icon: any, colorClass: string, logoUrl?: string | null) => {
     const iconContent = typeof icon === 'string' ? icon : '?';
+
+    // If we have a real logo photo, render it as a circular image pin
+    const innerContent = logoUrl
+        ? `<img
+            src="${logoUrl}"
+            alt=""
+            style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+            onerror="this.style.display='none';this.nextSibling.style.display='flex';"
+          /><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:14px;">${iconContent}</span>`
+        : `<span style="font-size:14px;">${iconContent}</span>`;
 
     return L.divIcon({
         className: 'custom-pin',
         html: `
             <div class="relative flex items-center justify-center w-10 h-10 transform -translate-x-1/2 -translate-y-1/2">
                 <div class="absolute inset-0 rounded-full ${colorClass} opacity-50 animate-ping"></div>
-                <div class="relative w-8 h-8 rounded-full ${colorClass} border-2 border-white shadow-lg flex items-center justify-center text-lg">
-                    ${iconContent}
+                <div class="relative w-8 h-8 rounded-full ${colorClass} border-2 border-white shadow-lg flex items-center justify-center overflow-hidden">
+                    ${innerContent}
                 </div>
                 <div class="absolute top-full mt-1 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-white"></div>
             </div>
@@ -77,6 +102,7 @@ const createCustomIcon = (icon: any, colorClass: string) => {
         popupAnchor: [0, -20]
     });
 };
+
 
 export default function MapWidget({
     businesses,
@@ -137,6 +163,7 @@ export default function MapWidget({
                 url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
             />
 
+            <TapToZoom />
             <MapUpdater businesses={businesses} selectedBusiness={selectedBusiness} countryCoordinates={countryCoordinates} />
 
             {businesses.map((biz) => {
@@ -146,7 +173,7 @@ export default function MapWidget({
                     <Marker
                         key={biz.id}
                         position={position}
-                        icon={createCustomIcon(biz.icon, biz.color)}
+                        icon={createCustomIcon(biz.icon, biz.color, (biz as any).logoUrl)}
                         ref={(el: any) => {
                             if (el) markerRefs.current[biz.id] = el;
                         }}

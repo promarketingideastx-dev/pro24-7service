@@ -136,7 +136,11 @@ export default function BusinessMap({ points, center = [14.5, -86.5], zoom = 7, 
                                 box-shadow:0 2px 8px ${color}88, 0 1px 3px rgba(0,0,0,0.2);
                                 display:flex; align-items:center; justify-content:center;
                                 font-size:14px; line-height:1;
-                            ">${emoji}</div>
+                                overflow:hidden;
+                            ">${p.coverImage
+                            ? `<img src="${p.coverImage}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none';this.nextSibling.style.display='flex';"/><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;">${emoji}</span>`
+                            : emoji
+                        }</div>
                         </div>
                         <style>
                             @keyframes mapPulse {
@@ -144,6 +148,7 @@ export default function BusinessMap({ points, center = [14.5, -86.5], zoom = 7, 
                                 100% { transform:scale(1.6); opacity:0; }
                             }
                         </style>`,
+
                     iconSize: [42, 42],
                     iconAnchor: [21, 21],
                     popupAnchor: [0, -22],

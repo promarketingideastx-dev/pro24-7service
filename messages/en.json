@@ -87,7 +87,31 @@
         },
         "header": {
             "allCountries": "All countries",
-            "logout": "Log out"
+            "logout": "Log out",
+            "countries": {
+                "HN": "Honduras",
+                "GT": "Guatemala",
+                "SV": "El Salvador",
+                "NI": "Nicaragua",
+                "CR": "Costa Rica",
+                "PA": "Panama",
+                "MX": "Mexico",
+                "US": "United States",
+                "CA": "Canada",
+                "CO": "Colombia",
+                "BR": "Brazil",
+                "AR": "Argentina",
+                "CL": "Chile",
+                "PE": "Peru",
+                "EC": "Ecuador",
+                "VE": "Venezuela",
+                "BO": "Bolivia",
+                "PY": "Paraguay",
+                "UY": "Uruguay",
+                "DO": "Dominican Republic",
+                "CU": "Cuba",
+                "ES": "Spain"
+            }
         },
         "common": {
             "loading": "Loading...",
@@ -347,6 +371,7 @@
             "noSearchResults": "No clients found with that search.",
             "appts": "appts",
             "totalAppts": "Total Appointments",
+            "ltvTotal": "Total LTV",
             "lastVisit": "Last visit",
             "colClient": "Client",
             "colContact": "Contact",
@@ -518,7 +543,11 @@
             "reviewPublished": "Review published ✨",
             "favError": "Error saving favorite",
             "ourTeam": "Our Team",
-            "noTeamMembers": "This business has no team members registered yet."
+            "noTeamMembers": "This business has no team members registered yet.",
+            "followUs": "Follow us",
+            "instagram": "Instagram",
+            "facebook": "Facebook",
+            "tiktok": "TikTok"
         },
         "profile": {
             "title": "Edit Business Profile",

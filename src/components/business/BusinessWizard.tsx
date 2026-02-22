@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { BusinessProfileService } from '@/services/businessProfile.service';
 import { useAuth } from '@/context/AuthContext';
 import { AuthService } from '@/services/auth.service';
+import { AdminNotificationService } from '@/services/adminNotification.service';
 
 export default function BusinessWizard() {
     const { user } = useAuth();
@@ -88,6 +89,33 @@ export default function BusinessWizard() {
             };
 
             await BusinessProfileService.createProfile(user.uid, profileData);
+
+            // Fire-and-forget: email notification to admin
+            fetch('/api/notify-admin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'new_business',
+                    data: {
+                        businessName: formData.businessName,
+                        category: formData.category,
+                        country: formData.country,
+                        city: formData.city,
+                        email: user.email || '',
+                        phone: formData.phone || '',
+                    },
+                }),
+            }).catch(() => { /* silent — never block the wizard */ });
+
+            // In-app notification — writes to Firestore, auto-pushes to admin bell via onSnapshot
+            AdminNotificationService.create({
+                type: 'new_business',
+                title: `🏢 Nuevo negocio: ${formData.businessName}`,
+                body: `${formData.category} · ${formData.city}, ${formData.country} · ${user.email}`,
+                country: formData.country,
+                relatedName: formData.businessName,
+            }).catch(() => { /* silent */ });
+
             setCurrentStep(totalSteps + 1);
         } catch (err: any) {
             console.error(err);

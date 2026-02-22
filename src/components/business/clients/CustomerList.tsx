@@ -12,17 +12,46 @@ import { useLocale, useTranslations } from 'next-intl';
 interface CustomerListProps {
     customers: Customer[];
     appointmentStats: Record<string, CustomerStats>;
+    businessCountry?: string;
     onEdit: (customer: Customer) => void;
     onDelete: (customer: Customer) => void;
 }
 
-export default function CustomerList({ customers, appointmentStats, onEdit, onDelete }: CustomerListProps) {
+/** Country code → { symbol, locale } */
+const CURRENCY_MAP: Record<string, { symbol: string; locale: string }> = {
+    HN: { symbol: 'L', locale: 'es-HN' },
+    GT: { symbol: 'Q', locale: 'es-GT' },
+    SV: { symbol: '$', locale: 'es-SV' },
+    NI: { symbol: 'C$', locale: 'es-NI' },
+    CR: { symbol: '₡', locale: 'es-CR' },
+    PA: { symbol: 'B/.', locale: 'es-PA' },
+    MX: { symbol: '$', locale: 'es-MX' },
+    US: { symbol: '$', locale: 'en-US' },
+    CA: { symbol: 'CA$', locale: 'en-CA' },
+    CO: { symbol: '$', locale: 'es-CO' },
+    BR: { symbol: 'R$', locale: 'pt-BR' },
+    AR: { symbol: '$', locale: 'es-AR' },
+    CL: { symbol: '$', locale: 'es-CL' },
+    PE: { symbol: 'S/', locale: 'es-PE' },
+    EC: { symbol: '$', locale: 'es-EC' },
+    VE: { symbol: 'Bs.', locale: 'es-VE' },
+    BO: { symbol: 'Bs.', locale: 'es-BO' },
+    PY: { symbol: 'G₲', locale: 'es-PY' },
+    UY: { symbol: '$U', locale: 'es-UY' },
+    DO: { symbol: 'RD$', locale: 'es-DO' },
+    CU: { symbol: '$', locale: 'es-CU' },
+    ES: { symbol: '€', locale: 'es-ES' },
+};
+
+export default function CustomerList({ customers, appointmentStats, businessCountry = 'HN', onEdit, onDelete }: CustomerListProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const router = useRouter();
     const locale = useLocale();
     const t = useTranslations('business.clients');
     const lp = (path: string) => `/${locale}${path}`;
     const dateFnsLocale = locale === 'en' ? enUS : locale === 'pt-BR' ? ptBR : es;
+
+    const currency = CURRENCY_MAP[businessCountry] ?? CURRENCY_MAP['HN'];
 
     const filteredCustomers = customers.filter(c =>
         c.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -37,7 +66,7 @@ export default function CustomerList({ customers, appointmentStats, onEdit, onDe
 
     const formatCurrency = (amount: number) => {
         if (amount === 0) return '—';
-        return `L ${amount.toLocaleString('es-HN', { minimumFractionDigits: 0 })}`;
+        return `${currency.symbol} ${amount.toLocaleString(currency.locale, { minimumFractionDigits: 0 })}`;
     };
 
     return (
@@ -65,7 +94,7 @@ export default function CustomerList({ customers, appointmentStats, onEdit, onDe
                         <p className="text-2xl font-bold text-brand-neon-cyan">
                             L {Object.values(appointmentStats).reduce((sum, s) => sum + s.ltv, 0).toLocaleString()}
                         </p>
-                        <p className="text-xs text-slate-500 mt-0.5">LTV Total</p>
+                        <p className="text-xs text-slate-500 mt-0.5">{t('ltvTotal')}</p>
                     </div>
                     <div className="bg-[#151b2e] border border-white/5 rounded-xl p-3 text-center">
                         <p className="text-2xl font-bold text-green-400">

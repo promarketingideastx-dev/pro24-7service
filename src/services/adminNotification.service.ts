@@ -77,7 +77,36 @@ export const AdminNotificationService = {
         });
         return ref.id;
     },
+
+    /**
+     * Delete a single notification
+     */
+    async deleteOne(id: string): Promise<void> {
+        const { deleteDoc } = await import('firebase/firestore');
+        await deleteDoc(doc(db, COL, id));
+    },
+
+    /**
+     * Delete multiple notifications by ID (batch)
+     */
+    async deleteSelected(ids: string[]): Promise<void> {
+        if (ids.length === 0) return;
+        const batch = writeBatch(db);
+        ids.forEach(id => batch.delete(doc(db, COL, id)));
+        await batch.commit();
+    },
+
+    /**
+     * Delete ALL notifications in the collection
+     */
+    async deleteAll(): Promise<void> {
+        const snap = await getDocs(query(collection(db, COL), limit(500)));
+        const batch = writeBatch(db);
+        snap.docs.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+    },
 };
+
 
 // ── Icon + color helpers ──────────────────────────────────────────────────────
 export const NOTIF_META: Record<AdminNotificationType, { emoji: string; color: string; bg: string }> = {

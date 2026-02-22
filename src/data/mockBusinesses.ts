@@ -8,7 +8,8 @@ export interface BusinessMock {
     tags: string[]; // Keywords for search (Specialties)
     lat: number;
     lng: number;
-    icon: any;
+    icon: any;         // emoji string OR null/undefined if logoUrl is set
+    logoUrl?: string;  // Real photo from Firebase Storage — takes priority over icon
     color: string;
     description: string;
     countryCode?: string; // Optional: To filter by selected country

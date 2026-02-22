@@ -87,7 +87,31 @@
         },
         "header": {
             "allCountries": "Todos os países",
-            "logout": "Sair"
+            "logout": "Sair",
+            "countries": {
+                "HN": "Honduras",
+                "GT": "Guatemala",
+                "SV": "El Salvador",
+                "NI": "Nicarágua",
+                "CR": "Costa Rica",
+                "PA": "Panamá",
+                "MX": "México",
+                "US": "Estados Unidos",
+                "CA": "Canadá",
+                "CO": "Colômbia",
+                "BR": "Brasil",
+                "AR": "Argentina",
+                "CL": "Chile",
+                "PE": "Peru",
+                "EC": "Equador",
+                "VE": "Venezuela",
+                "BO": "Bolívia",
+                "PY": "Paraguai",
+                "UY": "Uruguai",
+                "DO": "Rep. Dominicana",
+                "CU": "Cuba",
+                "ES": "Espanha"
+            }
         },
         "common": {
             "loading": "Carregando...",
@@ -102,7 +126,8 @@
             "suspended": "Suspenso",
             "actions": "Ações",
             "refresh": "Atualizar",
-            "noResults": "Sem resultados"
+            "noResults": "Sem resultados",
+            "country": "País"
         },
         "dashboard": {
             "title": "Painel",
@@ -346,6 +371,7 @@
             "noSearchResults": "Nenhum cliente encontrado com essa busca.",
             "appts": "consultas",
             "totalAppts": "Consultas Totais",
+            "ltvTotal": "LTV Total",
             "lastVisit": "Última visita",
             "colClient": "Cliente",
             "colContact": "Contato",
@@ -517,7 +543,11 @@
             "reviewPublished": "Avaliação publicada ✨",
             "favError": "Erro ao salvar favorito",
             "ourTeam": "Nossa Equipe",
-            "noTeamMembers": "Este negócio ainda não tem membros de equipe cadastrados."
+            "noTeamMembers": "Este negócio ainda não tem membros de equipe cadastrados.",
+            "followUs": "Siga-nos",
+            "instagram": "Instagram",
+            "facebook": "Facebook",
+            "tiktok": "TikTok"
         },
         "profile": {
             "title": "Editar Perfil do Negócio",
