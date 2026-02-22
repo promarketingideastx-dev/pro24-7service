@@ -5,6 +5,7 @@ import { X, Star, Loader2, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { ReviewsService } from '@/services/businessProfile.service';
 import { useAuth } from '@/context/AuthContext';
+import { useTranslations } from 'next-intl';
 
 interface WriteReviewModalProps {
     isOpen: boolean;
@@ -16,6 +17,7 @@ interface WriteReviewModalProps {
 
 export default function WriteReviewModal({ isOpen, onClose, onSuccess, businessId, businessName }: WriteReviewModalProps) {
     const { user, userProfile } = useAuth();
+    const t = useTranslations('writeReview');
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
     const [hoveredStar, setHoveredStar] = useState(0);
@@ -25,17 +27,17 @@ export default function WriteReviewModal({ isOpen, onClose, onSuccess, businessI
 
     const handleSubmit = async () => {
         if (!user) {
-            toast.error("Debes iniciar sesión para escribir una reseña");
+            toast.error(t('loginRequired'));
             return;
         }
 
         if (rating === 0) {
-            toast.error("Por favor selecciona una calificación");
+            toast.error(t('ratingRequired'));
             return;
         }
 
         if (comment.trim().length < 10) {
-            toast.error("Tu comentario es muy corto (mínimo 10 caracteres)");
+            toast.error(t('commentTooShort'));
             return;
         }
 
@@ -44,23 +46,25 @@ export default function WriteReviewModal({ isOpen, onClose, onSuccess, businessI
         try {
             await ReviewsService.addReview(businessId, {
                 userId: user.uid,
-                userName: userProfile?.displayName || userProfile?.clientProfile?.fullName || 'Usuario',
+                userName: userProfile?.displayName || userProfile?.clientProfile?.fullName || t('anonymous'),
                 userAvatar: userProfile?.clientProfile?.avatar?.photo_url || user.photoURL || undefined,
                 rating,
                 comment,
                 createdAt: null // Service adds serverTimestamp
             });
 
-            toast.success("¡Gracias por tu reseña!");
+            toast.success(t('thankYou'));
             onSuccess();
             onClose();
         } catch (error) {
             console.error("Error submitting review:", error);
-            toast.error("Error al publicar reseña. Intenta de nuevo.");
+            toast.error(t('submitError'));
         } finally {
             setIsSubmitting(false);
         }
     };
+
+    const starLabels = [t('star1'), t('star2'), t('star3'), t('star4'), t('star5')];
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -75,7 +79,7 @@ export default function WriteReviewModal({ isOpen, onClose, onSuccess, businessI
 
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-white/5">
-                    <h3 className="text-xl font-bold text-white">Calificar a {businessName}</h3>
+                    <h3 className="text-xl font-bold text-white">{t('rateTitle', { name: businessName })}</h3>
                     <button
                         onClick={onClose}
                         className="p-2 text-slate-400 hover:text-white rounded-full hover:bg-white/5 transition-colors"
@@ -90,7 +94,7 @@ export default function WriteReviewModal({ isOpen, onClose, onSuccess, businessI
                     {/* Star Rating */}
                     <div className="flex flex-col items-center gap-3">
                         <span className="text-sm font-medium text-slate-400 uppercase tracking-wider">
-                            Tu Calificación
+                            {t('yourRating')}
                         </span>
                         <div className="flex gap-2">
                             {[1, 2, 3, 4, 5].map((star) => (
@@ -105,36 +109,32 @@ export default function WriteReviewModal({ isOpen, onClose, onSuccess, businessI
                                     <Star
                                         size={32}
                                         className={`transition-colors ${star <= (hoveredStar || rating)
-                                                ? 'fill-yellow-400 text-yellow-400'
-                                                : 'text-slate-600'
+                                            ? 'fill-yellow-400 text-yellow-400'
+                                            : 'text-slate-600'
                                             }`}
                                     />
                                 </button>
                             ))}
                         </div>
                         <span className="text-sm text-brand-neon-cyan h-5 min-h-[1.25rem]">
-                            {hoveredStar === 1 && "Malo"}
-                            {hoveredStar === 2 && "Regular"}
-                            {hoveredStar === 3 && "Bueno"}
-                            {hoveredStar === 4 && "Muy Bueno"}
-                            {hoveredStar === 5 && "Excelente"}
+                            {hoveredStar > 0 ? starLabels[hoveredStar - 1] : ''}
                         </span>
                     </div>
 
                     {/* Comment */}
                     <div className="space-y-2">
                         <label className="text-sm text-slate-300 font-medium">
-                            Cuéntanos tu experiencia
+                            {t('tellUsYourExperience')}
                         </label>
                         <textarea
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
-                            placeholder="¿Qué te pareció el servicio? ¿Lo recomendarías?"
+                            placeholder={t('placeholder')}
                             className="w-full bg-slate-900/50 border border-white/10 rounded-xl p-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-neon-cyan/50 resize-none h-32"
                         />
                         <div className="flex justify-end">
                             <span className={`text-xs ${comment.length > 0 && comment.length < 10 ? 'text-red-400' : 'text-slate-500'}`}>
-                                {comment.length} / 10 caracteres mínimos
+                                {comment.length} / {t('minChars')}
                             </span>
                         </div>
                     </div>
@@ -147,7 +147,7 @@ export default function WriteReviewModal({ isOpen, onClose, onSuccess, businessI
                         onClick={onClose}
                         className="px-4 py-2 text-slate-300 hover:text-white font-medium transition-colors"
                     >
-                        Cancelar
+                        {t('cancel')}
                     </button>
                     <button
                         onClick={handleSubmit}
@@ -155,7 +155,7 @@ export default function WriteReviewModal({ isOpen, onClose, onSuccess, businessI
                         className="px-6 py-2 bg-brand-neon-cyan text-black font-bold rounded-lg hover:bg-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all"
                     >
                         {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
-                        Publicar Reseña
+                        {t('publishReview')}
                     </button>
                 </div>
 

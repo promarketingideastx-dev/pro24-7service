@@ -34,7 +34,7 @@
         "didYouMean": "Did you mean?"
     },
     "auth": {
-        "welcomeBack": "Welcome back \uD83D\uDC4B",
+        "welcomeBack": "Welcome back 👋",
         "enterData": "Enter your credentials to continue.",
         "password": "Password",
         "signIn": "Sign In",
@@ -558,5 +558,25 @@
         "requestSent": "Request sent successfully!",
         "requestError": "Error sending request",
         "service": "Service"
+    },
+    "writeReview": {
+        "rateTitle": "Rate {name}",
+        "yourRating": "Your Rating",
+        "star1": "Poor",
+        "star2": "Fair",
+        "star3": "Good",
+        "star4": "Very Good",
+        "star5": "Excellent",
+        "tellUsYourExperience": "Tell us about your experience",
+        "placeholder": "What did you think of the service? Would you recommend it?",
+        "minChars": "10 character minimum",
+        "cancel": "Cancel",
+        "publishReview": "Publish Review",
+        "loginRequired": "You must be logged in to write a review",
+        "ratingRequired": "Please select a rating",
+        "commentTooShort": "Your comment is too short (minimum 10 characters)",
+        "anonymous": "User",
+        "thankYou": "Thanks for your review!",
+        "submitError": "Error publishing review. Please try again."
     }
 }
