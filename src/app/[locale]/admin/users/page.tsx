@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
 import { useAdminContext } from '@/context/AdminContext';
 import { AdminService } from '@/services/admin.service';
@@ -8,7 +9,7 @@ import { updateDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import {
     Users, Search, RefreshCw, UserCheck, UserX,
-    Building2, Shield, Clock, ChevronDown
+    Building2, Shield, Clock, ChevronDown, MoreHorizontal
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -38,14 +39,27 @@ const ROLE_BADGE: Record<string, string> = {
 function ActionMenu({ user, onRefresh }: { user: UserRecord; onRefresh: () => void }) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
+    const [coords, setCoords] = useState({ top: 0, right: 0 });
+    const btnRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         if (!open) return;
-        const handler = () => setOpen(false);
-        document.addEventListener('click', handler, true);
-        return () => document.removeEventListener('click', handler, true);
+        const handler = (e: MouseEvent) => {
+            if (btnRef.current && !btnRef.current.contains(e.target as Node)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
     }, [open]);
+
+    const handleOpen = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!btnRef.current) return;
+        const rect = btnRef.current.getBoundingClientRect();
+        setCoords({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
+        setOpen(p => !p);
+    };
 
     const toggleBan = async () => {
         setLoading(true);
@@ -58,23 +72,33 @@ function ActionMenu({ user, onRefresh }: { user: UserRecord; onRefresh: () => vo
         finally { setLoading(false); }
     };
 
-    return (
-        <div ref={ref} className="relative">
-            <button onClick={(e) => { e.stopPropagation(); setOpen(p => !p); }}
-                disabled={loading}
-                className="text-xs px-2.5 py-1 rounded-lg border border-white/10 text-slate-400 hover:bg-white/5 transition-colors">
-                ···
+    const dropdown = open ? (
+        <div
+            style={{ position: 'fixed', top: coords.top, right: coords.right, zIndex: 9999 }}
+            className="bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl w-44 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-100"
+            onMouseDown={e => e.stopPropagation()}
+        >
+            <button
+                onClick={toggleBan}
+                className={`w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 hover:bg-white/5 transition-colors ${user.isBanned ? 'text-green-400' : 'text-red-400'}`}
+            >
+                {user.isBanned ? <><UserCheck size={12} /> Desbloquear</> : <><UserX size={12} /> Bloquear</>}
             </button>
-            {open && (
-                <div className="absolute right-0 top-full mt-1 bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl z-[9999] w-44 overflow-hidden"
-                    style={{ position: 'fixed' }}
-                    onClick={e => e.stopPropagation()}>
-                    <button onClick={toggleBan}
-                        className={`w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 hover:bg-white/5 transition-colors ${user.isBanned ? 'text-green-400' : 'text-red-400'}`}>
-                        {user.isBanned ? <><UserCheck size={12} /> Desbloquear</> : <><UserX size={12} /> Bloquear</>}
-                    </button>
-                </div>
-            )}
+        </div>
+    ) : null;
+
+    return (
+        <div className="relative inline-block">
+            <button
+                ref={btnRef}
+                onClick={handleOpen}
+                disabled={loading}
+                className="p-1.5 rounded-lg border border-white/10 text-slate-400 hover:bg-white/8 hover:text-white hover:border-white/20 transition-all disabled:opacity-40"
+                title="Acciones"
+            >
+                <MoreHorizontal size={14} />
+            </button>
+            {typeof window !== 'undefined' && dropdown && createPortal(dropdown, document.body)}
         </div>
     );
 }
