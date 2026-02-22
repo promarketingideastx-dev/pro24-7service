@@ -597,7 +597,6 @@ export const BusinessProfileService = {
 
         // Handle images
         if (data.images) {
-            // Only update cover frame if not explicitly set
             if (!data.coverImage) publicUpdate.coverImage = data.images[0] || null;
             privateUpdate.gallery = data.images;
         }
@@ -609,18 +608,47 @@ export const BusinessProfileService = {
         if (data.phone) privateUpdate.phone = data.phone;
         if (data.address) privateUpdate.address = data.address;
         if (data.socialMedia !== undefined) privateUpdate.socialMedia = data.socialMedia;
-
-        // Also update private department if present
         if (data.department) privateUpdate.department = data.department;
 
-        batch.update(publicRef, publicUpdate);
+        // ── Re-geocode if location fields changed ──────────────────────────
+        // Use the most specific address possible: address > city > department > country
+        if (data.city || data.department || data.address || data.country) {
+            try {
+                // Read current public data to fill missing location fields
+                const currentSnap = await getDoc(publicRef);
+                const current = currentSnap.exists() ? currentSnap.data() : {};
 
-        // Check if private doc exists, if not set it, else update
-        // Simple approach: we assume it exists if public exists, but safer to update
+                const city = data.city || current.city || '';
+                const department = data.department || current.department || '';
+                const country = data.country || current.country || 'HN';
+                const address = data.address || current.address || '';
+
+                // Build the most precise query: address + city + department + country
+                const parts = [address, city, department, country].filter(Boolean);
+                const q = parts.join(', ');
+                const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`;
+                const res = await fetch(url, {
+                    headers: { 'User-Agent': 'PRO247CRM/1.0 (admin@pro247.app)' }
+                });
+                const json = await res.json();
+                if (json?.[0]) {
+                    publicUpdate.location = {
+                        lat: parseFloat(json[0].lat),
+                        lng: parseFloat(json[0].lon)
+                    };
+                }
+            } catch {
+                // Silently skip geocoding on error — existing coords are preserved
+            }
+        }
+        // ──────────────────────────────────────────────────────────────────
+
+        batch.update(publicRef, publicUpdate);
         batch.update(privateRef, privateUpdate);
 
         await batch.commit();
     },
+
 
     /**
      * Set a specific image as the cover image
