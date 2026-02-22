@@ -494,7 +494,8 @@
             "beFirstReview": "Be the first to rate this business.",
             "recent": "Recent",
             "loginToReview": "You must be logged in to write a review",
-            "reviewPublished": "Review published ✨"
+            "reviewPublished": "Review published ✨",
+            "favError": "Error saving favorite"
         },
         "profile": {
             "title": "Edit Business Profile",

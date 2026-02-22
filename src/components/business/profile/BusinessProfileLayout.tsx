@@ -52,36 +52,43 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     }, [user, business?.id]);
 
     const handleFavorite = async () => {
-        if (!business?.id || favProcessing) return; // guard against double-tap
+        if (!business?.id || favProcessing) return;
         setFavProcessing(true);
 
         if (user) {
-            // — Optimistic UI: flip immediately so first tap feels instant —
+            // — Optimistic UI —
             const wasAlreadyFav = isFavorited;
             setIsFavorited(!wasAlreadyFav);
             setHeartAnim(true);
             setTimeout(() => setHeartAnim(false), 400);
 
-            const added = await FavoritesService.toggle(
-                user.uid,
-                { name: user.displayName || undefined, email: user.email || undefined },
-                {
-                    id: business.id,
-                    name: business.name,
-                    category: business.category,
-                    city: business.city,
-                    logoUrl: business.logoUrl,
+            try {
+                const added = await FavoritesService.toggle(
+                    user.uid,
+                    { name: user.displayName || undefined, email: user.email || undefined },
+                    {
+                        id: business.id,
+                        name: business.name,
+                        category: business.category,
+                        city: business.city,
+                        logoUrl: business.logoUrl,
+                    }
+                );
+                // Sync with real server response
+                setIsFavorited(added);
+                if (added) {
+                    toast.success(t('favAdded'), { description: t('favAddedDesc') });
+                } else {
+                    toast(t('favRemoved'), { icon: '💔' });
                 }
-            );
-            // Sync with real server response
-            setIsFavorited(added);
-            if (added) {
-                toast.success(t('favAdded'), { description: t('favAddedDesc') });
-            } else {
-                toast(t('favRemoved'), { icon: '💔' });
+            } catch (err) {
+                // Revert optimistic update on error
+                setIsFavorited(wasAlreadyFav);
+                console.error('Error toggling favorite:', err);
+                toast.error(t('favError') ?? 'Error al guardar favorito');
             }
         } else {
-            // — Guest: localStorage only + prompt to login —
+            // — Guest: localStorage only —
             try {
                 const stored = JSON.parse(localStorage.getItem(favKey) || '[]') as string[];
                 let updated: string[];

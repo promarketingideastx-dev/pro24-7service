@@ -490,7 +490,8 @@
             "beFirstReview": "Sé el primero en calificar este negocio.",
             "recent": "Reciente",
             "loginToReview": "Debes iniciar sesión para escribir una reseña",
-            "reviewPublished": "Reseña publicada ✨"
+            "reviewPublished": "Reseña publicada ✨",
+            "favError": "Error al guardar favorito"
         },
         "profile": {
             "title": "Editar Perfil de Negocio",

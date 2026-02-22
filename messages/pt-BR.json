@@ -493,7 +493,8 @@
             "beFirstReview": "Seja o primeiro a avaliar este negócio.",
             "recent": "Recente",
             "loginToReview": "Você precisa estar logado para escrever uma avaliação",
-            "reviewPublished": "Avaliação publicada ✨"
+            "reviewPublished": "Avaliação publicada ✨",
+            "favError": "Erro ao salvar favorito"
         },
         "profile": {
             "title": "Editar Perfil do Negócio",
