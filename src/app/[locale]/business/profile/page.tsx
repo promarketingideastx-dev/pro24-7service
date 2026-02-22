@@ -389,13 +389,41 @@ export default function BusinessProfilePage() {
                                 </div>
                                 <div>
                                     <label className="block text-slate-400 text-xs uppercase mb-1">{t('department')}</label>
-                                    <input
-                                        type="text"
-                                        value={formData.department || ''}
-                                        onChange={e => setFormData({ ...formData, department: e.target.value })}
-                                        placeholder="Ej: Cortés"
-                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
-                                    />
+                                    {(formData.country === 'HN' || !formData.country) ? (
+                                        <select
+                                            value={formData.department || ''}
+                                            onChange={e => setFormData({ ...formData, department: e.target.value })}
+                                            className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        >
+                                            <option value="">-- Seleccionar departamento --</option>
+                                            <option>Atlántida</option>
+                                            <option>Choluteca</option>
+                                            <option>Colón</option>
+                                            <option>Comayagua</option>
+                                            <option>Copán</option>
+                                            <option>Cortés</option>
+                                            <option>El Paraíso</option>
+                                            <option>Francisco Morazán</option>
+                                            <option>Gracias a Dios</option>
+                                            <option>Intibucá</option>
+                                            <option>Islas de la Bahía</option>
+                                            <option>La Paz</option>
+                                            <option>Lempira</option>
+                                            <option>Ocotepeque</option>
+                                            <option>Olancho</option>
+                                            <option>Santa Bárbara</option>
+                                            <option>Valle</option>
+                                            <option>Yoro</option>
+                                        </select>
+                                    ) : (
+                                        <input
+                                            type="text"
+                                            value={formData.department || ''}
+                                            onChange={e => setFormData({ ...formData, department: e.target.value })}
+                                            placeholder="Estado / Provincia"
+                                            className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        />
+                                    )}
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">

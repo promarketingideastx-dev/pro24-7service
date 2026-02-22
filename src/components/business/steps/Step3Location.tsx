@@ -192,10 +192,36 @@ export function Step3Location({ data, update }: any) {
                         </div>
                         <div>
                             <label className="text-sm text-slate-400 mb-1 block">{t('department')}</label>
-                            <input type="text" value={data.department || ''}
-                                onChange={e => update('department', e.target.value)}
-                                placeholder={t('departmentPlaceholder')}
-                                className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500" />
+                            {(data.country === 'HN' || !data.country) ? (
+                                <select value={data.department || ''}
+                                    onChange={e => update('department', e.target.value)}
+                                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500">
+                                    <option value="">-- Seleccionar departamento --</option>
+                                    <option>Atlántida</option>
+                                    <option>Choluteca</option>
+                                    <option>Colón</option>
+                                    <option>Comayagua</option>
+                                    <option>Copán</option>
+                                    <option>Cortés</option>
+                                    <option>El Paraíso</option>
+                                    <option>Francisco Morazán</option>
+                                    <option>Gracias a Dios</option>
+                                    <option>Intibucá</option>
+                                    <option>Islas de la Bahía</option>
+                                    <option>La Paz</option>
+                                    <option>Lempira</option>
+                                    <option>Ocotepeque</option>
+                                    <option>Olancho</option>
+                                    <option>Santa Bárbara</option>
+                                    <option>Valle</option>
+                                    <option>Yoro</option>
+                                </select>
+                            ) : (
+                                <input type="text" value={data.department || ''}
+                                    onChange={e => update('department', e.target.value)}
+                                    placeholder={t('departmentPlaceholder')}
+                                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500" />
+                            )}
                         </div>
                         <div>
                             <label className="text-sm text-slate-400 mb-1 block">{t('city')}</label>
