@@ -117,7 +117,8 @@ export default function Home() {
     const filteredBusinesses = businesses.filter(b => {
         // 0. Filter by Country Code (Strict)
         if (selectedCountry) {
-            const bizCountry = b.countryCode || 'HN';
+            // Firestore stores country as 'country' (ISO code), also check 'countryCode' for backward compat
+            const bizCountry = (b as any).country || b.countryCode || 'HN';
             if (bizCountry !== selectedCountry.code) return false;
         }
 
@@ -129,7 +130,7 @@ export default function Home() {
             ${b.name} 
             ${b.category} 
             ${b.subcategory} 
-            ${b.tags.join(' ')} 
+            ${(b.tags || []).join(' ')} 
             ${b.description || ''}
         `;
 
