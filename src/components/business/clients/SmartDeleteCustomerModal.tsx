@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, AlertTriangle, Trash2, Calendar, Loader2, Archive } from 'lucide-react';
+import { X, AlertTriangle, Trash2, Loader2, Archive } from 'lucide-react';
 import { Customer, CustomerService } from '@/services/customer.service';
 import { Appointment, AppointmentService } from '@/services/appointment.service';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 interface SmartDeleteCustomerModalProps {
     isOpen: boolean;
@@ -15,12 +16,9 @@ interface SmartDeleteCustomerModalProps {
 }
 
 export default function SmartDeleteCustomerModal({
-    isOpen,
-    onClose,
-    onSuccess,
-    customer,
-    businessId
+    isOpen, onClose, onSuccess, customer, businessId
 }: SmartDeleteCustomerModalProps) {
+    const t = useTranslations('clients.deleteModal');
     const [step, setStep] = useState<'checking' | 'confirm' | 'deleting'>('checking');
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [action, setAction] = useState<'archive' | 'client_only' | 'all' | 'appointments_only' | null>(null);
@@ -29,7 +27,6 @@ export default function SmartDeleteCustomerModal({
         if (isOpen && customer && businessId) {
             checkData();
         } else {
-            // Reset state on close
             setStep('checking');
             setAppointments([]);
             setAction(null);
@@ -45,21 +42,19 @@ export default function SmartDeleteCustomerModal({
             setStep('confirm');
         } catch (error) {
             console.error(error);
-            toast.error("Error al verificar datos del cliente");
+            toast.error(t('checkError'));
             onClose();
         }
     };
 
     const handleDelete = async (deleteAction: 'archive' | 'appointments_only' | 'all' | 'client_only') => {
         if (!customer?.id) return;
-
         setAction(deleteAction as any);
         setStep('deleting');
-
         try {
             if (deleteAction === 'archive') {
                 await CustomerService.archiveCustomer(customer.id);
-                toast.success("Cliente archivado. Sus citas se mantienen intactas.");
+                toast.success(t('archivedSuccess'));
             } else {
                 if (deleteAction === 'all' || deleteAction === 'appointments_only') {
                     const deletePromises = appointments.map(apt => AppointmentService.deleteAppointment(apt.id!));
@@ -68,19 +63,17 @@ export default function SmartDeleteCustomerModal({
                 if (deleteAction === 'all' || deleteAction === 'client_only') {
                     await CustomerService.deleteCustomer(customer.id);
                 }
-
-                let message = "Operación exitosa";
-                if (deleteAction === 'all') message = "Cliente y sus citas eliminados correctamente";
-                if (deleteAction === 'appointments_only') message = "Historial de citas eliminado correctamente";
-                if (deleteAction === 'client_only') message = "Cliente eliminado correctamente";
+                const message =
+                    deleteAction === 'all' ? t('deletedAll') :
+                        deleteAction === 'appointments_only' ? t('deletedAppts') :
+                            t('deletedClient');
                 toast.success(message);
             }
-
             onSuccess();
             onClose();
         } catch (error) {
-            console.error("Error deleting:", error);
-            toast.error("Error al eliminar. Intenta de nuevo.");
+            console.error('Error deleting:', error);
+            toast.error(t('deleteError'));
             setStep('confirm');
         }
     };
@@ -90,10 +83,7 @@ export default function SmartDeleteCustomerModal({
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-[#151b2e] border border-white/10 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 text-slate-500 hover:text-white"
-                >
+                <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 hover:text-white">
                     <X size={20} />
                 </button>
 
@@ -107,15 +97,13 @@ export default function SmartDeleteCustomerModal({
                     </div>
 
                     <h2 className="text-xl font-bold text-white mb-2">
-                        {step === 'checking' ? 'Verificando información...' :
-                            step === 'deleting' ? 'Eliminando...' :
-                                `Eliminar a ${customer.fullName}`}
+                        {step === 'checking' ? t('checking') :
+                            step === 'deleting' ? t('deleting') :
+                                t('deleteTitle', { name: customer.fullName })}
                     </h2>
 
                     {step === 'confirm' && (
-                        <p className="text-slate-400 text-sm">
-                            Selecciona una acción para continuar.
-                        </p>
+                        <p className="text-slate-400 text-sm">{t('selectAction')}</p>
                     )}
                 </div>
 
@@ -125,20 +113,19 @@ export default function SmartDeleteCustomerModal({
                             <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 text-left">
                                 <h4 className="flex items-center gap-2 text-amber-500 font-bold text-sm mb-2">
                                     <AlertTriangle size={16} />
-                                    Este cliente tiene {appointments.length} cita(s)
+                                    {t('hasAppointments', { count: appointments.length })}
                                 </h4>
 
                                 <div className="space-y-2">
-                                    {/* ARCHIVE - Primary / Safest Option */}
                                     <button
                                         onClick={() => handleDelete('archive')}
                                         className="w-full p-3 bg-brand-neon-cyan/10 hover:bg-brand-neon-cyan/20 border border-brand-neon-cyan/30 rounded-lg text-left transition-colors group"
                                     >
                                         <span className="flex items-center gap-2 text-brand-neon-cyan font-medium text-sm">
-                                            <Archive size={14} /> Archivar Cliente (Recomendado)
+                                            <Archive size={14} /> {t('archiveLabel')}
                                         </span>
                                         <span className="block text-slate-500 text-xs mt-0.5 pl-5">
-                                            Se oculta de la lista pero conserva citas e historial.
+                                            {t('archiveDesc')}
                                         </span>
                                     </button>
 
@@ -146,34 +133,29 @@ export default function SmartDeleteCustomerModal({
                                         onClick={() => handleDelete('appointments_only')}
                                         className="w-full p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-left transition-colors group"
                                     >
-                                        <span className="block text-white font-medium text-sm">Eliminar Solo Citas</span>
-                                        <span className="block text-slate-500 text-xs mt-0.5">
-                                            Borra historial de citas, perfil del cliente se mantiene.
-                                        </span>
+                                        <span className="block text-white font-medium text-sm">{t('deleteAppts')}</span>
+                                        <span className="block text-slate-500 text-xs mt-0.5">{t('deleteApptDesc')}</span>
                                     </button>
 
                                     <button
                                         onClick={() => handleDelete('all')}
                                         className="w-full p-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg text-left transition-colors"
                                     >
-                                        <span className="block text-red-400 font-medium text-sm">Eliminar Todo (Cliente + Citas)</span>
-                                        <span className="block text-red-500/60 text-xs mt-0.5">
-                                            Eliminación permanente. No se puede deshacer.
-                                        </span>
+                                        <span className="block text-red-400 font-medium text-sm">{t('deleteAll')}</span>
+                                        <span className="block text-red-500/60 text-xs mt-0.5">{t('deleteAllDesc')}</span>
                                     </button>
                                 </div>
                             </div>
                         ) : (
                             <div className="space-y-4">
                                 <p className="text-slate-400 text-sm text-center">
-                                    No se encontraron citas activas ni historial para este cliente.
-                                    <br />¿Estás seguro de eliminarlo permanentemente?
+                                    {t('noAppointments')}
                                 </p>
                                 <button
                                     onClick={() => handleDelete('client_only')}
                                     className="w-full py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-colors shadow-lg shadow-red-500/20"
                                 >
-                                    Sí, Eliminar Cliente
+                                    {t('confirmDelete')}
                                 </button>
                             </div>
                         )}
@@ -182,7 +164,7 @@ export default function SmartDeleteCustomerModal({
                             onClick={onClose}
                             className="w-full py-2.5 text-slate-400 hover:text-white transition-colors text-sm font-medium"
                         >
-                            Cancelar
+                            {t('cancel')}
                         </button>
                     </div>
                 )}

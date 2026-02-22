@@ -614,5 +614,49 @@
         "statusUpdated": "Appointment updated",
         "loadError": "Error loading appointments",
         "updateError": "Could not update the appointment"
+    },
+    "clients": {
+        "form": {
+            "editTitle": "Edit Client",
+            "newTitle": "New Client",
+            "fullName": "Full Name",
+            "fullNamePlaceholder": "e.g. John Doe",
+            "phone": "Phone",
+            "email": "Email",
+            "emailPlaceholder": "client@email.com",
+            "address": "Address",
+            "addressPlaceholder": "e.g. 123 Main St...",
+            "notes": "Notes",
+            "notesPlaceholder": "Preferences, allergies, or important details...",
+            "cancel": "Cancel",
+            "saveChanges": "Save Changes",
+            "createClient": "Create Client",
+            "nameRequired": "Full name is required",
+            "updated": "Client updated successfully",
+            "created": "Client created successfully",
+            "saveError": "Error saving client"
+        },
+        "deleteModal": {
+            "checking": "Checking information...",
+            "deleting": "Deleting...",
+            "deleteTitle": "Delete {name}",
+            "selectAction": "Select an action to continue.",
+            "hasAppointments": "This client has {count} appointment(s)",
+            "archiveLabel": "Archive Client (Recommended)",
+            "archiveDesc": "Hidden from list but keeps appointments and history.",
+            "deleteAppts": "Delete Appointments Only",
+            "deleteApptDesc": "Deletes appointment history, client profile is kept.",
+            "deleteAll": "Delete Everything (Client + Appointments)",
+            "deleteAllDesc": "Permanent deletion. Cannot be undone.",
+            "noAppointments": "No active appointments or history found for this client. Are you sure you want to permanently delete them?",
+            "confirmDelete": "Yes, Delete Client",
+            "cancel": "Cancel",
+            "archivedSuccess": "Client archived. Their appointments remain intact.",
+            "deletedAll": "Client and their appointments deleted successfully",
+            "deletedAppts": "Appointment history deleted successfully",
+            "deletedClient": "Client deleted successfully",
+            "checkError": "Error checking client data",
+            "deleteError": "Error deleting. Please try again."
+        }
     }
 }

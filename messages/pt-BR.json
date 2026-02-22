@@ -613,5 +613,49 @@
         "statusUpdated": "Consulta atualizada",
         "loadError": "Erro ao carregar consultas",
         "updateError": "Não foi possível atualizar a consulta"
+    },
+    "clients": {
+        "form": {
+            "editTitle": "Editar Cliente",
+            "newTitle": "Novo Cliente",
+            "fullName": "Nome Completo",
+            "fullNamePlaceholder": "Ex. João Silva",
+            "phone": "Telefone",
+            "email": "E-mail",
+            "emailPlaceholder": "cliente@email.com",
+            "address": "Endereço",
+            "addressPlaceholder": "Ex. Rua das Flores, 123...",
+            "notes": "Notas",
+            "notesPlaceholder": "Preferências, alergias ou detalhes importantes...",
+            "cancel": "Cancelar",
+            "saveChanges": "Salvar Alterações",
+            "createClient": "Criar Cliente",
+            "nameRequired": "O nome completo é obrigatório",
+            "updated": "Cliente atualizado com sucesso",
+            "created": "Cliente criado com sucesso",
+            "saveError": "Erro ao salvar cliente"
+        },
+        "deleteModal": {
+            "checking": "Verificando informações...",
+            "deleting": "Excluindo...",
+            "deleteTitle": "Excluir {name}",
+            "selectAction": "Selecione uma ação para continuar.",
+            "hasAppointments": "Este cliente tem {count} agendamento(s)",
+            "archiveLabel": "Arquivar Cliente (Recomendado)",
+            "archiveDesc": "Oculto da lista, mas mantém agendamentos e histórico.",
+            "deleteAppts": "Excluir Apenas Agendamentos",
+            "deleteApptDesc": "Exclui o histórico de agendamentos, o perfil do cliente permanece.",
+            "deleteAll": "Excluir Tudo (Cliente + Agendamentos)",
+            "deleteAllDesc": "Exclusão permanente. Não pode ser desfeita.",
+            "noAppointments": "Nenhum agendamento ativo ou histórico encontrado para este cliente. Tem certeza que deseja excluí-lo permanentemente?",
+            "confirmDelete": "Sim, Excluir Cliente",
+            "cancel": "Cancelar",
+            "archivedSuccess": "Cliente arquivado. Seus agendamentos permanecem intactos.",
+            "deletedAll": "Cliente e seus agendamentos excluídos com sucesso",
+            "deletedAppts": "Histórico de agendamentos excluído com sucesso",
+            "deletedClient": "Cliente excluído com sucesso",
+            "checkError": "Erro ao verificar dados do cliente",
+            "deleteError": "Erro ao excluir. Tente novamente."
+        }
     }
 }

@@ -610,5 +610,49 @@
         "statusUpdated": "Cita actualizada",
         "loadError": "Error al cargar citas",
         "updateError": "No se pudo actualizar la cita"
+    },
+    "clients": {
+        "form": {
+            "editTitle": "Editar Cliente",
+            "newTitle": "Nuevo Cliente",
+            "fullName": "Nombre Completo",
+            "fullNamePlaceholder": "Ej. Juan Pérez",
+            "phone": "Teléfono",
+            "email": "Email",
+            "emailPlaceholder": "cliente@email.com",
+            "address": "Dirección",
+            "addressPlaceholder": "Ej. Col. Las Lomas, Bloque B...",
+            "notes": "Notas",
+            "notesPlaceholder": "Preferencias, alergias, o detalles importantes...",
+            "cancel": "Cancelar",
+            "saveChanges": "Guardar Cambios",
+            "createClient": "Crear Cliente",
+            "nameRequired": "El nombre completo es obligatorio",
+            "updated": "Cliente actualizado correctamente",
+            "created": "Cliente creado correctamente",
+            "saveError": "Error al guardar cliente"
+        },
+        "deleteModal": {
+            "checking": "Verificando información...",
+            "deleting": "Eliminando...",
+            "deleteTitle": "Eliminar a {name}",
+            "selectAction": "Selecciona una acción para continuar.",
+            "hasAppointments": "Este cliente tiene {count} cita(s)",
+            "archiveLabel": "Archivar Cliente (Recomendado)",
+            "archiveDesc": "Se oculta de la lista pero conserva citas e historial.",
+            "deleteAppts": "Eliminar Solo Citas",
+            "deleteApptDesc": "Borra historial de citas, perfil del cliente se mantiene.",
+            "deleteAll": "Eliminar Todo (Cliente + Citas)",
+            "deleteAllDesc": "Eliminación permanente. No se puede deshacer.",
+            "noAppointments": "No se encontraron citas activas ni historial para este cliente. ¿Estás seguro de eliminarlo permanentemente?",
+            "confirmDelete": "Sí, Eliminar Cliente",
+            "cancel": "Cancelar",
+            "archivedSuccess": "Cliente archivado. Sus citas se mantienen intactas.",
+            "deletedAll": "Cliente y sus citas eliminados correctamente",
+            "deletedAppts": "Historial de citas eliminado correctamente",
+            "deletedClient": "Cliente eliminado correctamente",
+            "checkError": "Error al verificar datos del cliente",
+            "deleteError": "Error al eliminar. Intenta de nuevo."
+        }
     }
 }

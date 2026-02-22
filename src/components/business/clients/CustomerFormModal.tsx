@@ -1,19 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, User, Phone, Mail, MapPin, Tag, FileText } from 'lucide-react';
+import { X, User, Phone, Mail, MapPin, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { CustomerService, Customer } from '@/services/customer.service';
+import { useTranslations } from 'next-intl';
 
 interface CustomerFormModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: () => void; // Callback to refresh list
+    onSave: () => void;
     businessId: string;
     customerToEdit?: Customer | null;
 }
 
 export default function CustomerFormModal({ isOpen, onClose, onSave, businessId, customerToEdit }: CustomerFormModalProps) {
+    const t = useTranslations('clients.form');
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         fullName: '',
@@ -34,13 +36,7 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                     notes: customerToEdit.notes || ''
                 });
             } else {
-                setFormData({
-                    fullName: '',
-                    phone: '',
-                    email: '',
-                    address: '',
-                    notes: ''
-                });
+                setFormData({ fullName: '', phone: '', email: '', address: '', notes: '' });
             }
         }
     }, [isOpen, customerToEdit]);
@@ -52,33 +48,24 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
         if (!formData.fullName.trim()) {
-            toast.error("El nombre completo es obligatorio");
+            toast.error(t('nameRequired'));
             return;
         }
-
         setLoading(true);
         try {
             if (customerToEdit && customerToEdit.id) {
-                await CustomerService.updateCustomer(customerToEdit.id, {
-                    ...formData,
-                    businessId // Ensure businessId is kept/checked
-                });
-                toast.success("Cliente actualizado correctamente");
+                await CustomerService.updateCustomer(customerToEdit.id, { ...formData, businessId });
+                toast.success(t('updated'));
             } else {
-                await CustomerService.createCustomer({
-                    ...formData,
-                    businessId,
-                    tags: [] // Initialize empty tags
-                });
-                toast.success("Cliente creado correctamente");
+                await CustomerService.createCustomer({ ...formData, businessId, tags: [] });
+                toast.success(t('created'));
             }
             onSave();
             onClose();
         } catch (error: any) {
             console.error(error);
-            toast.error(error.message || "Error al guardar cliente");
+            toast.error(error.message || t('saveError'));
         } finally {
             setLoading(false);
         }
@@ -93,7 +80,7 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-white/5 bg-white/5">
                     <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                        {customerToEdit ? 'Editar Cliente' : 'Nuevo Cliente'}
+                        {customerToEdit ? t('editTitle') : t('newTitle')}
                     </h2>
                     <button onClick={onClose} className="p-1 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
                         <X className="w-5 h-5" />
@@ -106,14 +93,14 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                     {/* Name */}
                     <div className="space-y-1">
                         <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
-                            <User className="w-3 h-3" /> Nombre Completo <span className="text-red-500">*</span>
+                            <User className="w-3 h-3" /> {t('fullName')} <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
                             name="fullName"
                             value={formData.fullName}
                             onChange={handleChange}
-                            placeholder="Ej. Juan Pérez"
+                            placeholder={t('fullNamePlaceholder')}
                             className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all"
                             autoFocus
                         />
@@ -123,7 +110,7 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
-                                <Phone className="w-3 h-3" /> Teléfono
+                                <Phone className="w-3 h-3" /> {t('phone')}
                             </label>
                             <input
                                 type="tel"
@@ -136,14 +123,14 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                         </div>
                         <div className="space-y-1">
                             <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
-                                <Mail className="w-3 h-3" /> Email
+                                <Mail className="w-3 h-3" /> {t('email')}
                             </label>
                             <input
                                 type="email"
                                 name="email"
                                 value={formData.email}
                                 onChange={handleChange}
-                                placeholder="cliente@email.com"
+                                placeholder={t('emailPlaceholder')}
                                 className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all"
                             />
                         </div>
@@ -152,14 +139,14 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                     {/* Address */}
                     <div className="space-y-1">
                         <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
-                            <MapPin className="w-3 h-3" /> Dirección
+                            <MapPin className="w-3 h-3" /> {t('address')}
                         </label>
                         <input
                             type="text"
                             name="address"
                             value={formData.address}
                             onChange={handleChange}
-                            placeholder="Ej. Col. Las Lomas, Bloque B..."
+                            placeholder={t('addressPlaceholder')}
                             className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all"
                         />
                     </div>
@@ -167,26 +154,26 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                     {/* Notes */}
                     <div className="space-y-1">
                         <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
-                            <FileText className="w-3 h-3" /> Notas
+                            <FileText className="w-3 h-3" /> {t('notes')}
                         </label>
                         <textarea
                             name="notes"
                             value={formData.notes}
                             onChange={handleChange}
                             rows={3}
-                            placeholder="Preferencias, alergias, o detalles importantes..."
+                            placeholder={t('notesPlaceholder')}
                             className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all resize-none"
                         />
                     </div>
 
-                    {/* Footer Actions */}
+                    {/* Footer */}
                     <div className="pt-4 flex items-center gap-3">
                         <button
                             type="button"
                             onClick={onClose}
                             className="flex-1 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-medium text-sm transition-colors"
                         >
-                            Cancelar
+                            {t('cancel')}
                         </button>
                         <button
                             type="submit"
@@ -194,13 +181,12 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                             className="flex-1 py-2.5 rounded-lg bg-brand-neon-cyan text-black font-bold text-sm shadow-lg shadow-cyan-500/20 hover:bg-cyan-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {loading ? (
-                                <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin"></span>
+                                <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                             ) : (
-                                <span>{customerToEdit ? 'Guardar Cambios' : 'Crear Cliente'}</span>
+                                <span>{customerToEdit ? t('saveChanges') : t('createClient')}</span>
                             )}
                         </button>
                     </div>
-
                 </form>
             </div>
         </div>
