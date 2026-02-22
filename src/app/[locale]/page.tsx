@@ -455,7 +455,8 @@ export default function Home() {
                                                 <div
                                                     key={i}
                                                     onClick={() => {
-                                                        setSearchTerm((spec as any)[localeKey] ?? (spec as any).es);
+                                                        // Always search with ES key — Firestore tags are stored in Spanish
+                                                        setSearchTerm((spec as any).es);
                                                         setSelectedCategory(null);
                                                     }}
                                                     className="flex items-center gap-2 text-sm text-slate-300 bg-white/5 px-3 py-2 rounded-lg hover:bg-white/10 cursor-pointer transition-colors group/item"
