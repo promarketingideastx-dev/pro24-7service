@@ -9,7 +9,7 @@ import { AppointmentService, Appointment } from '@/services/appointment.service'
 import { CustomerService } from '@/services/customer.service';
 import { format, startOfMonth, endOfMonth, startOfWeek, addDays, isSameDay, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 interface DashboardStats {
@@ -61,6 +61,7 @@ function buildTopServices(appointments: Appointment[]): { name: string; count: n
 export default function DashboardPage() {
     const { user } = useAuth();
     const t = useTranslations('business.dashboard');
+    const locale = useLocale();
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -346,10 +347,10 @@ export default function DashboardPage() {
                     <GlassPanel className="p-5">
                         <h3 className="text-sm font-bold text-white mb-3">{t('quickActions')}</h3>
                         <div className="space-y-2">
-                            <a href="/business/clients" className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg text-left text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-3">
+                            <a href={`/${locale}/business/clients`} className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg text-left text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-3">
                                 <Users size={15} className="text-purple-400" /> {t('viewClients')}
                             </a>
-                            <a href="/business/agenda" className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg text-left text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-3">
+                            <a href={`/${locale}/business/agenda`} className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg text-left text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-3">
                                 <CalendarCheck size={15} className="text-cyan-400" /> {t('goToAgenda')}
                             </a>
                         </div>
