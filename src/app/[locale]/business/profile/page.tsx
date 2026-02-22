@@ -18,12 +18,14 @@ import { WeeklySchedule } from '@/services/employee.service';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import PortfolioManager from '@/components/business/profile/PortfolioManager';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function BusinessProfilePage() {
     const { user, userProfile } = useAuth(); // Assuming userProfile has businessProfileId
     const router = useRouter();
     const t = useTranslations('business.profile');
+    const locale = useLocale();
+    const localeKey = locale === 'en' ? 'en' : locale === 'pt-BR' ? 'pt' : 'es';
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [uploadingImage, setUploadingImage] = useState<'cover' | 'logo' | null>(null);
@@ -461,7 +463,7 @@ export default function BusinessProfilePage() {
                                                                     additionalCategories: [...currentAdditional, cat.id]
                                                                 });
                                                             } else {
-                                                                toast.error("Máximo 2 áreas adicionales permitidas.");
+                                                                toast.error(t('maxAreas'));
                                                             }
                                                         }
                                                     } else {
@@ -487,9 +489,9 @@ export default function BusinessProfilePage() {
                                             >
                                                 <Icon size={20} className={isSelected ? 'text-brand-neon-cyan' : 'text-slate-500'} />
                                                 <div className="flex-1">
-                                                    <span className="text-sm font-medium">{cat.label.es}</span>
-                                                    {isPrimary && <span className="ml-2 text-[10px] bg-brand-neon-cyan text-black px-1.5 rounded font-bold">Principal</span>}
-                                                    {isAdditional && <span className="ml-2 text-[10px] bg-white/10 text-slate-300 px-1.5 rounded">Adicional</span>}
+                                                    <span className="text-sm font-medium">{cat.label[localeKey as keyof typeof cat.label]}</span>
+                                                    {isPrimary && <span className="ml-2 text-[10px] bg-brand-neon-cyan text-black px-1.5 rounded font-bold">{t('badgePrimary')}</span>}
+                                                    {isAdditional && <span className="ml-2 text-[10px] bg-white/10 text-slate-300 px-1.5 rounded">{t('badgeAdditional')}</span>}
                                                 </div>
                                             </button>
                                         );
@@ -539,7 +541,7 @@ export default function BusinessProfilePage() {
                                                     `}
                                                 >
                                                     <SubIcon size={14} className={isSelected ? 'text-brand-neon-cyan' : 'text-slate-500'} />
-                                                    <span className="text-xs font-medium leading-tight">{sub.label.es}</span>
+                                                    <span className="text-xs font-medium leading-tight">{sub.label[localeKey as keyof typeof sub.label]}</span>
                                                 </button>
                                             );
                                         })}
@@ -557,7 +559,7 @@ export default function BusinessProfilePage() {
                                             const subData = categoryData?.subcategories.find(s => s.id === formData.subcategory);
                                             const availableSpecialties = subData?.specialties || [];
 
-                                            if (availableSpecialties.length === 0) return <p className="text-xs text-slate-500 italic">No hay opciones adicionales.</p>;
+                                            if (availableSpecialties.length === 0) return <p className="text-xs text-slate-500 italic">{t('noOptions')}</p>;
 
                                             return availableSpecialties.map(spec => {
                                                 const isSelected = formData.specialties?.includes(spec);

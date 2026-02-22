@@ -446,7 +446,11 @@
             "specificServices": "Details / Specific Services",
             "scheduleTitle": "Business Schedule",
             "scheduleSubtitle": "Define when your location is open",
-            "confirmSchedule": "Confirm Schedule"
+            "confirmSchedule": "Confirm Schedule",
+            "maxAreas": "Maximum 2 additional areas allowed.",
+            "badgePrimary": "Primary",
+            "badgeAdditional": "Additional",
+            "noOptions": "No additional options available."
         },
         "payments": {
             "title": "Payment Settings",

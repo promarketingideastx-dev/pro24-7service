@@ -442,7 +442,11 @@
             "specificServices": "Detalles / Servicios Específicos",
             "scheduleTitle": "Horario del Negocio",
             "scheduleSubtitle": "Define cuándo está abierto tu local",
-            "confirmSchedule": "Confirmar Horario"
+            "confirmSchedule": "Confirmar Horario",
+            "maxAreas": "Máximo 2 áreas adicionales permitidas.",
+            "badgePrimary": "Principal",
+            "badgeAdditional": "Adicional",
+            "noOptions": "No hay opciones adicionales."
         },
         "payments": {
             "title": "Configuración de Pagos",
