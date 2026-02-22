@@ -176,7 +176,9 @@
             "title": "Notificaciones",
             "all": "Todas",
             "unread": "No leídas",
-            "markAllRead": "Marcar todas como leídas"
+            "markAllRead": "Marcar todas como leídas",
+            "noUnread": "No hay notificaciones sin leer",
+            "none": "Sin notificaciones"
         },
         "media": {
             "title": "Archivos & Media",

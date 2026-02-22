@@ -242,7 +242,9 @@
             "title": "Notifications",
             "all": "All",
             "unread": "Unread",
-            "markAllRead": "Mark all as read"
+            "markAllRead": "Mark all as read",
+            "noUnread": "No unread notifications",
+            "none": "No notifications"
         },
         "media": {
             "title": "Files & Media",

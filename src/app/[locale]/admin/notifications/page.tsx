@@ -8,7 +8,7 @@ import { AdminNotificationService, NOTIF_META } from '@/services/adminNotificati
 import type { AdminNotification } from '@/types/admin-notifications';
 import { Bell, CheckCheck, Trash2, ExternalLink } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { es, enUS, ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
@@ -48,7 +48,8 @@ export default function AdminNotificationsPage() {
 
     const relativeTime = (ts: any) => {
         if (!ts?.toDate) return '';
-        try { return formatDistanceToNow(ts.toDate(), { addSuffix: true, locale: es }); } catch { return ''; }
+        const dateFnsLocale = locale === 'en' ? enUS : locale === 'pt-BR' ? ptBR : es;
+        try { return formatDistanceToNow(ts.toDate(), { addSuffix: true, locale: dateFnsLocale }); } catch { return ''; }
     };
 
     const getLink = (n: AdminNotification) => {
@@ -99,7 +100,7 @@ export default function AdminNotificationsPage() {
                 ) : displayed.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-slate-500 gap-3">
                         <Bell size={36} className="opacity-20" />
-                        <p className="text-sm">{filter === 'unread' ? 'No hay notificaciones sin leer' : 'Sin notificaciones'}</p>
+                        <p className="text-sm">{filter === 'unread' ? t('noUnread') : t('none')}</p>
                     </div>
                 ) : (
                     displayed.map(n => {

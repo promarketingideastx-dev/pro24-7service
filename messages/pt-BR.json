@@ -241,7 +241,9 @@
             "title": "Notificações",
             "all": "Todas",
             "unread": "Não lidas",
-            "markAllRead": "Marcar todas como lidas"
+            "markAllRead": "Marcar todas como lidas",
+            "noUnread": "Sem notificações não lidas",
+            "none": "Sem notificações"
         },
         "media": {
             "title": "Arquivos & Mídia",
