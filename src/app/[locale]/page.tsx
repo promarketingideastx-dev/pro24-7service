@@ -379,7 +379,15 @@ export default function Home() {
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h3 className="font-bold text-white text-sm truncate">{biz.name}</h3>
-                                <p className="text-[10px] text-brand-neon-cyan font-medium mb-0.5 truncate">{biz.subcategory}</p>
+                                <p className="text-[10px] text-brand-neon-cyan font-medium mb-0.5 truncate">
+                                    {(() => {
+                                        for (const group of Object.values(TAXONOMY)) {
+                                            const sub = group.subcategories.find(s => s.id === biz.subcategory);
+                                            if (sub) return sub.label[localeKey as keyof typeof sub.label] ?? sub.label.es;
+                                        }
+                                        return biz.subcategory;
+                                    })()}
+                                </p>
                                 <div className="flex items-center gap-1">
                                     <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
                                     <span className="text-yellow-400 font-bold text-[10px]">5.0</span>
@@ -388,18 +396,18 @@ export default function Home() {
                             </div>
                             {/* Action hint for logged out users */}
                             <div className="hidden group-hover:flex items-center px-2 py-1 bg-white/10 rounded-full text-[10px] text-white font-medium whitespace-nowrap">
-                                Ver
+                                {t('viewBtn')}
                             </div>
                         </div>
                     ))}
                     {filteredBusinesses.length === 0 && searchTerm && (
                         <div className="flex flex-col items-center justify-center py-10 text-slate-500 text-sm animate-in fade-in zoom-in duration-300">
-                            <p>No encontramos resultados para "{searchTerm}"</p>
+                            <p>{t('noResultsFor', { term: searchTerm })}</p>
 
                             {/* Suggestion UI */}
                             {suggestion && (
                                 <div className="mt-4 flex flex-col items-center gap-2">
-                                    <p className="text-xs text-slate-400">¿Quizás quisiste decir?</p>
+                                    <p className="text-xs text-slate-400">{t('didYouMean')}</p>
                                     <button
                                         onClick={() => setSearchTerm(suggestion)}
                                         className="px-4 py-2 bg-brand-neon-cyan/10 border border-brand-neon-cyan/20 rounded-full text-brand-neon-cyan font-bold hover:bg-brand-neon-cyan/20 transition-all flex items-center gap-2"

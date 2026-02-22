@@ -28,7 +28,10 @@
         "cat_beautyWellness": "Beauty / Wellness",
         "cat_artDesign": "Art & Design",
         "exploreServices": "Explore services and specialties",
-        "closeExplorer": "Close Explorer"
+        "closeExplorer": "Close Explorer",
+        "viewBtn": "View",
+        "noResultsFor": "No results found for \"{term}\"",
+        "didYouMean": "Did you mean?"
     },
     "auth": {
         "welcomeBack": "Welcome back \uD83D\uDC4B",

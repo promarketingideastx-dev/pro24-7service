@@ -237,7 +237,10 @@
         "cat_beautyWellness": "Belleza / Cuidado",
         "cat_artDesign": "Arte y Diseño",
         "exploreServices": "Explora servicios y especialidades",
-        "closeExplorer": "Cerrar Explorador"
+        "closeExplorer": "Cerrar Explorador",
+        "viewBtn": "Ver",
+        "noResultsFor": "No encontramos resultados para \"{term}\"",
+        "didYouMean": "¿Quiás quisiste decir?"
     },
     "auth": {
         "welcomeBack": "Bienvenido de nuevo \uD83D\uDC4B",
