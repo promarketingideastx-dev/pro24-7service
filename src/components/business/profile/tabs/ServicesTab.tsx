@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Calendar, ChevronRight, Zap } from 'lucide-react';
 import { ServicesService } from '@/services/businessProfile.service';
+import { useTranslations } from 'next-intl';
 
 interface ServicesTabProps {
     businessId: string;
@@ -11,6 +12,7 @@ interface ServicesTabProps {
 }
 
 export default function ServicesTab({ businessId, services: initialServices, onBook }: ServicesTabProps) {
+    const t = useTranslations('business.publicProfile');
     const [services, setServices] = useState<any[]>(initialServices || []);
     const [loading, setLoading] = useState(!initialServices);
 
@@ -45,7 +47,7 @@ export default function ServicesTab({ businessId, services: initialServices, onB
                 <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
                     <Zap className="w-8 h-8 opacity-20" />
                 </div>
-                <p>Este negocio aún no ha publicado sus servicios.</p>
+                <p>{t('noServices')}</p>
             </div>
         );
     }
@@ -65,7 +67,7 @@ export default function ServicesTab({ businessId, services: initialServices, onB
                             {service.name}
                         </h3>
                         <p className="text-slate-400 text-sm line-clamp-2 mb-3">
-                            {service.description || 'Sin descripción'}
+                            {service.description || t('noDescription')}
                         </p>
 
 
@@ -77,7 +79,7 @@ export default function ServicesTab({ businessId, services: initialServices, onB
                                 {service.currency} {service.price}
                             </div>
                             {service.isVariablePrice && (
-                                <span className="text-[10px] text-slate-500 uppercase">Desde</span>
+                                <span className="text-[10px] text-slate-500 uppercase">{t('fromPrice')}</span>
                             )}
                         </div>
 

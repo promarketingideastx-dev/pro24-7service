@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { FavoritesService } from '@/services/favorites.service';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface ProfileLayoutProps {
     business: any;
@@ -21,6 +22,8 @@ interface ProfileLayoutProps {
 export default function BusinessProfileLayout({ business, activeTab, onTabChange, children, isOwner, onBookClick, isModalOpen, showTeamTab }: ProfileLayoutProps) {
     const router = useRouter();
     const { user } = useAuth();
+    const t = useTranslations('business.publicProfile');
+    const locale = useLocale();
     const [isSticky, setIsSticky] = useState(false);
     const [isFavorited, setIsFavorited] = useState(false);
     const [heartAnim, setHeartAnim] = useState(false);
@@ -72,9 +75,9 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
             // Sync with real server response
             setIsFavorited(added);
             if (added) {
-                toast.success('Negocio guardado en tus favoritos ❤️', { description: 'Lo puedes ver en tu perfil' });
+                toast.success(t('favAdded'), { description: t('favAddedDesc') });
             } else {
-                toast('Eliminado de favoritos', { icon: '💔' });
+                toast(t('favRemoved'), { icon: '💔' });
             }
         } else {
             // — Guest: localStorage only + prompt to login —
@@ -83,10 +86,10 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                 let updated: string[];
                 if (isFavorited) {
                     updated = stored.filter((id) => id !== business.id);
-                    toast('Eliminado de favoritos', { icon: '💔' });
+                    toast(t('favRemoved'), { icon: '💔' });
                 } else {
                     updated = Array.from(new Set([...stored, business.id]));
-                    toast.success('¡Guardado! Inicia sesión para sincronizar tus favoritos', { icon: '❤️' });
+                    toast.success(t('favSaved'), { icon: '❤️' });
                 }
                 localStorage.setItem(favKey, JSON.stringify(updated));
                 setIsFavorited(!isFavorited);
@@ -100,8 +103,8 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
 
     const handleShare = async () => {
         const url = window.location.href;
-        const title = business?.name || 'Negocio en PRO24/7';
-        const text = `¡Mira este negocio en PRO24/7: ${title}`;
+        const title = business?.name || t('defaultBusinessName');
+        const text = t('shareText').replace('{title}', title);
 
         if (navigator.share) {
             try {
@@ -110,9 +113,9 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
         } else {
             try {
                 await navigator.clipboard.writeText(url);
-                toast.success('¡Enlace copiado!', { icon: '🔗' });
+                toast.success(t('linkCopied'), { icon: '🔗' });
             } catch {
-                toast.error('No se pudo copiar el enlace');
+                toast.error(t('linkCopyError'));
             }
         }
     };
@@ -128,11 +131,11 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     }, []);
 
     const tabs = [
-        { id: 'services', label: 'Servicios' },
-        { id: 'gallery', label: 'Galería' },
-        { id: 'reviews', label: 'Reseñas' },
-        { id: 'details', label: 'Detalles' },
-        ...(showTeamTab ? [{ id: 'team', label: '👥 Equipo' }] : []),
+        { id: 'services', label: t('tabServices') },
+        { id: 'gallery', label: t('tabGallery') },
+        { id: 'reviews', label: t('tabReviews') },
+        { id: 'details', label: t('tabDetails') },
+        ...(showTeamTab ? [{ id: 'team', label: `👥 ${t('tabTeam')}` }] : []),
     ];
 
     const handleWhatsApp = () => {
@@ -184,7 +187,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                                 className="hidden md:flex bg-brand-neon-cyan/90 hover:bg-cyan-400 text-black px-4 py-2 rounded-full text-sm font-bold backdrop-blur-md transition-all shadow-lg shadow-cyan-500/20 items-center gap-2"
                             >
                                 <Calendar className="w-4 h-4" />
-                                Reservar Cita
+                                {t('bookAppointment')}
                             </button>
                         )}
 
@@ -200,7 +203,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                         <button
                             onClick={handleShare}
                             className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white border border-white/10 hover:bg-brand-neon-cyan/20 hover:border-brand-neon-cyan/40 hover:text-brand-neon-cyan active:scale-90 transition-all"
-                            title="Compartir"
+                            title={t('shareTitle')}
                         >
                             <Share2 className="w-5 h-5" />
                         </button>
@@ -211,7 +214,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                                 ? 'bg-red-500/20 border-red-500/40 text-red-400 shadow-[0_0_12px_rgba(239,68,68,0.4)]'
                                 : 'bg-black/40 border-white/10 text-white hover:bg-red-500/10 hover:border-red-400/30 hover:text-red-400'
                                 } ${heartAnim ? 'scale-125' : 'scale-100'}`}
-                            title={isFavorited ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+                            title={isFavorited ? t('favRemoveTitle') : t('favAddTitle')}
                         >
                             <Heart className={`w-5 h-5 transition-all ${isFavorited ? 'fill-red-400' : ''}`} />
                         </button>
@@ -312,7 +315,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                         className="flex-1 bg-brand-neon-cyan hover:bg-cyan-400 text-black px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all"
                     >
                         <Calendar className="w-5 h-5" />
-                        Reservar Cita
+                        {t('bookAppointment')}
                     </button>
                 </div>
             )}

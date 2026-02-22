@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X, Image as ImageIcon } from 'lucide-react';
 import { PortfolioService, PortfolioItem } from '@/services/businessProfile.service';
+import { useTranslations } from 'next-intl';
 
 interface GalleryTabProps {
     businessId?: string; // Optional to avoid breaking if not passed immediately
@@ -10,6 +11,7 @@ interface GalleryTabProps {
 }
 
 export default function GalleryTab({ businessId, images: initialImages }: GalleryTabProps) {
+    const t = useTranslations('business.publicProfile');
     const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
@@ -44,13 +46,13 @@ export default function GalleryTab({ businessId, images: initialImages }: Galler
         fetchPortfolio();
     }, [businessId, initialImages]);
 
-    if (loading) return <div className="p-12 text-center text-slate-500">Cargando galería...</div>;
+    if (loading) return <div className="p-12 text-center text-slate-500">{t('galleryLoading')}</div>;
 
     if (portfolio.length === 0) {
         return (
             <div className="p-12 flex flex-col items-center justify-center text-slate-500">
                 <ImageIcon className="w-12 h-12 mb-4 opacity-20" />
-                <p>No hay fotos en la galería por el momento.</p>
+                <p>{t('galleryEmpty')}</p>
             </div>
         );
     }
