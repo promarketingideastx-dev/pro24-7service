@@ -83,7 +83,13 @@ export default function BusinessProfilePage() {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { images, ...dataToSave } = formData;
 
-            await BusinessProfileService.updateProfile(user.uid, dataToSave);
+            // Country is always locked to the CountryContext — never editable from profile
+            const safeData = {
+                ...dataToSave,
+                country: selectedCountry?.code || formData.country || 'HN',
+            };
+
+            await BusinessProfileService.updateProfile(user.uid, safeData);
             toast.success(t('saved'));
         } catch (error) {
             console.error("Error updating", error);
@@ -377,21 +383,14 @@ export default function BusinessProfilePage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-slate-400 text-xs uppercase mb-1">{t('country')}</label>
-                                    <select
-                                        value={formData.country || 'HN'}
-                                        onChange={e => setFormData({ ...formData, country: e.target.value })}
-                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
-                                    >
-                                        <option value="HN">Honduras 🇭🇳</option>
-                                        <option value="SV">El Salvador 🇸🇻</option>
-                                        <option value="GT">Guatemala 🇬🇹</option>
-                                        <option value="MX">México 🇲🇽</option>
-                                        <option value="US">United States 🇺🇸</option>
-                                        <option value="CR">Costa Rica 🇨🇷</option>
-                                        <option value="PA">Panamá 🇵🇦</option>
-                                        <option value="CO">Colombia 🇨🇴</option>
-                                        <option value="BR">Brasil 🇧🇷</option>
-                                    </select>
+                                    {/* Country is locked — determined by the CountryContext selection at app start */}
+                                    <div className="w-full bg-[#0B0F19] border border-white/5 rounded-lg px-4 py-2 text-white flex items-center gap-2 opacity-70 select-none cursor-not-allowed" title="El país no puede cambiarse desde aquí">
+                                        <span>{selectedCountry?.flag || '🌍'}</span>
+                                        <span className="flex-1 font-medium">{selectedCountry?.name || formData.country}</span>
+                                        <svg className="w-3.5 h-3.5 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </div>
                                 </div>
                                 <div>
                                     <label className="block text-slate-400 text-xs uppercase mb-1">{t('department')}</label>
