@@ -423,7 +423,22 @@
             "galleryEmpty": "No hay fotos en la galería por el momento.",
             "noServices": "Este negocio aún no ha publicado sus servicios.",
             "noDescription": "Sin descripción",
-            "fromPrice": "Desde"
+            "fromPrice": "Desde",
+            "aboutUs": "Sobre Nosotros",
+            "contactInfo": "Información de Contacto",
+            "location": "Ubicación",
+            "phone": "Teléfono",
+            "website": "Sitio Web",
+            "openingHours": "Horarios de Atención",
+            "overallRating": "Valoración General",
+            "verifiedReviews": "Reseñas Verificadas",
+            "writeReview": "Escribir Reseña",
+            "shareExperience": "Comparte tu experiencia con este negocio",
+            "noReviews": "Aún no hay reseñas",
+            "beFirstReview": "Sé el primero en calificar este negocio.",
+            "recent": "Reciente",
+            "loginToReview": "Debes iniciar sesión para escribir una reseña",
+            "reviewPublished": "Reseña publicada ✨"
         },
         "profile": {
             "title": "Editar Perfil de Negocio",

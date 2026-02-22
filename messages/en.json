@@ -427,7 +427,22 @@
             "galleryEmpty": "No photos in gallery at the moment.",
             "noServices": "This business has not published their services yet.",
             "noDescription": "No description",
-            "fromPrice": "From"
+            "fromPrice": "From",
+            "aboutUs": "About Us",
+            "contactInfo": "Contact Information",
+            "location": "Location",
+            "phone": "Phone",
+            "website": "Website",
+            "openingHours": "Opening Hours",
+            "overallRating": "Overall Rating",
+            "verifiedReviews": "Verified Reviews",
+            "writeReview": "Write a Review",
+            "shareExperience": "Share your experience with this business",
+            "noReviews": "No reviews yet",
+            "beFirstReview": "Be the first to rate this business.",
+            "recent": "Recent",
+            "loginToReview": "You must be logged in to write a review",
+            "reviewPublished": "Review published ✨"
         },
         "profile": {
             "title": "Edit Business Profile",

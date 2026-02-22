@@ -5,8 +5,9 @@ import { Star, MessageSquare, User, Loader2, PenTool } from 'lucide-react';
 import { ReviewsService, Review } from '@/services/businessProfile.service';
 import WriteReviewModal from '../../public/WriteReviewModal';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { es, enUS, ptBR } from 'date-fns/locale';
 import { useAuth } from '@/context/AuthContext';
+import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 
 interface ReviewsTabProps {
@@ -15,6 +16,12 @@ interface ReviewsTabProps {
 
 export default function ReviewsTab({ business }: ReviewsTabProps) {
     const { user } = useAuth();
+    const t = useTranslations('business.publicProfile');
+    const locale = useLocale();
+
+    // Map locale to date-fns locale
+    const dateFnsLocale = locale === 'en' ? enUS : locale === 'pt-BR' ? ptBR : es;
+
     const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,8 +48,7 @@ export default function ReviewsTab({ business }: ReviewsTabProps) {
 
     const handleWriteReview = () => {
         if (!user) {
-            toast.error("Debes iniciar sesión para escribir una reseña");
-            // Optional: Redirect to login
+            toast.error(t('loginToReview'));
             return;
         }
         setIsModalOpen(true);
@@ -50,10 +56,8 @@ export default function ReviewsTab({ business }: ReviewsTabProps) {
 
     const handleReviewSuccess = () => {
         loadReviews();
-        // Optimistic update of count (rating is harder, let's just re-fetch business? 
-        // For now just increment count for UI feedback)
         setCount((prev: number) => prev + 1);
-        toast.success("Reseña publicada ✨");
+        toast.success(t('reviewPublished'));
     };
 
     return (
@@ -75,7 +79,7 @@ export default function ReviewsTab({ business }: ReviewsTabProps) {
 
                 {/* Left: Rating */}
                 <div className="flex flex-col items-center md:items-start">
-                    <h3 className="text-slate-400 font-medium uppercase tracking-widest text-xs mb-4">Valoración General</h3>
+                    <h3 className="text-slate-400 font-medium uppercase tracking-widest text-xs mb-4">{t('overallRating')}</h3>
                     <div className="flex items-center gap-4 mb-2">
                         <span className="text-6xl font-bold text-white">{rating}</span>
                         <div className="flex flex-col items-start">
@@ -84,7 +88,7 @@ export default function ReviewsTab({ business }: ReviewsTabProps) {
                                     <Star key={s} className={`w-5 h-5 ${s <= Math.round(rating) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-700'}`} />
                                 ))}
                             </div>
-                            <span className="text-slate-400 text-sm">{count} Reseñas Verificadas</span>
+                            <span className="text-slate-400 text-sm">{count} {t('verifiedReviews')}</span>
                         </div>
                     </div>
                 </div>
@@ -96,9 +100,9 @@ export default function ReviewsTab({ business }: ReviewsTabProps) {
                         className="bg-brand-neon-cyan hover:bg-cyan-400 text-black px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-cyan-500/20"
                     >
                         <PenTool size={18} />
-                        Escribir Reseña
+                        {t('writeReview')}
                     </button>
-                    <span className="text-xs text-slate-500">Comparte tu experiencia con este negocio</span>
+                    <span className="text-xs text-slate-500">{t('shareExperience')}</span>
                 </div>
             </div>
 
@@ -111,8 +115,8 @@ export default function ReviewsTab({ business }: ReviewsTabProps) {
                 ) : reviews.length === 0 ? (
                     <div className="text-center p-12 bg-white/5 rounded-2xl border border-white/5 border-dashed">
                         <MessageSquare className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-                        <h4 className="text-white font-medium text-lg">Aún no hay reseñas</h4>
-                        <p className="text-slate-400 text-sm mt-1">Sé el primero en calificar este negocio.</p>
+                        <h4 className="text-white font-medium text-lg">{t('noReviews')}</h4>
+                        <p className="text-slate-400 text-sm mt-1">{t('beFirstReview')}</p>
                     </div>
                 ) : (
                     reviews.map((review) => (
@@ -140,7 +144,9 @@ export default function ReviewsTab({ business }: ReviewsTabProps) {
                                         </div>
                                     </div>
                                     <span className="text-xs text-slate-500">
-                                        {review.createdAt ? formatDistanceToNow(review.createdAt.toDate(), { locale: es, addSuffix: true }) : 'Reciente'}
+                                        {review.createdAt
+                                            ? formatDistanceToNow(review.createdAt.toDate(), { locale: dateFnsLocale, addSuffix: true })
+                                            : t('recent')}
                                     </span>
                                 </div>
 

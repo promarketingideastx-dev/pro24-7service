@@ -4,16 +4,20 @@ import { MapPin, Phone, Globe, Clock, Mail } from 'lucide-react';
 import WeeklyScheduleView from '@/components/business/public/WeeklyScheduleView';
 import OpeningHoursStatus from '@/components/business/public/OpeningHoursStatus';
 import dynamic from 'next/dynamic';
+import { useTranslations } from 'next-intl';
 
 const MapWidget = dynamic(() => import('@/components/ui/MapWidget'), {
     ssr: false,
-    loading: () => <div className="h-64 w-full bg-slate-900 rounded-2xl animate-pulse" />
+    loading: () => <div className="h-64 w-full bg-slate-900 rounded-2xl animate-pulse" />,
 });
+
 interface DetailsTabProps {
     business: any;
 }
 
 export default function DetailsTab({ business }: DetailsTabProps) {
+    const t = useTranslations('business.publicProfile');
+
     if (!business) return null;
 
     return (
@@ -22,23 +26,23 @@ export default function DetailsTab({ business }: DetailsTabProps) {
             {/* About */}
             <div className="bg-[#151b2e] rounded-3xl p-6 border border-white/5">
                 <h3 className="font-bold text-white text-lg mb-4 flex items-center gap-2">
-                    Sobre Nosotros
+                    {t('aboutUs')}
                 </h3>
                 <p className="text-slate-300 leading-relaxed whitespace-pre-line">
-                    {business.fullDescription || business.description || 'Sin descripción disponible.'}
+                    {business.fullDescription || business.description || t('noDescription')}
                 </p>
             </div>
 
             {/* Contact Info */}
             <div className="bg-[#151b2e] rounded-3xl p-6 border border-white/5">
-                <h3 className="font-bold text-white text-lg mb-4">Información de Contacto</h3>
+                <h3 className="font-bold text-white text-lg mb-4">{t('contactInfo')}</h3>
                 <div className="space-y-4">
                     <div className="flex items-start gap-4">
                         <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-brand-neon-cyan shrink-0">
                             <MapPin className="w-5 h-5" />
                         </div>
                         <div>
-                            <span className="block text-white font-medium mb-1">Ubicación</span>
+                            <span className="block text-white font-medium mb-1">{t('location')}</span>
                             <span className="text-slate-400 text-sm">
                                 {business.address ? business.address : `${business.city || ''}, ${business.department || 'Honduras'}`}
                             </span>
@@ -70,7 +74,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                 <Phone className="w-5 h-5" />
                             </div>
                             <div>
-                                <span className="block text-white font-medium mb-1">Teléfono</span>
+                                <span className="block text-white font-medium mb-1">{t('phone')}</span>
                                 <a href={`tel:${business.phone}`} className="text-slate-400 text-sm hover:text-white transition-colors">
                                     {business.phone}
                                 </a>
@@ -84,7 +88,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                 <Globe className="w-5 h-5" />
                             </div>
                             <div>
-                                <span className="block text-white font-medium mb-1">Sitio Web</span>
+                                <span className="block text-white font-medium mb-1">{t('website')}</span>
                                 <a
                                     href={!business.website.startsWith('http') ? `https://${business.website}` : business.website}
                                     target="_blank"
@@ -103,7 +107,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
             <div className="bg-[#151b2e] rounded-3xl p-6 border border-white/5">
                 <h3 className="font-bold text-white text-lg mb-4 flex items-center gap-2">
                     <Clock className="w-5 h-5 text-brand-neon-cyan" />
-                    Horarios de Atención
+                    {t('openingHours')}
                 </h3>
                 <div className="mb-4">
                     <OpeningHoursStatus schedule={business.openingHours} />

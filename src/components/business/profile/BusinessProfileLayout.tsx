@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 import { FavoritesService } from '@/services/favorites.service';
 import { useTranslations, useLocale } from 'next-intl';
+import { TAXONOMY } from '@/lib/taxonomy';
 
 interface ProfileLayoutProps {
     business: any;
@@ -259,7 +260,13 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                                         {business.city}, {business.country || 'HN'}
                                     </span>
                                     <span>•</span>
-                                    <span className="text-slate-500">{business.category}</span>
+                                    <span className="text-slate-500">
+                                        {(() => {
+                                            const localeKey = locale === 'en' ? 'en' : locale === 'pt-BR' ? 'pt' : 'es';
+                                            const cat = TAXONOMY[business.category as keyof typeof TAXONOMY];
+                                            return cat ? cat.label[localeKey as keyof typeof cat.label] : business.category;
+                                        })()}
+                                    </span>
                                 </div>
                             </div>
                         </div>
