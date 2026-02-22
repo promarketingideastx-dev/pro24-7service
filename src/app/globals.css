@@ -69,6 +69,12 @@ body {
     background: white;
 }
 
+/* Admin CRM: override body gradient + padding-bottom to avoid black area */
+body:has(#admin-root) {
+    background: #060d1f !important;
+    padding-bottom: 0 !important;
+}
+
 /* Hide native browser calendar icon on styled date inputs */
 input[type="date"].styled-date::-webkit-calendar-picker-indicator {
     opacity: 0;

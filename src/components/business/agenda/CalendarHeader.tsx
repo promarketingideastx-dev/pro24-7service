@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Users } from 'lucide-react';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { es, enUS, ptBR } from 'date-fns/locale';
+import { useLocale, useTranslations } from 'next-intl';
 
 export type CalendarView = 'day' | 'week' | 'resource';
 
@@ -19,6 +20,9 @@ export default function CalendarHeader({
     onDateChange,
     onToday
 }: CalendarHeaderProps) {
+    const locale = useLocale();
+    const t = useTranslations('business.agenda');
+    const dateFnsLocale = locale === 'en' ? enUS : locale === 'pt-BR' ? ptBR : es;
     const handlePrev = () => {
         const newDate = new Date(currentDate);
         if (view === 'week') newDate.setDate(newDate.getDate() - 7);
@@ -49,7 +53,7 @@ export default function CalendarHeader({
                         onClick={onToday}
                         className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors"
                     >
-                        Hoy
+                        {t('today')}
                     </button>
                     <button
                         onClick={handleNext}
@@ -60,7 +64,7 @@ export default function CalendarHeader({
                 </div>
 
                 <h2 className="text-xl font-bold text-white capitalize">
-                    {format(currentDate, 'MMMM yyyy', { locale: es })}
+                    {format(currentDate, 'MMMM yyyy', { locale: dateFnsLocale })}
                 </h2>
             </div>
 
@@ -69,30 +73,30 @@ export default function CalendarHeader({
                 <button
                     onClick={() => onViewChange('day')}
                     className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all ${view === 'day'
-                            ? 'bg-brand-neon-cyan text-black shadow-[0_0_15px_rgba(0,240,255,0.3)]'
-                            : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-brand-neon-cyan text-black shadow-[0_0_15px_rgba(0,240,255,0.3)]'
+                        : 'text-slate-400 hover:text-slate-200'
                         }`}
                 >
-                    Día
+                    {t('viewDay')}
                 </button>
                 <button
                     onClick={() => onViewChange('week')}
                     className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all ${view === 'week'
-                            ? 'bg-brand-neon-cyan text-black shadow-[0_0_15px_rgba(0,240,255,0.3)]'
-                            : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-brand-neon-cyan text-black shadow-[0_0_15px_rgba(0,240,255,0.3)]'
+                        : 'text-slate-400 hover:text-slate-200'
                         }`}
                 >
-                    Semana
+                    {t('viewWeek')}
                 </button>
                 <button
                     onClick={() => onViewChange('resource')}
                     className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${view === 'resource'
-                            ? 'bg-brand-neon-cyan text-black shadow-[0_0_15px_rgba(0,240,255,0.3)]'
-                            : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-brand-neon-cyan text-black shadow-[0_0_15px_rgba(0,240,255,0.3)]'
+                        : 'text-slate-400 hover:text-slate-200'
                         }`}
                 >
                     <Users size={14} />
-                    Equipo
+                    {t('viewTeam')}
                 </button>
             </div>
         </div>

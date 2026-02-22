@@ -8,7 +8,7 @@ import {
     Bell, CreditCard, Settings, Scale, BookOpen,
     ChevronLeft, ChevronRight, Shield, Map, BarChart2
 } from 'lucide-react';
-
+import { useTranslations, useLocale } from 'next-intl';
 import { AdminNotificationService } from '@/services/adminNotification.service';
 import { DisputeService } from '@/services/dispute.service';
 
@@ -19,28 +19,31 @@ interface AdminSidebarProps {
 
 export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
     const pathname = usePathname();
+    const locale = useLocale();
+    const t = useTranslations('admin.sidebar');
     const [unreadNotifs, setUnreadNotifs] = useState(0);
     const [openDisputes, setOpenDisputes] = useState(0);
 
-    // Real-time badge counters
     useEffect(() => {
         const unsubN = AdminNotificationService.onUnreadCount(setUnreadNotifs);
         const unsubD = DisputeService.onUnreadCount(setOpenDisputes);
         return () => { unsubN(); unsubD(); };
     }, []);
 
+    const lp = (path: string) => `/${locale}${path}`;
+
     const NAV_ITEMS = [
-        { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: 0 },
-        { href: '/admin/businesses', icon: Building2, label: 'Negocios', badge: 0 },
-        { href: '/admin/users', icon: Users, label: 'Usuarios', badge: 0 },
-        { href: '/admin/map', icon: Map, label: 'Mapa', badge: 0 },
-        { href: '/admin/analytics', icon: BarChart2, label: 'Analytics', badge: 0 },
-        { href: '/admin/media', icon: FileImage, label: 'Archivos', badge: 0 },
-        { href: '/admin/notifications', icon: Bell, label: 'Notificaciones', badge: unreadNotifs },
-        { href: '/admin/plans', icon: CreditCard, label: 'Planes & Pagos', badge: 0 },
-        { href: '/admin/disputes', icon: Scale, label: 'Disputas', badge: openDisputes },
-        { href: '/admin/audit', icon: BookOpen, label: 'Audit Log', badge: 0 },
-        { href: '/admin/settings', icon: Settings, label: 'Configuración', badge: 0 },
+        { href: lp('/admin/dashboard'), icon: LayoutDashboard, label: t('dashboard'), badge: 0 },
+        { href: lp('/admin/businesses'), icon: Building2, label: t('businesses'), badge: 0 },
+        { href: lp('/admin/users'), icon: Users, label: t('users'), badge: 0 },
+        { href: lp('/admin/map'), icon: Map, label: t('map'), badge: 0 },
+        { href: lp('/admin/analytics'), icon: BarChart2, label: t('analytics'), badge: 0 },
+        { href: lp('/admin/media'), icon: FileImage, label: t('files'), badge: 0 },
+        { href: lp('/admin/notifications'), icon: Bell, label: t('notifications'), badge: unreadNotifs },
+        { href: lp('/admin/plans'), icon: CreditCard, label: t('plans'), badge: 0 },
+        { href: lp('/admin/disputes'), icon: Scale, label: t('disputes'), badge: openDisputes },
+        { href: lp('/admin/audit'), icon: BookOpen, label: t('audit'), badge: 0 },
+        { href: lp('/admin/settings'), icon: Settings, label: t('settings'), badge: 0 },
     ];
 
     return (
@@ -76,7 +79,6 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
                                 : 'text-slate-400 hover:text-white hover:bg-white/5'
                                 }`}
                         >
-                            {/* Icon + badge indicator when collapsed */}
                             <div className="relative shrink-0">
                                 <item.icon size={18} />
                                 {!isOpen && hasBadge && (

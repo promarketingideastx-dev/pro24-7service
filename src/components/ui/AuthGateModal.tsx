@@ -2,6 +2,7 @@
 
 import { X, Lock, LogIn, UserPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface AuthGateModalProps {
     isOpen: boolean;
@@ -16,17 +17,20 @@ interface AuthGateModalProps {
 
 export default function AuthGateModal({ isOpen, onClose, businessName, metrics, returnUrl }: AuthGateModalProps) {
     const router = useRouter();
+    const locale = useLocale();
+    const t = useTranslations('authGate');
+    const lp = (path: string) => `/${locale}${path}`;
 
     if (!isOpen) return null;
 
     const handleLogin = () => {
         // Redirigir a login con returnUrl (asumiendo que implementaremos la lógica de returnUrl en login)
         // Por ahora, solo simular o ir a login genérico
-        router.push(`/auth/login?returnTo=${encodeURIComponent(returnUrl)}`);
+        router.push(lp(`/auth/login?returnTo=${encodeURIComponent(returnUrl)}`));
     };
 
     const handleRegister = () => {
-        router.push(`/auth/register?returnTo=${encodeURIComponent(returnUrl)}`);
+        router.push(lp(`/auth/register?returnTo=${encodeURIComponent(returnUrl)}`));
     };
 
     return (
@@ -50,11 +54,11 @@ export default function AuthGateModal({ isOpen, onClose, businessName, metrics, 
                     </div>
 
                     <h2 className="text-2xl font-bold text-white mb-2">
-                        Acceso a Perfil
+                        {t('title')}
                     </h2>
 
                     <p className="text-slate-400 mb-6 leading-relaxed">
-                        Para ver la galería completa, contactar a <span className="text-white font-semibold">{businessName}</span> y leer sus <span className="text-white font-semibold">{metrics.reviews} reseñas verificadas</span>, necesitas una cuenta.
+                        {t('desc', { business: businessName, reviews: metrics.reviews })}
                     </p>
 
                     <div className="w-full space-y-3">
@@ -63,7 +67,7 @@ export default function AuthGateModal({ isOpen, onClose, businessName, metrics, 
                             className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-base shadow-lg hover:shadow-cyan-500/25 transition-all flex items-center justify-center gap-2"
                         >
                             <UserPlus className="w-5 h-5" />
-                            Crear Cuenta Gratis
+                            {t('createAccount')}
                         </button>
 
                         <button
@@ -71,12 +75,12 @@ export default function AuthGateModal({ isOpen, onClose, businessName, metrics, 
                             className="w-full py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium text-base transition-all flex items-center justify-center gap-2"
                         >
                             <LogIn className="w-5 h-5 text-slate-400" />
-                            Iniciar Sesión
+                            {t('signIn')}
                         </button>
                     </div>
 
                     <p className="text-[10px] text-slate-500 mt-6">
-                        🔒 Tus datos están protegidos. Solo toma 30 segundos.
+                        {t('secureNote')}
                     </p>
 
                 </div>

@@ -11,6 +11,11 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
     const searchParams = useSearchParams();
     const [isAuthorized, setIsAuthorized] = useState(false);
 
+    // Extract locale from pathname (e.g. /en/business/dashboard -> 'en')
+    const localeMatch = pathname.match(/^\/([a-z]{2}(?:-[A-Z]{2})?)(?:\/|$)/);
+    const locale = localeMatch ? localeMatch[1] : 'es';
+    const lp = (path: string) => `/${locale}${path}`;
+
     useEffect(() => {
         if (loading) return;
 
@@ -18,7 +23,7 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
 
         // 1. Unauthenticated -> Login
         if (!user) {
-            router.replace(`/auth/login?returnTo=${encodeURIComponent(currentPathWithQuery)}`);
+            router.replace(lp(`/auth/login?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
             return;
         }
 
@@ -29,14 +34,14 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
         // We will assume if !userProfile here, we redirect to onboarding as fallback or wait.
         if (!userProfile) {
             // Safe fallback
-            router.replace(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`);
+            router.replace(lp(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
             return;
         }
 
         // 3. Check Provider Role
         if (!userProfile.roles?.provider) {
             // Not a provider -> Onboarding
-            router.replace(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`);
+            router.replace(lp(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
             return;
         }
 
@@ -48,7 +53,7 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
         if (hasBusiness) {
             // Provider WITH business
             if (isSetupPage) {
-                router.replace('/business/dashboard');
+                router.replace(lp('/business/dashboard'));
             } else {
                 // Allow access
                 setIsAuthorized(true);
@@ -60,7 +65,7 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
                 setIsAuthorized(true);
             } else if (isBusinessRoute) {
                 // Trying to access dashboard without business -> Setup
-                router.replace('/business/setup');
+                router.replace(lp('/business/setup'));
             } else {
                 // Public route -> Allow
                 setIsAuthorized(true);

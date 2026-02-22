@@ -9,14 +9,19 @@ import BusinessGuard from '@/components/auth/BusinessGuard';
 import { AuthService } from '@/services/auth.service';
 import { AppointmentRefreshProvider } from '@/context/AppointmentRefreshContext';
 import { useAuth } from '@/context/AuthContext';
+import { useLocale, useTranslations } from 'next-intl';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 
 export default function BusinessShell({ children }: { children: React.ReactNode }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const { user } = useAuth();
     const pathname = usePathname();
+    const locale = useLocale();
+    const t = useTranslations('business.nav');
+    const lp = (path: string) => `/${locale}${path}`;
 
     useEffect(() => {
         if (!user) return;
@@ -26,18 +31,18 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
     }, [user]);
 
     // The setup wizard has its own full-screen layout — skip the shell
-    if (pathname === '/business/setup') {
+    if (pathname === lp('/business/setup') || pathname === '/business/setup') {
         return <>{children}</>;
     }
 
     const menuItems = [
-        { name: 'Dashboard', href: '/business/dashboard', icon: <LayoutDashboard size={20} /> },
-        { name: 'Agenda', href: '/business/agenda', icon: <Calendar size={20} /> },
-        { name: 'Clientes', href: '/business/clients', icon: <Users size={20} /> },
-        { name: 'Mis Servicios', href: '/business/services', icon: <Store size={20} /> },
-        { name: 'Equipo', href: '/business/team', icon: <Users size={20} /> },
-        { name: 'Pagos', href: '/business/dashboard/settings/payments', icon: <CreditCard size={20} /> },
-        { name: 'Configuración', href: '/business/profile', icon: <Settings size={20} /> },
+        { name: t('dashboard'), href: lp('/business/dashboard'), icon: <LayoutDashboard size={20} /> },
+        { name: t('agenda'), href: lp('/business/agenda'), icon: <Calendar size={20} /> },
+        { name: t('clients'), href: lp('/business/clients'), icon: <Users size={20} /> },
+        { name: t('services'), href: lp('/business/services'), icon: <Store size={20} /> },
+        { name: t('team'), href: lp('/business/team'), icon: <Users size={20} /> },
+        { name: t('payments'), href: lp('/business/dashboard/settings/payments'), icon: <CreditCard size={20} /> },
+        { name: t('settings'), href: lp('/business/profile'), icon: <Settings size={20} /> },
     ];
 
     const isActive = (path: string) => pathname === path;
@@ -59,9 +64,12 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                             </div>
                             <span className="font-bold text-sm">Provider Panel</span>
                         </div>
-                        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-slate-300">
-                            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <LanguageSwitcher variant="icon" />
+                            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-slate-300">
+                                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                            </button>
+                        </div>
                     </div>
 
                     {/* Sidebar (Desktop + Mobile Drawer) */}
@@ -73,23 +81,26 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                         <div className="flex flex-col h-full p-6">
                             {/* Logo (Desktop) */}
                             <div className="hidden md:flex flex-col gap-4 mb-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center shadow-[0_0_15px_rgba(0,240,255,0.3)]">
-                                        <span className="font-extrabold text-sm text-black">P24</span>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+                                            <span className="font-extrabold text-sm text-black">P24</span>
+                                        </div>
+                                        <div>
+                                            <h1 className="font-bold text-lg leading-none">PRO24/7</h1>
+                                            <span className="text-[10px] text-cyan-400 font-medium tracking-wider uppercase">Business</span>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h1 className="font-bold text-lg leading-none">PRO24/7</h1>
-                                        <span className="text-[10px] text-cyan-400 font-medium tracking-wider uppercase">Business</span>
-                                    </div>
+                                    <LanguageSwitcher variant="icon" />
                                 </div>
 
                                 {/* SWITCH TO CLIENT MODE */}
                                 <Link
-                                    href="/"
+                                    href={lp('/')}
                                     className="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 rounded-lg py-2 text-xs font-medium text-slate-300 transition-colors"
                                 >
                                     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                    Explorar como Cliente
+                                    {t('clientMode')}
                                 </Link>
                             </div>
 
@@ -119,7 +130,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                             {/* Admin CRM — solo visible para admin */}
                             {isAdmin && (
                                 <Link
-                                    href="/admin"
+                                    href={lp('/admin/dashboard')}
                                     className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all mb-2 bg-gradient-to-r from-brand-neon-cyan/10 to-brand-neon-purple/10 border border-brand-neon-cyan/25 text-brand-neon-cyan hover:from-brand-neon-cyan/20 hover:to-brand-neon-purple/20"
                                 >
                                     <Shield size={18} className="text-brand-neon-cyan" />
@@ -134,7 +145,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                                 className="mt-auto flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-colors"
                             >
                                 <span className="rotate-180"><LogOut size={20} /></span>
-                                <span className="font-medium text-sm">Cerrar Sesión</span>
+                                <span className="font-medium text-sm">{t('logout')}</span>
                             </button>
                         </div>
                     </aside>

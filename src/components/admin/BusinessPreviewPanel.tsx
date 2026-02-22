@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useLocale } from 'next-intl';
 import { getDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { X, ExternalLink, Building2, RefreshCw, Tablet } from 'lucide-react';
@@ -21,6 +22,7 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
     const [biz, setBiz] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [iframeKey, setIframeKey] = useState(0);
+    const locale = useLocale();
 
     useEffect(() => {
         if (!businessId) { setBiz(null); return; }
@@ -31,10 +33,14 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
         setIframeKey(k => k + 1);
     }, [businessId]);
 
-    const profileUrl = businessId ? `/negocio/${businessId}` : null;
+    const profileUrl = businessId ? `/${locale}/negocio/${businessId}` : null;
     const plan = biz?.planData?.plan ?? 'free';
     const statusColor = biz?.suspended ? '#ef4444' : biz?.status === 'pending' ? '#f59e0b' : '#22c55e';
-    const statusLabel = biz?.suspended ? 'Suspendido' : biz?.status === 'pending' ? 'Pendiente' : 'Activo';
+    const statusLabels: Record<string, string> = {
+        es: biz?.suspended ? 'Suspendido' : biz?.status === 'pending' ? 'Pendiente' : 'Activo',
+        'pt-BR': biz?.suspended ? 'Suspenso' : biz?.status === 'pending' ? 'Pendente' : 'Ativo',
+    };
+    const statusLabel = statusLabels[locale] ?? statusLabels['es'];
 
     return (
         /* Panel slides in from the right — 900 px wide so the tablet frame has room */

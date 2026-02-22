@@ -1,5 +1,6 @@
 import { X, MapPin, Star, Calendar, MessageSquare, Phone, Lock, ChevronRight, UserPlus, LogIn } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 
 interface PublicBusinessPreviewModalProps {
     isOpen: boolean;
@@ -9,17 +10,19 @@ interface PublicBusinessPreviewModalProps {
 
 export default function PublicBusinessPreviewModal({ isOpen, onClose, business }: PublicBusinessPreviewModalProps) {
     const router = useRouter();
+    const locale = useLocale();
+    const lp = (path: string) => `/${locale}${path}`;
 
     if (!isOpen || !business) return null;
 
     const returnUrl = `/negocio/${business.id}`;
 
     const handleLogin = () => {
-        router.push(`/auth/login?returnTo=${encodeURIComponent(returnUrl)}`);
+        router.push(lp(`/auth/login?returnTo=${encodeURIComponent(returnUrl)}`));
     };
 
     const handleRegister = () => {
-        router.push(`/auth/register?returnTo=${encodeURIComponent(returnUrl)}`);
+        router.push(lp(`/auth/register?returnTo=${encodeURIComponent(returnUrl)}`));
     };
 
     return (

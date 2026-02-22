@@ -3,10 +3,11 @@
 import { useState } from 'react';
 import { Search, Edit2, Phone, Mail, Trash2, TrendingUp, Calendar, Clock, ChevronRight } from 'lucide-react';
 import { Customer } from '@/services/customer.service';
-import { CustomerStats } from '@/app/business/clients/page';
+import { CustomerStats } from '@/app/[locale]/business/clients/page';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { es, enUS, ptBR } from 'date-fns/locale';
 import { useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface CustomerListProps {
     customers: Customer[];
@@ -18,6 +19,10 @@ interface CustomerListProps {
 export default function CustomerList({ customers, appointmentStats, onEdit, onDelete }: CustomerListProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const router = useRouter();
+    const locale = useLocale();
+    const t = useTranslations('business.clients');
+    const lp = (path: string) => `/${locale}${path}`;
+    const dateFnsLocale = locale === 'en' ? enUS : locale === 'pt-BR' ? ptBR : es;
 
     const filteredCustomers = customers.filter(c =>
         c.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -42,7 +47,7 @@ export default function CustomerList({ customers, appointmentStats, onEdit, onDe
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" />
                 <input
                     type="text"
-                    placeholder="Buscar por nombre, teléfono o email..."
+                    placeholder={t('search')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full bg-[#151b2e] border border-white/5 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-500 focus:outline-none focus:border-white/10 focus:ring-1 focus:ring-white/10 transition-all"
@@ -54,7 +59,7 @@ export default function CustomerList({ customers, appointmentStats, onEdit, onDe
                 <div className="grid grid-cols-3 gap-3">
                     <div className="bg-[#151b2e] border border-white/5 rounded-xl p-3 text-center">
                         <p className="text-2xl font-bold text-white">{customers.length}</p>
-                        <p className="text-xs text-slate-500 mt-0.5">Clientes</p>
+                        <p className="text-xs text-slate-500 mt-0.5">{t('title')}</p>
                     </div>
                     <div className="bg-[#151b2e] border border-white/5 rounded-xl p-3 text-center">
                         <p className="text-2xl font-bold text-brand-neon-cyan">
@@ -66,17 +71,17 @@ export default function CustomerList({ customers, appointmentStats, onEdit, onDe
                         <p className="text-2xl font-bold text-green-400">
                             {Object.values(appointmentStats).reduce((sum, s) => sum + s.appointmentCount, 0)}
                         </p>
-                        <p className="text-xs text-slate-500 mt-0.5">Citas Totales</p>
+                        <p className="text-xs text-slate-500 mt-0.5">{t('totalAppts')}</p>
                     </div>
                 </div>
             )}
 
             {/* List Header (Desktop) */}
             <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                <div className="col-span-3">Cliente</div>
-                <div className="col-span-2">Contacto</div>
-                <div className="col-span-2">Última Visita</div>
-                <div className="col-span-2">Próxima Cita</div>
+                <div className="col-span-3">{t('colClient')}</div>
+                <div className="col-span-2">{t('colContact')}</div>
+                <div className="col-span-2">{t('colLastVisit')}</div>
+                <div className="col-span-2">{t('colNextAppt')}</div>
                 <div className="col-span-2 text-brand-neon-cyan">LTV</div>
                 <div className="col-span-1 text-right">Acc.</div>
             </div>
@@ -85,7 +90,7 @@ export default function CustomerList({ customers, appointmentStats, onEdit, onDe
             <div className="space-y-2">
                 {filteredCustomers.length === 0 ? (
                     <div className="text-center py-12 text-slate-500 bg-[#151b2e]/50 rounded-xl border border-white/5 border-dashed">
-                        {searchTerm ? 'No se encontraron clientes con esa búsqueda.' : 'No tienes clientes registrados aún.'}
+                        {searchTerm ? t('noSearchResults') : t('empty')}
                     </div>
                 ) : (
                     filteredCustomers.map((customer) => {
@@ -94,7 +99,7 @@ export default function CustomerList({ customers, appointmentStats, onEdit, onDe
                             <div
                                 key={customer.id}
                                 className="group bg-[#151b2e] hover:bg-[#1a2138] border border-white/5 rounded-xl p-4 transition-all hover:shadow-lg hover:border-white/10 cursor-pointer"
-                                onClick={() => router.push(`/business/clients/${customer.id}`)}
+                                onClick={() => router.push(lp(`/business/clients/${customer.id}`))}
                             >
                                 <div className="flex flex-col md:grid md:grid-cols-12 gap-3 items-center">
 
@@ -115,7 +120,7 @@ export default function CustomerList({ customers, appointmentStats, onEdit, onDe
                                         <div className="min-w-0">
                                             <h3 className="font-semibold text-white truncate group-hover:text-brand-neon-cyan transition-colors">{customer.fullName}</h3>
                                             {customer.tags?.includes('public_request') && (
-                                                <span className="text-[10px] text-purple-400 font-medium">Reserva Online</span>
+                                                <span className="text-[10px] text-purple-400 font-medium">{t('onlineBooking')}</span>
                                             )}
                                         </div>
                                     </div>
@@ -135,7 +140,7 @@ export default function CustomerList({ customers, appointmentStats, onEdit, onDe
                                             </div>
                                         )}
                                         {!customer.phone && !customer.email && (
-                                            <span className="text-xs text-slate-600 italic">Sin contacto</span>
+                                            <span className="text-xs text-slate-600 italic">{t('noContact')}</span>
                                         )}
                                     </div>
 
@@ -143,9 +148,9 @@ export default function CustomerList({ customers, appointmentStats, onEdit, onDe
                                     <div className="w-full md:col-span-2 text-xs text-slate-400 flex items-center gap-1.5">
                                         <Clock className="w-3 h-3 text-slate-600 shrink-0" />
                                         {stats.lastVisit ? (
-                                            <span>{format(stats.lastVisit, "d MMM yyyy", { locale: es })}</span>
+                                            <span>{format(stats.lastVisit, "d MMM yyyy", { locale: dateFnsLocale })}</span>
                                         ) : (
-                                            <span className="text-slate-600 italic">Sin visitas</span>
+                                            <span className="text-slate-600 italic">{t('noVisits')}</span>
                                         )}
                                     </div>
 
@@ -153,9 +158,9 @@ export default function CustomerList({ customers, appointmentStats, onEdit, onDe
                                     <div className="w-full md:col-span-2 text-xs flex items-center gap-1.5">
                                         <Calendar className="w-3 h-3 text-slate-600 shrink-0" />
                                         {stats.nextAppointment ? (
-                                            <span className="text-green-400 font-medium">{format(stats.nextAppointment, "d MMM", { locale: es })}</span>
+                                            <span className="text-green-400 font-medium">{format(stats.nextAppointment, "d MMM", { locale: dateFnsLocale })}</span>
                                         ) : (
-                                            <span className="text-slate-600 italic">Ninguna</span>
+                                            <span className="text-slate-600 italic">{t('noneAppt')}</span>
                                         )}
                                     </div>
 
