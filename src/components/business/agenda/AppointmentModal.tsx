@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { X, Calendar as CalendarIcon, Clock, User, Briefcase, Search } from 'lucide-react';
+import { X, Calendar as CalendarIcon, Clock, User, Briefcase } from 'lucide-react';
 import { format } from 'date-fns';
-import { ServiceData } from '@/services/businessProfile.service';
+import { ServiceData, getServiceName } from '@/services/businessProfile.service';
 import { EmployeeData } from '@/services/employee.service';
 import { Appointment, AppointmentStatus } from '@/services/appointment.service';
 import { Customer } from '@/services/customer.service';
 import { Timestamp } from 'firebase/firestore';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface AppointmentModalProps {
     isOpen: boolean;
@@ -14,50 +15,36 @@ interface AppointmentModalProps {
     onSave: (appointment: any) => Promise<void>;
     services: ServiceData[];
     employees: EmployeeData[];
-    customers?: Customer[]; // Optional for backward compatibility, but we expect it
+    customers?: Customer[];
     initialDate?: Date;
     initialResource?: string;
-    appointment?: Appointment | null; // If editing
+    appointment?: Appointment | null;
 }
 
 export default function AppointmentModal({
-    isOpen,
-    onClose,
-    onSave,
-    services,
-    employees,
-    customers = [],
-    initialDate,
-    initialResource,
-    appointment
+    isOpen, onClose, onSave, services, employees, customers = [],
+    initialDate, initialResource, appointment
 }: AppointmentModalProps) {
+    const t = useTranslations('agenda.modal');
+    const locale = useLocale();
     const [loading, setLoading] = useState(false);
     const [customerSearch, setCustomerSearch] = useState('');
     const [showCustomerResults, setShowCustomerResults] = useState(false);
 
     const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({
         defaultValues: {
-            customerId: '',
-            customerName: '',
-            customerPhone: '',
-            serviceId: '',
-            employeeId: '',
-            date: '',
-            time: '',
-            notes: '',
-            status: 'confirmed' as AppointmentStatus
+            customerId: '', customerName: '', customerPhone: '',
+            serviceId: '', employeeId: '', date: '', time: '',
+            notes: '', status: 'confirmed' as AppointmentStatus
         }
     });
 
-    // Watch values
     const selectedServiceId = watch('serviceId');
     const currentCustomerId = watch('customerId');
 
-    // Dependencies
     useEffect(() => {
         if (isOpen) {
             if (appointment) {
-                // Edit Mode
                 const date = appointment.date.toDate();
                 reset({
                     customerId: appointment.customerId || '',
@@ -70,24 +57,16 @@ export default function AppointmentModal({
                     notes: appointment.notes || '',
                     status: appointment.status
                 });
-                // Initialize search if customer exists
                 if (appointment.customerId && appointment.customerName) {
                     setCustomerSearch(appointment.customerName);
-                    // Note: In a real typeahead, ID is hidden, Search shows label.
-                    // Here we iterate simply.
                 }
             } else {
-                // Create Mode
                 reset({
-                    customerId: '',
-                    customerName: '',
-                    customerPhone: '',
-                    serviceId: '',
-                    employeeId: initialResource || '',
+                    customerId: '', customerName: '', customerPhone: '',
+                    serviceId: '', employeeId: initialResource || '',
                     date: initialDate ? format(initialDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
                     time: initialDate ? format(initialDate, 'HH:mm') : '09:00',
-                    notes: '',
-                    status: 'confirmed'
+                    notes: '', status: 'confirmed'
                 });
                 setCustomerSearch('');
             }
@@ -95,16 +74,14 @@ export default function AppointmentModal({
         }
     }, [isOpen, appointment, initialDate, initialResource, reset]);
 
-    // Handle Customer Selection
     const handleSelectCustomer = (customer: Customer) => {
-        setValue('customerId', customer.id!); // Use ! if id is optional in Customer interface but expected here
+        setValue('customerId', customer.id!);
         setValue('customerName', customer.fullName);
         setValue('customerPhone', customer.phone || '');
         setCustomerSearch(customer.fullName);
         setShowCustomerResults(false);
     };
 
-    // Handle Clearing Customer
     const handleClearCustomer = () => {
         setValue('customerId', '');
         setValue('customerName', '');
@@ -116,14 +93,12 @@ export default function AppointmentModal({
         setLoading(true);
         try {
             const service = services.find(s => s.id === data.serviceId);
-            if (!service) throw new Error("Service not found");
-
+            if (!service) throw new Error('Service not found');
             const startDateTime = new Date(`${data.date}T${data.time}`);
-
             const appointmentData = {
-                ...appointment, // Preserve ID if editing
-                customerId: data.customerId || null, // null if empty string
-                customerName: data.customerName, // Required fallback
+                ...appointment,
+                customerId: data.customerId || null,
+                customerName: data.customerName,
                 customerPhone: data.customerPhone,
                 serviceId: data.serviceId,
                 serviceName: service.name,
@@ -133,7 +108,6 @@ export default function AppointmentModal({
                 status: data.status,
                 notes: data.notes
             };
-
             await onSave(appointmentData);
             onClose();
         } catch (error) {
@@ -143,7 +117,6 @@ export default function AppointmentModal({
         }
     };
 
-    // Filter customers for typeahead
     const filteredCustomers = customers.filter(c =>
         c.fullName.toLowerCase().includes(customerSearch.toLowerCase()) ||
         c.phone?.includes(customerSearch)
@@ -159,10 +132,10 @@ export default function AppointmentModal({
                 <div className="flex items-center justify-between p-6 border-b border-white/10">
                     <div>
                         <h2 className="text-xl font-bold text-white">
-                            {appointment ? 'Editar Cita' : 'Nueva Cita'}
+                            {appointment ? t('editTitle') : t('newTitle')}
                         </h2>
                         <p className="text-sm text-slate-400">
-                            {appointment ? 'Modifica los detalles de la reserva' : 'Agenda un servicio para un cliente'}
+                            {appointment ? t('editSubtitle') : t('newSubtitle')}
                         </p>
                     </div>
                     <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
@@ -175,34 +148,31 @@ export default function AppointmentModal({
 
                     {/* ── Customer Section ── */}
                     {appointment ? (
-                        /* ── EDIT MODE: show locked client info card ── */
                         <div className="space-y-1">
-                            <label className="text-xs text-slate-400 font-medium ml-1">Cliente</label>
+                            <label className="text-xs text-slate-400 font-medium ml-1">{t('client')}</label>
                             <div className="flex items-center gap-3 bg-white/5 border border-white/8 rounded-xl px-4 py-3">
                                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
                                     {(appointment.customerName || '?').charAt(0).toUpperCase()}
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-white font-medium text-sm leading-tight truncate">
-                                        {appointment.customerName || 'Sin nombre'}
+                                        {appointment.customerName || t('noName')}
                                     </p>
                                     {appointment.customerPhone && (
                                         <p className="text-slate-500 text-xs">{appointment.customerPhone}</p>
                                     )}
                                 </div>
                                 <span className="ml-auto text-[10px] text-slate-600 bg-white/5 px-2 py-0.5 rounded-full shrink-0">
-                                    bloqueado
+                                    {t('locked')}
                                 </span>
                             </div>
-                            {/* Hidden fields to preserve values in form */}
                             <input type="hidden" {...register('customerId')} />
                             <input type="hidden" {...register('customerName')} />
                             <input type="hidden" {...register('customerPhone')} />
                         </div>
                     ) : (
-                        /* ── CREATE MODE: searchable customer field ── */
                         <div className="space-y-1 relative">
-                            <label className="text-xs text-slate-400 font-medium ml-1">Cliente <span className="text-red-500">*</span></label>
+                            <label className="text-xs text-slate-400 font-medium ml-1">{t('client')} <span className="text-red-500">*</span></label>
                             <input type="hidden" {...register('customerId')} />
                             <div className="relative">
                                 <User className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
@@ -216,13 +186,13 @@ export default function AppointmentModal({
                                     }}
                                     onFocus={() => setShowCustomerResults(true)}
                                     className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 pr-10 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50"
-                                    placeholder="Buscar cliente existente o escribir nombre..."
+                                    placeholder={t('clientPlaceholder')}
                                     autoComplete="off"
                                 />
                                 {currentCustomerId ? (
                                     <button type="button" onClick={handleClearCustomer}
                                         className="absolute right-3 top-2.5 text-brand-neon-cyan text-xs font-bold hover:underline">
-                                        Linked
+                                        {t('linked')}
                                     </button>
                                 ) : (
                                     customerSearch && (
@@ -243,38 +213,38 @@ export default function AppointmentModal({
                                                 <p className="font-medium text-white">{c.fullName}</p>
                                                 <p className="text-xs text-slate-500">{c.phone}</p>
                                             </div>
-                                            <div className="opacity-0 group-hover:opacity-100 text-brand-neon-cyan text-xs">Seleccionar</div>
+                                            <div className="opacity-0 group-hover:opacity-100 text-brand-neon-cyan text-xs">{t('select')}</div>
                                         </button>
                                     ))}
                                 </div>
                             )}
-                            {errors.customerName && <p className="text-red-400 text-xs ml-1">El nombre del cliente es obligatorio</p>}
+                            {errors.customerName && <p className="text-red-400 text-xs ml-1">{t('clientRequired')}</p>}
                         </div>
                     )}
 
-                    {/* Phone — only shown in create mode (in edit mode it's inside the card) */}
+                    {/* Phone */}
                     {!appointment && (
                         <div className="space-y-1">
-                            <label className="text-xs text-slate-400 font-medium ml-1">Teléfono</label>
+                            <label className="text-xs text-slate-400 font-medium ml-1">{t('phone')}</label>
                             <input {...register('customerPhone')}
                                 className="w-full bg-black/20 border border-white/10 rounded-xl py-2 px-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
                                 placeholder="+504 9999-9999" />
                         </div>
                     )}
 
-                    {/* Service Selection */}
+                    {/* Service */}
                     <div className="space-y-1">
-                        <label className="text-xs text-slate-400 font-medium ml-1">Servicio <span className="text-red-500">*</span></label>
+                        <label className="text-xs text-slate-400 font-medium ml-1">{t('service')} <span className="text-red-500">*</span></label>
                         <div className="relative">
                             <Briefcase className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
                             <select
-                                {...register('serviceId', { required: 'Selecciona un servicio' })}
+                                {...register('serviceId', { required: t('serviceRequired') })}
                                 className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50 appearance-none"
                             >
-                                <option value="">Seleccionar servicio...</option>
+                                <option value="">{t('selectService')}</option>
                                 {services.map(s => (
                                     <option key={s.id} value={s.id}>
-                                        {s.name} - ${s.price}
+                                        {getServiceName(s, locale)} - ${s.price}
                                     </option>
                                 ))}
                             </select>
@@ -282,15 +252,11 @@ export default function AppointmentModal({
                         {errors.serviceId && <p className="text-red-400 text-xs ml-1">{errors.serviceId.message as string}</p>}
                     </div>
 
-                    {/* Team Member Assignment */}
+                    {/* Team Member */}
                     <div className="space-y-2">
-                        <label className="text-xs text-slate-400 font-medium ml-1">
-                            Asignar a miembro del equipo
-                        </label>
-                        {/* Hidden field for react-hook-form */}
+                        <label className="text-xs text-slate-400 font-medium ml-1">{t('assignTeam')}</label>
                         <input type="hidden" {...register('employeeId')} />
                         <div className="flex gap-2 flex-wrap">
-                            {/* "Sin asignar" option */}
                             <button
                                 type="button"
                                 onClick={() => setValue('employeeId', '')}
@@ -302,38 +268,26 @@ export default function AppointmentModal({
                                 <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-slate-400">
                                     <User className="w-5 h-5" />
                                 </div>
-                                <span className="text-[10px] text-slate-400 leading-tight text-center">Sin asignar</span>
+                                <span className="text-[10px] text-slate-400 leading-tight text-center">{t('unassigned')}</span>
                             </button>
 
-                            {/* Employee chips */}
                             {employees.filter(e => e.active !== false).map(emp => {
                                 const GRADIENTS = [
-                                    'from-violet-500 to-indigo-600',
-                                    'from-rose-500 to-pink-600',
-                                    'from-amber-500 to-orange-600',
-                                    'from-emerald-500 to-teal-600',
-                                    'from-sky-500 to-blue-600',
-                                    'from-fuchsia-500 to-purple-600',
+                                    'from-violet-500 to-indigo-600', 'from-rose-500 to-pink-600',
+                                    'from-amber-500 to-orange-600', 'from-emerald-500 to-teal-600',
+                                    'from-sky-500 to-blue-600', 'from-fuchsia-500 to-purple-600',
                                 ];
                                 const gradient = GRADIENTS[emp.name.charCodeAt(0) % GRADIENTS.length];
                                 const isSelected = watch('employeeId') === emp.id;
-
                                 return (
-                                    <button
-                                        key={emp.id}
-                                        type="button"
-                                        onClick={() => setValue('employeeId', emp.id!)}
+                                    <button key={emp.id} type="button" onClick={() => setValue('employeeId', emp.id!)}
                                         className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all w-16 ${isSelected
                                             ? 'border-brand-neon-cyan bg-brand-neon-cyan/10 shadow-[0_0_10px_rgba(0,240,255,0.15)]'
                                             : 'border-white/10 bg-white/3 hover:border-white/20'
                                             }`}
                                     >
                                         {emp.photoUrl ? (
-                                            <img
-                                                src={emp.photoUrl}
-                                                alt={emp.name}
-                                                className="w-10 h-10 rounded-full object-cover border border-white/10"
-                                            />
+                                            <img src={emp.photoUrl} alt={emp.name} className="w-10 h-10 rounded-full object-cover border border-white/10" />
                                         ) : (
                                             <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-bold text-sm`}>
                                                 {emp.name.charAt(0).toUpperCase()}
@@ -347,32 +301,26 @@ export default function AppointmentModal({
                             })}
                         </div>
                         {employees.length === 0 && (
-                            <p className="text-xs text-slate-500 italic ml-1">Sin miembros de equipo configurados</p>
+                            <p className="text-xs text-slate-500 italic ml-1">{t('noTeam')}</p>
                         )}
                     </div>
 
                     {/* Date & Time */}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
-                            <label className="text-xs text-slate-400 font-medium ml-1">Fecha <span className="text-red-500">*</span></label>
+                            <label className="text-xs text-slate-400 font-medium ml-1">{t('date')} <span className="text-red-500">*</span></label>
                             <div className="relative">
                                 <CalendarIcon className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
-                                <input
-                                    type="date"
-                                    {...register('date', { required: true })}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
-                                />
+                                <input type="date" {...register('date', { required: true })}
+                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50" />
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-xs text-slate-400 font-medium ml-1">Hora <span className="text-red-500">*</span></label>
+                            <label className="text-xs text-slate-400 font-medium ml-1">{t('time')} <span className="text-red-500">*</span></label>
                             <div className="relative">
                                 <Clock className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
-                                <input
-                                    type="time"
-                                    {...register('time', { required: true })}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
-                                />
+                                <input type="time" {...register('time', { required: true })}
+                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50" />
                             </div>
                         </div>
                     </div>
@@ -380,49 +328,42 @@ export default function AppointmentModal({
                     {/* Status (Edit only) */}
                     {appointment && (
                         <div className="space-y-1">
-                            <label className="text-xs text-slate-400 font-medium ml-1">Estado</label>
-                            <select
-                                {...register('status')}
+                            <label className="text-xs text-slate-400 font-medium ml-1">{t('status')}</label>
+                            <select {...register('status')}
                                 className="w-full bg-black/20 border border-white/10 rounded-xl py-2 px-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
                             >
-                                <option value="confirmed">Confirmada</option>
-                                <option value="pending">Pendiente</option>
-                                <option value="completed">Completada</option>
-                                <option value="cancelled">Cancelada</option>
-                                <option value="no-show">No Asistió</option>
+                                <option value="confirmed">{t('statusConfirmed')}</option>
+                                <option value="pending">{t('statusPending')}</option>
+                                <option value="completed">{t('statusCompleted')}</option>
+                                <option value="cancelled">{t('statusCancelled')}</option>
+                                <option value="no-show">{t('statusNoShow')}</option>
                             </select>
                         </div>
                     )}
 
                     {/* Notes */}
                     <div className="space-y-1">
-                        <label className="text-xs text-slate-400 font-medium ml-1">Notas</label>
-                        <textarea
-                            {...register('notes')}
-                            rows={3}
+                        <label className="text-xs text-slate-400 font-medium ml-1">{t('notes')}</label>
+                        <textarea {...register('notes')} rows={3}
                             className="w-full bg-black/20 border border-white/10 rounded-xl py-2 px-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50 resize-none"
-                            placeholder="Detalles adicionales..."
-                        />
+                            placeholder={t('notesPlaceholder')} />
                     </div>
                 </form>
 
                 {/* Footer */}
                 <div className="p-6 border-t border-white/10 flex justify-end gap-3">
-                    <button
-                        onClick={onClose}
-                        className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors"
-                    >
-                        Cancelar
+                    <button onClick={onClose} className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors">
+                        {t('cancel')}
                     </button>
                     <button
                         onClick={handleSubmit(onSubmit)}
                         disabled={loading}
                         className="px-6 py-2 bg-gradient-to-r from-brand-neon-cyan to-brand-neon-purple text-black font-bold rounded-xl text-sm hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all disabled:opacity-50"
                     >
-                        {loading ? 'Guardando...' : (appointment ? 'Guardar Cambios' : 'Crear Cita')}
+                        {loading ? t('saving') : (appointment ? t('saveChanges') : t('create'))}
                     </button>
                 </div>
             </div>
-        </div >
+        </div>
     );
 }

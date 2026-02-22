@@ -657,5 +657,41 @@
             "checkError": "Erro ao verificar dados do cliente",
             "deleteError": "Erro ao excluir. Tente novamente."
         }
+    },
+    "agenda": {
+        "modal": {
+            "newTitle": "Novo Agendamento",
+            "editTitle": "Editar Agendamento",
+            "newSubtitle": "Agende um serviço para um cliente",
+            "editSubtitle": "Modifique os detalhes da reserva",
+            "client": "Cliente",
+            "clientPlaceholder": "Buscar cliente existente ou digitar nome...",
+            "clientRequired": "O nome do cliente é obrigatório",
+            "noName": "Sem nome",
+            "locked": "bloqueado",
+            "linked": "Vinculado",
+            "select": "Selecionar",
+            "phone": "Telefone",
+            "service": "Serviço",
+            "selectService": "Selecionar serviço...",
+            "serviceRequired": "Selecione um serviço",
+            "assignTeam": "Atribuir a membro da equipe",
+            "unassigned": "Sem atribuição",
+            "noTeam": "Nenhum membro da equipe configurado",
+            "date": "Data",
+            "time": "Hora",
+            "status": "Status",
+            "statusConfirmed": "Confirmado",
+            "statusPending": "Pendente",
+            "statusCompleted": "Concluído",
+            "statusCancelled": "Cancelado",
+            "statusNoShow": "Não Compareceu",
+            "notes": "Notas",
+            "notesPlaceholder": "Detalhes adicionais...",
+            "cancel": "Cancelar",
+            "saving": "Salvando...",
+            "saveChanges": "Salvar Alterações",
+            "create": "Criar Agendamento"
+        }
     }
 }

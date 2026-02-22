@@ -658,5 +658,41 @@
             "checkError": "Error checking client data",
             "deleteError": "Error deleting. Please try again."
         }
+    },
+    "agenda": {
+        "modal": {
+            "newTitle": "New Appointment",
+            "editTitle": "Edit Appointment",
+            "newSubtitle": "Schedule a service for a client",
+            "editSubtitle": "Modify booking details",
+            "client": "Client",
+            "clientPlaceholder": "Search existing client or type name...",
+            "clientRequired": "Client name is required",
+            "noName": "No name",
+            "locked": "locked",
+            "linked": "Linked",
+            "select": "Select",
+            "phone": "Phone",
+            "service": "Service",
+            "selectService": "Select service...",
+            "serviceRequired": "Please select a service",
+            "assignTeam": "Assign to team member",
+            "unassigned": "Unassigned",
+            "noTeam": "No team members configured",
+            "date": "Date",
+            "time": "Time",
+            "status": "Status",
+            "statusConfirmed": "Confirmed",
+            "statusPending": "Pending",
+            "statusCompleted": "Completed",
+            "statusCancelled": "Cancelled",
+            "statusNoShow": "No Show",
+            "notes": "Notes",
+            "notesPlaceholder": "Additional details...",
+            "cancel": "Cancel",
+            "saving": "Saving...",
+            "saveChanges": "Save Changes",
+            "create": "Create Appointment"
+        }
     }
 }
