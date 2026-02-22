@@ -14,7 +14,28 @@ import BusinessPreviewPanel from '@/components/admin/BusinessPreviewPanel';
 
 const BusinessMap = dynamic(() => import('@/components/admin/BusinessMap'), { ssr: false });
 
-// Legends are built inside component for translations
+// ── Honduras dept fallback coords (same logic as businessProfile.service) ──
+const HN_DEPT_COORDS: Record<string, [number, number]> = {
+    'atlantida': [15.7697, -86.7862], 'choluteca': [13.2999, -87.1919],
+    'colon': [15.8620, -86.0205], 'comayagua': [14.4532, -87.6376],
+    'copan': [14.8380, -89.1465], 'cortes': [15.5031, -88.0255],
+    'el paraiso': [13.7791, -86.3631], 'francisco morazan': [14.0899, -87.2021],
+    'gracias a dios': [15.9264, -84.5311], 'intibuca': [14.3154, -88.1769],
+    'islas de la bahia': [16.3350, -86.5291], 'la paz': [14.3200, -87.6738],
+    'lempira': [14.4338, -88.5727], 'ocotepeque': [14.4365, -89.1832],
+    'olancho': [14.7870, -86.2395], 'santa barbara': [14.9196, -88.2348],
+    'valle': [13.4441, -87.7311], 'yoro': [15.1400, -87.1259],
+};
+
+function getDeptCoords(dept?: string, country?: string): [number, number] | null {
+    if ((country || 'HN').toUpperCase() !== 'HN' || !dept) return null;
+    const key = dept.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const match = Object.entries(HN_DEPT_COORDS).find(([k]) =>
+        k.startsWith(key) || key.startsWith(k)
+    );
+    return match ? match[1] : null;
+}
+
 const COUNTRY_CENTER: Record<string, [number, number]> = {
     ALL: [14.5, -86.5], HN: [14.9, -87.2], GT: [15.5, -90.2], SV: [13.8, -89.2],
     MX: [23.6, -102.5], US: [37.1, -95.7], CO: [4.5, -74.3], BR: [-14.2, -51.9],
@@ -46,8 +67,9 @@ export default function AdminMapPage() {
     const [statusFilter, setStatusFilter] = useState('all');
     const [loading, setLoading] = useState(true);
     const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-    // Real-time listener
+    // ── Real-time Firestore listener — auto-refreshes on every change ──
     useEffect(() => {
         setLoading(true);
         const q = query(collection(db, 'businesses_public'), limit(500));
@@ -55,24 +77,35 @@ export default function AdminMapPage() {
             const pts: MapPoint[] = [];
             snap.docs.forEach((d) => {
                 const data = d.data();
-                const lat = data.location?.lat ?? data.lat;
-                const lng = data.location?.lng ?? data.lng;
-                if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
-                    pts.push({
-                        id: d.id,
-                        lat, lng,
-                        name: data.name ?? '—',
-                        city: data.city,
-                        country: data.country,
-                        plan: data.planData?.plan ?? 'free',
-                        category: data.category,
-                        status: data.status ?? 'active',
-                        suspended: data.suspended === true,
-                        coverImage: data.coverImage,
-                    });
+                let lat = data.location?.lat ?? data.lat;
+                let lng = data.location?.lng ?? data.lng;
+
+                // Fallback to department/country coords when location is missing or zero
+                if (!lat || !lng || lat === 0 || lng === 0) {
+                    const fb = getDeptCoords(data.department, data.country);
+                    if (fb) {
+                        [lat, lng] = fb;
+                    } else {
+                        const cc = (data.country || 'HN').toUpperCase();
+                        [lat, lng] = COUNTRY_CENTER[cc] ?? COUNTRY_CENTER.ALL;
+                    }
                 }
+
+                pts.push({
+                    id: d.id,
+                    lat, lng,
+                    name: data.name ?? '—',
+                    city: data.city,
+                    country: data.country,
+                    plan: data.planData?.plan ?? 'free',
+                    category: data.category,
+                    status: data.status ?? 'active',
+                    suspended: data.suspended === true,
+                    coverImage: data.coverImage,
+                });
             });
             setAllPoints(pts);
+            setLastUpdated(new Date());
             setLoading(false);
         }, () => {
             toast.error('Error cargando mapa');
@@ -112,11 +145,22 @@ export default function AdminMapPage() {
                 <div className="flex flex-wrap items-center gap-3">
                     <div>
                         <h1 className="text-lg font-bold text-white flex items-center gap-2">
-                            <Map size={20} className="text-brand-neon-cyan" /> {t('title')}
+                            <Map size={20} className="text-brand-neon-cyan" />
+                            {t('title')}
+                            {/* Live indicator */}
+                            <span className="flex items-center gap-1.5 text-[10px] font-normal text-green-400 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded-full">
+                                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                                En vivo
+                            </span>
                         </h1>
                         <p className="text-[11px] text-slate-500">
                             {filtered.length} de {base.length} {t('businesses')}
                             {selectedCountry !== 'ALL' && ` · ${selectedCountry}`}
+                            {lastUpdated && (
+                                <span className="ml-2 text-slate-600">
+                                    · Actualizado {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                </span>
+                            )}
                             {selectedId && <span className="ml-2 text-brand-neon-cyan">· {t('panelOpen')}</span>}
                         </p>
                     </div>
@@ -130,7 +174,10 @@ export default function AdminMapPage() {
                             { key: 'pending', label: t('pending'), count: pendingCount, dot: '#f59e0b' },
                         ].map(f => (
                             <button key={f.key} onClick={() => setStatusFilter(f.key)}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all border ${statusFilter === f.key ? 'border-white/20 bg-white/10 text-white' : 'bg-white/3 border-white/8 text-slate-400 hover:text-white'}`}>
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all border ${statusFilter === f.key
+                                        ? 'border-white/20 bg-white/10 text-white'
+                                        : 'bg-white/3 border-white/8 text-slate-400 hover:text-white'
+                                    }`}>
                                 {f.dot && <span className="w-2 h-2 rounded-full" style={{ background: f.dot }} />}
                                 {f.label}
                                 <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${f.count > 0 ? 'bg-white/10 text-white' : 'bg-white/5 text-slate-600'}`}>
@@ -143,7 +190,9 @@ export default function AdminMapPage() {
                     {/* ColorBy toggle */}
                     <button onClick={() => setColorBy(c => c === 'status' ? 'plan' : 'status')}
                         className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-xs text-slate-300 transition-colors">
-                        {colorBy === 'status' ? <ToggleRight size={14} className="text-brand-neon-cyan" /> : <ToggleLeft size={14} />}
+                        {colorBy === 'status'
+                            ? <ToggleRight size={14} className="text-brand-neon-cyan" />
+                            : <ToggleLeft size={14} />}
                         {t('colorBy')}: <strong className="text-white">{colorBy === 'status' ? t('colorByStatus') : t('colorByPlan')}</strong>
                     </button>
                 </div>
@@ -192,7 +241,6 @@ export default function AdminMapPage() {
                 </div>
             </div>
 
-            {/* Business Preview Panel (full screen overlay, phone frame) */}
             <BusinessPreviewPanel
                 businessId={selectedId}
                 onClose={() => setSelectedId(null)}
