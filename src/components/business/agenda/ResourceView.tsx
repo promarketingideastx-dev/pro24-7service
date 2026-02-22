@@ -5,6 +5,7 @@ import { getTimeSlots, SLOT_HEIGHT, getTopOffset, TOTAL_HEIGHT } from './TimeGri
 import { Appointment } from '@/services/appointment.service';
 import AppointmentItem from './AppointmentItem';
 import { format, isSameDay } from 'date-fns';
+import { useTranslations } from 'next-intl';
 
 interface ResourceViewProps {
     date: Date;
@@ -16,6 +17,7 @@ interface ResourceViewProps {
 
 export default function ResourceView({ date, appointments, onAppointmentClick, onSlotClick, timeFormat = '12h' }: ResourceViewProps) {
     const { user } = useAuth();
+    const t = useTranslations('business.agenda');
     const [employees, setEmployees] = useState<EmployeeData[]>([]);
     const [loading, setLoading] = useState(true);
     const timeSlots = getTimeSlots(timeFormat);
@@ -36,14 +38,14 @@ export default function ResourceView({ date, appointments, onAppointmentClick, o
     }, [user]);
 
     if (loading) {
-        return <div className="flex items-center justify-center h-full text-slate-500">Cargando equipo...</div>;
+        return <div className="flex items-center justify-center h-full text-slate-500">{t('loadingTeam')}</div>;
     }
 
     if (employees.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center h-full text-slate-500">
-                <p>No tienes empleados activos.</p>
-                <p className="text-xs">Agrega miembros en la sección de Equipo.</p>
+                <p>{t('noEmployees')}</p>
+                <p className="text-xs">{t('addMembersHint')}</p>
             </div>
         );
     }
@@ -55,13 +57,13 @@ export default function ResourceView({ date, appointments, onAppointmentClick, o
                 <div className="w-16 flex-shrink-0 border-r border-white/10" />
                 {/* Unassigned Column */}
                 <div className="flex-1 flex flex-col items-center justify-center py-3 border-r border-white/10 min-w-[150px] bg-red-500/5">
-                    <div className="text-sm font-bold text-red-400 truncate px-2">Sin Asignar</div>
-                    <div className="text-[10px] text-red-400/60 truncate px-2">Pendientes</div>
+                    <div className="text-sm font-bold text-red-400 truncate px-2">{t('unassigned')}</div>
+                    <div className="text-[10px] text-red-400/60 truncate px-2">{t('pending')}</div>
                 </div>
                 {employees.map((emp) => (
                     <div key={emp.id} className="flex-1 flex flex-col items-center justify-center py-3 border-r border-white/10 last:border-r-0 min-w-[150px]">
                         <div className="text-sm font-bold text-white truncate px-2">{emp.name}</div>
-                        <div className="text-[10px] text-slate-400 truncate px-2">{emp.role || 'Staff'}</div>
+                        <div className="text-[10px] text-slate-400 truncate px-2">{emp.role || t('staffDefault')}</div>
                     </div>
                 ))}
             </div>

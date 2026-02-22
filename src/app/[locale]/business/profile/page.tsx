@@ -566,6 +566,7 @@ export default function BusinessProfilePage() {
 
                                             return availableSpecialties.map(spec => {
                                                 const specKey = spec.es;
+                                                const specLabel = spec[localeKey as keyof typeof spec] ?? spec.es;
                                                 const isSelected = formData.specialties?.includes(specKey);
                                                 return (
                                                     <button
@@ -589,7 +590,7 @@ export default function BusinessProfilePage() {
                                                         `}
                                                     >
                                                         {isSelected && <Check size={10} />}
-                                                        {spec}
+                                                        {specLabel}
                                                     </button>
                                                 );
                                             });

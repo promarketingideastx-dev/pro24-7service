@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { EmployeeService, EmployeeData } from '@/services/employee.service';
 import { Users } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface TeamTabProps {
     businessId: string;
@@ -36,6 +37,7 @@ function AvatarCircle({ emp }: { emp: EmployeeData }) {
 }
 
 export default function TeamTab({ businessId }: TeamTabProps) {
+    const t = useTranslations('business');
     const [members, setMembers] = useState<EmployeeData[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -59,28 +61,33 @@ export default function TeamTab({ businessId }: TeamTabProps) {
                 <div className="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center text-slate-500">
                     <Users size={28} />
                 </div>
-                <p className="text-slate-400 text-sm">Este negocio aún no tiene miembros del equipo registrados.</p>
+                <p className="text-slate-400 text-sm">{t('publicProfile.noTeamMembers')}</p>
             </div>
         );
     }
 
+    // Map stable roleType ids to translation keys
+    const ROLE_KEY_MAP: Record<string, string> = {
+        manager: 'team.roleManager',
+        reception: 'team.roleReception',
+        customer_service: 'team.roleCustomerService',
+        sales_marketing: 'team.roleSales',
+        technician: 'team.roleTechnician',
+        assistant: 'team.roleAssistant',
+        other: 'team.roleOther',
+    };
+
     return (
         <div className="px-4 py-6">
             <h3 className="text-sm font-semibold text-slate-400 uppercase mb-5 tracking-wider">
-                Nuestro Equipo
+                {t('publicProfile.ourTeam')}
             </h3>
             <div className="grid grid-cols-2 gap-5 sm:grid-cols-3">
                 {members.map(emp => {
+                    // For 'other': use the custom text if set, otherwise fall back to translated 'Other'
                     const roleLabel = emp.roleType === 'other'
-                        ? emp.roleCustom || 'Equipo'
-                        : {
-                            manager: 'Manager',
-                            reception: 'Recepción',
-                            customer_service: 'Servicio al Cliente',
-                            sales_marketing: 'Ventas / Marketing',
-                            technician: 'Especialista',
-                            assistant: 'Asistente',
-                        }[emp.roleType] ?? 'Equipo';
+                        ? emp.roleCustom || t('team.roleOther')
+                        : t(ROLE_KEY_MAP[emp.roleType] ?? 'agenda.staffDefault');
 
                     return (
                         <div

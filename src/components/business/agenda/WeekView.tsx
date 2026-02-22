@@ -1,5 +1,6 @@
 import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { es, enUS, ptBR } from 'date-fns/locale';
+import { useLocale } from 'next-intl';
 import { getTimeSlots, SLOT_HEIGHT, getTopOffset, TOTAL_HEIGHT } from './TimeGridHelpers';
 import { Appointment } from '@/services/appointment.service';
 import AppointmentItem from './AppointmentItem';
@@ -13,6 +14,8 @@ interface WeekViewProps {
 }
 
 export default function WeekView({ date, appointments, onAppointmentClick, onSlotClick, timeFormat = '12h' }: WeekViewProps) {
+    const locale = useLocale();
+    const dateFnsLocale = locale.startsWith('pt') ? ptBR : locale.startsWith('en') ? enUS : es;
     const startDate = startOfWeek(date, { weekStartsOn: 1 });
     const weekDays = Array.from({ length: 7 }, (_, i) => addDays(startDate, i));
     const timeSlots = getTimeSlots(timeFormat);
@@ -24,7 +27,7 @@ export default function WeekView({ date, appointments, onAppointmentClick, onSlo
                 <div className="w-16 flex-shrink-0 border-r border-white/10" />
                 {weekDays.map((day, i) => (
                     <div key={i} className="flex-1 flex flex-col items-center justify-center py-2 border-r border-white/10 last:border-r-0">
-                        <span className="text-xs text-slate-400 uppercase">{format(day, 'EEE', { locale: es })}</span>
+                        <span className="text-xs text-slate-400 uppercase">{format(day, 'EEE', { locale: dateFnsLocale })}</span>
                         <div className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold mt-1 ${format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
                             ? 'bg-brand-neon-cyan text-black'
                             : 'text-white'

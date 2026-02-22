@@ -454,7 +454,12 @@
             "completed": "Completed",
             "cancelled": "Cancelled",
             "accept": "Accept",
-            "reject": "Reject"
+            "reject": "Reject",
+            "loadingTeam": "Loading team...",
+            "noEmployees": "You have no active team members.",
+            "addMembersHint": "Add members in the Team section.",
+            "unassigned": "Unassigned",
+            "staffDefault": "Staff"
         },
         "publicProfile": {
             "tabServices": "Services",
@@ -495,7 +500,9 @@
             "recent": "Recent",
             "loginToReview": "You must be logged in to write a review",
             "reviewPublished": "Review published ✨",
-            "favError": "Error saving favorite"
+            "favError": "Error saving favorite",
+            "ourTeam": "Our Team",
+            "noTeamMembers": "This business has no team members registered yet."
         },
         "profile": {
             "title": "Edit Business Profile",
@@ -548,7 +555,32 @@
             "maxAreas": "Maximum 2 additional areas allowed.",
             "badgePrimary": "Primary",
             "badgeAdditional": "Additional",
-            "noOptions": "No additional options available."
+            "noOptions": "No additional options available.",
+            "portfolioLoadError": "Error loading portfolio",
+            "portfolioAdded": "Photo added to portfolio",
+            "portfolioSaveError": "Error saving. Please try again.",
+            "portfolioDeleteTitle": "Delete this photo?",
+            "portfolioDeleteBody": "This action cannot be undone.",
+            "portfolioDeleteConfirm": "Delete",
+            "portfolioDeleteCancel": "Cancel",
+            "portfolioDeleted": "Photo deleted",
+            "coverUpdated": "Cover photo updated",
+            "logoUpdated": "Logo updated",
+            "loadingPortfolio": "Loading portfolio...",
+            "galleryAndWork": "Gallery & Work",
+            "addPhoto": "Add Photo",
+            "newPost": "New Post",
+            "uploadImage": "Upload an image",
+            "uploadHint": "JPG, PNG (Max 5MB)",
+            "titleOptional": "Title (Optional)",
+            "titlePlaceholder": "E.g.: Final Result",
+            "descHistory": "Description / Story",
+            "descPlaceholder": "Describe the service details or the result obtained...",
+            "publishPhoto": "Publish Photo",
+            "noPhotosYet": "You haven't uploaded any photos to your portfolio yet.",
+            "setAsCover": "Set as Cover",
+            "setAsLogo": "Set as Logo",
+            "noDescription": "No description"
         },
         "payments": {
             "title": "Payment Settings",

@@ -453,7 +453,12 @@
             "completed": "Concluída",
             "cancelled": "Cancelada",
             "accept": "Aceitar",
-            "reject": "Recusar"
+            "reject": "Recusar",
+            "loadingTeam": "Carregando equipe...",
+            "noEmployees": "Você não tem membros de equipe ativos.",
+            "addMembersHint": "Adicione membros na seção de Equipe.",
+            "unassigned": "Sem Atribuição",
+            "staffDefault": "Equipe"
         },
         "publicProfile": {
             "tabServices": "Serviços",
@@ -494,7 +499,9 @@
             "recent": "Recente",
             "loginToReview": "Você precisa estar logado para escrever uma avaliação",
             "reviewPublished": "Avaliação publicada ✨",
-            "favError": "Erro ao salvar favorito"
+            "favError": "Erro ao salvar favorito",
+            "ourTeam": "Nossa Equipe",
+            "noTeamMembers": "Este negócio ainda não tem membros de equipe cadastrados."
         },
         "profile": {
             "title": "Editar Perfil do Negócio",
@@ -547,7 +554,32 @@
             "maxAreas": "Máximo 2 áreas adicionais permitidas.",
             "badgePrimary": "Principal",
             "badgeAdditional": "Adicional",
-            "noOptions": "Sem opções adicionais disponíveis."
+            "noOptions": "Sem opções adicionais disponíveis.",
+            "portfolioLoadError": "Erro ao carregar portfólio",
+            "portfolioAdded": "Foto adicionada ao portfólio",
+            "portfolioSaveError": "Erro ao salvar. Tente novamente.",
+            "portfolioDeleteTitle": "Excluir esta foto?",
+            "portfolioDeleteBody": "Esta ação não pode ser desfeita.",
+            "portfolioDeleteConfirm": "Excluir",
+            "portfolioDeleteCancel": "Cancelar",
+            "portfolioDeleted": "Foto excluída",
+            "coverUpdated": "Foto de capa atualizada",
+            "logoUpdated": "Logo atualizado",
+            "loadingPortfolio": "Carregando portfólio...",
+            "galleryAndWork": "Galeria e Trabalhos",
+            "addPhoto": "Adicionar Foto",
+            "newPost": "Nova Publicação",
+            "uploadImage": "Envie uma imagem",
+            "uploadHint": "JPG, PNG (Máx 5MB)",
+            "titleOptional": "Título (Opcional)",
+            "titlePlaceholder": "Ex: Resultado Final",
+            "descHistory": "Descrição / História",
+            "descPlaceholder": "Descreva os detalhes do serviço ou o resultado obtido...",
+            "publishPhoto": "Publicar Foto",
+            "noPhotosYet": "Você ainda não enviou fotos para o seu portfólio.",
+            "setAsCover": "Usar como Capa",
+            "setAsLogo": "Usar como Logo",
+            "noDescription": "Sem descrição"
         },
         "payments": {
             "title": "Configurações de Pagamento",

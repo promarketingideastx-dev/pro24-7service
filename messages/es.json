@@ -444,13 +444,21 @@
         "agenda": {
             "title": "Agenda",
             "today": "Hoy",
+            "viewDay": "Día",
+            "viewWeek": "Semana",
+            "viewTeam": "Equipo",
             "noAppts": "Sin citas este día.",
             "pending": "Pendiente",
             "confirmed": "Confirmada",
             "completed": "Completada",
             "cancelled": "Cancelada",
             "accept": "Aceptar",
-            "reject": "Rechazar"
+            "reject": "Rechazar",
+            "loadingTeam": "Cargando equipo...",
+            "noEmployees": "No tienes empleados activos.",
+            "addMembersHint": "Agrega miembros en la sección de Equipo.",
+            "unassigned": "Sin Asignar",
+            "staffDefault": "Staff"
         },
         "publicProfile": {
             "tabServices": "Servicios",
@@ -491,7 +499,9 @@
             "recent": "Reciente",
             "loginToReview": "Debes iniciar sesión para escribir una reseña",
             "reviewPublished": "Reseña publicada ✨",
-            "favError": "Error al guardar favorito"
+            "favError": "Error al guardar favorito",
+            "ourTeam": "Nuestro Equipo",
+            "noTeamMembers": "Este negocio aún no tiene miembros del equipo registrados."
         },
         "profile": {
             "title": "Editar Perfil de Negocio",
@@ -544,7 +554,32 @@
             "maxAreas": "Máximo 2 áreas adicionales permitidas.",
             "badgePrimary": "Principal",
             "badgeAdditional": "Adicional",
-            "noOptions": "No hay opciones adicionales."
+            "noOptions": "No hay opciones adicionales.",
+            "portfolioLoadError": "Error al cargar portafolio",
+            "portfolioAdded": "Foto añadida al portafolio",
+            "portfolioSaveError": "Error al guardar. Intenta de nuevo.",
+            "portfolioDeleteTitle": "¿Eliminar esta foto?",
+            "portfolioDeleteBody": "Esta acción no se puede deshacer.",
+            "portfolioDeleteConfirm": "Eliminar",
+            "portfolioDeleteCancel": "Cancelar",
+            "portfolioDeleted": "Foto eliminada",
+            "coverUpdated": "Portada actualizada",
+            "logoUpdated": "Logo actualizado",
+            "loadingPortfolio": "Cargando portafolio...",
+            "galleryAndWork": "Galería y Trabajos",
+            "addPhoto": "Agregar Foto",
+            "newPost": "Nueva Publicación",
+            "uploadImage": "Sube una imagen",
+            "uploadHint": "JPG, PNG (Máx 5MB)",
+            "titleOptional": "Título (Opcional)",
+            "titlePlaceholder": "Ej: Resultado Final",
+            "descHistory": "Descripción / Historia",
+            "descPlaceholder": "Describe los detalles del servicio o el resultado obtenido...",
+            "publishPhoto": "Publicar Foto",
+            "noPhotosYet": "Aún no has subido fotos a tu portafolio.",
+            "setAsCover": "Usar como Portada",
+            "setAsLogo": "Usar como Logo",
+            "noDescription": "Sin descripción"
         },
         "payments": {
             "title": "Configuración de Pagos",
