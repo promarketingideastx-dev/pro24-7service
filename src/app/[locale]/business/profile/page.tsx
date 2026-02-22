@@ -370,32 +370,55 @@ export default function BusinessProfilePage() {
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
+                                    <label className="block text-slate-400 text-xs uppercase mb-1">{t('country')}</label>
+                                    <select
+                                        value={formData.country || 'HN'}
+                                        onChange={e => setFormData({ ...formData, country: e.target.value })}
+                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                    >
+                                        <option value="HN">Honduras 🇭🇳</option>
+                                        <option value="SV">El Salvador 🇸🇻</option>
+                                        <option value="GT">Guatemala 🇬🇹</option>
+                                        <option value="MX">México 🇲🇽</option>
+                                        <option value="US">United States 🇺🇸</option>
+                                        <option value="CR">Costa Rica 🇨🇷</option>
+                                        <option value="PA">Panamá 🇵🇦</option>
+                                        <option value="CO">Colombia 🇨🇴</option>
+                                        <option value="BR">Brasil 🇧🇷</option>
+                                    </select>
+                                </div>
+                                <div>
                                     <label className="block text-slate-400 text-xs uppercase mb-1">{t('department')}</label>
                                     <input
                                         type="text"
                                         value={formData.department || ''}
-                                        readOnly
-                                        className="w-full bg-white/5 border border-white/5 rounded-lg px-4 py-2 text-slate-400 cursor-not-allowed"
+                                        onChange={e => setFormData({ ...formData, department: e.target.value })}
+                                        placeholder="Ej: Cortés"
+                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
                                     />
                                 </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-slate-400 text-xs uppercase mb-1">{t('city')}</label>
                                     <input
                                         type="text"
                                         value={formData.city || ''}
-                                        onChange={e => setFormData({ ...formData, city: e.target.value })} // Allow fix if needed, but usually linked to region
+                                        onChange={e => setFormData({ ...formData, city: e.target.value })}
+                                        placeholder="Ej: San Pedro Sula"
                                         className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
                                     />
                                 </div>
-                            </div>
-                            <div>
-                                <label className="block text-slate-400 text-xs uppercase mb-1">{t('address')}</label>
-                                <input
-                                    type="text"
-                                    value={formData.address || ''}
-                                    onChange={e => setFormData({ ...formData, address: e.target.value })}
-                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
-                                />
+                                <div>
+                                    <label className="block text-slate-400 text-xs uppercase mb-1">{t('address')}</label>
+                                    <input
+                                        type="text"
+                                        value={formData.address || ''}
+                                        onChange={e => setFormData({ ...formData, address: e.target.value })}
+                                        placeholder="Ej: Col. Trejo, Blvd. Morazán"
+                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </GlassPanel>

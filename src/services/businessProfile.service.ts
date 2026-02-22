@@ -584,6 +584,7 @@ export const BusinessProfileService = {
         if (data.specialties) publicUpdate.tags = data.specialties;
         if (data.city) publicUpdate.city = data.city;
         if (data.department) publicUpdate.department = data.department;
+        if (data.country) publicUpdate.country = data.country;
         if (data.modality) publicUpdate.modality = data.modality;
         if (data.description) {
             publicUpdate.shortDescription = data.description.substring(0, 150);
