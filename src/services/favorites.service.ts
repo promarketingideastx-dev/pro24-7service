@@ -36,13 +36,29 @@ export const FavoritesService = {
         userInfo: { name?: string; email?: string },
         business: { id: string; name: string; category?: string; city?: string; logoUrl?: string }
     ): Promise<boolean> {
-        // User's own favorites — user always has write access here
+        if (!userId || !business?.id) {
+            console.error('[FavoritesService.toggle] Missing userId or business.id', { userId, businessId: business?.id });
+            throw new Error('Missing userId or business.id');
+        }
+
         const favRef = doc(db, `users/${userId}/favorites/${business.id}`);
-        const existing = await getDoc(favRef);
+
+        let existing;
+        try {
+            existing = await getDoc(favRef);
+        } catch (err) {
+            console.error('[FavoritesService.toggle] getDoc failed:', err);
+            throw err;
+        }
 
         if (existing.exists()) {
             // Remove favorite
-            await deleteDoc(favRef);
+            try {
+                await deleteDoc(favRef);
+            } catch (err) {
+                console.error('[FavoritesService.toggle] deleteDoc favRef failed:', err);
+                throw err;
+            }
             // Try to remove lead (fail silently)
             try {
                 await deleteDoc(doc(db, `businessLeads/${business.id}_${userId}`));
@@ -58,7 +74,12 @@ export const FavoritesService = {
                 businessLogoUrl: business.logoUrl,
                 savedAt: serverTimestamp(),
             };
-            await setDoc(favRef, favData);
+            try {
+                await setDoc(favRef, favData);
+            } catch (err) {
+                console.error('[FavoritesService.toggle] setDoc favRef failed:', err);
+                throw err;
+            }
 
             // Try to write a lead record (fail silently — non-critical)
             try {
