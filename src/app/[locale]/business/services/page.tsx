@@ -373,37 +373,39 @@ export default function ServicesPage() {
                                     </div>
                                     {/* Custom H:M picker */}
                                     {useCustomDuration && (
-                                        <div className="mt-2 flex items-center gap-2 bg-[#0B0F19] border border-brand-neon-cyan/30 rounded-xl px-4 py-3 animate-in fade-in slide-in-from-top-1 duration-150">
-                                            <Clock size={14} className="text-brand-neon-cyan shrink-0" />
-                                            <div className="flex items-center gap-2 flex-1">
-                                                <div className="flex flex-col items-center">
-                                                    <span className="text-[10px] text-slate-500 mb-1">{t('hours')}</span>
-                                                    <input
-                                                        type="number"
-                                                        min={0}
-                                                        max={23}
-                                                        value={customHours}
-                                                        onChange={e => setCustomHours(Math.min(23, Math.max(0, Number(e.target.value))))}
-                                                        className="w-16 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-white text-center text-sm focus:border-brand-neon-cyan focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                    />
-                                                </div>
-                                                <span className="text-slate-400 font-bold mt-4">:</span>
-                                                <div className="flex flex-col items-center">
-                                                    <span className="text-[10px] text-slate-500 mb-1">{t('minutes')}</span>
-                                                    <input
-                                                        type="number"
-                                                        min={0}
-                                                        max={59}
-                                                        step={5}
-                                                        value={customMins}
-                                                        onChange={e => setCustomMins(Math.min(59, Math.max(0, Number(e.target.value))))}
-                                                        className="w-16 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-white text-center text-sm focus:border-brand-neon-cyan focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                    />
+                                        <div className="mt-2 bg-[#0B0F19] border border-brand-neon-cyan/30 rounded-xl px-4 py-3 animate-in fade-in slide-in-from-top-1 duration-150">
+                                            <div className="flex items-center gap-2">
+                                                <Clock size={14} className="text-brand-neon-cyan shrink-0" />
+                                                <div className="flex items-center gap-2">
+                                                    <div className="flex flex-col items-center">
+                                                        <span className="text-[10px] text-slate-500 mb-1">{t('hours')}</span>
+                                                        <input
+                                                            type="number"
+                                                            min={0}
+                                                            max={23}
+                                                            value={customHours}
+                                                            onChange={e => setCustomHours(Math.min(23, Math.max(0, Number(e.target.value))))}
+                                                            className="w-14 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-white text-center text-sm focus:border-brand-neon-cyan focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                        />
+                                                    </div>
+                                                    <span className="text-slate-400 font-bold mt-4">:</span>
+                                                    <div className="flex flex-col items-center">
+                                                        <span className="text-[10px] text-slate-500 mb-1">{t('minutes')}</span>
+                                                        <input
+                                                            type="number"
+                                                            min={0}
+                                                            max={59}
+                                                            step={5}
+                                                            value={customMins}
+                                                            onChange={e => setCustomMins(Math.min(59, Math.max(0, Number(e.target.value))))}
+                                                            className="w-14 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-white text-center text-sm focus:border-brand-neon-cyan focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <span className="text-brand-neon-cyan text-sm font-bold shrink-0">
+                                            <p className="text-brand-neon-cyan text-xs font-bold mt-2 pl-5">
                                                 = {formatDuration(customHours * 60 + customMins)}
-                                            </span>
+                                            </p>
                                         </div>
                                     )}
                                 </div>
