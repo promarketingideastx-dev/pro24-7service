@@ -19,13 +19,15 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import PortfolioManager from '@/components/business/profile/PortfolioManager';
 import { useTranslations, useLocale } from 'next-intl';
+import { useCountry } from '@/context/CountryContext';
 
 export default function BusinessProfilePage() {
-    const { user, userProfile } = useAuth(); // Assuming userProfile has businessProfileId
+    const { user, userProfile } = useAuth();
     const router = useRouter();
     const t = useTranslations('business.profile');
     const locale = useLocale();
     const localeKey = locale === 'en' ? 'en' : locale === 'pt-BR' ? 'pt' : 'es';
+    const { selectedCountry } = useCountry();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [uploadingImage, setUploadingImage] = useState<'cover' | 'logo' | null>(null);
@@ -55,9 +57,13 @@ export default function BusinessProfilePage() {
                 // Since BusinessProfileService doesn't have a direct "get" exposed in previous context,
                 // we might need to rely on the fact that the ID is the UserID (as per our recent fix).
 
-                const profileDoc = await BusinessProfileService.getProfile(user.uid); // Need to implement this or use existing pattern
+                const profileDoc = await BusinessProfileService.getProfile(user.uid);
                 if (profileDoc) {
-                    setFormData(profileDoc);
+                    // If the profile has no country stored, fall back to the active CountryContext
+                    setFormData({
+                        ...profileDoc,
+                        country: profileDoc.country || selectedCountry?.code || 'HN',
+                    });
                 }
             } catch (error) {
                 console.error("Error loading profile", error);
