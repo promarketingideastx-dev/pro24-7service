@@ -142,7 +142,7 @@ export default function ServicesPage() {
             setIsModalOpen(false);
             fetchServices();
         } catch (error) {
-            toast.error('Error al guardar servicio');
+            toast.error(t('saveError'));
         } finally {
             setIsSubmitting(false);
         }
@@ -157,7 +157,7 @@ export default function ServicesPage() {
             toast.success(t('deleted'));
             fetchServices();
         } catch {
-            toast.error('Error al eliminar servicio');
+            toast.error(t('deleteError'));
         }
     };
 
@@ -217,6 +217,8 @@ export default function ServicesPage() {
                                         service={service}
                                         onEdit={() => openModal(service)}
                                         onDelete={() => setServiceToDelete(service.id!)}
+                                        extraLabel={t('extraServiceBadge')}
+                                        noDescLabel={t('noDescription')}
                                     />
                                 ))}
                             </div>
@@ -237,6 +239,8 @@ export default function ServicesPage() {
                                         service={service}
                                         onEdit={() => openModal(service)}
                                         onDelete={() => setServiceToDelete(service.id!)}
+                                        extraLabel={t('extraServiceBadge')}
+                                        noDescLabel={t('noDescription')}
                                     />
                                 ))}
                             </div>
@@ -270,7 +274,7 @@ export default function ServicesPage() {
                             {businessSpecialties.length > 0 && !editingId && (
                                 <div>
                                     <label className="block text-xs font-semibold text-slate-400 uppercase mb-2 flex items-center gap-1.5">
-                                        <Sparkles size={12} /> Especialidades de tu negocio
+                                        <Sparkles size={12} /> {t('yourSpecialties')}
                                     </label>
                                     <div className="flex flex-wrap gap-2">
                                         {businessSpecialties.map(spec => (
@@ -293,14 +297,14 @@ export default function ServicesPage() {
                                             </button>
                                         ))}
                                     </div>
-                                    <p className="text-xs text-slate-600 mt-1.5">Toca uno para usar como nombre base del servicio</p>
+                                    <p className="text-xs text-slate-600 mt-1.5">{t('tapToUseName')}</p>
                                 </div>
                             )}
 
                             {/* Name */}
                             <div>
                                 <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">
-                                    Nombre del Servicio *
+                                    {t('serviceName')} *
                                 </label>
                                 <input
                                     type="text"
@@ -308,25 +312,25 @@ export default function ServicesPage() {
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     className="w-full bg-[#0B0F19] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none transition-colors placeholder:text-slate-600"
-                                    placeholder="Ej. Corte Regular, Consulta, Diseño de Logo…"
+                                    placeholder={t('serviceNamePlaceholder')}
                                 />
                             </div>
 
                             {/* Description */}
                             <div>
-                                <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Descripción</label>
+                                <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">{t('description')}</label>
                                 <textarea
                                     value={formData.description}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
                                     className="w-full bg-[#0B0F19] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none resize-none h-20 placeholder:text-slate-600 transition-colors"
-                                    placeholder="Detalles adicionales del servicio…"
+                                    placeholder={t('descriptionPlaceholder')}
                                 />
                             </div>
 
                             {/* Price + Duration row */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Precio *</label>
+                                    <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">{t('price')} *</label>
                                     <div className="relative">
                                         <span className="absolute left-3 top-3.5 text-slate-500 text-sm font-medium">{formData.currency}</span>
                                         <input
@@ -343,7 +347,7 @@ export default function ServicesPage() {
                                 </div>
                                 <div>
                                     <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5 flex items-center gap-1">
-                                        <Clock size={11} /> Duración *
+                                        <Clock size={11} /> {t('duration')} *
                                     </label>
                                     {/* Predefined + "Otro" selector */}
                                     <div className="relative">
@@ -363,7 +367,7 @@ export default function ServicesPage() {
                                             {DURATION_OPTIONS.map(d => (
                                                 <option key={d} value={d}>{formatDuration(d)}</option>
                                             ))}
-                                            <option value={CUSTOM_VALUE}>Otro...</option>
+                                            <option value={CUSTOM_VALUE}>{t('other')}</option>
                                         </select>
                                         <ChevronDown size={14} className="absolute right-3 top-4 text-slate-500 pointer-events-none" />
                                     </div>
@@ -373,7 +377,7 @@ export default function ServicesPage() {
                                             <Clock size={14} className="text-brand-neon-cyan shrink-0" />
                                             <div className="flex items-center gap-2 flex-1">
                                                 <div className="flex flex-col items-center">
-                                                    <span className="text-[10px] text-slate-500 mb-1">Horas</span>
+                                                    <span className="text-[10px] text-slate-500 mb-1">{t('hours')}</span>
                                                     <input
                                                         type="number"
                                                         min={0}
@@ -385,7 +389,7 @@ export default function ServicesPage() {
                                                 </div>
                                                 <span className="text-slate-400 font-bold mt-4">:</span>
                                                 <div className="flex flex-col items-center">
-                                                    <span className="text-[10px] text-slate-500 mb-1">Minutos</span>
+                                                    <span className="text-[10px] text-slate-500 mb-1">{t('minutes')}</span>
                                                     <input
                                                         type="number"
                                                         min={0}
@@ -420,10 +424,10 @@ export default function ServicesPage() {
                                 <div>
                                     <p className={`text-sm font-semibold ${formData.isExtra ? 'text-amber-300' : 'text-slate-300'}`}>
                                         <Zap size={13} className="inline mr-1" />
-                                        Servicio Extra
+                                        {t('extraService')}
                                     </p>
                                     <p className="text-xs text-slate-500 mt-0.5">
-                                        Se ofrecerá como complemento al reservar una cita
+                                        {t('extraServiceDesc')}
                                     </p>
                                 </div>
                             </div>
@@ -472,10 +476,12 @@ export default function ServicesPage() {
 }
 
 /* ── Service Card Component ── */
-function ServiceCard({ service, onEdit, onDelete }: {
+function ServiceCard({ service, onEdit, onDelete, extraLabel, noDescLabel }: {
     service: ServiceData;
     onEdit: () => void;
     onDelete: () => void;
+    extraLabel?: string;
+    noDescLabel?: string;
 }) {
     return (
         <GlassPanel className={`p-5 flex flex-col group relative overflow-visible transition-all hover:border-brand-neon-cyan/25
@@ -493,7 +499,7 @@ function ServiceCard({ service, onEdit, onDelete }: {
             {/* Extra badge */}
             {service.isExtra && (
                 <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full mb-2 w-fit">
-                    <Zap size={9} /> SERVICIO EXTRA
+                    <Zap size={9} /> {extraLabel || 'EXTRA'}
                 </span>
             )}
 
@@ -503,7 +509,7 @@ function ServiceCard({ service, onEdit, onDelete }: {
             )}
 
             <p className="text-slate-400 text-sm mb-4 line-clamp-2 min-h-[40px] flex-1">
-                {service.description || 'Sin descripción'}
+                {service.description || noDescLabel || '—'}
             </p>
 
             <div className="mt-auto pt-3 border-t border-white/5 flex items-center justify-between">
