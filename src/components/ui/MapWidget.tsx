@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { useTranslations } from 'next-intl';
 import { BusinessMock } from '@/data/mockBusinesses';
 import { COUNTRIES, CountryCode } from '@/lib/locations';
 
@@ -88,6 +89,7 @@ export default function MapWidget({
 }: MapWidgetProps) {
     const [isMounted, setIsMounted] = useState(false);
     const markerRefs = useRef<{ [key: string]: L.Marker | null }>({});
+    const t = useTranslations('map');
 
     // Bounds & Clamping Logic
     const activeCountry = countryCode ? COUNTRIES[countryCode as CountryCode] : null;
@@ -117,7 +119,7 @@ export default function MapWidget({
         setIsMounted(true);
     }, []);
 
-    if (!isMounted) return <div className="h-64 w-full bg-slate-900 rounded-3xl animate-pulse flex items-center justify-center text-slate-500">Cargando Mapa...</div>;
+    if (!isMounted) return <div className="h-64 w-full bg-slate-900 rounded-3xl animate-pulse flex items-center justify-center text-slate-500">{t('loading')}</div>;
 
     const startZoom = countryCoordinates ? Math.max(2, countryCoordinates.zoom - 2) : 11;
     const defaultPosition: [number, number] = countryCoordinates ? [countryCoordinates.lat, countryCoordinates.lng] : [15.50417, -88.02500];
@@ -180,7 +182,7 @@ export default function MapWidget({
                                             : 'bg-brand-neon-cyan/10 text-brand-dark-blue hover:bg-brand-neon-cyan/20 border border-brand-neon-cyan/20'}
                                 `}
                                 >
-                                    {isAuthenticated ? 'Ver Perfil' : 'Ver'}
+                                    {isAuthenticated ? t('viewProfile') : t('view')}
                                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
                                 </button>
                             </div>

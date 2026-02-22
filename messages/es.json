@@ -726,5 +726,23 @@
             "saveChanges": "Guardar Cambios",
             "create": "Crear Cita"
         }
+    },
+    "publicPreview": {
+        "aboutUs": "Sobre Nosotros",
+        "seeMore": "Ver más",
+        "workGallery": "Galería de Trabajos",
+        "viewPhotos": "Ver {count} Fotos",
+        "directContact": "Contacto Directo",
+        "chatWith": "Chatear con {name}",
+        "contactNow": "Contactar Ahora",
+        "createFreeAccount": "Crear Cuenta Gratis y Contactar",
+        "alreadyHaveAccount": "Ya tengo cuenta, iniciar sesión",
+        "immediateAccess": "Acceso inmediato a contacto y galería completa.",
+        "locationNotSpecified": "Ubicación no especificada"
+    },
+    "map": {
+        "loading": "Cargando Mapa...",
+        "viewProfile": "Ver Perfil",
+        "view": "Ver"
     }
 }

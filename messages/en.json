@@ -730,5 +730,23 @@
             "saveChanges": "Save Changes",
             "create": "Create Appointment"
         }
+    },
+    "publicPreview": {
+        "aboutUs": "About Us",
+        "seeMore": "See more",
+        "workGallery": "Work Gallery",
+        "viewPhotos": "View {count} Photos",
+        "directContact": "Direct Contact",
+        "chatWith": "Chat with {name}",
+        "contactNow": "Contact Now",
+        "createFreeAccount": "Create Free Account & Contact",
+        "alreadyHaveAccount": "I already have an account, sign in",
+        "immediateAccess": "Immediate access to contact and full gallery.",
+        "locationNotSpecified": "Location not specified"
+    },
+    "map": {
+        "loading": "Loading Map...",
+        "viewProfile": "View Profile",
+        "view": "View"
     }
 }
