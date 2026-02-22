@@ -7,7 +7,8 @@ import { CustomerService } from '@/services/customer.service';
 import { AppointmentService } from '@/services/appointment.service';
 import { Timestamp } from 'firebase/firestore';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { es, enUS, ptBR } from 'date-fns/locale';
+import { useLocale, useTranslations } from 'next-intl';
 
 import { WeeklySchedule } from '@/services/employee.service';
 import { PaymentSettings } from '@/types/firestore-schema';
@@ -25,9 +26,17 @@ interface RequestAppointmentModalProps {
 
 type Step = 'service' | 'datetime' | 'payment' | 'contact' | 'review';
 
-// ── Inline calendar component ──────────────────────────────────────────────
-const DAYS_ES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-const MONTHS_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+// ── Days / Months per locale ──────────────────────────────────────────────
+const DAYS: Record<string, string[]> = {
+    es: ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+    en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    pt: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+};
+const MONTHS: Record<string, string[]> = {
+    es: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+    en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    pt: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+};
 
 interface DateTimeStepProps {
     selectedDate: string;
@@ -39,14 +48,19 @@ interface DateTimeStepProps {
     onSubmit: () => void;
     minutesToTime: (m: number) => string;
     timeToMinutes: (t: string) => number;
+    t: (key: string, values?: any) => string;
+    localeKey: string;
 }
 
-function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, onDateChange, onTimeSelect, onSubmit, minutesToTime, timeToMinutes }: DateTimeStepProps) {
+function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, onDateChange, onTimeSelect, onSubmit, minutesToTime, timeToMinutes, t, localeKey }: DateTimeStepProps) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const [calYear, setCalYear] = useState(today.getFullYear());
     const [calMonth, setCalMonth] = useState(today.getMonth());
+
+    const days = DAYS[localeKey] || DAYS.es;
+    const months = MONTHS[localeKey] || MONTHS.es;
 
     // Build day grid
     const firstDay = new Date(calYear, calMonth, 1).getDay(); // 0=Sun
@@ -68,7 +82,6 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
         const dateStr = toDateStr(day);
         const cellDate = new Date(`${dateStr}T12:00:00`);
         if (cellDate < today) return; // disabled — past
-        // Simulate change event
         const syntheticEvent = { target: { value: dateStr } } as React.ChangeEvent<HTMLInputElement>;
         onDateChange(syntheticEvent);
     };
@@ -92,7 +105,7 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
                         <ChevronLeft size={18} />
                     </button>
                     <span className="text-white font-semibold text-sm">
-                        {MONTHS_ES[calMonth]} {calYear}
+                        {months[calMonth]} {calYear}
                     </span>
                     <button onClick={nextMonth} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white">
                         <ChevronRight size={18} />
@@ -101,7 +114,7 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
 
                 {/* Day names */}
                 <div className="grid grid-cols-7 px-2 pt-2">
-                    {DAYS_ES.map(d => (
+                    {days.map(d => (
                         <div key={d} className="text-center text-[10px] font-semibold text-slate-500 uppercase py-1">{d}</div>
                     ))}
                 </div>
@@ -142,7 +155,7 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
                     <Calendar size={14} className="shrink-0" />
                     <span>
                         {dayStatus.isOpen
-                            ? `${selectedDate} — Disponible`
+                            ? `${selectedDate} — ${t('available')}`
                             : dayStatus.message}
                     </span>
                 </div>
@@ -152,14 +165,14 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
             <div className="space-y-2">
                 <label className="text-white text-sm font-semibold flex items-center gap-2">
                     <Clock className="w-4 h-4 text-brand-neon-cyan" />
-                    Horario
+                    {t('schedule')}
                 </label>
                 {!selectedDate ? (
-                    <p className="text-slate-500 text-sm italic text-center py-3">← Selecciona una fecha en el calendario</p>
+                    <p className="text-slate-500 text-sm italic text-center py-3">← {t('selectDateFirst')}</p>
                 ) : !dayStatus.isOpen ? (
-                    <p className="text-slate-500 text-sm italic text-center py-3">Cerrado este día</p>
+                    <p className="text-slate-500 text-sm italic text-center py-3">{t('closedThisDay')}</p>
                 ) : availableSlots.length === 0 ? (
-                    <p className="text-slate-500 text-sm italic text-center py-3">Sin horarios disponibles</p>
+                    <p className="text-slate-500 text-sm italic text-center py-3">{t('noSlots')}</p>
                 ) : (
                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                         {availableSlots.map(time => {
@@ -187,7 +200,7 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
                     : 'bg-brand-neon-cyan text-black hover:opacity-90 hover:shadow-lg hover:shadow-cyan-500/30'
                     }`}
             >
-                {selectedDate && selectedTime ? `Continuar → ${selectedDate}` : 'Continuar'}
+                {selectedDate && selectedTime ? `${t('continue')} → ${selectedDate}` : t('continue')}
             </button>
         </div>
     );
@@ -195,6 +208,11 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
 
 
 export default function RequestAppointmentModal({ isOpen, onClose, businessId, businessName, openingHours, paymentSettings }: RequestAppointmentModalProps) {
+    const t = useTranslations('booking');
+    const locale = useLocale();
+    const localeKey = locale === 'en' ? 'en' : locale === 'pt-BR' ? 'pt' : 'es';
+    const dateFnsLocale = locale === 'en' ? enUS : locale === 'pt-BR' ? ptBR : es;
+
     const [step, setStep] = useState<Step>('service');
     const [loading, setLoading] = useState(false);
     const [services, setServices] = useState<ServiceData[]>([]);
@@ -261,7 +279,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
         const daySchedule = openingHours[dayKey as keyof WeeklySchedule];
 
         if (!daySchedule || !daySchedule.enabled) {
-            setDayStatus({ isOpen: false, message: 'El negocio está cerrado este día.' });
+            setDayStatus({ isOpen: false, message: t('businessClosedThisDay') });
             return;
         }
 
@@ -274,7 +292,6 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
         const step = 30;
 
         for (let time = startMin; time < endMin; time += step) {
-            // Convert back to HH:mm for internal storage
             const h = Math.floor(time / 60);
             const m = time % 60;
             const timeStr = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
@@ -289,7 +306,6 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
 
     const handleDateTimeSubmit = () => {
         if (selectedDate && selectedTime) {
-            // Check if we need to show payment step
             const hasPaymentSettings = paymentSettings && (
                 paymentSettings.acceptsCash ||
                 paymentSettings.acceptsBankTransfer ||
@@ -303,9 +319,9 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 setStep('contact');
             }
         } else {
-            toast.warning("Por favor selecciona una fecha y hora para continuar.", {
+            toast.warning(t('selectDateTimeWarning'), {
                 style: { background: '#f59e0b', color: 'black', border: 'none' },
-                icon: <Calendar size={16} color="black" />
+                icon: <Calendar size={16} color="black" />,
             });
         }
     };
@@ -316,7 +332,6 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
         setLoading(true);
 
         try {
-            // Auto-sync CRM: Upsert customer (create or update if already exists)
             let customerId: string | undefined = undefined;
             try {
                 customerId = await CustomerService.upsertFromAppointment(businessId, {
@@ -325,7 +340,6 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                     email: data.email || undefined,
                 });
             } catch (err) {
-                // Non-blocking: booking proceeds even if CRM sync fails
                 console.warn("CRM sync failed silently:", err);
             }
 
@@ -338,7 +352,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 customerPhone: data.phone,
                 customerEmail: data.email,
                 serviceId: selectedService.id!,
-                serviceName: selectedService.name || 'Servicio',
+                serviceName: selectedService.name || t('service'),
                 serviceDuration: selectedService.durationMinutes || 30,
                 servicePrice: selectedService.price || 0,
                 employeeId: 'pending',
@@ -347,7 +361,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 notes: data.notes,
             });
 
-            toast.success("¡Solicitud enviada con éxito!");
+            toast.success(t('requestSent'));
             onClose();
             setStep('service');
             setSelectedService(null);
@@ -357,7 +371,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
 
         } catch (error) {
             console.error("Error booking:", error);
-            toast.error("Error al enviar solicitud");
+            toast.error(t('requestError'));
         } finally {
             setLoading(false);
         }
@@ -377,7 +391,6 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 if (step === 'datetime') setStep('service');
                                 if (step === 'payment') setStep('datetime');
                                 if (step === 'contact') {
-                                    // Go back to payment if enabled, else datetime
                                     const hasPayment = paymentSettings && (
                                         paymentSettings.acceptsCash ||
                                         paymentSettings.acceptsBankTransfer ||
@@ -390,7 +403,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 <ChevronLeft className="w-5 h-5 text-white" />
                             </button>
                         )}
-                        <h2 className="text-lg font-bold text-white">Agendar Cita</h2>
+                        <h2 className="text-lg font-bold text-white">{t('title')}</h2>
                     </div>
                     <button onClick={onClose} className="text-slate-400 hover:text-white">
                         <X size={24} />
@@ -411,9 +424,9 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                     {/* STEP 1: SERVICE */}
                     {step === 'service' && (
                         <div className="space-y-4">
-                            <h3 className="text-white font-medium mb-4">Selecciona un servicio</h3>
+                            <h3 className="text-white font-medium mb-4">{t('selectService')}</h3>
                             {services.length === 0 ? (
-                                <p className="text-slate-500 text-center py-8">No hay servicios disponibles.</p>
+                                <p className="text-slate-500 text-center py-8">{t('noServices')}</p>
                             ) : (
                                 <div className="space-y-2">
                                     {services.map(service => (
@@ -446,26 +459,28 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                             onSubmit={handleDateTimeSubmit}
                             minutesToTime={minutesToTime}
                             timeToMinutes={timeToMinutes}
+                            t={t as any}
+                            localeKey={localeKey}
                         />
                     )}
 
                     {/* STEP 2.5: PAYMENT INFO */}
                     {step === 'payment' && paymentSettings && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                            <h3 className="text-white font-medium mb-4">Información de Pago</h3>
+                            <h3 className="text-white font-medium mb-4">{t('paymentInfo')}</h3>
 
                             {/* Deposit Warning */}
                             {paymentSettings.requiresDeposit && (
                                 <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl mb-4">
                                     <h4 className="text-yellow-500 font-bold text-sm mb-1 flex items-center gap-2">
                                         <Briefcase size={16} />
-                                        Política de Anticipo
+                                        {t('depositPolicy')}
                                     </h4>
                                     <p className="text-slate-300 text-sm mb-2">
-                                        Este negocio requiere un anticipo para confirmar la cita.
+                                        {t('depositRequired')}
                                     </p>
                                     <div className="bg-black/20 p-3 rounded-lg flex justify-between items-center">
-                                        <span className="text-slate-400 text-sm">Monto Requerido:</span>
+                                        <span className="text-slate-400 text-sm">{t('requiredAmount')}:</span>
                                         <span className="text-white font-bold">
                                             {paymentSettings.depositType === 'percent'
                                                 ? `${paymentSettings.depositValue}%`
@@ -480,7 +495,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                             )}
 
                             <div className="space-y-3">
-                                <label className="text-slate-400 text-sm">Métodos Aceptados:</label>
+                                <label className="text-slate-400 text-sm">{t('acceptedMethods')}:</label>
                                 <div className="grid grid-cols-1 gap-3">
                                     {paymentSettings.acceptsCash && (
                                         <div className="p-3 bg-white/5 border border-white/10 rounded-xl flex items-center gap-3">
@@ -488,8 +503,8 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                                 <Briefcase className="w-4 h-4" />
                                             </div>
                                             <div>
-                                                <p className="text-white font-medium text-sm">Efectivo</p>
-                                                <p className="text-xs text-slate-500">Pago en el local</p>
+                                                <p className="text-white font-medium text-sm">{t('cash')}</p>
+                                                <p className="text-xs text-slate-500">{t('cashInStore')}</p>
                                             </div>
                                         </div>
                                     )}
@@ -499,7 +514,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                                 <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
                                                     <Briefcase className="w-4 h-4" />
                                                 </div>
-                                                <p className="text-white font-medium text-sm">Transferencia Bancaria</p>
+                                                <p className="text-white font-medium text-sm">{t('bankTransfer')}</p>
                                             </div>
                                             {paymentSettings.bankTransferDetails && (
                                                 <div className="bg-black/20 p-2 rounded text-xs text-slate-400 whitespace-pre-line">
@@ -514,7 +529,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                                 <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500">
                                                     <Briefcase className="w-4 h-4" />
                                                 </div>
-                                                <p className="text-white font-medium text-sm">Billetera Digital</p>
+                                                <p className="text-white font-medium text-sm">{t('digitalWallet')}</p>
                                             </div>
                                             {paymentSettings.digitalWalletDetails && (
                                                 <div className="bg-black/20 p-2 rounded text-xs text-slate-400 whitespace-pre-line">
@@ -530,7 +545,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 onClick={() => setStep('contact')}
                                 className="w-full py-3 bg-brand-neon-cyan text-black font-bold rounded-xl mt-4 hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
                             >
-                                Entendido, Continuar
+                                {t('understoodContinue')}
                             </button>
                         </div>
                     )}
@@ -539,11 +554,11 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                     {step === 'contact' && (
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                             <div className="p-4 bg-brand-neon-cyan/10 border border-brand-neon-cyan/20 rounded-xl mb-6">
-                                <h4 className="text-brand-neon-cyan font-bold text-sm mb-1">Resumen de Solicitud</h4>
+                                <h4 className="text-brand-neon-cyan font-bold text-sm mb-1">{t('requestSummary')}</h4>
                                 <p className="text-white text-sm">{selectedService?.name}</p>
                                 <p className="text-slate-400 text-xs flex gap-2 mt-1">
                                     <Calendar size={12} className="mt-0.5" />
-                                    {format(new Date(`${selectedDate}T${selectedTime}`), 'PPP', { locale: es })}
+                                    {format(new Date(`${selectedDate}T${selectedTime}`), 'PPP', { locale: dateFnsLocale })}
                                     <span className="mx-1">•</span>
                                     <Clock size={12} className="mt-0.5" />
                                     {minutesToTime(timeToMinutes(selectedTime))}
@@ -551,16 +566,16 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-slate-400 text-sm">Tu Nombre <span className="text-red-500">*</span></label>
+                                <label className="text-slate-400 text-sm">{t('yourName')} <span className="text-red-500">*</span></label>
                                 <input
                                     {...register('name', { required: true })}
                                     className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-brand-neon-cyan text-base"
-                                    placeholder="Ej. Juan Pérez"
+                                    placeholder={t('namePlaceholder')}
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-slate-400 text-sm">Teléfono <span className="text-red-500">*</span></label>
+                                <label className="text-slate-400 text-sm">{t('phone')} <span className="text-red-500">*</span></label>
                                 <input
                                     {...register('phone', { required: true })}
                                     className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-brand-neon-cyan text-base"
@@ -569,16 +584,16 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-slate-400 text-sm">Email (Opcional)</label>
+                                <label className="text-slate-400 text-sm">{t('email')} ({t('optional')})</label>
                                 <input
                                     {...register('email')}
                                     className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-brand-neon-cyan text-base"
-                                    placeholder="juan@ejemplo.com"
+                                    placeholder={t('emailPlaceholder')}
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-slate-400 text-sm">Notas</label>
+                                <label className="text-slate-400 text-sm">{t('notes')}</label>
                                 <textarea
                                     {...register('notes')}
                                     rows={2}
@@ -591,7 +606,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 disabled={loading}
                                 className="w-full py-4 bg-gradient-to-r from-brand-neon-cyan to-brand-neon-purple text-black font-bold rounded-xl mt-4 hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all flex items-center justify-center gap-2 text-base"
                             >
-                                {loading ? 'Enviando...' : 'Confirmar Solicitud'}
+                                {loading ? t('sending') : t('confirmRequest')}
                             </button>
                         </form>
                     )}
