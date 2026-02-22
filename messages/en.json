@@ -26,7 +26,9 @@
         "searchPlaceholder": "Search: 'Plumbing', 'Nails', 'Mechanic'...",
         "cat_generalServices": "General Services",
         "cat_beautyWellness": "Beauty / Wellness",
-        "cat_artDesign": "Art & Design"
+        "cat_artDesign": "Art & Design",
+        "exploreServices": "Explore services and specialties",
+        "closeExplorer": "Close Explorer"
     },
     "auth": {
         "welcomeBack": "Welcome back \uD83D\uDC4B",

@@ -235,7 +235,9 @@
         "searchPlaceholder": "Buscar: 'Fugas', 'Uñas', 'Mecánico'...",
         "cat_generalServices": "Servicios Generales",
         "cat_beautyWellness": "Belleza / Cuidado",
-        "cat_artDesign": "Arte y Diseño"
+        "cat_artDesign": "Arte y Diseño",
+        "exploreServices": "Explora servicios y especialidades",
+        "closeExplorer": "Cerrar Explorador"
     },
     "auth": {
         "welcomeBack": "Bienvenido de nuevo \uD83D\uDC4B",

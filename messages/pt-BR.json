@@ -26,7 +26,9 @@
         "searchPlaceholder": "Buscar: 'Encanamento', 'Unhas', 'Mecânico'...",
         "cat_generalServices": "Serviços Gerais",
         "cat_beautyWellness": "Beleza / Bem-estar",
-        "cat_artDesign": "Arte e Design"
+        "cat_artDesign": "Arte e Design",
+        "exploreServices": "Explore serviços e especialidades",
+        "closeExplorer": "Fechar Explorador"
     },
     "auth": {
         "welcomeBack": "Bem-vindo de volta \uD83D\uDC4B",

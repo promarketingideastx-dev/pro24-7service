@@ -48,6 +48,7 @@ export default function Home() {
     const { user, userProfile } = useAuth();
     const router = useRouter();
     const locale = useLocale();
+    const localeKey = locale === 'en' ? 'en' : locale === 'pt-BR' ? 'pt' : 'es';
     const t = useTranslations('home');
     // Helper: prefixes any path with the current locale
     const lp = (path: string) => `/${locale}${path}`;
@@ -429,9 +430,9 @@ export default function Home() {
                                 <div>
                                     <h2 className="text-xl font-bold text-white flex items-center gap-2">
                                         {categories.find(c => c.id === selectedCategory)?.icon}
-                                        {selectedTaxonomy.label.es}
+                                        {selectedTaxonomy.label[localeKey as keyof typeof selectedTaxonomy.label]}
                                     </h2>
-                                    <p className="text-xs text-slate-400 mt-1">Explora servicios y especialidades</p>
+                                    <p className="text-xs text-slate-400 mt-1">{t('exploreServices')}</p>
                                 </div>
                                 <button
                                     onClick={() => setSelectedCategory(null)}
@@ -447,20 +448,20 @@ export default function Home() {
                                     <div key={sub.id} className="bg-slate-900/50 rounded-2xl p-4 border border-white/5 hover:border-white/10 transition-colors">
                                         <h3 className="font-bold text-brand-neon-cyan mb-3 flex items-center gap-2">
                                             <span className="w-1.5 h-1.5 rounded-full bg-brand-neon-cyan"></span>
-                                            {sub.label.es}
+                                            {sub.label[localeKey as keyof typeof sub.label]}
                                         </h3>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                             {sub.specialties.map((spec, i) => (
                                                 <div
                                                     key={i}
                                                     onClick={() => {
-                                                        setSearchTerm(spec);
+                                                        setSearchTerm((spec as any)[localeKey] ?? (spec as any).es);
                                                         setSelectedCategory(null);
                                                     }}
                                                     className="flex items-center gap-2 text-sm text-slate-300 bg-white/5 px-3 py-2 rounded-lg hover:bg-white/10 cursor-pointer transition-colors group/item"
                                                 >
                                                     <ChevronRight className="w-3 h-3 text-slate-600 group-hover/item:text-brand-neon-cyan" />
-                                                    {spec}
+                                                    {(spec as any)[localeKey] ?? (spec as any).es}
                                                 </div>
                                             ))}
                                         </div>
@@ -474,7 +475,7 @@ export default function Home() {
                                     onClick={() => setSelectedCategory(null)}
                                     className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold text-sm hover:opacity-90 transition-opacity"
                                 >
-                                    Cerrar Explorador
+                                    {t('closeExplorer')}
                                 </button>
                             </div>
                         </div>
