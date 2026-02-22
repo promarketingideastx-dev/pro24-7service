@@ -6,8 +6,15 @@ const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'PRO24/7 | Servicios Premium',
+  title: 'PRO24/7YA | Servicios Premium',
   description: 'Conecta con los mejores profesionales.',
+  icons: {
+    icon: [
+      { url: '/favicon.png', sizes: '64x64', type: 'image/png' },
+    ],
+    apple: '/icon-512.png',
+    shortcut: '/favicon.png',
+  },
 };
 
 export default function RootLayout({

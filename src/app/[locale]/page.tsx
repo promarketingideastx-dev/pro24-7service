@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { Search, MapPin, Star, Bell, Filter, Grid, Zap, User, X, ChevronRight, Store } from 'lucide-react';
 import { DEMO_BUSINESSES, BusinessMock } from '@/data/mockBusinesses';
 import { TAXONOMY } from '@/lib/taxonomy';
@@ -172,10 +173,15 @@ export default function Home() {
         <main className="h-screen bg-[#0B0F19] text-white overflow-hidden font-sans flex flex-col">
             {/* Header with Dynamic Location */}
             <header className="shrink-0 px-6 py-4 flex justify-between items-center z-50 bg-[#0B0F19]">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center shadow-[0_0_15px_rgba(0,240,255,0.3)]">
-                        <span className="font-bold text-xs text-black">P24</span>
-                    </div>
+                <div className="flex items-center">
+                    <Image
+                        src="/logo-header.png"
+                        alt="Pro24/7YA"
+                        width={120}
+                        height={36}
+                        className="object-contain"
+                        priority
+                    />
                     <div className="flex flex-col">
                         <span className="text-[10px] text-brand-neon-cyan/80 font-bold tracking-wider uppercase leading-none mb-0.5">{t('location')}</span>
                         <div

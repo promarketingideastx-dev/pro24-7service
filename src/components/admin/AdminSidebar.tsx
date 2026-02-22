@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -6,7 +7,7 @@ import { useEffect, useState } from 'react';
 import {
     LayoutDashboard, Building2, Users, FileImage,
     Bell, CreditCard, Settings, Scale, BookOpen,
-    ChevronLeft, ChevronRight, Shield, Map, BarChart2
+    ChevronLeft, ChevronRight, Map, BarChart2
 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { AdminNotificationService } from '@/services/adminNotification.service';
@@ -50,14 +51,18 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
         <aside className={`sticky top-0 h-screen shrink-0 bg-[#0a1128] border-r border-white/5 flex flex-col z-40 transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'}`}>
             {/* Logo */}
             <div className="flex items-center gap-3 px-4 py-5 border-b border-white/5">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-neon-cyan to-brand-neon-purple flex items-center justify-center shrink-0">
-                    <Shield size={16} className="text-black" />
+                <div className="shrink-0 flex items-center justify-center">
+                    <Image
+                        src="/logo.png"
+                        alt="Pro24/7YA"
+                        width={isOpen ? 120 : 36}
+                        height={isOpen ? 36 : 36}
+                        className="object-contain"
+                        priority
+                    />
                 </div>
                 {isOpen && (
-                    <div>
-                        <p className="text-white font-bold text-sm leading-none">PRO24/7</p>
-                        <p className="text-brand-neon-cyan text-[10px] font-semibold mt-0.5">Admin CRM</p>
-                    </div>
+                    <p className="text-brand-neon-cyan text-[10px] font-semibold whitespace-nowrap">Admin CRM</p>
                 )}
                 <button onClick={onToggle} className="ml-auto text-slate-500 hover:text-white transition-colors">
                     {isOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}

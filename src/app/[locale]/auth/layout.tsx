@@ -23,12 +23,12 @@ export default function AuthLayout({
 
                 {/* Logo / Brand */}
                 <div className="text-center mb-8">
-                    <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-cyan-400 to-blue-600 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.4)] mb-4">
-                        <span className="font-bold text-2xl text-black">P24</span>
-                    </div>
-                    <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-                        PRO24/7
-                    </h1>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                        src="/logo.png"
+                        alt="Pro24/7YA"
+                        className="w-32 h-32 mx-auto object-contain"
+                    />
                 </div>
 
                 {children}
