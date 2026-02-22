@@ -472,27 +472,27 @@ export default function TeamPage() {
                                         <Camera size={11} className="text-black" />
                                     </div>
                                 </div>
-                                <p className="text-xs text-slate-500">Toca para agregar foto de perfil</p>
+                                <p className="text-xs text-slate-500">{t('tapToAddPhoto')}</p>
 
                                 {photoPickerOpen && (
                                     <div className="w-full bg-[#0a0f1e] border border-white/10 rounded-xl p-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
                                         <div className="grid grid-cols-2 gap-2">
                                             <label className="flex flex-col items-center gap-2 p-3 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer border border-white/5 hover:border-white/15 transition-colors">
                                                 <ImageIcon size={20} className="text-slate-300" />
-                                                <span className="text-xs text-slate-400 font-medium">Galería</span>
+                                                <span className="text-xs text-slate-400 font-medium">{t('gallery')}</span>
                                                 <input type="file" accept="image/*" className="hidden"
                                                     onChange={e => e.target.files?.[0] && handlePhotoFile(e.target.files[0])} />
                                             </label>
                                             <label className="flex flex-col items-center gap-2 p-3 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer border border-white/5 hover:border-white/15 transition-colors">
                                                 <Camera size={20} className="text-slate-300" />
-                                                <span className="text-xs text-slate-400 font-medium">Cámara</span>
+                                                <span className="text-xs text-slate-400 font-medium">{t('camera')}</span>
                                                 <input type="file" accept="image/*" capture="user" className="hidden"
                                                     onChange={e => e.target.files?.[0] && handlePhotoFile(e.target.files[0])} />
                                             </label>
                                         </div>
                                         <div>
                                             <p className="text-xs text-slate-500 mb-2 flex items-center gap-1">
-                                                <UserCircle2 size={12} /> Elegir color de avatar
+                                                <UserCircle2 size={12} /> {t('chooseAvatarColor')}
                                             </p>
                                             <div className="flex gap-2 flex-wrap">
                                                 {AVATAR_COLORS.map((grad, i) => (
@@ -511,53 +511,53 @@ export default function TeamPage() {
 
                             {/* Name */}
                             <div>
-                                <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">Nombre Completo</label>
+                                <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">{t('fullName')}</label>
                                 <input
                                     type="text"
                                     required
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
-                                    placeholder="Nombre completo del miembro"
+                                    placeholder={t('fullNamePlaceholder')}
                                 />
                             </div>
 
                             {/* Role type */}
                             <div>
-                                <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">Rol en el Negocio</label>
+                                <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">{t('roleInBusiness')}</label>
                                 <select
                                     value={formData.roleType || 'technician'}
                                     onChange={e => setFormData({ ...formData, roleType: e.target.value as any })}
                                     className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none appearance-none"
                                 >
-                                    <option value="manager">Manager / Administrador</option>
-                                    <option value="reception">Recepción / Front Desk</option>
-                                    <option value="customer_service">Servicio al Cliente</option>
-                                    <option value="sales_marketing">Ventas / Marketing</option>
-                                    <option value="technician">Técnico / Especialista</option>
-                                    <option value="assistant">Asistente / Ayudante</option>
-                                    <option value="other">Otro</option>
+                                    <option value="manager">{t('roleManager')}</option>
+                                    <option value="reception">{t('roleReception')}</option>
+                                    <option value="customer_service">{t('roleCustomerService')}</option>
+                                    <option value="sales_marketing">{t('roleSales')}</option>
+                                    <option value="technician">{t('roleTechnician')}</option>
+                                    <option value="assistant">{t('roleAssistant')}</option>
+                                    <option value="other">{t('roleOther')}</option>
                                 </select>
                             </div>
 
                             {/* Custom role */}
                             {formData.roleType === 'other' && (
                                 <div className="animate-in fade-in slide-in-from-top-1">
-                                    <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">Especificar Rol</label>
+                                    <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">{t('specifyRole')}</label>
                                     <input
                                         type="text"
                                         required
                                         value={formData.roleCustom || ''}
                                         onChange={e => setFormData({ ...formData, roleCustom: e.target.value })}
                                         className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
-                                        placeholder="Describe el rol del miembro"
+                                        placeholder={t('specifyRolePlaceholder')}
                                     />
                                 </div>
                             )}
 
                             {/* Specialty / Title */}
                             <div>
-                                <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">Título / Especialidad (Opcional)</label>
+                                <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">{t('titleSpecialty')}</label>
                                 {businessSpecialties.length > 0 && (
                                     <div className="flex flex-wrap gap-1.5 mb-2">
                                         {businessSpecialties.map(spec => (
@@ -580,7 +580,7 @@ export default function TeamPage() {
                                     value={formData.role}
                                     onChange={e => setFormData({ ...formData, role: e.target.value })}
                                     className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
-                                    placeholder="Título o especialidad del miembro"
+                                    placeholder={t('titleSpecialtyPlaceholder')}
                                 />
                             </div>
 
@@ -591,16 +591,16 @@ export default function TeamPage() {
                                 const over = words > MAX_WORDS;
                                 return (
                                     <div>
-                                        <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">Descripción (Opcional)</label>
+                                        <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">{t('descriptionOptional')}</label>
                                         <textarea
                                             rows={3}
                                             value={formData.description || ''}
                                             onChange={e => setFormData({ ...formData, description: e.target.value })}
                                             className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none resize-none text-sm leading-relaxed"
-                                            placeholder="Describe brevemente qué hace este miembro del equipo..."
+                                            placeholder={t('descriptionPlaceholder')}
                                         />
                                         <p className={`text-right text-xs mt-1 ${over ? 'text-red-400' : 'text-slate-600'}`}>
-                                            {words} / {MAX_WORDS} palabras
+                                            {words} / {MAX_WORDS} {t('words')}
                                         </p>
                                     </div>
                                 );
