@@ -9,7 +9,8 @@ import {
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { ServicesService, ServiceData, BusinessProfileService } from '@/services/businessProfile.service';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { TAXONOMY } from '@/lib/taxonomy';
 
 const DURATION_OPTIONS = [15, 30, 45, 60, 90, 120];
 const CUSTOM_VALUE = -1; // sentinel for "Otro"
@@ -25,6 +26,19 @@ const formatDuration = (min: number) => {
 export default function ServicesPage() {
     const { user } = useAuth();
     const t = useTranslations('business.services');
+    const locale = useLocale();
+    const localeKey = locale === 'en' ? 'en' : locale === 'pt-BR' ? 'pt' : 'es';
+
+    // Translate a specialty string (stored as .es in Firestore) to the active locale
+    const getSpecLabel = (specEs: string): string => {
+        for (const cat of Object.values(TAXONOMY)) {
+            for (const sub of cat.subcategories) {
+                const found = sub.specialties.find(s => s.es === specEs);
+                if (found) return found[localeKey as keyof typeof found] as string || specEs;
+            }
+        }
+        return specEs; // fallback — matches display name if already in locale
+    };
     const [services, setServices] = useState<ServiceData[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -265,8 +279,8 @@ export default function ServicesPage() {
                                                 type="button"
                                                 onClick={() => setFormData(prev => ({
                                                     ...prev,
-                                                    name: prev.name ? prev.name : spec,
-                                                    category: spec,
+                                                    name: prev.name ? prev.name : getSpecLabel(spec),
+                                                    category: spec, // keep .es value for Firestore
                                                 }))}
                                                 className={`text-xs px-3 py-1.5 rounded-full border transition-all
                                                     ${formData.category === spec
@@ -275,7 +289,7 @@ export default function ServicesPage() {
                                                     }`}
                                             >
                                                 {formData.category === spec && <Check size={10} className="inline mr-1" />}
-                                                {spec}
+                                                {getSpecLabel(spec)}
                                             </button>
                                         ))}
                                     </div>
