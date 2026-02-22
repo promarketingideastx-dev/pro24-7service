@@ -12,28 +12,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Plan helpers (using PLAN_LABELS directly from PlanService)
-const PLAN_LABEL: Record<BusinessPlan, string> = {
-    free: 'Free',
-    premium: 'Premium',
-    plus_team: 'Plus Equipo',
-    vip: 'VIP',
-};
-
-const PLAN_OPTIONS: { value: BusinessPlan; label: string; color: string }[] = [
-    { value: 'free', label: 'Free', color: 'text-slate-400' },
-    { value: 'premium', label: 'Premium', color: 'text-blue-400' },
-    { value: 'plus_team', label: 'Plus Equipo', color: 'text-purple-400' },
-    { value: 'vip', label: 'VIP', color: 'text-amber-400' },
-];
-
-const PLAN_ICONS: Record<BusinessPlan, React.ReactNode> = {
-    free: <Zap size={12} className="text-slate-400" />,
-    premium: <Star size={12} className="text-blue-400" />,
-    plus_team: <Users size={12} className="text-purple-400" />,
-    vip: <Crown size={12} className="text-amber-400" />,
-};
-
+// Plan colours / icons only — no text here (text comes from translations)
 const PLAN_BADGE: Record<BusinessPlan, string> = {
     free: 'bg-slate-500/20 text-slate-400 border-slate-500/20',
     premium: 'bg-blue-500/20 text-blue-400 border-blue-500/20',
@@ -41,7 +20,19 @@ const PLAN_BADGE: Record<BusinessPlan, string> = {
     vip: 'bg-amber-500/20 text-amber-400 border-amber-500/20',
 };
 
-function PlanDropdown({ business, onChanged }: { business: AdminBusinessRecord; onChanged: () => void }) {
+const PLAN_ICON_COLOR: Record<BusinessPlan, string> = {
+    free: 'text-slate-400',
+    premium: 'text-blue-400',
+    plus_team: 'text-purple-400',
+    vip: 'text-amber-400',
+};
+
+function PlanDropdown({ business, planLabels, planOptions, onChanged }: {
+    business: AdminBusinessRecord;
+    planLabels: Record<BusinessPlan, string>;
+    planOptions: { value: BusinessPlan; label: string; color: string }[];
+    onChanged: () => void;
+}) {
     const { user } = useAuth();
     const [open, setOpen] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -49,11 +40,17 @@ function PlanDropdown({ business, onChanged }: { business: AdminBusinessRecord; 
     const btnRef = useRef<HTMLButtonElement>(null);
     const currentPlan = (business.planData?.plan ?? 'free') as BusinessPlan;
 
-    // Close on click outside (anywhere in document)
+    const PLAN_ICONS: Record<BusinessPlan, React.ReactNode> = {
+        free: <Zap size={12} className="text-slate-400" />,
+        premium: <Star size={12} className="text-blue-400" />,
+        plus_team: <Users size={12} className="text-purple-400" />,
+        vip: <Crown size={12} className="text-amber-400" />,
+    };
+
+    // Close on click outside
     useEffect(() => {
         if (!open) return;
-        const handler = (e: MouseEvent) => setOpen(false);
-        // Use capture so it fires before stopPropagation
+        const handler = () => setOpen(false);
         document.addEventListener('click', handler, true);
         return () => document.removeEventListener('click', handler, true);
     }, [open]);
@@ -73,7 +70,7 @@ function PlanDropdown({ business, onChanged }: { business: AdminBusinessRecord; 
         setOpen(false);
         try {
             await AdminService.setPlan(business.id, plan, user?.email ?? 'admin');
-            toast.success(`Plan actualizado → ${PLAN_LABEL[plan]}`);
+            toast.success(`Plan → ${planLabels[plan]}`);
             onChanged();
         } catch {
             toast.error('Error actualizando plan');
@@ -91,7 +88,7 @@ function PlanDropdown({ business, onChanged }: { business: AdminBusinessRecord; 
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-semibold transition-all ${PLAN_BADGE[currentPlan]} hover:opacity-80`}
             >
                 {PLAN_ICONS[currentPlan]}
-                <span>{PLAN_LABEL[currentPlan]}</span>
+                <span>{planLabels[currentPlan]}</span>
                 <ChevronDown size={10} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
             </button>
             {open && (
@@ -100,7 +97,7 @@ function PlanDropdown({ business, onChanged }: { business: AdminBusinessRecord; 
                     className="bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl w-40 overflow-hidden"
                     onClick={e => e.stopPropagation()}
                 >
-                    {PLAN_OPTIONS.map(opt => (
+                    {planOptions.map(opt => (
                         <button
                             key={opt.value}
                             onClick={() => handleSet(opt.value)}
@@ -126,6 +123,26 @@ export default function AdminBusinessesPage() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [planFilter, setPlanFilter] = useState<string>('all');
+
+    // Plan labels — inside component so they respond to locale changes
+    const PLAN_ICONS: Record<BusinessPlan, React.ReactNode> = {
+        free: <Zap size={12} className="text-slate-400" />,
+        premium: <Star size={12} className="text-blue-400" />,
+        plus_team: <Users size={12} className="text-purple-400" />,
+        vip: <Crown size={12} className="text-amber-400" />,
+    };
+    const planLabels: Record<BusinessPlan, string> = {
+        free: t('planFree'),
+        premium: t('planPremium'),
+        plus_team: t('planPlusTeam'),
+        vip: t('planVip'),
+    };
+    const planOptions: { value: BusinessPlan; label: string; color: string }[] = [
+        { value: 'free', label: planLabels.free, color: 'text-slate-400' },
+        { value: 'premium', label: planLabels.premium, color: 'text-blue-400' },
+        { value: 'plus_team', label: planLabels.plus_team, color: 'text-purple-400' },
+        { value: 'vip', label: planLabels.vip, color: 'text-amber-400' },
+    ];
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -203,7 +220,7 @@ export default function AdminBusinessesPage() {
 
             {/* Plan Summary Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                {PLAN_OPTIONS.map(opt => (
+                {planOptions.map(opt => (
                     <button
                         key={opt.value}
                         onClick={() => setPlanFilter(planFilter === opt.value ? 'all' : opt.value)}
@@ -284,7 +301,7 @@ export default function AdminBusinessesPage() {
                                             </td>
                                             <td className="px-4 py-3 text-xs text-slate-400">{b.category ?? '—'}</td>
                                             <td className="px-4 py-3">
-                                                <PlanDropdown business={b} onChanged={load} />
+                                                <PlanDropdown business={b} planLabels={planLabels} planOptions={planOptions} onChanged={load} />
                                             </td>
                                             <td className="px-4 py-3">
                                                 {isSuspended ? (

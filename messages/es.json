@@ -77,7 +77,11 @@
             "notFound": "No se encontraron negocios",
             "searchPlaceholder": "Buscar por nombre, email, ciudad, teléfono...",
             "active": "Activo",
-            "suspended": "Suspendido"
+            "suspended": "Suspendido",
+            "planFree": "Gratis",
+            "planPremium": "Premium",
+            "planPlusTeam": "Plus Equipo",
+            "planVip": "VIP"
         },
         "users": {
             "title": "Usuarios",
