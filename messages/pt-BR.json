@@ -394,7 +394,12 @@
             "extraServiceBadge": "SERVIÇO EXTRA",
             "noDescription": "Sem descrição",
             "saveError": "Erro ao salvar serviço",
-            "deleteError": "Erro ao excluir serviço"
+            "deleteError": "Erro ao excluir serviço",
+            "serviceImage": "Imagem do Serviço (Opcional)",
+            "serviceImageHint": "Toque para adicionar uma foto de referência",
+            "changeImage": "Alterar imagem",
+            "uploadingImage": "Enviando...",
+            "imageUploadError": "Não foi possível enviar a imagem. Tente novamente."
         },
         "team": {
             "title": "Minha Equipe",

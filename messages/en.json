@@ -395,7 +395,12 @@
             "extraServiceBadge": "EXTRA SERVICE",
             "noDescription": "No description",
             "saveError": "Error saving service",
-            "deleteError": "Error deleting service"
+            "deleteError": "Error deleting service",
+            "serviceImage": "Service Image (Optional)",
+            "serviceImageHint": "Tap to add a reference photo",
+            "changeImage": "Change image",
+            "uploadingImage": "Uploading...",
+            "imageUploadError": "Could not upload image. Try again."
         },
         "team": {
             "title": "My Team",

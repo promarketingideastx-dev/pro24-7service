@@ -394,7 +394,12 @@
             "extraServiceBadge": "SERVICIO EXTRA",
             "noDescription": "Sin descripción",
             "saveError": "Error al guardar servicio",
-            "deleteError": "Error al eliminar servicio"
+            "deleteError": "Error al eliminar servicio",
+            "serviceImage": "Imagen del Servicio (Opcional)",
+            "serviceImageHint": "Toca para agregar una foto de referencia",
+            "changeImage": "Cambiar imagen",
+            "uploadingImage": "Subiendo...",
+            "imageUploadError": "No se pudo subir la imagen. Intenta de nuevo."
         },
         "team": {
             "title": "Mi Equipo",
