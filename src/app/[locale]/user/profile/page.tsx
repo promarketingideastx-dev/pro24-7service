@@ -13,12 +13,13 @@ import { UserService } from '@/services/user.service';
 import { StorageService } from '@/services/storage.service';
 import ImageUploader from '@/components/ui/ImageUploader';
 import { FavoritesService, FavoriteRecord } from '@/services/favorites.service';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 export default function UserProfilePage() {
     const { user, userProfile } = useAuth();
     const router = useRouter();
     const locale = useLocale();
+    const t = useTranslations('userProfile');
 
     const [loading, setLoading] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -162,7 +163,7 @@ export default function UserProfilePage() {
         }
     };
 
-    if (!user) return <div className="min-h-screen bg-[#0B0F19] text-white flex items-center justify-center">Cargando...</div>;
+    if (!user) return <div className="min-h-screen bg-[#0B0F19] text-white flex items-center justify-center">{t('loading')}</div>;
 
     return (
         <div className="min-h-screen bg-[#0B0F19] text-white pb-20">
@@ -172,7 +173,7 @@ export default function UserProfilePage() {
                     PRO24/7
                 </Link>
                 <button type="button" onClick={() => router.back()} className="text-sm text-slate-400 hover:text-white">
-                    Volver
+                    {t('back')}
                 </button>
             </div>
 
@@ -184,7 +185,7 @@ export default function UserProfilePage() {
                         <div className="p-2 bg-blue-500/10 rounded-xl">
                             <User className="w-6 h-6 text-blue-400" />
                         </div>
-                        <h2 className="text-xl font-bold">Mi Perfil</h2>
+                        <h2 className="text-xl font-bold">{t('title')}</h2>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-8">
@@ -217,30 +218,30 @@ export default function UserProfilePage() {
                             />
 
                             <button
-                                type="button"  // Explicitly prevent form submission
+                                type="button"
                                 onClick={handleAvatarClick}
                                 disabled={loading}
                                 className="text-xs text-brand-neon-cyan hover:underline disabled:opacity-50"
                             >
-                                {loading ? 'Subiendo...' : 'Cambiar Foto'}
+                                {loading ? t('uploadingPhoto') : t('changePhoto')}
                             </button>
                         </div>
 
                         {/* Form Fields */}
                         <div className="space-y-4 w-full">
                             <div className="space-y-1">
-                                <label className="text-xs font-semibold text-slate-500 uppercase">Nombre Completo</label>
+                                <label className="text-xs font-semibold text-slate-500 uppercase">{t('nameLabel')}</label>
                                 <input
                                     type="text"
                                     value={formData.displayName}
                                     onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
                                     className="w-full bg-[#0B0F19] border border-white/10 rounded-xl px-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
-                                    placeholder="Tu nombre"
+                                    placeholder={t('namePlaceholder')}
                                 />
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-xs font-semibold text-slate-500 uppercase">Teléfono</label>
+                                <label className="text-xs font-semibold text-slate-500 uppercase">{t('phoneLabel')}</label>
                                 <div className="relative">
                                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                                     <input
@@ -248,13 +249,13 @@ export default function UserProfilePage() {
                                         value={formData.phoneNumber}
                                         onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                                         className="w-full bg-[#0B0F19] border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
-                                        placeholder="+504 9999-9999"
+                                        placeholder={t('phonePlaceholder')}
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-xs font-semibold text-slate-500 uppercase">Dirección / Zona</label>
+                                <label className="text-xs font-semibold text-slate-500 uppercase">{t('addressLabel')}</label>
                                 <div className="relative">
                                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                                     <input
@@ -262,7 +263,7 @@ export default function UserProfilePage() {
                                         value={formData.address}
                                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                                         className="w-full bg-[#0B0F19] border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
-                                        placeholder="Dirección completa (calle, colonia/sector, ciudad)"
+                                        placeholder={t('addressPlaceholder')}
                                     />
                                 </div>
                             </div>
@@ -275,7 +276,7 @@ export default function UserProfilePage() {
                                     className="bg-active-blue hover:bg-active-blue-hover text-white px-6 py-2 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20"
                                 >
                                     <Save className="w-4 h-4" />
-                                    {loading ? 'Guardando...' : 'Guardar Cambios'}
+                                    {loading ? t('saving') : t('saveBtn')}
                                 </button>
                                 {successMessage && (
                                     <span className="text-green-400 text-xs font-bold animate-in fade-in slide-in-from-left-2">
@@ -294,8 +295,8 @@ export default function UserProfilePage() {
                             <Heart className="w-6 h-6 text-red-400 fill-red-400" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold">Mis Negocios Guardados</h2>
-                            <p className="text-slate-500 text-xs">Negocios a los que les diste ❤️</p>
+                            <h2 className="text-xl font-bold">{t('favorites')}</h2>
+                            <p className="text-slate-500 text-xs">{t('favoritesDesc')}</p>
                         </div>
                         <span className="ml-auto bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-bold px-2.5 py-1 rounded-full">
                             {favorites.length}
@@ -309,8 +310,8 @@ export default function UserProfilePage() {
                     ) : favorites.length === 0 ? (
                         <div className="text-center py-8 text-slate-600">
                             <Heart className="w-10 h-10 mx-auto mb-3 opacity-20" />
-                            <p className="text-sm">Aún no has guardado ningún negocio.</p>
-                            <Link href={`/${locale}`} className="mt-3 inline-block text-xs text-brand-neon-cyan hover:underline">Explorar negocios →</Link>
+                            <p className="text-sm">{t('noFavorites')}</p>
+                            <Link href={`/${locale}`} className="mt-3 inline-block text-xs text-brand-neon-cyan hover:underline">{t('exploreBiz')}</Link>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -346,10 +347,10 @@ export default function UserProfilePage() {
                 <div className="border border-red-500/10 bg-red-500/5 rounded-3xl p-6 md:p-8">
                     <div className="flex items-center gap-3 mb-4">
                         <AlertTriangle className="w-5 h-5 text-red-400" />
-                        <h2 className="text-lg font-bold text-red-200">Zona de Peligro</h2>
+                        <h2 className="text-lg font-bold text-red-200">{t('dangerZone')}</h2>
                     </div>
                     <p className="text-sm text-slate-400 mb-6">
-                        Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, asegúrate de querer hacer esto.
+                        {t('dangerDesc')}
                     </p>
                     <button
                         type="button" // Explicitly prevent form submission
@@ -357,7 +358,7 @@ export default function UserProfilePage() {
                         className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors"
                     >
                         <Trash2 className="w-4 h-4" />
-                        Eliminar mi cuenta permanentemente
+                        {t('deleteBtn')}
                     </button>
                 </div>
 

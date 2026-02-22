@@ -762,5 +762,87 @@
             "sat": "Sábado",
             "sun": "Domingo"
         }
+    },
+    "wizard": {
+        "step1": {
+            "title": "Comencemos por lo básico",
+            "subtitle": "¿Cómo se llama tu negocio o cómo te conocen tus clientes?",
+            "nameLabel": "Nombre del Negocio / Profesional",
+            "namePlaceholder": "Ej. Soluciones Técnicas, Estudio Creativo...",
+            "descLabel": "Descripción Corta",
+            "descPlaceholder": "Describe brevemente lo que haces. Ej: Ofrecemos servicios profesionales con calidad garantizada...",
+            "chars": "caracteres"
+        },
+        "step2": {
+            "title": "¿Cuál es tu especialidad?",
+            "subtitle": "Selecciona la categoría que mejor describe tu servicio.",
+            "chooseService": "Elige el servicio específico:",
+            "chooseSpecialties": "¿Qué trabajos realizas? (Selecciona varios)"
+        },
+        "step3": {
+            "title": "Ubicación y Modalidad",
+            "subtitle": "Define cómo y dónde entregarás tus servicios a los clientes.",
+            "modalityLocal": "En mi Local",
+            "modalityLocalDesc": "El cliente viene a mí",
+            "modalityHome": "A Domicilio",
+            "modalityHomeDesc": "Yo voy donde el cliente",
+            "modalityBoth": "Ambos",
+            "modalityBothDesc": "Tengo local y también me movilizo",
+            "shopAddress": "Dirección del Local / Taller",
+            "coverageZonesTitle": "Zonas de Cobertura",
+            "searchAddress": "Buscar dirección",
+            "autocomplete": "autocompletado",
+            "searchPlaceholder": "Ej. Colonia Palmira, Tegucigalpa...",
+            "locationDetected": "Ubicación detectada",
+            "country": "País",
+            "unitedStates": "Estados Unidos",
+            "department": "Departamento / Estado",
+            "departmentPlaceholder": "Ej. Cortés",
+            "city": "Ciudad",
+            "cityPlaceholder": "Ej. San Pedro Sula",
+            "exactAddress": "Dirección Exacta",
+            "exactAddressPlaceholder": "Ej. Col. Palmira, Edificio X",
+            "coverageZones": "Zonas de Cobertura",
+            "coverageZonesPlaceholder": "Ej. Todo el casco urbano, Valle de Ángeles..."
+        },
+        "step4contact": {
+            "title": "Contacto & Redes Sociales",
+            "subtitle": "Esta información ayuda a tus clientes a encontrarte y contactarte fácilmente. Solo el teléfono es obligatorio.",
+            "phoneLabel": "Teléfono / WhatsApp",
+            "phoneHint": "Con código de país. Este número se usará para reservaciones por WhatsApp.",
+            "websiteLabel": "Sitio Web",
+            "whyTitle": "¿Por qué pedimos esto?",
+            "whyDesc": "Las redes sociales aparecerán en tu perfil público y en el panel de administración de PRO24/7, lo que permite que los clientes te contacten directamente."
+        },
+        "step4portfolio": {
+            "title": "Muestra tu Trabajo",
+            "subtitle": "Sube fotos de tus mejores resultados. Una buena imagen vende más que mil palabras.",
+            "uploadBtn": "Sube una foto",
+            "uploadHint": "JPG, PNG hasta 5MB",
+            "tipTitle": "Consejo Profesional",
+            "tipDesc": "Los perfiles con al menos 3 fotos de alta calidad reciben un 40% más de solicitudes. Intenta mostrar el 'Antes y Después' si es posible."
+        }
+    },
+    "userProfile": {
+        "title": "Mi Perfil",
+        "nameLabel": "Nombre Completo",
+        "namePlaceholder": "Tu nombre",
+        "phoneLabel": "Teléfono",
+        "phonePlaceholder": "+504 9999-9999",
+        "addressLabel": "Dirección / Zona",
+        "addressPlaceholder": "Dirección completa (calle, colonia/sector, ciudad)",
+        "saveBtn": "Guardar Cambios",
+        "saving": "Guardando...",
+        "changePhoto": "Cambiar Foto",
+        "uploadingPhoto": "Subiendo...",
+        "favorites": "Mis Negocios Guardados",
+        "favoritesDesc": "Negocios a los que les diste ❤️",
+        "noFavorites": "Aún no has guardado ningún negocio.",
+        "exploreBiz": "Explorar negocios →",
+        "dangerZone": "Zona de Peligro",
+        "dangerDesc": "Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, asegúrate de querer hacer esto.",
+        "deleteBtn": "Eliminar mi cuenta permanentemente",
+        "back": "Volver",
+        "loading": "Cargando..."
     }
 }

@@ -765,5 +765,87 @@
             "sat": "Sábado",
             "sun": "Domingo"
         }
+    },
+    "wizard": {
+        "step1": {
+            "title": "Vamos começar pelo básico",
+            "subtitle": "Como se chama seu negócio ou como seus clientes te conhecem?",
+            "nameLabel": "Nome do Negócio / Profissional",
+            "namePlaceholder": "Ex. Soluções Técnicas, Estúdio Criativo...",
+            "descLabel": "Descrição Curta",
+            "descPlaceholder": "Descreva brevemente o que você faz...",
+            "chars": "caracteres"
+        },
+        "step2": {
+            "title": "Qual é a sua especialidade?",
+            "subtitle": "Selecione a categoria que melhor descreve seu serviço.",
+            "chooseService": "Escolha o serviço específico:",
+            "chooseSpecialties": "Quais trabalhos você realiza? (Selecione vários)"
+        },
+        "step3": {
+            "title": "Localização e Modalidade",
+            "subtitle": "Defina como e onde você entregará seus serviços aos clientes.",
+            "modalityLocal": "No meu Local",
+            "modalityLocalDesc": "O cliente vem até mim",
+            "modalityHome": "A Domicílio",
+            "modalityHomeDesc": "Eu vou até o cliente",
+            "modalityBoth": "Ambos",
+            "modalityBothDesc": "Tenho local e também me desloco",
+            "shopAddress": "Endereço do Local / Oficina",
+            "coverageZonesTitle": "Zonas de Cobertura",
+            "searchAddress": "Buscar endereço",
+            "autocomplete": "autocompletar",
+            "searchPlaceholder": "Ex. Centro, Bairro Jardins...",
+            "locationDetected": "Localização detectada",
+            "country": "País",
+            "unitedStates": "Estados Unidos",
+            "department": "Estado / Província",
+            "departmentPlaceholder": "Ex. São Paulo",
+            "city": "Cidade",
+            "cityPlaceholder": "Ex. São Paulo",
+            "exactAddress": "Endereço Exato",
+            "exactAddressPlaceholder": "Ex. Rua das Flores, 123",
+            "coverageZones": "Zonas de Cobertura",
+            "coverageZonesPlaceholder": "Ex. Centro e arredores..."
+        },
+        "step4contact": {
+            "title": "Contato & Redes Sociais",
+            "subtitle": "Essas informações ajudam seus clientes a te encontrar e contatar facilmente. Apenas o telefone é obrigatório.",
+            "phoneLabel": "Telefone / WhatsApp",
+            "phoneHint": "Com código do país. Este número será usado para reservas pelo WhatsApp.",
+            "websiteLabel": "Site",
+            "whyTitle": "Por que pedimos isso?",
+            "whyDesc": "As redes sociais aparecerão no seu perfil público e no painel do PRO24/7, permitindo que os clientes te contatem diretamente."
+        },
+        "step4portfolio": {
+            "title": "Mostre seu Trabalho",
+            "subtitle": "Envie fotos dos seus melhores resultados. Uma boa imagem vende mais do que mil palavras.",
+            "uploadBtn": "Enviar uma foto",
+            "uploadHint": "JPG, PNG até 5MB",
+            "tipTitle": "Dica Profissional",
+            "tipDesc": "Perfis com pelo menos 3 fotos de alta qualidade recebem 40% mais solicitações. Tente mostrar o 'Antes e Depois' se possível."
+        }
+    },
+    "userProfile": {
+        "title": "Meu Perfil",
+        "nameLabel": "Nome Completo",
+        "namePlaceholder": "Seu nome",
+        "phoneLabel": "Telefone",
+        "phonePlaceholder": "+55 11 99999-9999",
+        "addressLabel": "Endereço / Zona",
+        "addressPlaceholder": "Endereço completo (rua, bairro, cidade)",
+        "saveBtn": "Salvar Alterações",
+        "saving": "Salvando...",
+        "changePhoto": "Mudar Foto",
+        "uploadingPhoto": "Enviando...",
+        "favorites": "Meus Negócios Salvos",
+        "favoritesDesc": "Negócios que você curtiu ❤️",
+        "noFavorites": "Você ainda não salvou nenhum negócio.",
+        "exploreBiz": "Explorar negócios →",
+        "dangerZone": "Zona de Perigo",
+        "dangerDesc": "Uma vez que você exclua sua conta, não há como voltar atrás. Por favor, certifique-se de querer fazer isso.",
+        "deleteBtn": "Excluir minha conta permanentemente",
+        "back": "Voltar",
+        "loading": "Carregando..."
     }
 }

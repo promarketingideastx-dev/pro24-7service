@@ -766,5 +766,87 @@
             "sat": "Saturday",
             "sun": "Sunday"
         }
+    },
+    "wizard": {
+        "step1": {
+            "title": "Let's start with the basics",
+            "subtitle": "What is your business name or how do your clients know you?",
+            "nameLabel": "Business / Professional Name",
+            "namePlaceholder": "E.g. Tech Solutions, Creative Studio...",
+            "descLabel": "Short Description",
+            "descPlaceholder": "Briefly describe what you do. E.g: We offer professional services with guaranteed quality and personalized attention...",
+            "chars": "characters"
+        },
+        "step2": {
+            "title": "What is your specialty?",
+            "subtitle": "Select the category that best describes your service.",
+            "chooseService": "Choose the specific service:",
+            "chooseSpecialties": "What jobs do you do? (Select multiple)"
+        },
+        "step3": {
+            "title": "Location & Modality",
+            "subtitle": "Define how and where you will deliver your services to clients.",
+            "modalityLocal": "At my Location",
+            "modalityLocalDesc": "The client comes to me",
+            "modalityHome": "Home Service",
+            "modalityHomeDesc": "I go to the client",
+            "modalityBoth": "Both",
+            "modalityBothDesc": "I have a location and also travel",
+            "shopAddress": "Shop / Workshop Address",
+            "coverageZonesTitle": "Coverage Zones",
+            "searchAddress": "Search address",
+            "autocomplete": "autocomplete",
+            "searchPlaceholder": "E.g. Downtown, City Center...",
+            "locationDetected": "Location detected",
+            "country": "Country",
+            "unitedStates": "United States",
+            "department": "State / Province",
+            "departmentPlaceholder": "E.g. Texas",
+            "city": "City",
+            "cityPlaceholder": "E.g. Houston",
+            "exactAddress": "Exact Address",
+            "exactAddressPlaceholder": "E.g. 123 Main St, Suite 4",
+            "coverageZones": "Coverage Zones",
+            "coverageZonesPlaceholder": "E.g. Downtown, suburbs..."
+        },
+        "step4contact": {
+            "title": "Contact & Social Media",
+            "subtitle": "This information helps your clients find and contact you easily. Only phone is required.",
+            "phoneLabel": "Phone / WhatsApp",
+            "phoneHint": "With country code. This number will be used for WhatsApp bookings.",
+            "websiteLabel": "Website",
+            "whyTitle": "Why do we ask for this?",
+            "whyDesc": "Social media will appear on your public profile and the PRO24/7 admin panel, allowing clients to contact you directly."
+        },
+        "step4portfolio": {
+            "title": "Show Your Work",
+            "subtitle": "Upload photos of your best results. A great image sells more than a thousand words.",
+            "uploadBtn": "Upload a photo",
+            "uploadHint": "JPG, PNG up to 5MB",
+            "tipTitle": "Pro Tip",
+            "tipDesc": "Profiles with at least 3 high-quality photos receive 40% more requests. Try to show 'Before and After' if possible."
+        }
+    },
+    "userProfile": {
+        "title": "My Profile",
+        "nameLabel": "Full Name",
+        "namePlaceholder": "Your name",
+        "phoneLabel": "Phone",
+        "phonePlaceholder": "+1 555 999-9999",
+        "addressLabel": "Address / Zone",
+        "addressPlaceholder": "Full address (street, neighborhood/sector, city)",
+        "saveBtn": "Save Changes",
+        "saving": "Saving...",
+        "changePhoto": "Change Photo",
+        "uploadingPhoto": "Uploading...",
+        "favorites": "My Saved Businesses",
+        "favoritesDesc": "Businesses you liked ❤️",
+        "noFavorites": "You haven't saved any businesses yet.",
+        "exploreBiz": "Explore businesses →",
+        "dangerZone": "Danger Zone",
+        "dangerDesc": "Once you delete your account, there is no going back. Please make sure you want to do this.",
+        "deleteBtn": "Permanently delete my account",
+        "back": "Back",
+        "loading": "Loading..."
     }
 }

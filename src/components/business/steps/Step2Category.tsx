@@ -1,15 +1,16 @@
 'use client';
 
 import { TAXONOMY } from '@/lib/taxonomy';
+import { useLocale, useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 
 export function Step2Category({ data, update }: any) {
+    const t = useTranslations('wizard.step2');
+    const locale = useLocale();
+    const lang = locale === 'pt-BR' ? 'pt' : locale === 'en' ? 'en' : 'es';
+
     const categories = Object.values(TAXONOMY);
-
-    // Find selected category object
     const selectedCategory = categories.find(c => c.id === data.category);
-
-    // Find selected subcategory object (if category is selected)
     const selectedSubcategory = selectedCategory?.subcategories.find(s => s.id === data.subcategory);
 
     const toggleSpecialty = (specialty: string) => {
@@ -21,11 +22,16 @@ export function Step2Category({ data, update }: any) {
         }
     };
 
+    const getLabel = (labelObj: any, fallback?: string) => {
+        if (!labelObj) return fallback ?? '';
+        return labelObj[lang] ?? labelObj.es ?? fallback ?? '';
+    };
+
     return (
         <div className="space-y-8">
             <div>
-                <h2 className="text-3xl font-bold mb-2">¿Cuál es tu especialidad?</h2>
-                <p className="text-slate-400">Selecciona la categoría que mejor describe tu servicio.</p>
+                <h2 className="text-3xl font-bold mb-2">{t('title')}</h2>
+                <p className="text-slate-400">{t('subtitle')}</p>
             </div>
 
             {/* 1. Main Category Selection */}
@@ -35,7 +41,7 @@ export function Step2Category({ data, update }: any) {
                         key={cat.id}
                         onClick={() => {
                             update('category', cat.id);
-                            update('subcategory', ''); // Reset child fields
+                            update('subcategory', '');
                             update('specialties', []);
                         }}
                         className={`cursor-pointer p-4 rounded-xl border transition-all ${data.category === cat.id
@@ -44,24 +50,23 @@ export function Step2Category({ data, update }: any) {
                             }`}
                     >
                         <div className="text-2xl mb-2">
-                            {/* Icons mapping could be improved here or passed from taxonomy if we added them to the object */}
                             {cat.id === 'art_design' && '🎨'}
                             {cat.id === 'general_services' && '🛠️'}
                             {cat.id === 'beauty_wellness' && '✨'}
                         </div>
-                        <div className="font-bold">{cat.label.es}</div>
+                        <div className="font-bold">{getLabel(cat.label)}</div>
                     </div>
                 ))}
             </div>
 
-            {/* 2. Subcategory Selection (Only if Main Category is selected) */}
+            {/* 2. Subcategory Selection */}
             {selectedCategory && (
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="space-y-4"
                 >
-                    <h3 className="text-xl font-semibold text-white">Elige el servicio específico:</h3>
+                    <h3 className="text-xl font-semibold text-white">{t('chooseService')}</h3>
                     <div className="grid grid-cols-2 gap-3">
                         {selectedCategory.subcategories.map((sub) => (
                             <div
@@ -75,25 +80,25 @@ export function Step2Category({ data, update }: any) {
                                     : 'bg-slate-800 border-white/5 hover:border-white/20 text-slate-300'
                                     }`}
                             >
-                                {sub.label.es}
+                                {getLabel(sub.label)}
                             </div>
                         ))}
                     </div>
                 </motion.div>
             )}
 
-            {/* 3. Specialties Selection (Only if Subcategory is selected) */}
+            {/* 3. Specialties Selection */}
             {selectedSubcategory && (
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="space-y-4"
                 >
-                    <h3 className="text-xl font-semibold text-white">¿Qué trabajos realizas? (Selecciona varios)</h3>
+                    <h3 className="text-xl font-semibold text-white">{t('chooseSpecialties')}</h3>
                     <div className="flex flex-wrap gap-2">
                         {selectedSubcategory.specialties.map((spec) => {
                             const specKey = typeof spec === 'string' ? spec : (spec as any).es;
-                            const specLabel = typeof spec === 'string' ? spec : (spec as any).es;
+                            const specLabel = typeof spec === 'string' ? spec : getLabel(spec, specKey);
                             return (
                                 <span
                                     key={specKey}
