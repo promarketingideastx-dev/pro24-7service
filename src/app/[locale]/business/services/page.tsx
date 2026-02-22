@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
-import { ServicesService, ServiceData, BusinessProfileService } from '@/services/businessProfile.service';
+import { ServicesService, ServiceData, BusinessProfileService, getServiceName } from '@/services/businessProfile.service';
 import { useTranslations, useLocale } from 'next-intl';
 import { TAXONOMY } from '@/lib/taxonomy';
 
@@ -56,6 +56,7 @@ export default function ServicesPage() {
 
     const defaultForm = (): ServiceData => ({
         name: '',
+        nameI18n: { es: '', en: '', pt: '' },
         description: '',
         price: 0,
         durationMinutes: 60,
@@ -113,7 +114,8 @@ export default function ServicesPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!user || !formData.name || formData.price === undefined) return;
+        const primaryName = formData.nameI18n?.es?.trim() || formData.name.trim();
+        if (!user || !primaryName || formData.price === undefined) return;
 
         setIsSubmitting(true);
         try {
@@ -122,7 +124,12 @@ export default function ServicesPage() {
                 : Number(formData.durationMinutes) || 60;
 
             const payload: Omit<ServiceData, 'id'> = {
-                name: formData.name.trim(),
+                name: formData.nameI18n?.es?.trim() || formData.name.trim(),
+                nameI18n: {
+                    es: formData.nameI18n?.es?.trim() || formData.name.trim(),
+                    en: formData.nameI18n?.en?.trim() || formData.name.trim(),
+                    pt: formData.nameI18n?.pt?.trim() || formData.name.trim(),
+                },
                 description: formData.description || '',
                 price: Number(formData.price),
                 durationMinutes: resolvedDuration,
@@ -215,6 +222,7 @@ export default function ServicesPage() {
                                     <ServiceCard
                                         key={service.id}
                                         service={service}
+                                        locale={locale}
                                         onEdit={() => openModal(service)}
                                         onDelete={() => setServiceToDelete(service.id!)}
                                         extraLabel={t('extraServiceBadge')}
@@ -237,6 +245,7 @@ export default function ServicesPage() {
                                     <ServiceCard
                                         key={service.id}
                                         service={service}
+                                        locale={locale}
                                         onEdit={() => openModal(service)}
                                         onDelete={() => setServiceToDelete(service.id!)}
                                         extraLabel={t('extraServiceBadge')}
@@ -281,11 +290,34 @@ export default function ServicesPage() {
                                             <button
                                                 key={spec}
                                                 type="button"
-                                                onClick={() => setFormData(prev => ({
-                                                    ...prev,
-                                                    name: prev.name ? prev.name : getSpecLabel(spec),
-                                                    category: spec, // keep .es value for Firestore
-                                                }))}
+                                                onClick={() => setFormData(prev => {
+                                                    // Auto-fill all 3 names from taxonomy
+                                                    const nameEs = spec;
+                                                    const nameEn = (() => {
+                                                        for (const cat of Object.values(TAXONOMY)) {
+                                                            for (const sub of cat.subcategories) {
+                                                                const found = sub.specialties.find(s => s.es === spec);
+                                                                if (found) return found.en;
+                                                            }
+                                                        }
+                                                        return spec;
+                                                    })();
+                                                    const namePt = (() => {
+                                                        for (const cat of Object.values(TAXONOMY)) {
+                                                            for (const sub of cat.subcategories) {
+                                                                const found = sub.specialties.find(s => s.es === spec);
+                                                                if (found) return found.pt;
+                                                            }
+                                                        }
+                                                        return spec;
+                                                    })();
+                                                    return {
+                                                        ...prev,
+                                                        name: nameEs,
+                                                        nameI18n: { es: nameEs, en: nameEn, pt: namePt },
+                                                        category: spec,
+                                                    };
+                                                })}
                                                 className={`text-xs px-3 py-1.5 rounded-full border transition-all
                                                     ${formData.category === spec
                                                         ? 'bg-brand-neon-cyan/15 border-brand-neon-cyan text-brand-neon-cyan'
@@ -301,19 +333,30 @@ export default function ServicesPage() {
                                 </div>
                             )}
 
-                            {/* Name */}
+                            {/* Name — 3 language inputs */}
                             <div>
-                                <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">
+                                <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">
                                     {t('serviceName')} *
                                 </label>
-                                <input
-                                    type="text"
-                                    required
-                                    value={formData.name}
-                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none transition-colors placeholder:text-slate-600"
-                                    placeholder={t('serviceNamePlaceholder')}
-                                />
+                                <div className="space-y-2">
+                                    {([['es', '🇪🇸'], ['en', '🇺🇸'], ['pt', '🇧🇷']] as const).map(([lang, flag]) => (
+                                        <div key={lang} className="flex items-center gap-2">
+                                            <span className="text-lg shrink-0">{flag}</span>
+                                            <input
+                                                type="text"
+                                                required={lang === 'es'}
+                                                value={formData.nameI18n?.[lang] ?? ''}
+                                                onChange={e => setFormData(prev => ({
+                                                    ...prev,
+                                                    name: lang === 'es' ? e.target.value : prev.name,
+                                                    nameI18n: { ...prev.nameI18n!, [lang]: e.target.value } as any
+                                                }))}
+                                                className="flex-1 bg-[#0B0F19] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-brand-neon-cyan focus:outline-none transition-colors placeholder:text-slate-600 text-sm"
+                                                placeholder={lang === 'es' ? t('serviceNamePlaceholder') : lang === 'en' ? 'e.g. Regular Cut...' : 'Ex. Corte Regular...'}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
 
                             {/* Description */}
@@ -478,20 +521,22 @@ export default function ServicesPage() {
 }
 
 /* ── Service Card Component ── */
-function ServiceCard({ service, onEdit, onDelete, extraLabel, noDescLabel }: {
+function ServiceCard({ service, onEdit, onDelete, extraLabel, noDescLabel, locale }: {
     service: ServiceData;
     onEdit: () => void;
     onDelete: () => void;
     extraLabel?: string;
     noDescLabel?: string;
+    locale?: string;
 }) {
+    const displayName = getServiceName(service, locale || 'es');
     return (
         <GlassPanel className={`p-5 flex flex-col group relative overflow-visible transition-all hover:border-brand-neon-cyan/25
             ${service.isExtra ? 'border-amber-500/15' : ''}`}>
 
             {/* Badges */}
             <div className="flex items-start justify-between mb-3 gap-2">
-                <h3 className="font-bold text-white text-base leading-tight pr-12">{service.name}</h3>
+                <h3 className="font-bold text-white text-base leading-tight pr-12">{displayName}</h3>
                 <div className="flex gap-1 absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-[#0B0F19] rounded-lg p-1">
                     <button onClick={onEdit} className="p-1.5 hover:text-brand-neon-cyan text-slate-400 transition-colors"><Edit2 size={14} /></button>
                     <button onClick={onDelete} className="p-1.5 hover:text-red-400 text-slate-400 transition-colors"><Trash2 size={14} /></button>

@@ -73,7 +73,8 @@ export interface BusinessProfileData {
 // --- Services Subcollection Types ---
 export interface ServiceData {
     id?: string;
-    name: string;
+    name: string;                              // Primary name (es) — backward compat
+    nameI18n?: { es: string; en: string; pt: string }; // Multi-language names
     description?: string;
     price: number;
     durationMinutes: number;   // Duration in minutes (required for scheduling)
@@ -84,6 +85,14 @@ export interface ServiceData {
     createdAt?: any;
     updatedAt?: any;
 }
+
+/** Returns the service name in the active locale, falls back to .name */
+export function getServiceName(service: ServiceData, locale: string): string {
+    if (!service.nameI18n) return service.name;
+    const key = locale === 'en' ? 'en' : locale === 'pt-BR' ? 'pt' : 'es';
+    return service.nameI18n[key] || service.name;
+}
+
 
 export const ServicesService = {
     /**

@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { Calendar, ChevronRight, Zap } from 'lucide-react';
-import { ServicesService } from '@/services/businessProfile.service';
-import { useTranslations } from 'next-intl';
+import { ServicesService, getServiceName } from '@/services/businessProfile.service';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface ServicesTabProps {
     businessId: string;
@@ -13,6 +13,7 @@ interface ServicesTabProps {
 
 export default function ServicesTab({ businessId, services: initialServices, onBook }: ServicesTabProps) {
     const t = useTranslations('business.publicProfile');
+    const locale = useLocale();
     const [services, setServices] = useState<any[]>(initialServices || []);
     const [loading, setLoading] = useState(!initialServices);
 
@@ -64,7 +65,7 @@ export default function ServicesTab({ businessId, services: initialServices, onB
                 >
                     <div className="flex-1">
                         <h3 className="font-bold text-white text-base mb-1 group-hover:text-brand-neon-cyan transition-colors">
-                            {service.name}
+                            {getServiceName(service, locale)}
                         </h3>
                         <p className="text-slate-400 text-sm line-clamp-2 mb-3">
                             {service.description || t('noDescription')}
