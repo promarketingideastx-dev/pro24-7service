@@ -6,15 +6,17 @@ import { useAdminContext } from '@/context/AdminContext';
 import { AnalyticsService, FunnelStep } from '@/services/analytics.service';
 import { TrendingDown, Users, ChevronRight, BarChart2, Clock } from 'lucide-react';
 
-// Day options are built inside component so they can use translations
-
-function FunnelBar({ step, maxCount, isTop }: { step: FunnelStep; maxCount: number; isTop: boolean }) {
+function FunnelBar({ step, maxCount, isTop, dropLabel }: {
+    step: FunnelStep;
+    maxCount: number;
+    isTop: boolean;
+    dropLabel: string;
+}) {
     const barWidth = maxCount > 0 ? Math.max((step.count / maxCount) * 100, 2) : 0;
 
     return (
         <div className="group">
             <div className="flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-white/3 transition-colors">
-                {/* Emoji + label */}
                 <div className="w-8 text-lg shrink-0 text-center">{step.emoji}</div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1.5">
@@ -30,7 +32,6 @@ function FunnelBar({ step, maxCount, isTop }: { step: FunnelStep; maxCount: numb
                             <span className="text-xs text-slate-500 w-10 text-right">{step.pct}%</span>
                         </div>
                     </div>
-                    {/* Bar */}
                     <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                         <div
                             className="h-full rounded-full transition-all duration-700 ease-out"
@@ -45,11 +46,10 @@ function FunnelBar({ step, maxCount, isTop }: { step: FunnelStep; maxCount: numb
                 </div>
             </div>
 
-            {/* Drop arrow connector */}
             {!isTop && step.dropPct > 0 && (
                 <div className="ml-12 text-[10px] text-red-400/60 flex items-center gap-1 px-4 pb-1">
                     <ChevronRight size={10} className="rotate-90" />
-                    {step.dropPct}% abandonó aquí
+                    {step.dropPct}% {dropLabel}
                 </div>
             )}
         </div>
@@ -59,6 +59,16 @@ function FunnelBar({ step, maxCount, isTop }: { step: FunnelStep; maxCount: numb
 export default function AdminFunnelPage() {
     const { selectedCountry } = useAdminContext();
     const t = useTranslations('admin.analytics');
+
+    // Map step keys → translated labels (overrides hardcoded service labels)
+    const stepLabels: Record<string, string> = {
+        profile_view: t('step1'),
+        booking_modal_open: t('step2'),
+        booking_step_service: t('step3'),
+        booking_step_datetime: t('step4'),
+        booking_step_contact: t('step5'),
+        booking_confirmed: t('step6'),
+    };
 
     const DAY_OPTIONS = [
         { value: 7, label: t('last7days') },
@@ -75,7 +85,15 @@ export default function AdminFunnelPage() {
         setLoading(true);
         const unsub = AnalyticsService.onFunnelData(
             { country: selectedCountry === 'ALL' ? undefined : selectedCountry, days: days || undefined },
-            (data) => { setSteps(data); setLoading(false); }
+            (data) => {
+                // Override labels with translated versions
+                const translated = data.map(s => ({
+                    ...s,
+                    label: stepLabels[s.key] ?? s.label,
+                }));
+                setSteps(translated);
+                setLoading(false);
+            }
         );
         return () => unsub();
     }, [selectedCountry, days]);
@@ -115,7 +133,7 @@ export default function AdminFunnelPage() {
                     { label: t('step1'), value: topCount.toLocaleString(), icon: '👁️', color: 'text-blue-400' },
                     { label: t('step2'), value: (steps[1]?.count ?? 0).toLocaleString(), icon: '📅', color: 'text-cyan-400' },
                     { label: t('step6'), value: bottomCount.toLocaleString(), icon: '✅', color: 'text-green-400' },
-                    { label: 'Conversión Total', value: `${overallConversion}%`, icon: '📊', color: 'text-purple-400' },
+                    { label: t('totalConversion'), value: `${overallConversion}%`, icon: '📊', color: 'text-purple-400' },
                 ].map(kpi => (
                     <div key={kpi.label} className="bg-white/3 border border-white/8 rounded-xl p-4">
                         <p className="text-xl mb-1">{kpi.icon}</p>
@@ -134,15 +152,19 @@ export default function AdminFunnelPage() {
                 ) : topCount === 0 ? (
                     <div className="flex flex-col items-center py-20 gap-3 text-slate-500">
                         <BarChart2 size={36} className="opacity-20" />
-                        <p className="text-sm">No hay datos de analytics aún.</p>
-                        <p className="text-xs text-slate-600 text-center max-w-xs">
-                            Los eventos se registran automáticamente cuando usuarios visitan perfiles de negocios.
-                        </p>
+                        <p className="text-sm">{t('noData')}</p>
+                        <p className="text-xs text-slate-600 text-center max-w-xs">{t('noDataHint')}</p>
                     </div>
                 ) : (
                     <div className="py-2">
                         {steps.map((step, i) => (
-                            <FunnelBar key={step.key} step={step} maxCount={topCount} isTop={i === 0} />
+                            <FunnelBar
+                                key={step.key}
+                                step={step}
+                                maxCount={topCount}
+                                isTop={i === 0}
+                                dropLabel={t('droppedHere')}
+                            />
                         ))}
                     </div>
                 )}
@@ -150,7 +172,7 @@ export default function AdminFunnelPage() {
 
             {/* Note */}
             <p className="text-[11px] text-slate-600 text-center">
-                Los eventos de analytics se registran automáticamente en Firestore → colección <code className="font-mono bg-white/5 px-1 rounded">analytics_events</code>
+                {t('firestoreNote')} <code className="font-mono bg-white/5 px-1 rounded">analytics_events</code>
             </p>
         </div>
     );
