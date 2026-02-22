@@ -1,7 +1,8 @@
 import { Resend } from 'resend';
 import { NextRequest, NextResponse } from 'next/server';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// NOTE: Resend is instantiated inside the handler (not at module level)
+// to prevent Next.js build from crashing when RESEND_API_KEY is not set.
 
 const ADMIN_EMAIL = 'promarketingideas.tx@gmail.com';
 const FROM_EMAIL = 'onboarding@resend.dev'; // Resend test domain — works without domain verification
@@ -131,6 +132,9 @@ export async function POST(req: NextRequest) {
     console.warn('[notify-admin] RESEND_API_KEY not set — email skipped');
     return NextResponse.json({ ok: true, skipped: true });
   }
+
+  // Instantiate inside the handler — safe from build-time crashes
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
     const body = await req.json();
