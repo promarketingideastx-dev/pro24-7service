@@ -420,35 +420,34 @@ export const BusinessProfileService = {
      */
     async getPublicBusinesses(countryCode?: string) {
         try {
-            const { collection, getDocs, query, where } = await import('firebase/firestore');
+            const { collection, getDocs, query } = await import('firebase/firestore');
 
-            // Basic query - in prod, use compound queries or Algolia
-            let q = query(
-                collection(db, 'businesses_public'),
-                where('status', '==', 'active')
-            );
-
-            if (countryCode) {
-                // Note: Requires composite index if combined with status. 
-                // For now, filter client side if index missing, or assume country is enough.
-                q = query(q, where('country', '==', countryCode));
-            }
+            // Fetch all businesses — status filtering is done client-side so that
+            // businesses without a 'status' field (created before the field was added)
+            // are still visible. Only 'suspended' businesses are hidden.
+            const q = query(collection(db, 'businesses_public'));
 
             const querySnapshot = await getDocs(q);
 
-            return querySnapshot.docs.map(doc => {
-                const data = doc.data();
-                return {
-                    id: doc.id,
-                    ...data,
-                    // Ensure lat/lng exist for map
-                    lat: data.location?.lat || 15.50417,
-                    lng: data.location?.lng || -88.02500,
-                    icon: '💼', // Can map category to icon here
-                    color: 'bg-blue-500',
-                    description: data.shortDescription || ''
-                } as any;
-            });
+            return querySnapshot.docs
+                .map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        ...data,
+                        // Normalize country field: Firestore stores as 'country', fallback to countryCode
+                        countryCode: data.countryCode || data.country || 'HN',
+                        // Ensure lat/lng exist for map
+                        lat: data.location?.lat || 15.50417,
+                        lng: data.location?.lng || -88.02500,
+                        icon: '💼',
+                        color: 'bg-blue-500',
+                        description: data.shortDescription || ''
+                    } as any;
+                })
+                // Client-side: only hide explicitly suspended businesses
+                .filter(biz => biz.status !== 'suspended');
+
         } catch (error) {
             console.error("Error fetching public businesses:", error);
             return [];

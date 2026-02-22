@@ -117,8 +117,8 @@ export default function Home() {
     const filteredBusinesses = businesses.filter(b => {
         // 0. Filter by Country Code (Strict)
         if (selectedCountry) {
-            // Firestore stores country as 'country' (ISO code), also check 'countryCode' for backward compat
-            const bizCountry = (b as any).country || b.countryCode || 'HN';
+            // countryCode is normalized by getPublicBusinesses (country → countryCode)
+            const bizCountry = b.countryCode || 'HN';
             if (bizCountry !== selectedCountry.code) return false;
         }
 
