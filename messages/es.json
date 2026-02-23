@@ -305,7 +305,14 @@
         "errorRegister": "Error al crear cuenta.",
         "showPassword": "Mostrar contraseña",
         "hidePassword": "Ocultar contraseña",
-        "loading": "Cargando..."
+        "loading": "Cargando...",
+        "forgotPassword": "¿Olvidaste tu contraseña?",
+        "forgotPasswordTitle": "Recuperar Contraseña",
+        "forgotPasswordDesc": "Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña.",
+        "sendResetEmail": "Enviar Enlace",
+        "backToLogin": "Volver al Login",
+        "resetEmailSentTitle": "¡Correo enviado!",
+        "resetEmailSentDesc": "Si {email} está registrado, recibirás un enlace en los próximos minutos. Revisa tu carpeta de spam."
     },
     "onboarding": {
         "title": "¿Cómo quieres usar PRO24/7?",

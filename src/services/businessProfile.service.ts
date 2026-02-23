@@ -2,6 +2,8 @@ import { db } from '@/lib/firebase';
 import { doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, writeBatch, serverTimestamp, query, orderBy, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { WeeklySchedule } from './employee.service';
 import { PaymentSettings } from '@/types/firestore-schema';
+import { TrialService } from './trial.service';
+
 
 // ── Country fallback coordinates ──
 const COUNTRY_COORDS: Record<string, { lat: number; lng: number }> = {
@@ -456,6 +458,15 @@ export const BusinessProfileService = {
                 providerSince: serverTimestamp()
             });
 
+            // 5. Write trial plan data to businesses doc (gated plan management)
+            const businessesRef = doc(db, 'businesses', userId);
+            const trialPlanData = TrialService.getNewBusinessPlanData();
+            batch.set(businessesRef, {
+                planData: trialPlanData,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            }, { merge: true });
+
             await batch.commit();
 
             return { success: true, id: userId };
@@ -464,6 +475,7 @@ export const BusinessProfileService = {
             throw new Error(error.message || 'Error al crear el perfil.');
         }
     },
+
 
     /**
      * Fetches all active businesses from PUBLIC collection.

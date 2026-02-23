@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin, Phone, Globe, Clock } from 'lucide-react';
+import { MapPin, Phone, Globe, Clock, MessageCircle } from 'lucide-react';
 import WeeklyScheduleView from '@/components/business/public/WeeklyScheduleView';
 import OpeningHoursStatus from '@/components/business/public/OpeningHoursStatus';
 import dynamic from 'next/dynamic';
@@ -93,19 +93,40 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                         />
                     </div>
 
-                    {business.phone && (
-                        <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-brand-neon-cyan shrink-0">
-                                <Phone className="w-5 h-5" />
+                    {business.phone && (() => {
+                        const cleanPhone = business.phone.replace(/\D/g, '');
+                        return (
+                            <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-brand-neon-cyan shrink-0 mt-1">
+                                    <Phone className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1">
+                                    <span className="block text-white font-medium mb-3">{t('phone')}</span>
+                                    <div className="flex flex-wrap gap-3">
+                                        {/* WhatsApp CTA */}
+                                        <a
+                                            href={`https://wa.me/${cleanPhone}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 hover:border-green-500/50 text-green-400 hover:text-green-300 transition-all text-sm font-medium active:scale-95"
+                                        >
+                                            <MessageCircle className="w-4 h-4" />
+                                            <span>WhatsApp</span>
+                                        </a>
+                                        {/* Call CTA */}
+                                        <a
+                                            href={`tel:${business.phone}`}
+                                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 hover:border-blue-500/50 text-blue-400 hover:text-blue-300 transition-all text-sm font-medium active:scale-95"
+                                        >
+                                            <Phone className="w-4 h-4" />
+                                            <span>{business.phone}</span>
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <span className="block text-white font-medium mb-1">{t('phone')}</span>
-                                <a href={`tel:${business.phone}`} className="text-slate-400 text-sm hover:text-white transition-colors">
-                                    {business.phone}
-                                </a>
-                            </div>
-                        </div>
-                    )}
+                        );
+                    })()}
+
 
                     {business.website && (
                         <div className="flex items-center gap-4">

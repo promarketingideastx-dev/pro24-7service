@@ -1,62 +1,63 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { UserService } from '@/services/user.service';
-import { AuthService } from '@/services/auth.service';
-import { enableNetwork } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { enableNetwork } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { Search, Briefcase } from 'lucide-react';
 
-export default function OnboardingPage() {
+function OnboardingContent() {
     const { user } = useAuth();
     const router = useRouter();
     const locale = useLocale();
     const t = useTranslations('onboarding');
     const lp = (path: string) => `/${locale}${path}`;
+    const searchParams = useSearchParams();
     const [loading, setLoading] = useState(false);
 
+    // mode=login → user is logging in (not registering)
+    const isLoginMode = searchParams.get('mode') === 'login';
+    const returnTo = searchParams.get('returnTo') || '';
+
     const handleRoleSelection = async (role: 'client' | 'provider') => {
-        // 1. Pre-Auth Logic: Redirect to Register with Intent
+        const intent = role === 'provider' ? 'business' : 'client';
+        const returnParam = returnTo ? `&returnTo=${encodeURIComponent(returnTo)}` : '';
+
+        // 1. Not logged in → send to login or register based on mode
         if (!user) {
-            router.push(lp(`/auth/register?intent=${role === 'provider' ? 'business' : 'client'}`));
+            if (isLoginMode) {
+                router.push(lp(`/auth/login?intent=${intent}${returnParam}`));
+            } else {
+                router.push(lp(`/auth/register?intent=${intent}${returnParam}`));
+            }
             return;
         }
 
-        // 2. Post-Auth Logic (Existing)
+        // 2. Already logged in → set role and redirect
         setLoading(true);
         try {
-            // 0. Force Online (Robustness)
-            try {
-                await enableNetwork(db);
-            } catch (netErr) {
-                console.warn("Could not force network online:", netErr);
-            }
+            try { await enableNetwork(db); } catch { /* ignore */ }
 
-            // 1. Ensure Profile Exists & Saved Preference
             await UserService.createUserProfile(user.uid, user.email || '');
 
-            // 2. Persist selection in localStorage for UX consistency
             if (typeof window !== 'undefined') {
                 localStorage.setItem('pro247_user_mode', role === 'provider' ? 'business' : 'client');
             }
 
-            // 3. Set Role in Backend
             await UserService.setUserRole(user.uid, role);
 
-            // 4. Navigation
             if (role === 'provider') {
                 router.push(lp('/business/setup'));
             } else {
-                router.push(lp('/'));
+                router.push(lp(returnTo || '/'));
             }
         } catch (error: any) {
-            console.error("Error saving role:", error);
-            if (error.message && error.message.includes("offline")) {
+            console.error('Error saving role:', error);
+            if (error.message?.includes('offline')) {
                 toast.error(t('errorOffline'));
             } else {
                 toast.error(t('errorSaving'));
@@ -74,10 +75,17 @@ export default function OnboardingPage() {
 
             <div className="relative z-10 w-full max-w-2xl flex flex-col items-center">
                 <h1 className="text-3xl md:text-4xl font-bold mb-2 text-white text-center">
-                    {t('title').split('PRO24/7')[0]}<span className="text-brand-neon-cyan">PRO24/7</span>{t('title').split('PRO24/7')[1] ?? ''}
+                    {isLoginMode ? (
+                        <>¿Cómo usas <span className="text-brand-neon-cyan">Pro24/7YA</span>?</>
+                    ) : (
+                        <>Únete a <span className="text-brand-neon-cyan">Pro24/7YA</span></>
+                    )}
                 </h1>
                 <p className="text-slate-400 mb-10 text-center text-sm md:text-base">
-                    {t('subtitle')}
+                    {isLoginMode
+                        ? 'Selecciona tu perfil para continuar con el inicio de sesión.'
+                        : t('subtitle')
+                    }
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
@@ -94,6 +102,9 @@ export default function OnboardingPage() {
                         <p className="text-slate-400 text-center text-xs leading-relaxed">
                             {t('clientDesc')}
                         </p>
+                        <div className="mt-6 px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs font-bold">
+                            {isLoginMode ? 'Iniciar sesión como cliente →' : 'Crear cuenta gratis →'}
+                        </div>
                     </button>
 
                     {/* Provider Option */}
@@ -109,15 +120,15 @@ export default function OnboardingPage() {
                         <p className="text-slate-400 text-center text-xs leading-relaxed">
                             {t('providerDesc')}
                         </p>
+                        <div className="mt-6 px-4 py-2 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-xs font-bold">
+                            {isLoginMode ? 'Iniciar sesión como negocio →' : 'Registrar mi negocio →'}
+                        </div>
                     </button>
                 </div>
 
                 <div className="mt-12">
                     <button
-                        onClick={() => {
-                            // Allow exploring without role selection yet
-                            router.push(lp('/'));
-                        }}
+                        onClick={() => router.push(lp('/'))}
                         className="text-slate-500 hover:text-white text-xs font-medium transition-colors flex items-center gap-2"
                     >
                         <span>{t('exploreOnly')}</span>
@@ -128,3 +139,12 @@ export default function OnboardingPage() {
         </div>
     );
 }
+
+export default function OnboardingPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#0B0F19]" />}>
+            <OnboardingContent />
+        </Suspense>
+    );
+}
+

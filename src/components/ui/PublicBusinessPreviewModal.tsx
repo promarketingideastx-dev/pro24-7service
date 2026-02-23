@@ -23,7 +23,9 @@ export default function PublicBusinessPreviewModal({ isOpen, onClose, business }
     };
 
     const handleRegister = () => {
-        router.push(lp(`/auth/register?returnTo=${encodeURIComponent(returnUrl)}`));
+        // Take user to onboarding flow so they choose 'client' or 'provider'
+        // before creating their account. This follows the correct business flow.
+        router.push(lp(`/onboarding?returnTo=${encodeURIComponent(returnUrl)}`));
     };
 
     return (

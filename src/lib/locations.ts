@@ -35,7 +35,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
     // CENTRAL AMERICA
     HN: {
         code: 'HN', name: 'Honduras', flag: '🇭🇳', currency: 'HNL', phonePrefix: '+504', regionType: 'department', regionLabel: 'Departamento', timeFormat: '12h',
-        coordinates: { lat: 14.0818, lng: -87.2068, zoom: 7 }, // Tegucigalpa
+        coordinates: { lat: 15.0000, lng: -86.5000, zoom: 7 }, // Center of Honduras — country view
         // HN Bounds: SW(12.9, -89.4), NE(16.6, -83.1)
         bounds: [12.90, -89.40, 16.60, -83.10],
         mainCity: 'Tegucigalpa',
@@ -53,7 +53,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
     },
     GT: {
         code: 'GT', name: 'Guatemala', flag: '🇬🇹', currency: 'GTQ', phonePrefix: '+502', regionType: 'department', regionLabel: 'Departamento', timeFormat: '12h',
-        coordinates: { lat: 14.6349, lng: -90.5069, zoom: 7 }, // Guatemala City
+        coordinates: { lat: 15.5000, lng: -90.3500, zoom: 7 }, // Center of Guatemala — country view
         mainCity: 'Ciudad de Guatemala',
         states: [
             { name: 'Alta Verapaz' }, { name: 'Baja Verapaz' }, { name: 'Chimaltenango' }, { name: 'Chiquimula' },
@@ -66,7 +66,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
     },
     SV: {
         code: 'SV', name: 'El Salvador', flag: '🇸🇻', currency: 'USD', phonePrefix: '+503', regionType: 'department', regionLabel: 'Departamento',
-        coordinates: { lat: 13.6929, lng: -89.2182, zoom: 8 }, // San Salvador
+        coordinates: { lat: 13.7942, lng: -88.8965, zoom: 8 }, // Center of El Salvador — country view
         mainCity: 'San Salvador',
         states: [
             { name: 'Ahuachapán' }, { name: 'Cabañas' }, { name: 'Chalatenango' }, { name: 'Cuscatlán' },
@@ -77,7 +77,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
     },
     NI: {
         code: 'NI', name: 'Nicaragua', flag: '🇳🇮', currency: 'NIO', phonePrefix: '+505', regionType: 'department', regionLabel: 'Departamento',
-        coordinates: { lat: 12.1150, lng: -86.2362, zoom: 7 }, // Managua
+        coordinates: { lat: 12.8654, lng: -85.2072, zoom: 7 }, // Center of Nicaragua — country view
         mainCity: 'Managua',
         states: [
             { name: 'Boaco' }, { name: 'Carazo' }, { name: 'Chinandega' }, { name: 'Chontales' },
@@ -89,7 +89,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
     },
     CR: {
         code: 'CR', name: 'Costa Rica', flag: '🇨🇷', currency: 'CRC', phonePrefix: '+506', regionType: 'province', regionLabel: 'Provincia',
-        coordinates: { lat: 9.9281, lng: -84.0907, zoom: 7 }, // San Jose
+        coordinates: { lat: 9.7489, lng: -83.7534, zoom: 7 }, // Center of Costa Rica — country view
         mainCity: 'San José',
         states: [
             { name: 'San José' }, { name: 'Alajuela' }, { name: 'Cartago' }, { name: 'Heredia' },
@@ -98,7 +98,7 @@ export const COUNTRIES: Record<CountryCode, CountryConfig> = {
     },
     PA: {
         code: 'PA', name: 'Panamá', flag: '🇵🇦', currency: 'PAB', phonePrefix: '+507', regionType: 'province', regionLabel: 'Provincia',
-        coordinates: { lat: 8.9824, lng: -79.5199, zoom: 7 }, // Panama City
+        coordinates: { lat: 8.5597, lng: -80.7823, zoom: 7 }, // Center of Panama — country view
         mainCity: 'Ciudad de Panamá',
         states: [
             { name: 'Bocas del Toro' }, { name: 'Coclé' }, { name: 'Colón' }, { name: 'Chiriquí' },

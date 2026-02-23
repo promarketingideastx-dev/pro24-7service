@@ -85,9 +85,22 @@ function RegisterForm() {
 
             // Check for Intent
             const intent = searchParams.get('intent');
+            const role: 'client' | 'provider' = intent === 'business' ? 'provider' : 'client';
+
+            // Send welcome email (fire-and-forget — never breaks the flow)
+            const userName = email.split('@')[0] || 'Nuevo usuario';
+            fetch('/api/welcome-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email,
+                    name: userName,
+                    locale: locale || 'es',
+                    role,
+                }),
+            }).catch(() => { /* silently ignore email errors */ });
 
             if (intent === 'client' || intent === 'business') {
-                const role = intent === 'business' ? 'provider' : 'client';
                 await UserService.setUserRole(user.uid, role);
 
                 // UX: Persist in local storage just in case
@@ -105,6 +118,7 @@ function RegisterForm() {
             }
 
         } catch (err: any) {
+
             // ... existing error handling
             console.error(err);
             if (err.code === 'auth/email-already-in-use') {

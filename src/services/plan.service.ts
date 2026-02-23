@@ -29,7 +29,7 @@ export const PlanService = {
         free: 'Gratis',
         premium: 'Premium',
         plus_team: 'Plus Equipo',
-        vip: 'VIP',
+        vip: 'Pro24/7YA Colaboradores',
     } as Record<BusinessPlan, string>,
 
     /** Plan prices (web/PWA) */

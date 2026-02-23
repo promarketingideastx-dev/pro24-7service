@@ -281,9 +281,9 @@ export default function Home() {
                         </div>
                     ) : (
                         <div className="flex items-center gap-4">
-                            {/* Business CTA - Keep this for professionals */}
+                            {/* Business CTA - Direct register as business, no intermediate screen */}
                             <button
-                                onClick={() => router.push(lp('/onboarding'))} // Direct to choice screen
+                                onClick={() => router.push(lp('/auth/register?intent=business'))}
                                 className="hidden md:block text-xs font-bold text-slate-400 hover:text-white transition-colors"
                             >
                                 {t('isProfessional')} <span className="text-brand-neon-cyan">{t('registerCTA')}</span>
@@ -291,18 +291,12 @@ export default function Home() {
 
                             <div className="h-4 w-px bg-white/10 hidden md:block"></div>
 
+                            {/* Entrar → onboarding with mode=login so user picks intent before logging in */}
                             <button
-                                onClick={() => router.push(lp('/auth/login'))}
-                                className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                                onClick={() => router.push(lp('/onboarding?mode=login'))}
+                                className="text-sm font-medium text-slate-300 hover:text-white transition-colors px-4 py-2 rounded-full border border-white/20 hover:border-white/40"
                             >
                                 {t('login')}
-                            </button>
-                            {/* White Button - Only visible when NOT logged in */}
-                            <button
-                                onClick={() => router.push(lp('/onboarding'))}
-                                className="bg-white text-slate-900 px-4 py-2 rounded-full text-sm font-bold hover:bg-slate-100 transition-colors"
-                            >
-                                {t('createAccount')}
                             </button>
                         </div>
                     )}

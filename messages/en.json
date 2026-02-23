@@ -56,7 +56,14 @@
         "errorRegister": "Error creating account.",
         "showPassword": "Show password",
         "hidePassword": "Hide password",
-        "loading": "Loading..."
+        "loading": "Loading...",
+        "forgotPassword": "Forgot your password?",
+        "forgotPasswordTitle": "Reset Password",
+        "forgotPasswordDesc": "Enter your email and we'll send you a link to reset your password.",
+        "sendResetEmail": "Send Reset Link",
+        "backToLogin": "Back to Login",
+        "resetEmailSentTitle": "Email sent!",
+        "resetEmailSentDesc": "If {email} is registered, you'll receive a link in the next few minutes. Check your spam folder."
     },
     "onboarding": {
         "title": "How do you want to use PRO24/7?",
