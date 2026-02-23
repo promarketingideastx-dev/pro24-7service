@@ -18,7 +18,8 @@
       "plans": "Planes & Pagos",
       "disputes": "Disputas",
       "audit": "Audit Log",
-      "settings": "Configuración"
+      "settings": "Configuración",
+      "collaborators": "VIP Colaboradores"
     },
     "header": {
       "allCountries": "Todos los países",
@@ -955,5 +956,38 @@
     "searchPlaceholder": "Buscar país (México, Honduras, USA...)",
     "noResults": "No encontramos resultados para",
     "languageLabel": "Idioma"
+  },
+  "collaborators": {
+    "title": "VIP Colaboradores",
+    "subtitle": "Gestión de cuentas colaboradoras en beta",
+    "statusActive": "Activo",
+    "statusPaused": "Pausado",
+    "statusInactive": "Inactivo",
+    "actionActivate": "Activar",
+    "actionPause": "Pausar",
+    "actionDeactivate": "Desactivar",
+    "actionDelete": "Eliminar",
+    "confirmDelete": "¿Eliminar esta cuenta permanentemente?",
+    "confirmPause": "Razón de la pausa (opcional)",
+    "noCollaborators": "Sin colaboradores aún",
+    "pending": "Pendientes",
+    "all": "Todos",
+    "registered": "Registrado",
+    "country": "País",
+    "owner": "Propietario",
+    "note": "Nota",
+    "business": "Negocio",
+    "deleteSuccess": "Cuenta eliminada",
+    "pauseSuccess": "Cuenta pausada",
+    "activateSuccess": "Cuenta activada",
+    "deactivateSuccess": "Cuenta desactivada"
+  },
+  "collaboratorGuard": {
+    "pausedTitle": "Cuenta Pausada",
+    "pausedBody": "Tu cuenta ha sido pausada temporalmente por el administrador.",
+    "pauseReason": "Motivo",
+    "inactiveTitle": "Cuenta Desactivada",
+    "inactiveBody": "Tu cuenta ha sido desactivada. Contacta al administrador para más información.",
+    "contactAdmin": "Si crees que esto es un error, contacta a soporte@pro247ya.com"
   }
 }

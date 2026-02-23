@@ -3,14 +3,17 @@ import { Timestamp } from 'firebase/firestore';
 // ── Admin Notifications ──────────────────────────────────────────────────────
 // Collection: admin_notifications/{id}
 export type AdminNotificationType =
-    | 'new_business'      // Business registered
-    | 'new_user'          // User signed up
-    | 'new_dispute'       // Dispute ticket opened
-    | 'dispute_reply'     // User replied to dispute
-    | 'plan_upgrade'      // Business upgraded plan
-    | 'payment_failed'    // Payment failed
-    | 'review_flagged'    // Review flagged by business
-    | 'system';           // General system notification
+    | 'new_business'                // Business registered
+    | 'new_user'                    // User signed up
+    | 'new_dispute'                 // Dispute ticket opened
+    | 'dispute_reply'               // User replied to dispute
+    | 'plan_upgrade'                // Business upgraded plan
+    | 'payment_failed'              // Payment failed
+    | 'review_flagged'              // Review flagged by business
+    | 'new_collaborator_request'    // New VIP collaborator registered ← NEW
+    | 'collaborator_activated'      // Admin activated a collaborator ← NEW
+    | 'collaborator_paused'         // Admin paused a collaborator ← NEW
+    | 'system';                     // General system notification
 
 export interface AdminNotification {
     id: string;

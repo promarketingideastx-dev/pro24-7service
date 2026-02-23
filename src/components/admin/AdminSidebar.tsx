@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import {
     LayoutDashboard, Building2, Users, FileImage,
     Bell, CreditCard, Settings, Scale, BookOpen,
-    ChevronLeft, ChevronRight, Map, BarChart2
+    ChevronLeft, ChevronRight, Map, BarChart2, Crown
 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { AdminNotificationService } from '@/services/adminNotification.service';
@@ -24,11 +24,22 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
     const t = useTranslations('admin.sidebar');
     const [unreadNotifs, setUnreadNotifs] = useState(0);
     const [openDisputes, setOpenDisputes] = useState(0);
+    const [pendingCollabs, setPendingCollabs] = useState(0);
 
     useEffect(() => {
         const unsubN = AdminNotificationService.onUnreadCount(setUnreadNotifs);
         const unsubD = DisputeService.onUnreadCount(setOpenDisputes);
-        return () => { unsubN(); unsubD(); };
+        // Pending collaborators = new accounts without activatedBy
+        const { onSnapshot, query, collection, where } = require('firebase/firestore');
+        const q = query(
+            collection(require('@/lib/firebase').db, 'businesses_public'),
+            where('planData.planSource', '==', 'collaborator_beta')
+        );
+        const unsubC = onSnapshot(q, (snap: any) => {
+            const pending = snap.docs.filter((d: any) => !d.data()?.collaboratorData?.activatedBy).length;
+            setPendingCollabs(pending);
+        });
+        return () => { unsubN(); unsubD(); unsubC(); };
     }, []);
 
     const lp = (path: string) => `/${locale}${path}`;
@@ -37,6 +48,7 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
         { href: lp('/admin/dashboard'), icon: LayoutDashboard, label: t('dashboard'), badge: 0 },
         { href: lp('/admin/businesses'), icon: Building2, label: t('businesses'), badge: 0 },
         { href: lp('/admin/users'), icon: Users, label: t('users'), badge: 0 },
+        { href: lp('/admin/collaborators'), icon: Crown, label: t('collaborators'), badge: pendingCollabs },
         { href: lp('/admin/map'), icon: Map, label: t('map'), badge: 0 },
         { href: lp('/admin/analytics'), icon: BarChart2, label: t('analytics'), badge: 0 },
         { href: lp('/admin/media'), icon: FileImage, label: t('files'), badge: 0 },

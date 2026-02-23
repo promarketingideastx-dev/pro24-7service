@@ -66,8 +66,8 @@ export type BusinessTier = 'free' | 'pro' | 'enterprise';
 
 // ── Subscription Plans ──
 export type BusinessPlan = 'free' | 'premium' | 'plus_team' | 'vip';
-export type BusinessPlanStatus = 'active' | 'trialing' | 'expired' | 'cancelled';
-export type BusinessPlanSource = 'revenuecat' | 'stripe' | 'pagadito' | 'crm_override';
+export type BusinessPlanStatus = 'active' | 'trialing' | 'expired' | 'cancelled' | 'paused' | 'inactive';
+export type BusinessPlanSource = 'revenuecat' | 'stripe' | 'pagadito' | 'crm_override' | 'collaborator_beta';
 
 export interface BusinessPlanData {
     plan: BusinessPlan;                 // Current active plan
@@ -79,6 +79,9 @@ export interface BusinessPlanData {
     revenueCatUserId?: string;
     stripeCustomerId?: string;
     pagaditoToken?: string;
+    // Trial
+    trialStartDate?: any;
+    trialEndDate?: any;
 }
 
 export interface BusinessLocation {
@@ -154,8 +157,11 @@ export interface BusinessProfile {
     createdAt: Timestamp;
     updatedAt: Timestamp;
 
-    // ── Subscription plan (defaults to premium during beta) ──
+    // ── Subscription plan (defaults to VIP collaborator during beta) ──
     planData?: BusinessPlanData;
+
+    // ── Collaborator metadata (present when planSource === 'collaborator_beta') ──
+    collaboratorData?: CollaboratorData;
 }
 
 // ==========================================
@@ -171,4 +177,22 @@ export interface ServiceItem {
     durationMinutes: number;
     isVariablePrice: boolean; // "Desde $X"
     isActive: boolean;
+}
+
+// ==========================================
+// 4. Collaborator Data (embedded in BusinessProfile)
+// ==========================================
+
+/** Present when planSource === 'collaborator_beta'. Tracks the full lifecycle. */
+export interface CollaboratorData {
+    requestNote?: string;          // Note from collaborator at signup
+    activatedAt?: any;             // Timestamp when admin activated
+    activatedBy?: string;          // Admin uid
+    pausedAt?: any;                // Timestamp when paused
+    pausedBy?: string;             // Admin uid
+    pauseReason?: string;          // Reason shown to the collaborator
+    deactivatedAt?: any;
+    deactivatedBy?: string;
+    lastActionAt?: any;            // Latest admin action timestamp
+    lastActionBy?: string;
 }

@@ -18,7 +18,11 @@ export type AuditAction =
     | 'dispute.assigned'
     | 'notification.mark_all_read'
     | 'admin.login'
-    | 'admin.settings_changed';
+    | 'admin.settings_changed'
+    | 'collaborator.activated'
+    | 'collaborator.paused'
+    | 'collaborator.deactivated'
+    | 'collaborator.deleted';
 
 export interface AuditEntry {
     id: string;
@@ -92,6 +96,10 @@ export const AUDIT_ACTION_LABELS: Record<AuditAction, string> = {
     'notification.mark_all_read': 'Notificaciones leídas',
     'admin.login': 'Admin inició sesión',
     'admin.settings_changed': 'Configuración cambiada',
+    'collaborator.activated': 'Colaborador VIP activado',
+    'collaborator.paused': 'Colaborador VIP pausado',
+    'collaborator.deactivated': 'Colaborador VIP desactivado',
+    'collaborator.deleted': 'Colaborador VIP eliminado',
 };
 
 export const AUDIT_ACTION_EMOJI: Record<AuditAction, string> = {
@@ -108,4 +116,8 @@ export const AUDIT_ACTION_EMOJI: Record<AuditAction, string> = {
     'notification.mark_all_read': '🔔',
     'admin.login': '🛡️',
     'admin.settings_changed': '⚙️',
+    'collaborator.activated': '👑',
+    'collaborator.paused': '⏸️',
+    'collaborator.deactivated': '❌',
+    'collaborator.deleted': '🗑️',
 };

@@ -91,7 +91,8 @@
       "plans": "Plans & Payments",
       "disputes": "Disputes",
       "audit": "Audit Log",
-      "settings": "Settings"
+      "settings": "Settings",
+      "collaborators": "VIP Collaborators"
     },
     "header": {
       "allCountries": "All countries",
@@ -955,5 +956,38 @@
     "searchPlaceholder": "Search country (Mexico, Honduras, USA...)",
     "noResults": "No results found for",
     "languageLabel": "Language"
+  },
+  "collaborators": {
+    "title": "VIP Collaborators",
+    "subtitle": "Beta collaborator account management",
+    "statusActive": "Active",
+    "statusPaused": "Paused",
+    "statusInactive": "Inactive",
+    "actionActivate": "Activate",
+    "actionPause": "Pause",
+    "actionDeactivate": "Deactivate",
+    "actionDelete": "Delete",
+    "confirmDelete": "Permanently delete this account?",
+    "confirmPause": "Pause reason (optional)",
+    "noCollaborators": "No collaborators yet",
+    "pending": "Pending",
+    "all": "All",
+    "registered": "Registered",
+    "country": "Country",
+    "owner": "Owner",
+    "note": "Note",
+    "business": "Business",
+    "deleteSuccess": "Account deleted",
+    "pauseSuccess": "Account paused",
+    "activateSuccess": "Account activated",
+    "deactivateSuccess": "Account deactivated"
+  },
+  "collaboratorGuard": {
+    "pausedTitle": "Account Paused",
+    "pausedBody": "Your account has been temporarily paused by the administrator.",
+    "pauseReason": "Reason",
+    "inactiveTitle": "Account Deactivated",
+    "inactiveBody": "Your account has been deactivated. Contact the administrator for more information.",
+    "contactAdmin": "If you believe this is an error, contact support@pro247ya.com"
   }
 }

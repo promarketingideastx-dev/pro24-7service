@@ -117,5 +117,9 @@ export const NOTIF_META: Record<AdminNotificationType, { emoji: string; color: s
     plan_upgrade: { emoji: '⭐', color: '#a78bfa', bg: 'bg-purple-500/10' },
     payment_failed: { emoji: '💳', color: '#ef4444', bg: 'bg-red-500/10' },
     review_flagged: { emoji: '🚩', color: '#f59e0b', bg: 'bg-amber-500/10' },
+    new_collaborator_request: { emoji: '👑', color: '#f59e0b', bg: 'bg-amber-500/10' },
+    collaborator_activated: { emoji: '✅', color: '#10b981', bg: 'bg-emerald-500/10' },
+    collaborator_paused: { emoji: '⏸️', color: '#f59e0b', bg: 'bg-amber-500/10' },
     system: { emoji: '🔔', color: '#94a3b8', bg: 'bg-slate-500/10' },
 };
+

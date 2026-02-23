@@ -66,13 +66,23 @@ export default function BusinessWizard() {
 
         try {
             // MOCK GEOCODING (To be replaced by Google Maps API later)
-            // Default center for San Pedro Sula (HN) or generic
             const baseLat = 15.50417;
             const baseLng = -88.02500;
-            // Add slight jitter so they don't stack on map
             const mockLocation = {
                 lat: baseLat + (Math.random() - 0.5) * 0.05,
                 lng: baseLng + (Math.random() - 0.5) * 0.05
+            };
+
+            // ── VIP Collaborator plan — all beta signups get VIP, no expiry ──
+            const collaboratorPlanData = {
+                plan: 'vip' as const,
+                planStatus: 'active' as const,
+                planSource: 'collaborator_beta' as const,
+                overriddenByCRM: true,
+                teamMemberLimit: 999,
+                planExpiresAt: null,      // No expiry for collaborators
+                trialStartDate: null,
+                trialEndDate: null,
             };
 
             const profileData = {
@@ -83,9 +93,14 @@ export default function BusinessWizard() {
                 phone: formData.phone || '',
                 website: formData.website || '',
                 socialMedia: formData.socialMedia,
-                department: formData.department || 'Cortés', // Fallback for build safety if UI missed
-                location: mockLocation, // Ensure map has data
-                modality: formData.modality as 'home' | 'local' | 'both'
+                department: formData.department || 'Cortés',
+                location: mockLocation,
+                modality: formData.modality as 'home' | 'local' | 'both',
+                planData: collaboratorPlanData,
+                collaboratorData: {
+                    activatedAt: new Date().toISOString(),
+                    lastActionAt: new Date().toISOString(),
+                },
             };
 
             await BusinessProfileService.createProfile(user.uid, profileData);
@@ -95,7 +110,7 @@ export default function BusinessWizard() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    type: 'new_business',
+                    type: 'new_collaborator_request',
                     data: {
                         businessName: formData.businessName,
                         category: formData.category,
@@ -105,12 +120,12 @@ export default function BusinessWizard() {
                         phone: formData.phone || '',
                     },
                 }),
-            }).catch(() => { /* silent — never block the wizard */ });
+            }).catch(() => { /* silent */ });
 
-            // In-app notification — writes to Firestore, auto-pushes to admin bell via onSnapshot
+            // In-app notification — VIP collaborator request
             AdminNotificationService.create({
-                type: 'new_business',
-                title: `🏢 Nuevo negocio: ${formData.businessName}`,
+                type: 'new_collaborator_request',
+                title: `👑 Nuevo colaborador VIP: ${formData.businessName}`,
                 body: `${formData.category} · ${formData.city}, ${formData.country} · ${user.email}`,
                 country: formData.country,
                 relatedName: formData.businessName,
