@@ -174,51 +174,37 @@ export default function Home() {
     return (
         <>
             <main className="h-screen bg-[#0B0F19] text-white overflow-hidden font-sans flex flex-col">
-                {/* Header with Dynamic Location */}
-                <header className="shrink-0 px-6 py-4 flex justify-between items-center z-50 bg-[#0B0F19]">
-                    <div className="flex items-center">
-                        <Image
-                            src="/logo-header.png"
-                            alt="Pro24/7YA"
-                            width={120}
-                            height={36}
-                            className="object-contain"
-                            priority
-                        />
-                        <div className="flex flex-col">
-                            <span className="text-[10px] text-brand-neon-cyan/80 font-bold tracking-wider uppercase leading-none mb-0.5">{t('location')}</span>
-                            <div
-                                className="flex items-center gap-2 cursor-pointer group bg-white/5 hover:bg-white/10 px-2.5 py-1.5 rounded-lg transition-colors border border-transparent hover:border-white/10"
-                                onClick={clearCountry}
-                            >
-                                {/* Waving Flag Icon */}
-                                <div className="w-6 h-4 relative shadow-sm rounded-sm overflow-hidden">
-                                    <img
-                                        src={`https://flagcdn.com/w40/${selectedCountry.code.toLowerCase()}.png`}
-                                        alt={selectedCountry.name}
-                                        className="w-full h-full object-cover"
-                                    />
-                                </div>
+                {/* ── Header ── */}
+                <header className="shrink-0 px-4 py-3 flex items-center justify-between z-50 bg-[#0B0F19] border-b border-white/5">
 
-                                <span className="font-bold text-sm text-white group-hover:text-brand-neon-cyan transition-colors">
-                                    {selectedCountry.name}
-                                </span>
-                                <MapPin className="w-3 h-3 text-slate-400 group-hover:text-brand-neon-cyan transition-colors" />
-                            </div>
+                    {/* Left: country picker pill */}
+                    <button
+                        onClick={clearCountry}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/8 hover:border-white/15 transition-all group"
+                    >
+                        <div className="w-5 h-3.5 rounded-sm overflow-hidden shadow-sm ring-1 ring-white/10">
+                            <img
+                                src={`https://flagcdn.com/w40/${selectedCountry.code.toLowerCase()}.png`}
+                                alt={selectedCountry.name}
+                                className="w-full h-full object-cover"
+                            />
                         </div>
-                    </div>
+                        <span className="font-semibold text-sm text-white group-hover:text-brand-neon-cyan transition-colors">
+                            {selectedCountry.name}
+                        </span>
+                        <MapPin className="w-3 h-3 text-slate-500 group-hover:text-brand-neon-cyan transition-colors" />
+                    </button>
 
+                    {/* Right: share + user/login */}
                     <div className="flex items-center gap-2">
-                        {/* Share App button */}
+                        {/* Share button — icon only on mobile */}
                         <button
                             onClick={() => setShowShare(true)}
                             title={t('share')}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-brand-neon-cyan/10 hover:border-brand-neon-cyan/40 text-slate-400 hover:text-brand-neon-cyan transition-all text-xs font-semibold"
+                            className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-brand-neon-cyan/10 border border-white/8 hover:border-brand-neon-cyan/30 text-slate-400 hover:text-brand-neon-cyan transition-all"
                         >
-                            <Share2 size={14} />
-                            <span className="hidden sm:inline">{t('share')}</span>
+                            <Share2 size={15} />
                         </button>
-                        <LanguageSwitcher />
                         {user ? (
                             <div className="flex items-center gap-3 group relative">
                                 {/* Business Owner Switch */}
