@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import GlassPanel from '@/components/ui/GlassPanel';
+import CollaboratorGuard from '@/components/ui/CollaboratorGuard';
 import AppointmentInbox from '@/components/business/AppointmentInbox';
 import { Activity, Users, CalendarCheck, TrendingUp, Loader2, RefreshCw, XCircle, CheckCircle, Link } from 'lucide-react';
 import { AppointmentService, Appointment } from '@/services/appointment.service';
@@ -10,6 +11,8 @@ import { CustomerService } from '@/services/customer.service';
 import { format, startOfMonth, endOfMonth, startOfWeek, addDays, isSameDay, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useTranslations, useLocale } from 'next-intl';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 interface DashboardStats {
@@ -64,6 +67,23 @@ export default function DashboardPage() {
     const locale = useLocale();
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [loading, setLoading] = useState(true);
+
+    // ── Load planData to feed CollaboratorGuard ──────────────────────────────
+    const [planData, setPlanData] = useState<{ planStatus?: string; planSource?: string; pauseReason?: string } | null>(null);
+
+    useEffect(() => {
+        if (!user?.uid) return;
+        getDoc(doc(db, 'businesses_public', user.uid)).then(snap => {
+            if (snap.exists()) {
+                const d = snap.data();
+                setPlanData({
+                    planStatus: d?.planData?.planStatus,
+                    planSource: d?.planData?.planSource,
+                    pauseReason: d?.collaboratorData?.pauseReason,
+                });
+            }
+        }).catch(() => { });
+    }, [user?.uid]);
 
     const fetchStats = async () => {
         if (!user?.uid) return;
@@ -190,173 +210,179 @@ export default function DashboardPage() {
     ];
 
     return (
-        <div className="space-y-6 pb-20">
-            {/* Header */}
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
-                    <p className="text-slate-400 text-sm">{t('subtitle')}</p>
-                </div>
-                <button
-                    onClick={fetchStats}
-                    className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm text-white transition-colors border border-white/10 flex items-center gap-2"
-                >
-                    <RefreshCw size={14} />
-                    {t('refresh')}
-                </button>
-            </div>
-
-            {/* KPI Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {kpiCards.map((card, i) => (
-                    <GlassPanel key={i} className={`p-4 flex flex-col gap-3 border ${card.bg} relative overflow-hidden group`}>
-                        <div className="flex items-center justify-between">
-                            <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">{card.label}</span>
-                            <span className={`${card.color} opacity-80`}>{card.icon}</span>
-                        </div>
-                        <div>
-                            <div className={`text-2xl font-bold ${card.color}`}>{card.value}</div>
-                            <div className="text-xs text-slate-500 mt-0.5">{card.sub}</div>
-                        </div>
-                    </GlassPanel>
-                ))}
-            </div>
-
-            {/* Main Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                {/* Left: Inbox + Chart */}
-                <div className="lg:col-span-2 space-y-6">
-
-                    {/* Income Chart */}
-                    <GlassPanel className="p-5">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-base font-bold text-white flex items-center gap-2">
-                                <TrendingUp className="w-4 h-4 text-brand-neon-cyan" />
-                                {t('weeklyRevenue')}
-                            </h3>
-                            <span className="text-xs text-slate-500">{t('last8Weeks')}</span>
-                        </div>
-
-                        {stats.weeklyRevenue.every(w => w.amount === 0) ? (
-                            <div className="text-center py-8 text-slate-600 text-sm">
-                                {t('noRevenue')}
-                                <p className="text-xs mt-1 text-slate-700">{t('noRevenueHint')}</p>
-                            </div>
-                        ) : (
-                            <div className="flex items-end gap-1.5 h-40 w-full">
-                                {stats.weeklyRevenue.map((week, i) => {
-                                    const heightPct = maxWeekRevenue > 0 ? (week.amount / maxWeekRevenue) * 100 : 0;
-                                    const isLast = i === stats.weeklyRevenue.length - 1;
-                                    return (
-                                        <div key={i} className="flex-1 flex flex-col items-center gap-1 group/bar h-full justify-end">
-                                            <div className="text-[9px] text-slate-500 opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap">
-                                                L {week.amount.toLocaleString()}
-                                            </div>
-                                            <div
-                                                className={`w-full rounded-t-md transition-all ${isLast
-                                                    ? 'bg-brand-neon-cyan shadow-[0_0_10px_rgba(0,240,255,0.3)]'
-                                                    : 'bg-brand-neon-cyan/30 hover:bg-brand-neon-cyan/50'
-                                                    }`}
-                                                style={{ height: `${Math.max(heightPct, 3)}%` }}
-                                            />
-                                            <div className="text-[9px] text-slate-600 truncate w-full text-center">{week.label}</div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </GlassPanel>
-
-                    {/* Appointment Inbox */}
-                    <div className="space-y-3">
-                        <h3 className="text-base font-bold text-white flex items-center gap-2">
-                            <Activity size={18} className="text-brand-neon-cyan" />
-                            {t('inbox')}
-                        </h3>
-                        <AppointmentInbox businessId={user!.uid} />
+        <CollaboratorGuard
+            planStatus={planData?.planStatus}
+            planSource={planData?.planSource}
+            pauseReason={planData?.pauseReason}
+        >
+            <div className="space-y-6 pb-20">
+                {/* Header */}
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
+                        <p className="text-slate-400 text-sm">{t('subtitle')}</p>
                     </div>
+                    <button
+                        onClick={fetchStats}
+                        className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm text-white transition-colors border border-white/10 flex items-center gap-2"
+                    >
+                        <RefreshCw size={14} />
+                        {t('refresh')}
+                    </button>
                 </div>
 
-                {/* Right Sidebar */}
-                <div className="space-y-5">
+                {/* KPI Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {kpiCards.map((card, i) => (
+                        <GlassPanel key={i} className={`p-4 flex flex-col gap-3 border ${card.bg} relative overflow-hidden group`}>
+                            <div className="flex items-center justify-between">
+                                <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">{card.label}</span>
+                                <span className={`${card.color} opacity-80`}>{card.icon}</span>
+                            </div>
+                            <div>
+                                <div className={`text-2xl font-bold ${card.color}`}>{card.value}</div>
+                                <div className="text-xs text-slate-500 mt-0.5">{card.sub}</div>
+                            </div>
+                        </GlassPanel>
+                    ))}
+                </div>
 
-                    {/* Confirmation Rate */}
-                    <GlassPanel className="p-5">
-                        <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-400" />
-                            {t('confirmationRate')}
-                            <span className="text-xs text-slate-500 font-normal ml-auto">{t('confirmationRateSub')}</span>
-                        </h3>
-                        <div className="flex items-center gap-4">
-                            <div className="relative w-20 h-20 shrink-0">
-                                <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1e2a45" strokeWidth="3" />
-                                    <circle
-                                        cx="18" cy="18" r="15.9" fill="none"
-                                        stroke={stats.confirmationRate >= 70 ? '#22c55e' : stats.confirmationRate >= 40 ? '#f59e0b' : '#ef4444'}
-                                        strokeWidth="3"
-                                        strokeDasharray={`${stats.confirmationRate} ${100 - stats.confirmationRate}`}
-                                        strokeLinecap="round"
-                                        className="transition-all duration-1000"
-                                    />
-                                </svg>
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-lg font-bold text-white">{stats.confirmationRate}%</span>
+                {/* Main Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    {/* Left: Inbox + Chart */}
+                    <div className="lg:col-span-2 space-y-6">
+
+                        {/* Income Chart */}
+                        <GlassPanel className="p-5">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                                    <TrendingUp className="w-4 h-4 text-brand-neon-cyan" />
+                                    {t('weeklyRevenue')}
+                                </h3>
+                                <span className="text-xs text-slate-500">{t('last8Weeks')}</span>
+                            </div>
+
+                            {stats.weeklyRevenue.every(w => w.amount === 0) ? (
+                                <div className="text-center py-8 text-slate-600 text-sm">
+                                    {t('noRevenue')}
+                                    <p className="text-xs mt-1 text-slate-700">{t('noRevenueHint')}</p>
+                                </div>
+                            ) : (
+                                <div className="flex items-end gap-1.5 h-40 w-full">
+                                    {stats.weeklyRevenue.map((week, i) => {
+                                        const heightPct = maxWeekRevenue > 0 ? (week.amount / maxWeekRevenue) * 100 : 0;
+                                        const isLast = i === stats.weeklyRevenue.length - 1;
+                                        return (
+                                            <div key={i} className="flex-1 flex flex-col items-center gap-1 group/bar h-full justify-end">
+                                                <div className="text-[9px] text-slate-500 opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap">
+                                                    L {week.amount.toLocaleString()}
+                                                </div>
+                                                <div
+                                                    className={`w-full rounded-t-md transition-all ${isLast
+                                                        ? 'bg-brand-neon-cyan shadow-[0_0_10px_rgba(0,240,255,0.3)]'
+                                                        : 'bg-brand-neon-cyan/30 hover:bg-brand-neon-cyan/50'
+                                                        }`}
+                                                    style={{ height: `${Math.max(heightPct, 3)}%` }}
+                                                />
+                                                <div className="text-[9px] text-slate-600 truncate w-full text-center">{week.label}</div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </GlassPanel>
+
+                        {/* Appointment Inbox */}
+                        <div className="space-y-3">
+                            <h3 className="text-base font-bold text-white flex items-center gap-2">
+                                <Activity size={18} className="text-brand-neon-cyan" />
+                                {t('inbox')}
+                            </h3>
+                            <AppointmentInbox businessId={user!.uid} />
+                        </div>
+                    </div>
+
+                    {/* Right Sidebar */}
+                    <div className="space-y-5">
+
+                        {/* Confirmation Rate */}
+                        <GlassPanel className="p-5">
+                            <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                                <CheckCircle className="w-4 h-4 text-green-400" />
+                                {t('confirmationRate')}
+                                <span className="text-xs text-slate-500 font-normal ml-auto">{t('confirmationRateSub')}</span>
+                            </h3>
+                            <div className="flex items-center gap-4">
+                                <div className="relative w-20 h-20 shrink-0">
+                                    <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                                        <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1e2a45" strokeWidth="3" />
+                                        <circle
+                                            cx="18" cy="18" r="15.9" fill="none"
+                                            stroke={stats.confirmationRate >= 70 ? '#22c55e' : stats.confirmationRate >= 40 ? '#f59e0b' : '#ef4444'}
+                                            strokeWidth="3"
+                                            strokeDasharray={`${stats.confirmationRate} ${100 - stats.confirmationRate}`}
+                                            strokeLinecap="round"
+                                            className="transition-all duration-1000"
+                                        />
+                                    </svg>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <span className="text-lg font-bold text-white">{stats.confirmationRate}%</span>
+                                    </div>
+                                </div>
+                                <div className="text-xs text-slate-400 leading-relaxed">
+                                    {t('confirmationRateDesc')}
                                 </div>
                             </div>
-                            <div className="text-xs text-slate-400 leading-relaxed">
-                                {t('confirmationRateDesc')}
-                            </div>
-                        </div>
-                    </GlassPanel>
+                        </GlassPanel>
 
-                    {/* Top Services */}
-                    <GlassPanel className="p-5">
-                        <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                            <Activity className="w-4 h-4 text-brand-neon-cyan" />
-                            {t('topServices')}
-                        </h3>
-                        {stats.topServices.length === 0 ? (
-                            <p className="text-slate-600 text-xs text-center py-4">{t('noData')}</p>
-                        ) : (
-                            <div className="space-y-3">
-                                {stats.topServices.map((svc, i) => {
-                                    const maxCount = stats.topServices[0].count;
-                                    const pct = Math.round((svc.count / maxCount) * 100);
-                                    return (
-                                        <div key={i}>
-                                            <div className="flex items-center justify-between text-xs mb-1">
-                                                <span className="text-slate-300 truncate max-w-[80%]">{svc.name}</span>
-                                                <span className="text-slate-500 shrink-0">{svc.count} {t('appts')}</span>
+                        {/* Top Services */}
+                        <GlassPanel className="p-5">
+                            <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                                <Activity className="w-4 h-4 text-brand-neon-cyan" />
+                                {t('topServices')}
+                            </h3>
+                            {stats.topServices.length === 0 ? (
+                                <p className="text-slate-600 text-xs text-center py-4">{t('noData')}</p>
+                            ) : (
+                                <div className="space-y-3">
+                                    {stats.topServices.map((svc, i) => {
+                                        const maxCount = stats.topServices[0].count;
+                                        const pct = Math.round((svc.count / maxCount) * 100);
+                                        return (
+                                            <div key={i}>
+                                                <div className="flex items-center justify-between text-xs mb-1">
+                                                    <span className="text-slate-300 truncate max-w-[80%]">{svc.name}</span>
+                                                    <span className="text-slate-500 shrink-0">{svc.count} {t('appts')}</span>
+                                                </div>
+                                                <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-gradient-to-r from-brand-neon-cyan to-blue-500 rounded-full transition-all duration-700"
+                                                        style={{ width: `${pct}%` }}
+                                                    />
+                                                </div>
                                             </div>
-                                            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                                                <div
-                                                    className="h-full bg-gradient-to-r from-brand-neon-cyan to-blue-500 rounded-full transition-all duration-700"
-                                                    style={{ width: `${pct}%` }}
-                                                />
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </GlassPanel>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </GlassPanel>
 
-                    {/* Quick Actions */}
-                    <GlassPanel className="p-5">
-                        <h3 className="text-sm font-bold text-white mb-3">{t('quickActions')}</h3>
-                        <div className="space-y-2">
-                            <a href={`/${locale}/business/clients`} className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg text-left text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-3">
-                                <Users size={15} className="text-purple-400" /> {t('viewClients')}
-                            </a>
-                            <a href={`/${locale}/business/agenda`} className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg text-left text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-3">
-                                <CalendarCheck size={15} className="text-cyan-400" /> {t('goToAgenda')}
-                            </a>
-                        </div>
-                    </GlassPanel>
+                        {/* Quick Actions */}
+                        <GlassPanel className="p-5">
+                            <h3 className="text-sm font-bold text-white mb-3">{t('quickActions')}</h3>
+                            <div className="space-y-2">
+                                <a href={`/${locale}/business/clients`} className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg text-left text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-3">
+                                    <Users size={15} className="text-purple-400" /> {t('viewClients')}
+                                </a>
+                                <a href={`/${locale}/business/agenda`} className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg text-left text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-3">
+                                    <CalendarCheck size={15} className="text-cyan-400" /> {t('goToAgenda')}
+                                </a>
+                            </div>
+                        </GlassPanel>
+                    </div>
                 </div>
             </div>
-        </div>
+        </CollaboratorGuard>
     );
 }
