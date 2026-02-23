@@ -7,12 +7,13 @@ import { Search, Globe } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
 
-// Supported locales with display labels
 const LOCALES = [
     { code: 'es', label: 'ES', flag: '🇪🇸' },
     { code: 'en', label: 'EN', flag: '🇺🇸' },
     { code: 'pt-BR', label: 'PT', flag: '🇧🇷' },
 ] as const;
+
+const PRIORITY_ORDER: CountryCode[] = ['MX', 'HN', 'US', 'ES', 'CO', 'AR', 'CL', 'PE'];
 
 export default function CountrySelector() {
     const { selectCountry } = useCountry();
@@ -22,156 +23,154 @@ export default function CountrySelector() {
     const router = useRouter();
     const pathname = usePathname();
 
-    // Locale switcher: replaces the locale segment in the URL
     const switchLocale = (newLocale: string) => {
-        // pathname looks like "/es" or "/es/something"
         const segments = pathname.split('/');
-        // segments[0] = '', segments[1] = locale, rest = path
         segments[1] = newLocale;
         router.replace(segments.join('/'));
     };
 
-    const PRIORITY_ORDER: CountryCode[] = [
-        'MX', 'HN', 'US', 'ES',
-        'CO', 'AR', 'CL', 'PE'
-    ];
-
     const allCountries = PRIORITY_ORDER
         .map(code => COUNTRIES[code])
         .filter(Boolean)
-        .concat(
-            Object.values(COUNTRIES)
-                .filter(c => !PRIORITY_ORDER.includes(c.code))
-        );
+        .concat(Object.values(COUNTRIES).filter(c => !PRIORITY_ORDER.includes(c.code)));
 
-    const uniqueCountries = Array.from(new Set(allCountries));
+    const uniqueCountries = Array.from(new Map(allCountries.map(c => [c.code, c])).values());
 
-    const filteredCountries = uniqueCountries.filter(c =>
-        c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.code.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = searchTerm
+        ? uniqueCountries.filter(c =>
+            c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            c.code.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        : uniqueCountries;
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-            {/* 1. Cinematic Backdrop */}
-            <div className="absolute inset-0 bg-[#050b14]/95 backdrop-blur-xl transition-all duration-700"></div>
+        <div className="fixed inset-0 z-[9999] bg-[#050b14] flex flex-col overflow-hidden">
 
-            {/* 2. Ambient Light Orbs */}
-            <div className="absolute top-[-20%] left-[-20%] w-[800px] h-[800px] bg-brand-primary/10 rounded-full blur-[150px] animate-pulse"></div>
-            <div className="absolute bottom-[-20%] right-[-20%] w-[800px] h-[800px] bg-brand-neon-purple/10 rounded-full blur-[150px] animate-pulse delay-700"></div>
+            {/* ── Ambient glow orbs ── */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-cyan-500/8 rounded-full blur-[120px]" />
+                <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-violet-600/8 rounded-full blur-[120px]" />
+            </div>
 
-            {/* 3. Main Container */}
-            <div className="relative w-full max-w-6xl h-[90vh] md:h-[85vh] bg-[#0f172a]/40 border border-white/5 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-500 backdrop-blur-2xl">
+            {/* ── Top bar: logo + language switcher ── */}
+            <div className="relative z-10 shrink-0 flex items-center justify-between px-5 pt-5 pb-3">
+                {/* Logo wordmark */}
+                <span className="text-lg font-black tracking-tight select-none">
+                    <span className="text-white">Pro</span>
+                    <span className="text-cyan-400">24/7YA</span>
+                </span>
 
-                {/* Decorative top line */}
-                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-neon-cyan/30 to-transparent opacity-50"></div>
+                {/* Language pills */}
+                <div className="flex items-center gap-1.5">
+                    {LOCALES.map(({ code, label, flag }) => (
+                        <button
+                            key={code}
+                            onClick={() => switchLocale(code)}
+                            className={`
+                                flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold
+                                transition-all duration-200 select-none
+                                ${locale === code
+                                    ? 'bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.25)]'
+                                    : 'bg-white/5 border border-white/8 text-slate-400 hover:text-slate-200 hover:bg-white/10'
+                                }
+                            `}
+                        >
+                            <span className="text-xs">{flag}</span>
+                            <span>{label}</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
 
-                {/* Header Section */}
-                <div className="relative shrink-0 p-8 md:p-10 pb-4 z-10">
+            {/* ── Hero heading ── */}
+            <div className="relative z-10 shrink-0 text-center px-6 pt-6 pb-2">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-none mb-3">
+                    {t('welcome')}
+                </h1>
+                <p className="text-slate-400 text-base sm:text-lg font-medium max-w-md mx-auto leading-relaxed">
+                    {t('selectCountry')}
+                </p>
+            </div>
 
-                    {/* Language selector — top right */}
-                    <div className="absolute top-6 right-6 flex items-center gap-1.5">
-                        {LOCALES.map(({ code, label, flag }) => (
-                            <button
-                                key={code}
-                                onClick={() => switchLocale(code)}
-                                title={label}
-                                className={`
-                                    flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200
-                                    ${locale === code
-                                        ? 'bg-brand-neon-cyan/20 border border-brand-neon-cyan/50 text-brand-neon-cyan'
-                                        : 'bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10'
-                                    }
-                                `}
-                            >
-                                <span>{flag}</span>
-                                <span>{label}</span>
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Title */}
-                    <div className="text-center pt-2">
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-2 tracking-tight drop-shadow-lg">
-                            {t('welcome')}
-                        </h1>
-                        <p className="text-slate-400 text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
-                            {t('selectCountry')}
-                        </p>
+            {/* ── Search bar ── */}
+            <div className="relative z-10 shrink-0 px-5 sm:px-10 py-4 max-w-2xl w-full mx-auto">
+                <div className="relative group">
+                    {/* Glow ring on focus */}
+                    <div className="absolute -inset-px rounded-2xl bg-gradient-to-r from-cyan-500/0 via-cyan-500/40 to-cyan-500/0 opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 blur-sm" />
+                    <div className="relative flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl px-5 h-14 group-focus-within:border-cyan-500/40 transition-colors duration-300">
+                        <Search className="w-5 h-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors shrink-0" />
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                            placeholder={t('searchPlaceholder')}
+                            className="bg-transparent border-none outline-none text-white text-base w-full placeholder:text-slate-600 font-medium"
+                            autoFocus
+                        />
                     </div>
                 </div>
+            </div>
 
-                {/* Search */}
-                <div className="shrink-0 px-6 md:px-12 py-6 z-10 w-full max-w-2xl mx-auto">
-                    <div className="relative group">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-neon-cyan to-brand-accent rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-                        <div className="relative bg-[#0b0f19] rounded-2xl flex items-center px-6 h-16 shadow-lg border border-white/5">
-                            <Search className="w-6 h-6 text-slate-400 mr-4 group-focus-within:text-brand-neon-cyan transition-colors" />
-                            <input
-                                type="text"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                placeholder={t('searchPlaceholder')}
-                                className="bg-transparent border-none outline-none text-white text-lg w-full placeholder:text-slate-600 font-medium"
-                                autoFocus
-                            />
-                        </div>
+            {/* ── Countries grid (scrollable) ── */}
+            <div className="relative z-10 flex-1 overflow-y-auto px-5 sm:px-10 pb-8 pt-2">
+                {filtered.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-40 gap-3 text-slate-500">
+                        <Globe className="w-10 h-10 opacity-20" />
+                        <p className="text-sm">{t('noResults')} &ldquo;{searchTerm}&rdquo;</p>
                     </div>
-                </div>
+                ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+                        {filtered.map(country => {
+                            const isPriority = PRIORITY_ORDER.includes(country.code) && !searchTerm;
+                            return (
+                                <button
+                                    key={country.code}
+                                    onClick={() => selectCountry(country.code)}
+                                    className="
+                                        group relative flex flex-col items-center gap-3 p-4 rounded-2xl
+                                        bg-white/4 border border-white/6
+                                        hover:bg-white/8 hover:border-cyan-400/30
+                                        hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(6,182,212,0.12)]
+                                        active:scale-95
+                                        transition-all duration-200
+                                    "
+                                >
+                                    {/* Priority dot */}
+                                    {isPriority && (
+                                        <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-cyan-400/60 shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
+                                    )}
 
-                {/* Countries Grid */}
-                <div className="flex-1 overflow-y-auto px-6 md:px-12 pb-12 pt-4 z-10 custom-scrollbar">
+                                    {/* Flag */}
+                                    <div className="w-14 h-10 rounded-lg overflow-hidden shadow-md ring-1 ring-white/10 group-hover:ring-cyan-400/20 transition-all duration-200">
+                                        <img
+                                            src={`https://flagcdn.com/w120/${country.code.toLowerCase()}.png`}
+                                            alt={country.name}
+                                            className="w-full h-full object-cover"
+                                            loading="lazy"
+                                            onError={e => {
+                                                const img = e.target as HTMLImageElement;
+                                                img.style.display = 'none';
+                                                const span = img.nextElementSibling as HTMLElement;
+                                                if (span) span.style.display = 'flex';
+                                            }}
+                                        />
+                                        <span
+                                            className="hidden w-full h-full items-center justify-center text-2xl"
+                                            style={{ display: 'none' }}
+                                        >
+                                            {country.flag}
+                                        </span>
+                                    </div>
 
-                    {filteredCountries.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-48 text-slate-500">
-                            <Globe className="w-12 h-12 mb-4 opacity-20" />
-                            <p className="text-lg">{t('noResults')} &ldquo;{searchTerm}&rdquo;</p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                            {filteredCountries.map((country) => {
-                                const isPriority = PRIORITY_ORDER.includes(country.code) && !searchTerm;
-                                return (
-                                    <button
-                                        key={country.code}
-                                        onClick={() => selectCountry(country.code)}
-                                        className={`
-                                            group relative flex flex-col items-center justify-center p-6 rounded-3xl transition-all duration-300
-                                            bg-[#1e293b]/40 border border-white/5 shadow-lg
-                                            hover:bg-[#1e293b]/80 hover:border-brand-neon-cyan/50 hover:shadow-[0_0_30px_rgba(0,240,255,0.15)]
-                                            hover:-translate-y-1
-                                        `}
-                                    >
-                                        {/* Flag */}
-                                        <div className="relative w-24 h-16 mb-4 filter drop-shadow-2xl transition-transform duration-300 group-hover:scale-110 group-hover:rotate-2">
-                                            <img
-                                                src={`https://flagcdn.com/w160/${country.code.toLowerCase()}.png`}
-                                                alt={country.name}
-                                                className="w-full h-full object-contain"
-                                                loading="lazy"
-                                                onError={(e) => {
-                                                    (e.target as HTMLImageElement).style.display = 'none';
-                                                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                                                }}
-                                            />
-                                            <span className="hidden text-6xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">{country.flag}</span>
-                                        </div>
-
-                                        {/* Country Name */}
-                                        <h3 className="text-white font-bold text-lg md:text-xl text-center group-hover:text-brand-neon-cyan transition-colors">
-                                            {country.name}
-                                        </h3>
-
-                                        {/* Priority badge */}
-                                        {isPriority && (
-                                            <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-brand-neon-cyan/50 shadow-[0_0_10px_rgba(0,240,255,0.8)]"></div>
-                                        )}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    )}
-                </div>
+                                    {/* Country name */}
+                                    <span className="text-white text-sm font-semibold text-center leading-tight group-hover:text-cyan-300 transition-colors duration-200 line-clamp-2">
+                                        {country.name}
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
         </div>
     );
