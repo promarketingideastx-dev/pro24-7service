@@ -341,7 +341,8 @@
       "switchToClient": "Modo Cliente",
       "clientMode": "Explorar como Cliente",
       "adminPanel": "Painel Admin",
-      "logout": "Sair"
+      "logout": "Sair",
+      "notifications": "Notificações"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -661,6 +662,17 @@
       "depositValue": "Valor",
       "depositNotes": "Notas sobre o Sinal",
       "legalNote": "Nota: PRO24/7 não processa pagamentos. Você é responsável por receber o dinheiro e coordenar com o cliente."
+    },
+    "notifications": {
+      "title": "Notificações",
+      "subtitle": "Alertas de agendamentos e pagamentos em tempo real",
+      "unread": "não lidas",
+      "markAllRead": "Marcar tudo como lido",
+      "seeAll": "Ver todas",
+      "empty": "Sem notificações ainda",
+      "filter_all": "Todas",
+      "filter_appointment": "Agendamentos",
+      "filter_payment": "Pagamentos"
     }
   },
   "booking": {

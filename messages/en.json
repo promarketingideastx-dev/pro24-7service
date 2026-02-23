@@ -341,7 +341,8 @@
       "switchToClient": "Client Mode",
       "clientMode": "Browse as Client",
       "adminPanel": "Admin Panel",
-      "logout": "Log Out"
+      "logout": "Log Out",
+      "notifications": "Notifications"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -661,6 +662,17 @@
       "depositValue": "Value",
       "depositNotes": "Deposit Notes",
       "legalNote": "Note: PRO24/7 does not process payments. You are responsible for collecting money and coordinating with the client."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Real-time appointment and payment alerts",
+      "unread": "unread",
+      "markAllRead": "Mark all as read",
+      "seeAll": "See all",
+      "empty": "No notifications yet",
+      "filter_all": "All",
+      "filter_appointment": "Appointments",
+      "filter_payment": "Payments"
     }
   },
   "booking": {

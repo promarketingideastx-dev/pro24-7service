@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Store, Calendar, Settings, LogOut, Menu, X, Users, CreditCard, Shield } from 'lucide-react';
+import { LayoutDashboard, Store, Calendar, Settings, LogOut, Menu, X, Users, CreditCard, Shield, Bell } from 'lucide-react';
 import GlassPanel from '@/components/ui/GlassPanel';
 import BusinessGuard from '@/components/auth/BusinessGuard';
+import BusinessNotifBell from '@/components/business/BusinessNotifBell';
 import { AuthService } from '@/services/auth.service';
 import { AppointmentRefreshProvider } from '@/context/AppointmentRefreshContext';
 import { useAuth } from '@/context/AuthContext';
@@ -42,6 +43,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
         { name: t('services'), href: lp('/business/services'), icon: <Store size={20} /> },
         { name: t('team'), href: lp('/business/team'), icon: <Users size={20} /> },
         { name: t('payments'), href: lp('/business/dashboard/settings/payments'), icon: <CreditCard size={20} /> },
+        { name: t('notifications'), href: lp('/business/notifications'), icon: <Bell size={20} /> },
         { name: t('settings'), href: lp('/business/profile'), icon: <Settings size={20} /> },
     ];
 
@@ -66,6 +68,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                         </div>
                         <div className="flex items-center gap-2">
                             <LanguageSwitcher variant="icon" />
+                            {user?.uid && <BusinessNotifBell businessId={user.uid} />}
                             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-slate-300">
                                 {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                             </button>
