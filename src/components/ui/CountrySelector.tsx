@@ -13,6 +13,27 @@ const LOCALES = [
     { code: 'pt-BR', label: 'PT', flag: '🇧🇷' },
 ] as const;
 
+// Country name translations for non-spanish locales
+// Most country names are the same across all 3 supported languages
+// We only need to override where they differ significantly
+const COUNTRY_NAMES_EN: Record<string, string> = {
+    'MX': 'Mexico', 'HN': 'Honduras', 'GT': 'Guatemala', 'SV': 'El Salvador',
+    'NI': 'Nicaragua', 'CR': 'Costa Rica', 'PA': 'Panama', 'CO': 'Colombia',
+    'VE': 'Venezuela', 'EC': 'Ecuador', 'PE': 'Peru', 'BO': 'Bolivia',
+    'PY': 'Paraguay', 'UY': 'Uruguay', 'AR': 'Argentina', 'BR': 'Brazil',
+    'CL': 'Chile', 'DO': 'Dominican Republic', 'CU': 'Cuba', 'PR': 'Puerto Rico',
+    'ES': 'Spain', 'US': 'United States', 'CA': 'Canada',
+};
+
+const COUNTRY_NAMES_PT: Record<string, string> = {
+    'MX': 'México', 'HN': 'Honduras', 'GT': 'Guatemala', 'SV': 'El Salvador',
+    'NI': 'Nicarágua', 'CR': 'Costa Rica', 'PA': 'Panamá', 'CO': 'Colômbia',
+    'VE': 'Venezuela', 'EC': 'Equador', 'PE': 'Peru', 'BO': 'Bolívia',
+    'PY': 'Paraguai', 'UY': 'Uruguai', 'AR': 'Argentina', 'BR': 'Brasil',
+    'CL': 'Chile', 'DO': 'República Dominicana', 'CU': 'Cuba', 'PR': 'Porto Rico',
+    'ES': 'Espanha', 'US': 'Estados Unidos', 'CA': 'Canadá',
+};
+
 const PRIORITY_ORDER: CountryCode[] = ['MX', 'HN', 'US', 'ES', 'CO', 'AR', 'CL', 'PE'];
 
 export default function CountrySelector() {
@@ -27,6 +48,13 @@ export default function CountrySelector() {
         const segments = pathname.split('/');
         segments[1] = newLocale;
         router.replace(segments.join('/'));
+    };
+
+    // Resolve country name based on current locale
+    const getCountryName = (code: string, defaultName: string): string => {
+        if (locale === 'en') return COUNTRY_NAMES_EN[code] ?? defaultName;
+        if (locale === 'pt-BR') return COUNTRY_NAMES_PT[code] ?? defaultName;
+        return defaultName; // Spanish is the default
     };
 
     const allCountries = PRIORITY_ORDER
@@ -140,11 +168,11 @@ export default function CountrySelector() {
                                         <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-cyan-400/60 shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
                                     )}
 
-                                    {/* Flag */}
-                                    <div className="w-14 h-10 rounded-lg overflow-hidden shadow-md ring-1 ring-white/10 group-hover:ring-cyan-400/20 transition-all duration-200">
+                                    {/* Flag — 50% larger than original */}
+                                    <div className="w-20 h-14 rounded-xl overflow-hidden shadow-lg ring-1 ring-white/10 group-hover:ring-cyan-400/30 group-hover:shadow-[0_4px_16px_rgba(6,182,212,0.2)] transition-all duration-200">
                                         <img
-                                            src={`https://flagcdn.com/w120/${country.code.toLowerCase()}.png`}
-                                            alt={country.name}
+                                            src={`https://flagcdn.com/w160/${country.code.toLowerCase()}.png`}
+                                            alt={getCountryName(country.code, country.name)}
                                             className="w-full h-full object-cover"
                                             loading="lazy"
                                             onError={e => {
@@ -155,16 +183,16 @@ export default function CountrySelector() {
                                             }}
                                         />
                                         <span
-                                            className="hidden w-full h-full items-center justify-center text-2xl"
+                                            className="hidden w-full h-full items-center justify-center text-3xl"
                                             style={{ display: 'none' }}
                                         >
                                             {country.flag}
                                         </span>
                                     </div>
 
-                                    {/* Country name */}
+                                    {/* Country name — localized */}
                                     <span className="text-white text-sm font-semibold text-center leading-tight group-hover:text-cyan-300 transition-colors duration-200 line-clamp-2">
-                                        {country.name}
+                                        {getCountryName(country.code, country.name)}
                                     </span>
                                 </button>
                             );
