@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { Search, MapPin, Star, Bell, Filter, Grid, Zap, User, X, ChevronRight, Store } from 'lucide-react';
+import { Search, MapPin, Star, Bell, Filter, Grid, Zap, User, X, ChevronRight, Store, Share2 } from 'lucide-react';
 import { DEMO_BUSINESSES, BusinessMock } from '@/data/mockBusinesses';
 import { TAXONOMY } from '@/lib/taxonomy';
 import { matchesSearch, findSuggestion } from '@/lib/searchUtils';
@@ -15,6 +15,7 @@ import { useLocale, useTranslations } from 'next-intl';
 // import AuthGateModal from '@/components/ui/AuthGateModal'; // Kept for reference but unused
 import PublicBusinessPreviewModal from '@/components/ui/PublicBusinessPreviewModal';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import ShareAppModal from '@/components/ui/ShareAppModal';
 
 const MapLoader = () => {
     const t = useTranslations('home');
@@ -27,6 +28,7 @@ const DynamicMap = dynamic(() => import('@/components/ui/MapWidget'), {
 });
 
 export default function Home() {
+    const [showShare, setShowShare] = useState(false);
 
 
     /* State for simple filtering */
@@ -170,347 +172,361 @@ export default function Home() {
     if (!selectedCountry) return <CountrySelector />;
 
     return (
-        <main className="h-screen bg-[#0B0F19] text-white overflow-hidden font-sans flex flex-col">
-            {/* Header with Dynamic Location */}
-            <header className="shrink-0 px-6 py-4 flex justify-between items-center z-50 bg-[#0B0F19]">
-                <div className="flex items-center">
-                    <Image
-                        src="/logo-header.png"
-                        alt="Pro24/7YA"
-                        width={120}
-                        height={36}
-                        className="object-contain"
-                        priority
-                    />
-                    <div className="flex flex-col">
-                        <span className="text-[10px] text-brand-neon-cyan/80 font-bold tracking-wider uppercase leading-none mb-0.5">{t('location')}</span>
-                        <div
-                            className="flex items-center gap-2 cursor-pointer group bg-white/5 hover:bg-white/10 px-2.5 py-1.5 rounded-lg transition-colors border border-transparent hover:border-white/10"
-                            onClick={clearCountry}
-                        >
-                            {/* Waving Flag Icon */}
-                            <div className="w-6 h-4 relative shadow-sm rounded-sm overflow-hidden">
-                                <img
-                                    src={`https://flagcdn.com/w40/${selectedCountry.code.toLowerCase()}.png`}
-                                    alt={selectedCountry.name}
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-
-                            <span className="font-bold text-sm text-white group-hover:text-brand-neon-cyan transition-colors">
-                                {selectedCountry.name}
-                            </span>
-                            <MapPin className="w-3 h-3 text-slate-400 group-hover:text-brand-neon-cyan transition-colors" />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                    <LanguageSwitcher />
-                    {user ? (
-                        <div className="flex items-center gap-3 group relative">
-                            {/* Business Owner Switch */}
-                            {userProfile?.roles?.provider && (
-                                <button
-                                    onClick={() => router.push(lp('/business/dashboard'))}
-                                    className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-brand-neon-cyan/30 bg-brand-neon-cyan/10 text-brand-neon-cyan text-xs font-bold hover:bg-brand-neon-cyan/20 transition-all"
-                                >
-                                    <Store className="w-3 h-3" />
-                                    {t('manageMyBusiness')}
-                                </button>
-                            )}
-
-                            {/* User Info (Desktop/Tablet) */}
-                            <div className="hidden sm:flex flex-col items-end">
-                                <span className="text-xs font-bold text-white leading-none">{user.displayName || 'Usuario'}</span>
-                                <span className="text-[10px] text-slate-400">{t('viewProfile')}</span>
-                            </div>
-
-                            {/* Avatar / Menu Trigger */}
-                            <button
-                                className="w-10 h-10 rounded-full bg-slate-800 border-2 border-brand-neon-cyan/50 p-0.5 overflow-hidden transition-transform hover:scale-105"
+        <>
+            <main className="h-screen bg-[#0B0F19] text-white overflow-hidden font-sans flex flex-col">
+                {/* Header with Dynamic Location */}
+                <header className="shrink-0 px-6 py-4 flex justify-between items-center z-50 bg-[#0B0F19]">
+                    <div className="flex items-center">
+                        <Image
+                            src="/logo-header.png"
+                            alt="Pro24/7YA"
+                            width={120}
+                            height={36}
+                            className="object-contain"
+                            priority
+                        />
+                        <div className="flex flex-col">
+                            <span className="text-[10px] text-brand-neon-cyan/80 font-bold tracking-wider uppercase leading-none mb-0.5">{t('location')}</span>
+                            <div
+                                className="flex items-center gap-2 cursor-pointer group bg-white/5 hover:bg-white/10 px-2.5 py-1.5 rounded-lg transition-colors border border-transparent hover:border-white/10"
+                                onClick={clearCountry}
                             >
-                                {user.photoURL ? (
-                                    <img src={user.photoURL} alt="User" className="w-full h-full rounded-full object-cover" />
-                                ) : (
-                                    <div className="w-full h-full bg-brand-neon-cyan text-black flex items-center justify-center font-bold">
-                                        {user.email?.[0].toUpperCase() || 'U'}
-                                    </div>
-                                )}
-                            </button>
-
-                            {/* Simple Dropdown for Logout */}
-                            <div className="absolute top-12 right-0 w-48 bg-[#151b2e] border border-white/10 rounded-xl shadow-2xl p-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all z-50">
-                                <div className="px-3 py-2 border-b border-white/5 mb-1">
-                                    <p className="text-xs text-slate-400">{t('loggedInAs')}</p>
-                                    <p className="text-sm text-white font-medium truncate">{user.email}</p>
+                                {/* Waving Flag Icon */}
+                                <div className="w-6 h-4 relative shadow-sm rounded-sm overflow-hidden">
+                                    <img
+                                        src={`https://flagcdn.com/w40/${selectedCountry.code.toLowerCase()}.png`}
+                                        alt={selectedCountry.name}
+                                        className="w-full h-full object-cover"
+                                    />
                                 </div>
 
+                                <span className="font-bold text-sm text-white group-hover:text-brand-neon-cyan transition-colors">
+                                    {selectedCountry.name}
+                                </span>
+                                <MapPin className="w-3 h-3 text-slate-400 group-hover:text-brand-neon-cyan transition-colors" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        {/* Share App button */}
+                        <button
+                            onClick={() => setShowShare(true)}
+                            title={t('share')}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-brand-neon-cyan/10 hover:border-brand-neon-cyan/40 text-slate-400 hover:text-brand-neon-cyan transition-all text-xs font-semibold"
+                        >
+                            <Share2 size={14} />
+                            <span className="hidden sm:inline">{t('share')}</span>
+                        </button>
+                        <LanguageSwitcher />
+                        {user ? (
+                            <div className="flex items-center gap-3 group relative">
+                                {/* Business Owner Switch */}
                                 {userProfile?.roles?.provider && (
                                     <button
                                         onClick={() => router.push(lp('/business/dashboard'))}
-                                        className="w-full text-left px-3 py-2 rounded-lg text-brand-neon-cyan hover:bg-white/5 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
+                                        className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-brand-neon-cyan/30 bg-brand-neon-cyan/10 text-brand-neon-cyan text-xs font-bold hover:bg-brand-neon-cyan/20 transition-all"
                                     >
-                                        <Store size={14} />
-                                        {t('manageBusiness')}
+                                        <Store className="w-3 h-3" />
+                                        {t('manageMyBusiness')}
                                     </button>
                                 )}
 
+                                {/* User Info (Desktop/Tablet) */}
+                                <div className="hidden sm:flex flex-col items-end">
+                                    <span className="text-xs font-bold text-white leading-none">{user.displayName || 'Usuario'}</span>
+                                    <span className="text-[10px] text-slate-400">{t('viewProfile')}</span>
+                                </div>
+
+                                {/* Avatar / Menu Trigger */}
                                 <button
-                                    onClick={() => router.push(lp('/user/profile'))}
-                                    className="w-full text-left px-3 py-2 rounded-lg text-slate-300 hover:bg-white/5 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
+                                    className="w-10 h-10 rounded-full bg-slate-800 border-2 border-brand-neon-cyan/50 p-0.5 overflow-hidden transition-transform hover:scale-105"
                                 >
-                                    <User size={14} />
-                                    {t('viewProfile')}
+                                    {user.photoURL ? (
+                                        <img src={user.photoURL} alt="User" className="w-full h-full rounded-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full bg-brand-neon-cyan text-black flex items-center justify-center font-bold">
+                                            {user.email?.[0].toUpperCase() || 'U'}
+                                        </div>
+                                    )}
                                 </button>
 
-                                <button
-                                    onClick={() => {
-                                        import('@/services/auth.service').then(({ AuthService }) => {
-                                            AuthService.logout().then(() => {
-                                                window.location.reload(); // Force refresh to clear state nicely
+                                {/* Simple Dropdown for Logout */}
+                                <div className="absolute top-12 right-0 w-48 bg-[#151b2e] border border-white/10 rounded-xl shadow-2xl p-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all z-50">
+                                    <div className="px-3 py-2 border-b border-white/5 mb-1">
+                                        <p className="text-xs text-slate-400">{t('loggedInAs')}</p>
+                                        <p className="text-sm text-white font-medium truncate">{user.email}</p>
+                                    </div>
+
+                                    {userProfile?.roles?.provider && (
+                                        <button
+                                            onClick={() => router.push(lp('/business/dashboard'))}
+                                            className="w-full text-left px-3 py-2 rounded-lg text-brand-neon-cyan hover:bg-white/5 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
+                                        >
+                                            <Store size={14} />
+                                            {t('manageBusiness')}
+                                        </button>
+                                    )}
+
+                                    <button
+                                        onClick={() => router.push(lp('/user/profile'))}
+                                        className="w-full text-left px-3 py-2 rounded-lg text-slate-300 hover:bg-white/5 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
+                                    >
+                                        <User size={14} />
+                                        {t('viewProfile')}
+                                    </button>
+
+                                    <button
+                                        onClick={() => {
+                                            import('@/services/auth.service').then(({ AuthService }) => {
+                                                AuthService.logout().then(() => {
+                                                    window.location.reload(); // Force refresh to clear state nicely
+                                                });
                                             });
-                                        });
-                                    }}
-                                    className="w-full text-left px-3 py-2 rounded-lg text-slate-300 hover:bg-white/5 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
+                                        }}
+                                        className="w-full text-left px-3 py-2 rounded-lg text-slate-300 hover:bg-white/5 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
+                                    >
+                                        <span className="w-2 h-2 rounded-full bg-slate-500"></span>
+                                        {t('logout')}
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-4">
+                                {/* Business CTA - Direct register as business, no intermediate screen */}
+                                <button
+                                    onClick={() => router.push(lp('/auth/register?intent=business'))}
+                                    className="hidden md:block text-xs font-bold text-slate-400 hover:text-white transition-colors"
                                 >
-                                    <span className="w-2 h-2 rounded-full bg-slate-500"></span>
-                                    {t('logout')}
+                                    {t('isProfessional')} <span className="text-brand-neon-cyan">{t('registerCTA')}</span>
+                                </button>
+
+                                <div className="h-4 w-px bg-white/10 hidden md:block"></div>
+
+                                {/* Entrar → onboarding with mode=login so user picks intent before logging in */}
+                                <button
+                                    onClick={() => router.push(lp('/onboarding?mode=login'))}
+                                    className="text-sm font-medium text-slate-300 hover:text-white transition-colors px-4 py-2 rounded-full border border-white/20 hover:border-white/40"
+                                >
+                                    {t('login')}
                                 </button>
                             </div>
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-4">
-                            {/* Business CTA - Direct register as business, no intermediate screen */}
-                            <button
-                                onClick={() => router.push(lp('/auth/register?intent=business'))}
-                                className="hidden md:block text-xs font-bold text-slate-400 hover:text-white transition-colors"
-                            >
-                                {t('isProfessional')} <span className="text-brand-neon-cyan">{t('registerCTA')}</span>
-                            </button>
+                        )}
+                    </div>
+                </header>
 
-                            <div className="h-4 w-px bg-white/10 hidden md:block"></div>
+                {/* Scrollable Content Wrapper */}
+                <div className="flex-1 flex flex-col min-h-0">
 
-                            {/* Entrar → onboarding with mode=login so user picks intent before logging in */}
-                            <button
-                                onClick={() => router.push(lp('/onboarding?mode=login'))}
-                                className="text-sm font-medium text-slate-300 hover:text-white transition-colors px-4 py-2 rounded-full border border-white/20 hover:border-white/40"
-                            >
-                                {t('login')}
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </header>
-
-            {/* Scrollable Content Wrapper */}
-            <div className="flex-1 flex flex-col min-h-0">
-
-                {/* Search Bar - Sticky on Mobile? No, simple flex item */}
-                <div className="shrink-0 px-6 pb-4 z-40">
-                    <div className="relative group">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-purple-600 opacity-20 rounded-2xl blur-md group-hover:opacity-40 transition duration-500"></div>
-                        <div className="relative flex items-center bg-[#151b2e] border border-white/10 rounded-2xl px-5 py-3 shadow-2xl">
-                            <Search className="w-6 h-6 text-slate-400 mr-3" />
-                            <input
-                                type="text"
-                                placeholder={t('searchPlaceholder')}
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="bg-transparent w-full outline-none text-white placeholder-slate-500 text-base font-medium"
-                            />
-                            {searchTerm && (
-                                <button onClick={() => setSearchTerm('')} className="p-1 rounded-full hover:bg-white/10 transition-colors">
-                                    <X className="w-5 h-5 text-slate-400" />
-                                </button>
-                            )}
+                    {/* Search Bar - Sticky on Mobile? No, simple flex item */}
+                    <div className="shrink-0 px-6 pb-4 z-40">
+                        <div className="relative group">
+                            <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-purple-600 opacity-20 rounded-2xl blur-md group-hover:opacity-40 transition duration-500"></div>
+                            <div className="relative flex items-center bg-[#151b2e] border border-white/10 rounded-2xl px-5 py-3 shadow-2xl">
+                                <Search className="w-6 h-6 text-slate-400 mr-3" />
+                                <input
+                                    type="text"
+                                    placeholder={t('searchPlaceholder')}
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="bg-transparent w-full outline-none text-white placeholder-slate-500 text-base font-medium"
+                                />
+                                {searchTerm && (
+                                    <button onClick={() => setSearchTerm('')} className="p-1 rounded-full hover:bg-white/10 transition-colors">
+                                        <X className="w-5 h-5 text-slate-400" />
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Categories Row */}
-                <div className="shrink-0 px-6 pb-2">
-                    <div className="flex justify-between items-start gap-2 overflow-x-auto no-scrollbar py-2">
-                        {categories.map((cat, idx) => (
-                            <div
-                                key={idx}
-                                onClick={() => handleCategoryClick(cat.id)}
-                                className="flex flex-col items-center gap-2.5 min-w-[80px] flex-1 cursor-pointer group"
-                            >
-                                <div className={`
+                    {/* Categories Row */}
+                    <div className="shrink-0 px-6 pb-2">
+                        <div className="flex justify-between items-start gap-2 overflow-x-auto no-scrollbar py-2">
+                            {categories.map((cat, idx) => (
+                                <div
+                                    key={idx}
+                                    onClick={() => handleCategoryClick(cat.id)}
+                                    className="flex flex-col items-center gap-2.5 min-w-[80px] flex-1 cursor-pointer group"
+                                >
+                                    <div className={`
                      w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-3xl
                      ${cat.bg} border ${cat.border}
                      shadow-[0_0_20px_rgba(0,0,0,0.3)]
                      group-hover:scale-110 group-active:scale-95 transition-transform duration-200
                    `}>
-                                    <span className="filter drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]">{cat.icon}</span>
+                                        <span className="filter drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]">{cat.icon}</span>
+                                    </div>
+                                    <span className="text-xs sm:text-sm font-semibold text-slate-300 group-hover:text-white transition-colors text-center leading-tight">{cat.name}</span>
                                 </div>
-                                <span className="text-xs sm:text-sm font-semibold text-slate-300 group-hover:text-white transition-colors text-center leading-tight">{cat.name}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Map Widget (Responsive Height) */}
-                <div className="shrink-0 mx-6 mb-4 rounded-3xl overflow-hidden border border-white/10 shadow-2xl group cursor-pointer isolate relative transition-all duration-300 h-[35vh] min-h-[250px] max-h-[400px] md:h-[400px]">
-                    <DynamicMap
-                        businesses={filteredBusinesses}
-                        selectedBusiness={selectedBusiness}
-                        onBusinessSelect={handleBusinessClick}
-                        onNavigate={handleNavigate}
-                        isAuthenticated={!!user}
-                        countryCoordinates={selectedCountry?.coordinates}
-                        countryCode={selectedCountry?.code}
-                    />
-
-                    {/* Map Label (Overlay) */}
-                    <div className="absolute bottom-4 left-4 z-[1000] pointer-events-none">
-                        <div className="bg-[#0B0F19]/80 backdrop-blur px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
-                            <MapPin className="w-3 h-3 text-cyan-400" />
-                            <span className="text-xs font-bold text-white">{selectedCountry?.mainCity || 'San Pedro Sula'} (En Vivo)</span>
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                            ))}
                         </div>
                     </div>
-                </div>
 
-                {/* Featured Pros List (Scrollable Fill) */}
-                <div className="flex-1 overflow-y-auto px-6 pb-24 space-y-3 custom-scrollbar">
-                    {filteredBusinesses.map((biz) => (
-                        <div
-                            key={biz.id}
-                            onClick={() => handleBusinessClick(biz)}
-                            className={`flex items-center p-3 bg-[#151b2e] border rounded-2xl transition-all cursor-pointer group
+                    {/* Map Widget (Responsive Height) */}
+                    <div className="shrink-0 mx-6 mb-4 rounded-3xl overflow-hidden border border-white/10 shadow-2xl group cursor-pointer isolate relative transition-all duration-300 h-[35vh] min-h-[250px] max-h-[400px] md:h-[400px]">
+                        <DynamicMap
+                            businesses={filteredBusinesses}
+                            selectedBusiness={selectedBusiness}
+                            onBusinessSelect={handleBusinessClick}
+                            onNavigate={handleNavigate}
+                            isAuthenticated={!!user}
+                            countryCoordinates={selectedCountry?.coordinates}
+                            countryCode={selectedCountry?.code}
+                        />
+
+                        {/* Map Label (Overlay) */}
+                        <div className="absolute bottom-4 left-4 z-[1000] pointer-events-none">
+                            <div className="bg-[#0B0F19]/80 backdrop-blur px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
+                                <MapPin className="w-3 h-3 text-cyan-400" />
+                                <span className="text-xs font-bold text-white">{selectedCountry?.mainCity || 'San Pedro Sula'} (En Vivo)</span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Featured Pros List (Scrollable Fill) */}
+                    <div className="flex-1 overflow-y-auto px-6 pb-24 space-y-3 custom-scrollbar">
+                        {filteredBusinesses.map((biz) => (
+                            <div
+                                key={biz.id}
+                                onClick={() => handleBusinessClick(biz)}
+                                className={`flex items-center p-3 bg-[#151b2e] border rounded-2xl transition-all cursor-pointer group
                                 ${selectedBusiness?.id === biz.id ? 'border-brand-neon-cyan shadow-[0_0_15px_rgba(0,240,255,0.2)]' : 'border-white/5 hover:border-white/10'}
                             `}
-                        >
-                            <div className="w-12 h-12 rounded-xl bg-slate-700 mr-3 shrink-0 flex items-center justify-center text-xl relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0" />
-                                {(biz as any).logoUrl ? (
-                                    <img
-                                        src={(biz as any).logoUrl}
-                                        alt={biz.name}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                                    />
-                                ) : (
-                                    typeof biz.icon === 'string' ? biz.icon : <Zap className="w-5 h-5 text-white" />
+                            >
+                                <div className="w-12 h-12 rounded-xl bg-slate-700 mr-3 shrink-0 flex items-center justify-center text-xl relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0" />
+                                    {(biz as any).logoUrl ? (
+                                        <img
+                                            src={(biz as any).logoUrl}
+                                            alt={biz.name}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                        />
+                                    ) : (
+                                        typeof biz.icon === 'string' ? biz.icon : <Zap className="w-5 h-5 text-white" />
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-bold text-white text-sm truncate">{biz.name}</h3>
+                                    <p className="text-[10px] text-brand-neon-cyan font-medium mb-0.5 truncate">
+                                        {(() => {
+                                            for (const group of Object.values(TAXONOMY)) {
+                                                const sub = group.subcategories.find(s => s.id === biz.subcategory);
+                                                if (sub) return sub.label[localeKey as keyof typeof sub.label] ?? sub.label.es;
+                                            }
+                                            return biz.subcategory;
+                                        })()}
+                                    </p>
+                                    <div className="flex items-center gap-1">
+                                        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                                        <span className="text-yellow-400 font-bold text-[10px]">5.0</span>
+                                        <span className="text-slate-500 text-[10px] truncate">(San Pedro Sula)</span>
+                                    </div>
+                                </div>
+                                {/* Action hint for logged out users */}
+                                <div className="hidden group-hover:flex items-center px-2 py-1 bg-white/10 rounded-full text-[10px] text-white font-medium whitespace-nowrap">
+                                    {t('viewBtn')}
+                                </div>
+                            </div>
+                        ))}
+                        {filteredBusinesses.length === 0 && searchTerm && (
+                            <div className="flex flex-col items-center justify-center py-10 text-slate-500 text-sm animate-in fade-in zoom-in duration-300">
+                                <p>{t('noResultsFor', { term: searchTerm })}</p>
+
+                                {/* Suggestion UI */}
+                                {suggestion && (
+                                    <div className="mt-4 flex flex-col items-center gap-2">
+                                        <p className="text-xs text-slate-400">{t('didYouMean')}</p>
+                                        <button
+                                            onClick={() => setSearchTerm(suggestion)}
+                                            className="px-4 py-2 bg-brand-neon-cyan/10 border border-brand-neon-cyan/20 rounded-full text-brand-neon-cyan font-bold hover:bg-brand-neon-cyan/20 transition-all flex items-center gap-2"
+                                        >
+                                            <Zap className="w-4 h-4 fill-current" />
+                                            {suggestion}
+                                        </button>
+                                    </div>
                                 )}
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <h3 className="font-bold text-white text-sm truncate">{biz.name}</h3>
-                                <p className="text-[10px] text-brand-neon-cyan font-medium mb-0.5 truncate">
-                                    {(() => {
-                                        for (const group of Object.values(TAXONOMY)) {
-                                            const sub = group.subcategories.find(s => s.id === biz.subcategory);
-                                            if (sub) return sub.label[localeKey as keyof typeof sub.label] ?? sub.label.es;
-                                        }
-                                        return biz.subcategory;
-                                    })()}
-                                </p>
-                                <div className="flex items-center gap-1">
-                                    <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                                    <span className="text-yellow-400 font-bold text-[10px]">5.0</span>
-                                    <span className="text-slate-500 text-[10px] truncate">(San Pedro Sula)</span>
-                                </div>
-                            </div>
-                            {/* Action hint for logged out users */}
-                            <div className="hidden group-hover:flex items-center px-2 py-1 bg-white/10 rounded-full text-[10px] text-white font-medium whitespace-nowrap">
-                                {t('viewBtn')}
-                            </div>
-                        </div>
-                    ))}
-                    {filteredBusinesses.length === 0 && searchTerm && (
-                        <div className="flex flex-col items-center justify-center py-10 text-slate-500 text-sm animate-in fade-in zoom-in duration-300">
-                            <p>{t('noResultsFor', { term: searchTerm })}</p>
+                        )}
+                    </div>
 
-                            {/* Suggestion UI */}
-                            {suggestion && (
-                                <div className="mt-4 flex flex-col items-center gap-2">
-                                    <p className="text-xs text-slate-400">{t('didYouMean')}</p>
+                    {/* Modals placed here or at root */}
+                    <PublicBusinessPreviewModal
+                        isOpen={showAuthModal}
+                        onClose={() => setShowAuthModal(false)}
+                        business={pendingBusiness}
+                    />
+
+                    {/* Categories Detail Modal */}
+                    {selectedCategory && selectedTaxonomy && (
+                        <div className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                            <div className="bg-[#151b2e] w-full max-w-lg rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom duration-300">
+
+                                {/* Header */}
+                                <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#0f172a]">
+                                    <div>
+                                        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                            {categories.find(c => c.id === selectedCategory)?.icon}
+                                            {selectedTaxonomy.label[localeKey as keyof typeof selectedTaxonomy.label]}
+                                        </h2>
+                                        <p className="text-xs text-slate-400 mt-1">{t('exploreServices')}</p>
+                                    </div>
                                     <button
-                                        onClick={() => setSearchTerm(suggestion)}
-                                        className="px-4 py-2 bg-brand-neon-cyan/10 border border-brand-neon-cyan/20 rounded-full text-brand-neon-cyan font-bold hover:bg-brand-neon-cyan/20 transition-all flex items-center gap-2"
+                                        onClick={() => setSelectedCategory(null)}
+                                        className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
                                     >
-                                        <Zap className="w-4 h-4 fill-current" />
-                                        {suggestion}
+                                        <X className="w-5 h-5" />
                                     </button>
                                 </div>
-                            )}
+
+                                {/* Scrollable Content */}
+                                <div className="overflow-y-auto p-4 space-y-4 custom-scrollbar">
+                                    {selectedTaxonomy.subcategories.map((sub) => (
+                                        <div key={sub.id} className="bg-slate-900/50 rounded-2xl p-4 border border-white/5 hover:border-white/10 transition-colors">
+                                            <h3 className="font-bold text-brand-neon-cyan mb-3 flex items-center gap-2">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-brand-neon-cyan"></span>
+                                                {sub.label[localeKey as keyof typeof sub.label]}
+                                            </h3>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                {sub.specialties.map((spec, i) => (
+                                                    <div
+                                                        key={i}
+                                                        onClick={() => {
+                                                            // Always search with ES key — Firestore tags are stored in Spanish
+                                                            setSearchTerm((spec as any).es);
+                                                            setSelectedCategory(null);
+                                                        }}
+                                                        className="flex items-center gap-2 text-sm text-slate-300 bg-white/5 px-3 py-2 rounded-lg hover:bg-white/10 cursor-pointer transition-colors group/item"
+                                                    >
+                                                        <ChevronRight className="w-3 h-3 text-slate-600 group-hover/item:text-brand-neon-cyan" />
+                                                        {(spec as any)[localeKey] ?? (spec as any).es}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Footer */}
+                                <div className="p-4 border-t border-white/5 bg-[#0f172a]">
+                                    <button
+                                        onClick={() => setSelectedCategory(null)}
+                                        className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold text-sm hover:opacity-90 transition-opacity"
+                                    >
+                                        {t('closeExplorer')}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     )}
+
                 </div>
+            </main>
 
-                {/* Modals placed here or at root */}
-                <PublicBusinessPreviewModal
-                    isOpen={showAuthModal}
-                    onClose={() => setShowAuthModal(false)}
-                    business={pendingBusiness}
-                />
-
-                {/* Categories Detail Modal */}
-                {selectedCategory && selectedTaxonomy && (
-                    <div className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                        <div className="bg-[#151b2e] w-full max-w-lg rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom duration-300">
-
-                            {/* Header */}
-                            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#0f172a]">
-                                <div>
-                                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                        {categories.find(c => c.id === selectedCategory)?.icon}
-                                        {selectedTaxonomy.label[localeKey as keyof typeof selectedTaxonomy.label]}
-                                    </h2>
-                                    <p className="text-xs text-slate-400 mt-1">{t('exploreServices')}</p>
-                                </div>
-                                <button
-                                    onClick={() => setSelectedCategory(null)}
-                                    className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
-
-                            {/* Scrollable Content */}
-                            <div className="overflow-y-auto p-4 space-y-4 custom-scrollbar">
-                                {selectedTaxonomy.subcategories.map((sub) => (
-                                    <div key={sub.id} className="bg-slate-900/50 rounded-2xl p-4 border border-white/5 hover:border-white/10 transition-colors">
-                                        <h3 className="font-bold text-brand-neon-cyan mb-3 flex items-center gap-2">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-brand-neon-cyan"></span>
-                                            {sub.label[localeKey as keyof typeof sub.label]}
-                                        </h3>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                            {sub.specialties.map((spec, i) => (
-                                                <div
-                                                    key={i}
-                                                    onClick={() => {
-                                                        // Always search with ES key — Firestore tags are stored in Spanish
-                                                        setSearchTerm((spec as any).es);
-                                                        setSelectedCategory(null);
-                                                    }}
-                                                    className="flex items-center gap-2 text-sm text-slate-300 bg-white/5 px-3 py-2 rounded-lg hover:bg-white/10 cursor-pointer transition-colors group/item"
-                                                >
-                                                    <ChevronRight className="w-3 h-3 text-slate-600 group-hover/item:text-brand-neon-cyan" />
-                                                    {(spec as any)[localeKey] ?? (spec as any).es}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Footer */}
-                            <div className="p-4 border-t border-white/5 bg-[#0f172a]">
-                                <button
-                                    onClick={() => setSelectedCategory(null)}
-                                    className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold text-sm hover:opacity-90 transition-opacity"
-                                >
-                                    {t('closeExplorer')}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-            </div>
-        </main>
+            {/* Share App Modal */}
+            <ShareAppModal isOpen={showShare} onClose={() => setShowShare(false)} />
+        </>
     );
 }
