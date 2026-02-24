@@ -136,9 +136,9 @@ export default function BusinessProfilePage() {
                 <ServicesTab
                     businessId={id}
                     services={displayData.services}
+                    rating={displayData.rating}
+                    reviewCount={displayData.reviewCount}
                     onBook={(service) => {
-                        // Logic to open booking modal with specific service
-                        // For now just open the general modal, or we can pass service pre-selected
                         setIsBookingOpen(true);
                     }}
                 />
