@@ -72,7 +72,7 @@ export default function CountrySelector() {
         : uniqueCountries;
 
     return (
-        <div className="fixed inset-0 z-[9999] bg-[#050b14] flex flex-col overflow-hidden">
+        <div className="fixed inset-0 z-[9999] bg-[#F4F6F8] flex flex-col overflow-hidden">
 
             {/* ── Ambient glow orbs ── */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -84,8 +84,8 @@ export default function CountrySelector() {
             <div className="relative z-10 shrink-0 flex items-center justify-between px-5 pt-5 pb-3">
                 {/* Logo wordmark */}
                 <span className="text-lg font-black tracking-tight select-none">
-                    <span className="text-white">Pro</span>
-                    <span className="text-cyan-400">24/7YA</span>
+                    <span className="text-slate-900">Pro</span>
+                    <span className="text-[#14B8A6]">24/7YA</span>
                 </span>
 
                 {/* Language pills */}
@@ -99,7 +99,7 @@ export default function CountrySelector() {
                                 transition-all duration-200 select-none
                                 ${locale === code
                                     ? 'bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.25)]'
-                                    : 'bg-slate-50 border border-slate-200 text-slate-400 hover:text-slate-200 hover:bg-slate-100'
+                                    : 'bg-white border border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                                 }
                             `}
                         >
@@ -112,7 +112,7 @@ export default function CountrySelector() {
 
             {/* ── Hero heading ── */}
             <div className="relative z-10 shrink-0 text-center px-6 pt-6 pb-2">
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight leading-none mb-3">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 tracking-tight leading-none mb-3">
                     {t('welcome')}
                 </h1>
                 <p className="text-slate-400 text-base sm:text-lg font-medium max-w-md mx-auto leading-relaxed">
@@ -132,7 +132,7 @@ export default function CountrySelector() {
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                             placeholder={t('searchPlaceholder')}
-                            className="bg-transparent border-none outline-none text-white text-base w-full placeholder:text-slate-600 font-medium"
+                            className="bg-transparent border-none outline-none text-slate-900 text-base w-full placeholder:text-slate-400 font-medium"
                             autoFocus
                         />
                     </div>
@@ -156,9 +156,9 @@ export default function CountrySelector() {
                                     onClick={() => selectCountry(country.code)}
                                     className="
                                         group relative flex flex-col items-center gap-3 p-4 rounded-2xl
-                                        bg-white/4 border border-white/6
-                                        hover:bg-slate-50 hover:border-cyan-400/30
-                                        hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(6,182,212,0.12)]
+                                        bg-white border border-slate-200
+                                        hover:bg-slate-50 hover:border-[#14B8A6]/30
+                                        hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(20,184,166,0.12)]
                                         active:scale-95
                                         transition-all duration-200
                                     "
@@ -169,7 +169,7 @@ export default function CountrySelector() {
                                     )}
 
                                     {/* Flag — 50% larger than original */}
-                                    <div className="w-20 h-14 rounded-xl overflow-hidden shadow-lg ring-1 ring-white/10 group-hover:ring-cyan-400/30 group-hover:shadow-[0_4px_16px_rgba(6,182,212,0.2)] transition-all duration-200">
+                                    <div className="w-20 h-14 rounded-xl overflow-hidden shadow-lg ring-1 ring-slate-200 group-hover:ring-[#14B8A6]/30 group-hover:shadow-[0_4px_16px_rgba(20,184,166,0.2)] transition-all duration-200">
                                         <img
                                             src={`https://flagcdn.com/w160/${country.code.toLowerCase()}.png`}
                                             alt={getCountryName(country.code, country.name)}
@@ -191,7 +191,7 @@ export default function CountrySelector() {
                                     </div>
 
                                     {/* Country name — localized */}
-                                    <span className="text-white text-sm font-semibold text-center leading-tight group-hover:text-cyan-300 transition-colors duration-200 line-clamp-2">
+                                    <span className="text-slate-900 text-sm font-semibold text-center leading-tight group-hover:text-[#0F766E] transition-colors duration-200 line-clamp-2">
                                         {getCountryName(country.code, country.name)}
                                     </span>
                                 </button>
