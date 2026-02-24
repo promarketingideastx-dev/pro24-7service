@@ -189,24 +189,24 @@ export default function Home() {
         <>
             <main className="h-screen bg-[#F4F6F8] text-slate-900 overflow-hidden font-sans flex flex-col">
                 {/* ── Header ── */}
-                <header className="shrink-0 px-4 py-3 flex items-center justify-between z-50 bg-[#F4F6F8] border-b border-slate-200">
+                <header className="shrink-0 px-4 py-4 flex items-center justify-between z-50 bg-[#F4F6F8] border-b border-slate-200">
 
                     {/* Left: country picker pill */}
                     <button
                         onClick={clearCountry}
-                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 transition-all group"
+                        className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-[#14B8A6]/40 shadow-sm transition-all group"
                     >
-                        <div className="w-5 h-3.5 rounded-sm overflow-hidden shadow-sm ring-1 ring-white/10">
+                        <div className="w-7 h-5 rounded-sm overflow-hidden shadow-sm ring-1 ring-slate-200">
                             <img
                                 src={`https://flagcdn.com/w40/${selectedCountry.code.toLowerCase()}.png`}
                                 alt={selectedCountry.name}
                                 className="w-full h-full object-cover"
                             />
                         </div>
-                        <span className="font-semibold text-sm text-slate-700 group-hover:text-brand-neon-cyan transition-colors">
+                        <span className="font-bold text-base text-slate-800 group-hover:text-[#0F766E] transition-colors">
                             {selectedCountry.name}
                         </span>
-                        <MapPin className="w-3 h-3 text-slate-500 group-hover:text-brand-neon-cyan transition-colors" />
+                        <MapPin className="w-4 h-4 text-slate-400 group-hover:text-[#14B8A6] transition-colors" />
                     </button>
 
                     {/* Right: share + user/login */}
@@ -215,9 +215,10 @@ export default function Home() {
                         <button
                             onClick={() => setShowShare(true)}
                             title={t('share')}
-                            className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-brand-neon-cyan/10 border border-slate-200 hover:border-brand-neon-cyan/30 text-slate-400 hover:text-brand-neon-cyan transition-all"
+                            className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-[#14B8A6]/40 text-slate-500 hover:text-[#0F766E] shadow-sm transition-all"
                         >
-                            <Share2 size={15} />
+                            <Share2 size={16} />
+                            <span className="text-sm font-semibold hidden sm:inline">{t('share')}</span>
                         </button>
                         {user ? (
                             <div className="flex items-center gap-3 group relative">
@@ -280,13 +281,13 @@ export default function Home() {
                                         onClick={() => {
                                             import('@/services/auth.service').then(({ AuthService }) => {
                                                 AuthService.logout().then(() => {
-                                                    window.location.reload(); // Force refresh to clear state nicely
+                                                    window.location.reload();
                                                 });
                                             });
                                         }}
-                                        className="w-full text-left px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-50 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
+                                        className="w-full text-left px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
                                     >
-                                        <span className="w-2 h-2 rounded-full bg-slate-500"></span>
+                                        <span className="w-2 h-2 rounded-full bg-slate-400"></span>
                                         {t('logout')}
                                     </button>
                                 </div>
@@ -306,7 +307,7 @@ export default function Home() {
                                 {/* Entrar → onboarding with mode=login so user picks intent before logging in */}
                                 <button
                                     onClick={() => router.push(lp('/onboarding?mode=login'))}
-                                    className="text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors px-4 py-2 rounded-full border border-slate-300 hover:border-slate-400"
+                                    className="flex items-center gap-2 bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow-[0_4px_14px_rgba(20,184,166,0.35)] hover:shadow-[0_6px_20px_rgba(20,184,166,0.50)] active:scale-95 transition-all"
                                 >
                                     {t('login')}
                                 </button>
