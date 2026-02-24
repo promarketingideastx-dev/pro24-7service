@@ -145,15 +145,15 @@ const createClusterIcon = (count: number) => {
             <div style="
                 width:${size}px;height:${size}px;
                 border-radius:50%;
-                background:rgba(0,229,255,0.15);
-                border:2px solid rgba(0,229,255,0.6);
+                background:rgba(20,184,166,0.15);
+                border:2px solid rgba(20,184,166,0.7);
                 display:flex;align-items:center;justify-content:center;
                 transform:translate(-50%,-50%);
-                box-shadow:0 0 0 4px rgba(0,229,255,0.08);
+                box-shadow:0 0 0 4px rgba(20,184,166,0.10);
                 backdrop-filter:blur(4px);
             ">
                 <span style="
-                    color:#00e5ff;
+                    color:#0F766E;
                     font-weight:800;
                     font-size:${count > 99 ? 10 : 13}px;
                     font-family:system-ui,sans-serif;
@@ -346,7 +346,7 @@ export default function MapWidget({
         setIsMounted(true);
     }, []);
 
-    if (!isMounted) return <div className="h-64 w-full bg-slate-900 rounded-3xl animate-pulse flex items-center justify-center text-slate-500">{t('loading')}</div>;
+    if (!isMounted) return <div className="h-64 w-full bg-slate-100 rounded-3xl animate-pulse flex items-center justify-center text-slate-400">{t('loading')}</div>;
 
     // Derive the map starting position from the country registry — never hardcode Honduras
     const countryFromRegistry = countryCode ? COUNTRIES[countryCode as CountryCode] : null;
@@ -367,8 +367,9 @@ export default function MapWidget({
             style={{ height: '100%', width: '100%' }}
         >
             <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors | <a href="https://openfreemap.org" target="_blank">OpenFreeMap</a>'
+                url="https://tiles.openfreemap.org/styles/liberty/{z}/{x}/{y}.png"
+                maxZoom={20}
             />
             {/* Country border lines — GeoJSON, no labels, no fill */}
             <CountryBordersLayer />
