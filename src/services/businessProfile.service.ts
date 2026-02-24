@@ -134,7 +134,8 @@ export interface ServiceData {
     category?: string;         // Tied to business specialty
     isExtra?: boolean;         // Add-on service (optional when booking)
     isActive?: boolean;        // Can be toggled off without deleting
-    imageUrl?: string;         // Optional reference image for the service
+    imageUrl?: string;         // Retro-compatibilidad: primera foto del servicio
+    images?: string[];         // Hasta 10 fotos para el carrusel del perfil público
     createdAt?: any;
     updatedAt?: any;
 }

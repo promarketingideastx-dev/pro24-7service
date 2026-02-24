@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { storage } from '@/lib/firebase';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { comprimirImagen } from '@/lib/imageCompress';
 import { ServicesService, ServiceData, BusinessProfileService, getServiceName } from '@/services/businessProfile.service';
 import { useTranslations, useLocale } from 'next-intl';
 import { TAXONOMY } from '@/lib/taxonomy';
@@ -53,8 +54,8 @@ export default function ServicesPage() {
     const [customHours, setCustomHours] = useState(0);
     const [customMins, setCustomMins] = useState(30);
 
-    // Image upload state
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    // Fotos del servicio (máx. 10)
+    const [imageUrls, setImageUrls] = useState<string[]>([]);
     const [imageUploading, setImageUploading] = useState(false);
     const imageInputRef = useRef<HTMLInputElement>(null);
 
@@ -72,6 +73,7 @@ export default function ServicesPage() {
         isExtra: false,
         isActive: true,
         imageUrl: '',
+        images: [] as string[],
     });
 
     const [formData, setFormData] = useState<ServiceData>(defaultForm());
@@ -101,7 +103,7 @@ export default function ServicesPage() {
         if (service) {
             setFormData({ ...service });
             setEditingId(service.id!);
-            setImagePreview(service.imageUrl || null);
+            setImageUrls(service.images || (service.imageUrl ? [service.imageUrl] : []));
             // Check if the stored duration is a predefined value
             const isPredefined = DURATION_OPTIONS.includes(service.durationMinutes);
             if (!isPredefined) {
@@ -117,7 +119,7 @@ export default function ServicesPage() {
             setUseCustomDuration(false);
             setCustomHours(0);
             setCustomMins(30);
-            setImagePreview(null);
+            setImageUrls([]);
         }
         setIsModalOpen(true);
     };
@@ -147,7 +149,8 @@ export default function ServicesPage() {
                 category: formData.category || '',
                 isExtra: formData.isExtra || false,
                 isActive: formData.isActive !== false,
-                imageUrl: formData.imageUrl || '',
+                imageUrl: imageUrls[0] || '',
+                images: imageUrls,
             };
 
             if (editingId) {
@@ -177,6 +180,34 @@ export default function ServicesPage() {
         } catch {
             toast.error(t('deleteError'));
         }
+    };
+
+    // Subir fotos del servicio (comprime antes)
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (!files.length || !user) return;
+        const remaining = 10 - imageUrls.length;
+        const toProcess = files.slice(0, remaining);
+        setImageUploading(true);
+        try {
+            for (const file of toProcess) {
+                const compressed = await comprimirImagen(file);
+                const path = `businesses/${user.uid}/services/${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`;
+                const sRef = storageRef(storage, path);
+                await uploadBytes(sRef, compressed);
+                const url = await getDownloadURL(sRef);
+                setImageUrls(prev => [...prev, url]);
+            }
+        } catch {
+            toast.error(t('imageUploadError'));
+        } finally {
+            setImageUploading(false);
+            e.target.value = '';
+        }
+    };
+
+    const removeImage = (idx: number) => {
+        setImageUrls(prev => prev.filter((_, i) => i !== idx));
     };
 
     const regularServices = services.filter(s => !s.isExtra);
@@ -290,41 +321,46 @@ export default function ServicesPage() {
 
                         <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
 
-                            {/* ── Service Image Upload ── */}
+                            {/* ── Fotos del servicio (máx. 10) ── */}
                             <div>
-                                <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">
-                                    {t('serviceImage')}
-                                </label>
-                                <div
-                                    onClick={() => imageInputRef.current?.click()}
-                                    className={`relative w-full h-36 rounded-xl border-2 border-dashed cursor-pointer overflow-hidden transition-all
-                                        ${imagePreview
-                                            ? 'border-brand-neon-cyan/40 bg-transparent'
-                                            : 'border-slate-200 bg-white/3 hover:border-white/25 hover:bg-slate-50'}`}
-                                >
-                                    {imagePreview ? (
-                                        <>
-                                            <img src={imagePreview} alt="preview" className="w-full h-full object-cover" />
-                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                                <p className="text-white text-xs font-bold flex items-center gap-1"><Camera size={14} /> {t('changeImage')}</p>
-                                            </div>
+                                <div className="flex items-center justify-between mb-1">
+                                    <label className="block text-xs font-semibold text-slate-600 uppercase">
+                                        {t('serviceImage')}
+                                    </label>
+                                    <span className="text-[10px] text-slate-400">{imageUrls.length}/10 fotos</span>
+                                </div>
+                                <p className="text-[11px] text-slate-500 mb-2">Compresión automática · La 1.a foto es la principal del servicio</p>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {imageUrls.map((url, idx) => (
+                                        <div key={idx} className="relative aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group">
+                                            <img src={url} alt={`foto ${idx + 1}`} className="w-full h-full object-cover" />
                                             <button
                                                 type="button"
-                                                onClick={e => { e.stopPropagation(); setImagePreview(null); setFormData(prev => ({ ...prev, imageUrl: '' })); }}
-                                                className="absolute top-2 right-2 w-6 h-6 rounded-full bg-slate-900/40 flex items-center justify-center text-white hover:bg-red-500/80 transition-colors"
+                                                onClick={() => removeImage(idx)}
+                                                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100"
                                             >
-                                                <X size={12} />
+                                                <X size={10} />
                                             </button>
-                                        </>
-                                    ) : imageUploading ? (
-                                        <div className="flex flex-col items-center justify-center h-full gap-2">
-                                            <div className="w-5 h-5 border-2 border-slate-300 border-t-brand-neon-cyan rounded-full animate-spin" />
-                                            <p className="text-xs text-slate-500">{t('uploadingImage')}</p>
+                                            {idx === 0 && (
+                                                <span className="absolute bottom-1 left-1 text-[9px] bg-[#14B8A6] text-white px-1.5 py-0.5 rounded-md font-bold leading-none">
+                                                    Principal
+                                                </span>
+                                            )}
                                         </div>
-                                    ) : (
-                                        <div className="flex flex-col items-center justify-center h-full gap-2 text-slate-500">
-                                            <ImageIcon size={28} />
-                                            <p className="text-xs">{t('serviceImageHint')}</p>
+                                    ))}
+                                    {imageUrls.length < 10 && (
+                                        <div
+                                            onClick={() => imageInputRef.current?.click()}
+                                            className="aspect-video border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#14B8A6]/50 hover:bg-teal-50 transition-all"
+                                        >
+                                            {imageUploading ? (
+                                                <div className="w-4 h-4 border-2 border-slate-200 border-t-[#14B8A6] rounded-full animate-spin" />
+                                            ) : (
+                                                <>
+                                                    <ImageIcon size={18} className="text-slate-400" />
+                                                    <p className="text-[10px] text-slate-400 text-center leading-tight">Añadir<br />foto</p>
+                                                </>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -332,30 +368,9 @@ export default function ServicesPage() {
                                     ref={imageInputRef}
                                     type="file"
                                     accept="image/*"
+                                    multiple
                                     className="hidden"
-                                    onChange={async (e) => {
-                                        const file = e.target.files?.[0];
-                                        if (!file || !user) return;
-                                        // Show local preview immediately
-                                        const reader = new FileReader();
-                                        reader.onload = ev => setImagePreview(ev.target?.result as string);
-                                        reader.readAsDataURL(file);
-                                        setImageUploading(true);
-                                        try {
-                                            const ext = file.name.split('.').pop() || 'jpg';
-                                            const path = `businesses/${user.uid}/services/${Date.now()}.${ext}`;
-                                            const sRef = storageRef(storage, path);
-                                            await uploadBytes(sRef, file);
-                                            const url = await getDownloadURL(sRef);
-                                            setFormData(prev => ({ ...prev, imageUrl: url }));
-                                        } catch {
-                                            toast.error(t('imageUploadError'));
-                                            setImagePreview(null);
-                                        } finally {
-                                            setImageUploading(false);
-                                            e.target.value = '';
-                                        }
-                                    }}
+                                    onChange={handleImageUpload}
                                 />
                             </div>
 
