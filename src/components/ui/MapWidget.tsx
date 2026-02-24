@@ -1,13 +1,43 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, GeoJSON } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useTranslations } from 'next-intl';
 import { BusinessMock } from '@/data/mockBusinesses';
 import { COUNTRIES, CountryCode } from '@/lib/locations';
 
+
+// ── Country borders overlay ──────────────────────────────────────────────────
+// Draws dark border lines on top of CARTO tiles so countries are clearly
+// separated — no fill, no labels, just visible dividing lines.
+function CountryBordersLayer() {
+    const [geoData, setGeoData] = useState<any>(null);
+
+    useEffect(() => {
+        fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+            .then(r => r.json())
+            .then(data => setGeoData(data))
+            .catch(() => { /* ignore if offline */ });
+    }, []);
+
+    if (!geoData) return null;
+
+    return (
+        <GeoJSON
+            key="country-borders"
+            data={geoData}
+            style={() => ({
+                color: '#334155',   // slate-700 — clearly visible dark line
+                weight: 2,
+                opacity: 0.9,
+                fillOpacity: 0,
+            })}
+            onEachFeature={(_feature, layer) => { layer.off(); }}
+        />
+    );
+}
 
 interface MapWidgetProps {
     businesses: BusinessMock[];
@@ -336,6 +366,8 @@ export default function MapWidget({
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                 url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
             />
+            {/* Country borders overlay */}
+            <CountryBordersLayer />
             <TapToZoom />
             <MapUpdater businesses={businesses} selectedBusiness={selectedBusiness} countryCoordinates={countryCoordinates} countryCode={countryCode} />
 
