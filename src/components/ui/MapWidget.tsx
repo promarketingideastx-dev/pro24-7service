@@ -29,9 +29,9 @@ function CountryBordersLayer() {
             key="country-borders"
             data={geoData}
             style={() => ({
-                color: '#334155',   // slate-700 — clearly visible dark line
-                weight: 2,
-                opacity: 0.9,
+                color: '#94a3b8',   // slate-400 — subtle but visible
+                weight: 0.8,
+                opacity: 0.55,
                 fillOpacity: 0,
             })}
             onEachFeature={(_feature, layer) => { layer.off(); }}
