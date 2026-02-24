@@ -177,10 +177,10 @@ export default function UserProfilePage() {
         }
     };
 
-    if (!user) return <div className="min-h-screen bg-[#F4F6F8] text-white flex items-center justify-center">{t('loading')}</div>;
+    if (!user) return <div className="min-h-screen bg-[#F4F6F8] text-slate-900 flex items-center justify-center">{t('loading')}</div>;
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] text-white pb-20">
+        <div className="min-h-screen bg-[#F4F6F8] text-slate-900 pb-20">
             {/* Header / Nav Back */}
             <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
                 <Link href="/" className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
@@ -207,12 +207,12 @@ export default function UserProfilePage() {
                         <div className="flex flex-col items-center gap-4">
                             <div
                                 onClick={handleAvatarClick}
-                                className="relative group w-32 h-32 rounded-full overflow-hidden border-2 border-slate-200 bg-slate-800 cursor-pointer hover:border-brand-neon-cyan transition-colors"
+                                className="relative group w-32 h-32 rounded-full overflow-hidden border-2 border-[#E6E8EC] bg-slate-100 cursor-pointer hover:border-[#14B8A6] transition-colors"
                             >
                                 {avatarPreview || user.photoURL ? (
                                     <img src={avatarPreview || user.photoURL || ''} alt="Avatar" className="w-full h-full object-cover" />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-slate-600 bg-slate-900 group-hover:bg-slate-800 transition-colors">
+                                    <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-[#14B8A6] bg-[rgba(20,184,166,0.10)] group-hover:bg-[rgba(20,184,166,0.16)] transition-colors">
                                         {formData.displayName?.[0] || user.email?.[0] || '?'}
                                     </div>
                                 )}
@@ -282,12 +282,12 @@ export default function UserProfilePage() {
                                 </div>
                             </div>
 
-                            <div className="pt-4">
+                            <div className="pt-4 flex items-center gap-4">
                                 <button
-                                    type="button" // Explicitly prevent form submission
+                                    type="button"
                                     onClick={handleSave}
                                     disabled={loading}
-                                    className="bg-active-blue hover:bg-active-blue-hover text-white px-6 py-2 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20"
+                                    className="btn-primary flex items-center gap-2 text-sm"
                                 >
                                     <Save className="w-4 h-4" />
                                     {loading ? t('saving') : t('saveBtn')}
@@ -333,19 +333,19 @@ export default function UserProfilePage() {
                                 <Link
                                     key={fav.businessId}
                                     href={`/${locale}/negocio/${fav.businessId}`}
-                                    className="group flex items-center gap-4 p-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 rounded-2xl transition-all active:scale-[0.98]"
+                                    className="group flex items-center gap-4 p-4 bg-[#F8FAFC] hover:bg-white border border-[#E6E8EC] hover:border-[#14B8A6]/30 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] rounded-2xl transition-all active:scale-[0.98]"
                                 >
                                     {/* Logo / Avatar */}
-                                    <div className="w-12 h-12 rounded-xl bg-slate-800 border border-slate-200 shrink-0 overflow-hidden flex items-center justify-center">
+                                    <div className="w-12 h-12 rounded-xl bg-slate-100 border border-[#E6E8EC] shrink-0 overflow-hidden flex items-center justify-center">
                                         {fav.businessLogoUrl ? (
                                             <img src={fav.businessLogoUrl} alt={fav.businessName} className="w-full h-full object-cover" />
                                         ) : (
-                                            <Building2 className="w-5 h-5 text-slate-500" />
+                                            <Building2 className="w-5 h-5 text-[#14B8A6]" />
                                         )}
                                     </div>
                                     {/* Info */}
                                     <div className="flex-1 min-w-0">
-                                        <p className="text-white font-semibold text-sm truncate group-hover:text-brand-neon-cyan transition-colors">{fav.businessName}</p>
+                                        <p className="text-slate-900 font-semibold text-sm truncate group-hover:text-[#14B8A6] transition-colors">{fav.businessName}</p>
                                         <p className="text-slate-500 text-xs truncate">
                                             {[fav.businessCategory, fav.businessCity].filter(Boolean).join(' · ')}
                                         </p>
@@ -388,11 +388,11 @@ export default function UserProfilePage() {
                                 const aptDate = apt.date?.toDate ? apt.date.toDate() : new Date();
                                 const statusKey = `aptStatus_${apt.status}` as any;
                                 const statusColors: Record<string, string> = {
-                                    pending: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-                                    confirmed: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-                                    completed: 'bg-green-500/10 text-green-400 border-green-500/20',
-                                    cancelled: 'bg-red-500/10 text-red-400 border-red-500/20',
-                                    'no-show': 'bg-slate-500/10 text-slate-400 border-slate-500/20',
+                                    pending: 'bg-amber-50 text-amber-700 border-amber-200',
+                                    confirmed: 'bg-[rgba(20,184,166,0.10)] text-[#0F766E] border-[#14B8A6]/30',
+                                    completed: 'bg-green-50 text-green-700 border-green-200',
+                                    cancelled: 'bg-red-50 text-red-600 border-red-200',
+                                    'no-show': 'bg-slate-100 text-slate-500 border-slate-200',
                                 };
                                 const color = statusColors[apt.status] ?? statusColors.pending;
                                 return (

@@ -189,76 +189,97 @@ export default function AppointmentInbox({
         { id: 'history', label: t('tabHistory'), icon: <Clock size={16} /> },
     ];
 
+    // Status badge colors
+    const statusBadge: Record<string, string> = {
+        pending: 'border-amber-300 text-amber-700 bg-amber-50',
+        confirmed: 'border-[#14B8A6]/40 text-[#0F766E] bg-[rgba(20,184,166,0.08)]',
+        completed: 'border-green-300 text-green-700 bg-green-50',
+        cancelled: 'border-red-300 text-red-600 bg-red-50',
+        'no-show': 'border-slate-300 text-slate-500 bg-slate-50',
+    };
+
+    // Left-border accent per status (appointment card)
+    const statusBorderLeft: Record<string, string> = {
+        pending: 'border-l-4 border-l-amber-400',
+        confirmed: 'border-l-4 border-l-[#14B8A6]',
+        completed: 'border-l-4 border-l-green-400',
+        cancelled: 'border-l-4 border-l-red-400',
+        'no-show': 'border-l-4 border-l-slate-300',
+    };
+
     return (
         <>
-            <div className="bg-slate-500 border border-slate-200 rounded-2xl overflow-hidden backdrop-blur-sm">
+            {/* ── Inbox Container ─────────────────────────────────────────── */}
+            <div className="bg-white border border-[#E6E8EC] rounded-2xl overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
                 {/* Tabs */}
-                <div className="flex border-b border-slate-200">
+                <div className="flex border-b border-[#E6E8EC] bg-[#F8FAFC]">
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as any)}
-                            className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-medium transition-colors relative
-                                ${activeTab === tab.id ? 'text-white bg-slate-50' : 'text-slate-400 hover:text-slate-800 hover:bg-slate-50'}
+                            className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-semibold transition-all relative
+                                ${activeTab === tab.id
+                                    ? 'text-[#14B8A6] bg-white'
+                                    : 'text-slate-500 hover:text-slate-800 hover:bg-white/60'
+                                }
                             `}
                         >
                             {tab.icon}
                             {tab.label}
                             {activeTab === tab.id && (
-                                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-neon-cyan shadow-[0_0_10px_rgba(0,240,255,0.5)]" />
+                                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#14B8A6]" />
                             )}
                         </button>
                     ))}
                 </div>
 
                 {/* List */}
-                <div className="p-4 min-h-[300px]">
+                <div className="p-4 min-h-[300px] bg-[#F8FAFC]">
                     {loading ? (
-                        <div className="flex justify-center items-center h-48 text-slate-500 animate-pulse">
+                        <div className="flex justify-center items-center h-48 text-slate-400 animate-pulse gap-2">
+                            <div className="w-5 h-5 rounded-full border-2 border-[#14B8A6]/30 border-t-[#14B8A6] animate-spin" />
                             {t('loading')}
                         </div>
                     ) : appointments.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-48 text-slate-500">
-                            <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center mb-3">
-                                <Clock size={20} className="text-slate-600" />
+                        <div className="flex flex-col items-center justify-center h-48 text-slate-400">
+                            <div className="w-12 h-12 rounded-full bg-[rgba(20,184,166,0.08)] flex items-center justify-center mb-3">
+                                <Clock size={20} className="text-[#14B8A6]" />
                             </div>
-                            <p>{t('empty')}</p>
+                            <p className="text-sm">{t('empty')}</p>
                         </div>
                     ) : (
                         <div className="space-y-3">
                             {appointments.map((apt) => (
                                 <div
                                     key={apt.id}
-                                    className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center hover:bg-slate-100 transition-colors"
+                                    className={`bg-white border border-[#E6E8EC] rounded-xl p-4 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all ${statusBorderLeft[apt.status] ?? 'border-l-4 border-l-slate-200'}`}
                                 >
-                                    {/* Info */}
+                                    {/* Status icon */}
                                     <div className="flex items-start gap-4">
-                                        <div className={`p-3 rounded-full ${apt.status === 'confirmed' ? 'bg-green-500/10 text-green-500' :
-                                            apt.status === 'pending' ? 'bg-yellow-500/10 text-yellow-500' :
-                                                'bg-slate-500/10 text-slate-500'
+                                        <div className={`p-2.5 rounded-xl shrink-0 ${apt.status === 'confirmed' ? 'bg-[rgba(20,184,166,0.10)] text-[#14B8A6]' :
+                                                apt.status === 'pending' ? 'bg-amber-50 text-amber-500' :
+                                                    apt.status === 'completed' ? 'bg-green-50 text-green-500' :
+                                                        apt.status === 'cancelled' ? 'bg-red-50 text-red-500' :
+                                                            'bg-slate-100 text-slate-400'
                                             }`}>
-                                            <User size={20} />
+                                            <User size={18} />
                                         </div>
                                         <div>
-                                            <h4 className="font-bold text-white text-lg">{apt.customerName}</h4>
-                                            <div className="flex flex-col gap-1 mt-1 text-sm text-slate-400">
+                                            <h4 className="font-bold text-slate-900 text-base">{apt.customerName}</h4>
+                                            <div className="flex flex-col gap-1 mt-1 text-sm text-slate-500">
                                                 <div className="flex items-center gap-2">
-                                                    <Calendar size={14} className="text-brand-neon-cyan" />
-                                                    <span className="text-slate-300">
-                                                        {format(apt.date.toDate(), 'PPP', { locale: dateFnsLocale })}
-                                                    </span>
+                                                    <Calendar size={13} className="text-[#14B8A6]" />
+                                                    <span>{format(apt.date.toDate(), 'PPP', { locale: dateFnsLocale })}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <Clock size={14} className="text-purple-400" />
-                                                    <span>
-                                                        {format(apt.date.toDate(), 'p', { locale: dateFnsLocale })}
-                                                    </span>
-                                                    <span className="text-slate-600">•</span>
-                                                    <span className="text-white font-medium">{apt.serviceName}</span>
+                                                    <Clock size={13} className="text-[#2563EB]" />
+                                                    <span>{format(apt.date.toDate(), 'p', { locale: dateFnsLocale })}</span>
+                                                    <span className="text-slate-300">•</span>
+                                                    <span className="text-slate-700 font-medium">{apt.serviceName}</span>
                                                 </div>
                                                 {apt.notes && (
-                                                    <div className="flex items-start gap-2 mt-1 px-2 py-1 bg-black/20 rounded text-xs italic">
-                                                        <MessageCircle size={12} className="mt-0.5 shrink-0" />
+                                                    <div className="flex items-start gap-2 mt-1 px-2 py-1.5 bg-[#F8FAFC] border border-[#E6E8EC] rounded-lg text-xs italic text-slate-500">
+                                                        <MessageCircle size={11} className="mt-0.5 shrink-0 text-slate-400" />
                                                         "{apt.notes}"
                                                     </div>
                                                 )}
@@ -270,19 +291,16 @@ export default function AppointmentInbox({
                                     {activeTab === 'pending' && (
                                         <div className="flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
                                             <button
-                                                onClick={() => {
-                                                    setRejectTarget(apt);
-                                                    setRejectReason(DEFAULT_REJECTION_TEXT);
-                                                }}
+                                                onClick={() => { setRejectTarget(apt); setRejectReason(DEFAULT_REJECTION_TEXT); }}
                                                 disabled={!!processingId}
-                                                className="flex-1 md:flex-none px-4 py-2 rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                                                className="flex-1 md:flex-none px-4 py-2 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50 font-medium text-sm"
                                             >
                                                 {t('reject')}
                                             </button>
                                             <button
                                                 onClick={() => handleAccept(apt)}
                                                 disabled={!!processingId}
-                                                className="flex-1 md:flex-none px-4 py-2 rounded-lg bg-green-500 text-black font-bold hover:shadow-[0_0_15px_rgba(34,197,94,0.4)] transition-all disabled:opacity-50"
+                                                className="flex-1 md:flex-none px-4 py-2 rounded-lg bg-[#14B8A6] text-white font-bold hover:bg-[#0F9488] shadow-[0_4px_12px_rgba(20,184,166,0.30)] hover:shadow-[0_6px_16px_rgba(20,184,166,0.45)] transition-all disabled:opacity-50 text-sm"
                                             >
                                                 {processingId === apt.id ? '...' : t('accept')}
                                             </button>
@@ -291,16 +309,7 @@ export default function AppointmentInbox({
 
                                     {/* Status badge (other tabs) */}
                                     {activeTab !== 'pending' && (
-                                        <div className={`shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border ${apt.status === 'confirmed'
-                                            ? 'border-green-500/30 text-green-400 bg-green-500/5'
-                                            : apt.status === 'cancelled'
-                                                ? 'border-red-500/30 text-red-400 bg-red-500/5'
-                                                : apt.status === 'completed'
-                                                    ? 'border-slate-500/30 text-slate-300 bg-slate-500/5'
-                                                    : apt.status === 'no-show'
-                                                        ? 'border-slate-600/30 text-slate-500 bg-slate-600/5'
-                                                        : 'border-yellow-500/30 text-yellow-400 bg-yellow-500/5'
-                                            }`}>
+                                        <div className={`shrink-0 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${statusBadge[apt.status] ?? statusBadge.pending}`}>
                                             {apt.status === 'confirmed' && <><CheckCircle size={11} /> {t('badgeConfirmed')}</>}
                                             {apt.status === 'cancelled' && <><XCircle size={11} />    {t('badgeCancelled')}</>}
                                             {apt.status === 'completed' && <><CheckCircle size={11} /> {t('badgeCompleted')}</>}
@@ -318,42 +327,46 @@ export default function AppointmentInbox({
             {/* ── Rejection Reason Modal ───────────────────────────────────── */}
             {rejectTarget && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-                    <div className="bg-[#131929] border border-slate-200 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-                        <h3 className="text-white font-bold text-lg mb-1">
-                            ❌ Rechazar cita
-                        </h3>
-                        <p className="text-slate-400 text-sm mb-4">
-                            <strong className="text-slate-200">{rejectTarget.customerName}</strong>
-                            {' · '}{rejectTarget.serviceName} · {fmtDate(rejectTarget)}
-                        </p>
+                    <div className="bg-white border border-[#E6E8EC] rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                        {/* Banner-danger pattern for modal header */}
+                        <div className="banner-danger mb-4">
+                            <h3 className="font-bold text-base flex items-center gap-2">
+                                <XCircle size={18} className="text-red-500" />
+                                Rechazar cita
+                            </h3>
+                            <p className="text-sm mt-1 text-red-600/80">
+                                <strong>{rejectTarget.customerName}</strong>
+                                {' · '}{rejectTarget.serviceName} · {fmtDate(rejectTarget)}
+                            </p>
+                        </div>
 
-                        <label className="block text-xs text-slate-500 mb-2 uppercase tracking-wider">
+                        <label className="block text-xs text-slate-500 mb-2 uppercase tracking-wider font-semibold">
                             Motivo (se enviará al cliente por email)
                         </label>
                         <textarea
                             value={rejectReason}
                             onChange={e => setRejectReason(e.target.value.slice(0, MAX_CHARS))}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-white text-sm outline-none focus:border-red-400/40 resize-none h-32 leading-relaxed"
+                            className="w-full bg-[#F8FAFC] border border-[#E6E8EC] rounded-xl p-3 text-slate-900 text-sm outline-none focus:border-red-300 focus:ring-1 focus:ring-red-200 resize-none h-32 leading-relaxed"
                         />
-                        <p className={`text-right text-xs mt-1 ${rejectReason.length >= MAX_CHARS ? 'text-red-400' : 'text-slate-600'}`}>
+                        <p className={`text-right text-xs mt-1 ${rejectReason.length >= MAX_CHARS ? 'text-red-500' : 'text-slate-400'}`}>
                             {rejectReason.length}/{MAX_CHARS}
                         </p>
 
-                        <p className="text-xs text-slate-600 mt-1 mb-4 italic">
+                        <p className="text-xs text-slate-400 mt-1 mb-4 italic">
                             Puedes editar el texto antes de enviar. El cliente recibirá este mensaje por email.
                         </p>
 
                         <div className="flex gap-3">
                             <button
                                 onClick={() => { setRejectTarget(null); setRejectReason(DEFAULT_REJECTION_TEXT); }}
-                                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-400 hover:text-slate-800 text-sm transition-colors"
+                                className="flex-1 py-2.5 rounded-xl border border-[#E6E8EC] text-slate-600 hover:bg-[#F8FAFC] text-sm font-medium transition-colors"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={handleRejectConfirm}
                                 disabled={!!processingId}
-                                className="flex-1 py-2.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-400 font-semibold text-sm transition-colors disabled:opacity-50"
+                                className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold text-sm transition-colors disabled:opacity-50 shadow-[0_4px_12px_rgba(239,68,68,0.25)]"
                             >
                                 {processingId ? 'Enviando...' : 'Confirmar rechazo'}
                             </button>

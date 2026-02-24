@@ -377,7 +377,7 @@ export default function Home() {
                    `}>
                                         <span className="filter drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]">{cat.icon}</span>
                                     </div>
-                                    <span className="text-xs sm:text-sm font-semibold text-slate-300 group-hover:text-slate-900 transition-colors text-center leading-tight">{cat.name}</span>
+                                    <span className="text-xs sm:text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors text-center leading-tight">{cat.name}</span>
                                 </div>
                             ))}
                         </div>
@@ -412,7 +412,7 @@ export default function Home() {
                                 key={biz.id}
                                 onClick={() => handleBusinessClick(biz)}
                                 className={`flex items-center p-3 bg-white border rounded-2xl transition-all cursor-pointer group
-                                ${selectedBusiness?.id === biz.id ? 'border-brand-neon-cyan shadow-[0_0_15px_rgba(0,240,255,0.2)]' : 'border-slate-200 hover:border-slate-200'}
+                                ${selectedBusiness?.id === biz.id ? 'border-[#14B8A6] shadow-[0_0_0_2px_rgba(20,184,166,0.15)]' : 'border-[#E6E8EC] hover:border-[#14B8A6]/40 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]'}
                             `}
                             >
                                 <div className="w-12 h-12 rounded-xl bg-slate-100 mr-3 shrink-0 flex items-center justify-center text-xl relative overflow-hidden">
@@ -430,7 +430,7 @@ export default function Home() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h3 className="font-bold text-slate-900 text-sm truncate">{biz.name}</h3>
-                                    <p className="text-[10px] text-brand-neon-cyan font-medium mb-0.5 truncate">
+                                    <p className="text-[10px] text-[#2563EB] font-semibold mb-0.5 truncate">
                                         {(() => {
                                             for (const group of Object.values(TAXONOMY)) {
                                                 const sub = group.subcategories.find(s => s.id === biz.subcategory);
@@ -445,8 +445,7 @@ export default function Home() {
                                         <span className="text-slate-500 text-[10px] truncate">(San Pedro Sula)</span>
                                     </div>
                                 </div>
-                                {/* Action hint for logged out users */}
-                                <div className="hidden group-hover:flex items-center px-2 py-1 bg-slate-100 rounded-full text-[10px] text-slate-700 font-medium whitespace-nowrap">
+                                <div className="hidden group-hover:flex items-center px-2 py-1 bg-[rgba(20,184,166,0.10)] rounded-full text-[10px] text-[#0F766E] font-semibold whitespace-nowrap border border-[#14B8A6]/20">
                                     {t('viewBtn')}
                                 </div>
                             </div>
@@ -461,7 +460,7 @@ export default function Home() {
                                         <p className="text-xs text-slate-400">{t('didYouMean')}</p>
                                         <button
                                             onClick={() => setSearchTerm(suggestion)}
-                                            className="px-4 py-2 bg-brand-neon-cyan/10 border border-brand-neon-cyan/20 rounded-full text-brand-neon-cyan font-bold hover:bg-brand-neon-cyan/20 transition-all flex items-center gap-2"
+                                            className="px-4 py-2 bg-[rgba(20,184,166,0.10)] border border-[#14B8A6]/30 rounded-full text-[#14B8A6] font-bold hover:bg-[rgba(20,184,166,0.20)] transition-all flex items-center gap-2"
                                         >
                                             <Zap className="w-4 h-4 fill-current" />
                                             {suggestion}
@@ -505,8 +504,8 @@ export default function Home() {
                                 <div className="overflow-y-auto p-4 space-y-4 custom-scrollbar">
                                     {selectedTaxonomy.subcategories.map((sub) => (
                                         <div key={sub.id} className="bg-[#F8FAFC] rounded-2xl p-4 border border-slate-200 hover:border-slate-300 transition-colors">
-                                            <h3 className="font-bold text-brand-neon-cyan mb-3 flex items-center gap-2">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-brand-neon-cyan"></span>
+                                            <h3 className="font-bold text-[#2563EB] mb-3 flex items-center gap-2">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]"></span>
                                                 {sub.label[localeKey as keyof typeof sub.label]}
                                             </h3>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -518,9 +517,9 @@ export default function Home() {
                                                             setSearchTerm((spec as any).es);
                                                             setSelectedCategory(null);
                                                         }}
-                                                        className="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 px-3 py-2 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors group/item"
+                                                        className="flex items-center gap-2 text-sm text-slate-600 bg-[#F8FAFC] px-3 py-2 rounded-lg hover:bg-[rgba(20,184,166,0.08)] hover:text-[#0F766E] cursor-pointer transition-colors group/item border border-transparent hover:border-[#14B8A6]/20"
                                                     >
-                                                        <ChevronRight className="w-3 h-3 text-slate-600 group-hover/item:text-brand-neon-cyan" />
+                                                        <ChevronRight className="w-3 h-3 text-slate-400 group-hover/item:text-[#14B8A6]" />
                                                         {(spec as any)[localeKey] ?? (spec as any).es}
                                                     </div>
                                                 ))}
@@ -533,7 +532,7 @@ export default function Home() {
                                 <div className="p-4 border-t border-slate-200 bg-[#F8FAFC]">
                                     <button
                                         onClick={() => setSelectedCategory(null)}
-                                        className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold text-sm hover:opacity-90 transition-opacity"
+                                        className="w-full py-3 rounded-xl bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold text-sm shadow-[0_4px_14px_rgba(20,184,166,0.30)] hover:shadow-[0_6px_20px_rgba(20,184,166,0.45)] transition-all"
                                     >
                                         {t('closeExplorer')}
                                     </button>
