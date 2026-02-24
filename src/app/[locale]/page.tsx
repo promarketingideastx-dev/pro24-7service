@@ -287,7 +287,7 @@ export default function Home() {
                     </div>
 
                     {/* Row 2: Search bar — white card floating on teal */}
-                    <div className="flex items-center bg-white rounded-2xl px-5 py-3.5 shadow-[0_4px_24px_rgba(0,0,0,0.18)]">
+                    <div className="flex items-center bg-white rounded-2xl px-5 py-3.5 shadow-md">
                         <Search className="w-5 h-5 text-slate-400 mr-3 shrink-0" />
                         <input
                             type="text"
@@ -310,7 +310,7 @@ export default function Home() {
 
 
                     {/* Status Filter Chips */}
-                    <div className="shrink-0 px-6 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
+                    <div className="shrink-0 px-6 pt-3 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
                         {(['all', 'new', 'withSchedule'] as const).map((f) => {
                             const labels: Record<string, string> = { all: t('allServices'), new: '🆕 Nuevos', withSchedule: '📅 Con Agenda' };
                             const active = statusFilter === f;
@@ -318,9 +318,9 @@ export default function Home() {
                                 <button
                                     key={f}
                                     onClick={() => setStatusFilter(f)}
-                                    className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${active
-                                        ? 'bg-brand-neon-cyan text-black border-brand-neon-cyan shadow-lg shadow-cyan-500/20'
-                                        : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300 hover:text-slate-800'
+                                    className={`shrink-0 px-4 py-2 rounded-full text-sm font-semibold border transition-all ${active
+                                        ? 'bg-[#14B8A6] text-white border-[#14B8A6] shadow-md shadow-teal-500/20'
+                                        : 'bg-white text-slate-700 border-slate-300 hover:border-[#14B8A6]/50 hover:text-[#0F766E]'
                                         }`}
                                 >
                                     {labels[f]}
@@ -330,23 +330,23 @@ export default function Home() {
                     </div>
 
                     {/* Categories Row */}
-                    <div className="shrink-0 px-6 pb-2">
-                        <div className="flex justify-between items-start gap-2 overflow-x-auto no-scrollbar py-2">
+                    <div className="shrink-0 px-6 pb-0">
+                        <div className="flex justify-between items-start gap-2 overflow-x-auto no-scrollbar py-1">
                             {categories.map((cat, idx) => (
                                 <div
                                     key={idx}
                                     onClick={() => handleCategoryClick(cat.id)}
-                                    className="flex flex-col items-center gap-2.5 min-w-[80px] flex-1 cursor-pointer group"
+                                    className="flex flex-col items-center gap-2 min-w-[72px] flex-1 cursor-pointer group"
                                 >
                                     <div className={`
-                     w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-3xl
+                     w-[58px] h-[58px] sm:w-[72px] sm:h-[72px] rounded-2xl flex items-center justify-center text-2xl sm:text-3xl
                      ${cat.bg} border ${cat.border}
-                     shadow-[0_0_20px_rgba(0,0,0,0.3)]
+                     shadow-sm
                      group-hover:scale-110 group-active:scale-95 transition-transform duration-200
                    `}>
-                                        <span className="filter drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]">{cat.icon}</span>
+                                        <span>{cat.icon}</span>
                                     </div>
-                                    <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors text-center leading-tight">{cat.name}</span>
+                                    <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors text-center leading-tight">{cat.name}</span>
                                 </div>
                             ))}
                         </div>
