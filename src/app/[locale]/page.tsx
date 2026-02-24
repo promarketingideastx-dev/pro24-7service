@@ -377,7 +377,7 @@ export default function Home() {
                    `}>
                                         <span className="filter drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]">{cat.icon}</span>
                                     </div>
-                                    <span className="text-xs sm:text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors text-center leading-tight">{cat.name}</span>
+                                    <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors text-center leading-tight">{cat.name}</span>
                                 </div>
                             ))}
                         </div>
@@ -504,7 +504,7 @@ export default function Home() {
                                 <div className="overflow-y-auto p-4 space-y-4 custom-scrollbar">
                                     {selectedTaxonomy.subcategories.map((sub) => (
                                         <div key={sub.id} className="bg-[#F8FAFC] rounded-2xl p-4 border border-slate-200 hover:border-slate-300 transition-colors">
-                                            <h3 className="font-bold text-[#2563EB] mb-3 flex items-center gap-2">
+                                            <h3 className="text-base font-bold text-[#2563EB] mb-3 flex items-center gap-2">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]"></span>
                                                 {sub.label[localeKey as keyof typeof sub.label]}
                                             </h3>
@@ -517,7 +517,7 @@ export default function Home() {
                                                             setSearchTerm((spec as any).es);
                                                             setSelectedCategory(null);
                                                         }}
-                                                        className="flex items-center gap-2 text-sm text-slate-600 bg-[#F8FAFC] px-3 py-2 rounded-lg hover:bg-[rgba(20,184,166,0.08)] hover:text-[#0F766E] cursor-pointer transition-colors group/item border border-transparent hover:border-[#14B8A6]/20"
+                                                        className="flex items-center gap-2 text-[15px] text-slate-600 bg-[#F8FAFC] px-3 py-2.5 rounded-lg hover:bg-[rgba(20,184,166,0.08)] hover:text-[#0F766E] cursor-pointer transition-colors group/item border border-transparent hover:border-[#14B8A6]/20"
                                                     >
                                                         <ChevronRight className="w-3 h-3 text-slate-400 group-hover/item:text-[#14B8A6]" />
                                                         {(spec as any)[localeKey] ?? (spec as any).es}
