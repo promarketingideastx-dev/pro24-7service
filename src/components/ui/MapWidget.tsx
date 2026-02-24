@@ -360,7 +360,7 @@ export default function MapWidget({
             zoom={startZoom}
             scrollWheelZoom={false}
             className="h-full w-full rounded-3xl z-0"
-            style={{ height: '100%', width: '100%', filter: 'saturate(1.7)' }}
+            style={{ height: '100%', width: '100%', filter: 'saturate(2.2) hue-rotate(5deg) brightness(0.97)' }}
         >
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
