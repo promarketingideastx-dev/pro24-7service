@@ -330,11 +330,11 @@ export default function MapWidget({
             zoom={startZoom}
             scrollWheelZoom={false}
             className="h-full w-full rounded-3xl z-0"
-            style={{ height: '100%', width: '100%' }}
+            style={{ height: '100%', width: '100%', filter: 'sepia(0.15) saturate(1.4) brightness(1.02)' }}
         >
             <TileLayer
                 attribution='&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'
-                url="https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png"
+                url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"
                 maxZoom={20}
             />
             <TapToZoom />
