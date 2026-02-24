@@ -8,10 +8,10 @@ export default function PrivacyPage() {
     return (
         <div className="min-h-screen bg-[#F0F2F5] py-16 px-4">
             <div className="max-w-3xl mx-auto">
-                <h1 className="text-2xl font-bold text-white mb-1">Política de Privacidad</h1>
+                <h1 className="text-2xl font-bold text-slate-900 mb-1">Política de Privacidad</h1>
                 <p className="text-slate-400 text-sm mb-8">PRO24/7 · Última actualización: {year}</p>
 
-                <div className="bg-[#0a1128] border border-slate-200 rounded-2xl p-8 space-y-6 text-sm text-slate-300 leading-relaxed">
+                <div className="bg-white border border-slate-200 rounded-2xl p-8 space-y-6 text-sm text-slate-600 leading-relaxed">
                     <section>
                         <h2 className="text-slate-900 font-bold text-base mb-2">1. Datos que recopilamos</h2>
                         <p>Recopilamos: nombre, correo, teléfono, ubicación aproximada, historial de citas, fotos subidas voluntariamente, preferencias de servicios, dirección IP y datos de uso de la app.</p>
@@ -35,7 +35,7 @@ export default function PrivacyPage() {
                     </section>
                     <section>
                         <h2 className="text-slate-900 font-bold text-base mb-2">5. Tus derechos</h2>
-                        <p>Tienes derecho a acceder, corregir, exportar o eliminar tus datos. Para ejercerlos escribe a <a href="mailto:privacy@pro247.app" className="text-brand-neon-cyan">privacy@pro247.app</a>.</p>
+                        <p>Tienes derecho a acceder, corregir, exportar o eliminar tus datos. Para ejercerlos escribe a <a href="mailto:privacy@pro247.app" className="text-[#0F766E]">privacy@pro247.app</a>.</p>
                         <p className="mt-2 text-slate-500 text-xs">Aplica según la ley local: LGPD (Brasil), CCPA (California), LFPDPPP (México), GDPR (UE), Ley de Transparencia (Honduras).</p>
                     </section>
                     <section>
@@ -46,7 +46,7 @@ export default function PrivacyPage() {
 
                 <div className="flex flex-wrap gap-3 mt-6 justify-center">
                     {['/legal/terms', '/legal/cookies', '/legal/refunds', '/legal/dmca'].map(href => (
-                        <Link key={href} href={href} className="text-xs text-slate-500 hover:text-brand-neon-cyan transition-colors underline capitalize">
+                        <Link key={href} href={href} className="text-xs text-slate-500 hover:text-[#0F766E] transition-colors underline capitalize">
                             {href.split('/').pop()}
                         </Link>
                     ))}

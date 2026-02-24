@@ -22,7 +22,7 @@ export default function TermsPage() {
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-8">
                     <div className="w-10 h-10 rounded-xl bg-brand-neon-cyan/10 border border-brand-neon-cyan/20 flex items-center justify-center">
-                        <FileText size={20} className="text-brand-neon-cyan" />
+                        <FileText size={20} className="text-[#0F766E]" />
                     </div>
                     <div>
                         <h1 className="text-2xl font-bold text-white">Términos de Uso</h1>
@@ -30,8 +30,8 @@ export default function TermsPage() {
                     </div>
                 </div>
 
-                <div className="bg-[#0a1128] border border-slate-200 rounded-2xl p-8 prose prose-invert max-w-none">
-                    <div className="space-y-6 text-sm text-slate-300 leading-relaxed">
+                <div className="bg-white border border-slate-200 rounded-2xl p-8 prose prose-invert max-w-none">
+                    <div className="space-y-6 text-sm text-slate-600 leading-relaxed">
 
                         <section>
                             <h2 className="text-slate-900 font-bold text-base mb-2">1. Aceptación de Términos</h2>
@@ -60,7 +60,7 @@ export default function TermsPage() {
 
                         <section>
                             <h2 className="text-slate-900 font-bold text-base mb-2">6. Propiedad Intelectual</h2>
-                            <p>Todo el contenido de PRO24/7 está protegido. Al subir contenido, otorgas a PRO24/7 una licencia no exclusiva para mostrarlo en la plataforma. Puedes reportar violaciones en <a href="/legal/dmca" className="text-brand-neon-cyan">nuestra página DMCA</a>.</p>
+                            <p>Todo el contenido de PRO24/7 está protegido. Al subir contenido, otorgas a PRO24/7 una licencia no exclusiva para mostrarlo en la plataforma. Puedes reportar violaciones en <a href="/legal/dmca" className="text-[#0F766E]">nuestra página DMCA</a>.</p>
                         </section>
 
                         <section>
@@ -85,7 +85,7 @@ export default function TermsPage() {
 
                         <section>
                             <h2 className="text-slate-900 font-bold text-base mb-2">10. Contacto</h2>
-                            <p>Para consultas legales: <a href="mailto:legal@pro247.app" className="text-brand-neon-cyan">legal@pro247.app</a></p>
+                            <p>Para consultas legales: <a href="mailto:legal@pro247.app" className="text-[#0F766E]">legal@pro247.app</a></p>
                         </section>
                     </div>
                 </div>
@@ -99,7 +99,7 @@ export default function TermsPage() {
                         { href: '/legal/dmca', label: 'DMCA' },
                     ].map(l => (
                         <Link key={l.href} href={l.href}
-                            className="text-xs text-slate-500 hover:text-brand-neon-cyan transition-colors underline">
+                            className="text-xs text-slate-500 hover:text-[#0F766E] transition-colors underline">
                             {l.label}
                         </Link>
                     ))}

@@ -7,10 +7,10 @@ export default function RefundsPage() {
     return (
         <div className="min-h-screen bg-[#F0F2F5] py-16 px-4">
             <div className="max-w-3xl mx-auto">
-                <h1 className="text-2xl font-bold text-white mb-1">Política de Reembolsos</h1>
+                <h1 className="text-2xl font-bold text-slate-900 mb-1">Política de Reembolsos</h1>
                 <p className="text-slate-400 text-sm mb-8">PRO24/7 · Última actualización: {new Date().getFullYear()}</p>
 
-                <div className="bg-[#0a1128] border border-slate-200 rounded-2xl p-8 space-y-6 text-sm text-slate-300 leading-relaxed">
+                <div className="bg-white border border-slate-200 rounded-2xl p-8 space-y-6 text-sm text-slate-600 leading-relaxed">
                     <section>
                         <h2 className="text-slate-900 font-bold text-base mb-2">Suscripciones (Planes Premium/Plus/VIP)</h2>
                         <ul className="space-y-2 list-disc list-inside text-slate-400">
@@ -30,13 +30,13 @@ export default function RefundsPage() {
                     </section>
                     <section>
                         <h2 className="text-slate-900 font-bold text-base mb-2">Proceso de solicitud</h2>
-                        <p>Escribe a <a href="mailto:billing@pro247.app" className="text-brand-neon-cyan">billing@pro247.app</a> con tu ID de transacción y motivo. Respondemos en un máximo de 5 días hábiles.</p>
+                        <p>Escribe a <a href="mailto:billing@pro247.app" className="text-[#0F766E]">billing@pro247.app</a> con tu ID de transacción y motivo. Respondemos en un máximo de 5 días hábiles.</p>
                     </section>
                 </div>
 
                 <div className="flex flex-wrap gap-3 mt-6 justify-center">
                     {['/legal/terms', '/legal/privacy', '/legal/cookies', '/legal/dmca'].map(href => (
-                        <Link key={href} href={href} className="text-xs text-slate-500 hover:text-brand-neon-cyan transition-colors underline capitalize">
+                        <Link key={href} href={href} className="text-xs text-slate-500 hover:text-[#0F766E] transition-colors underline capitalize">
                             {href.split('/').pop()}
                         </Link>
                     ))}

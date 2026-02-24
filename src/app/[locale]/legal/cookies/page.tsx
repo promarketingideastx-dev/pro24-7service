@@ -7,10 +7,10 @@ export default function CookiesPage() {
     return (
         <div className="min-h-screen bg-[#F0F2F5] py-16 px-4">
             <div className="max-w-3xl mx-auto">
-                <h1 className="text-2xl font-bold text-white mb-1">Política de Cookies</h1>
+                <h1 className="text-2xl font-bold text-slate-900 mb-1">Política de Cookies</h1>
                 <p className="text-slate-400 text-sm mb-8">PRO24/7 · Última actualización: {new Date().getFullYear()}</p>
 
-                <div className="bg-[#0a1128] border border-slate-200 rounded-2xl p-8 space-y-6 text-sm text-slate-300 leading-relaxed">
+                <div className="bg-white border border-slate-200 rounded-2xl p-8 space-y-6 text-sm text-slate-600 leading-relaxed">
                     <section>
                         <h2 className="text-slate-900 font-bold text-base mb-2">¿Qué son las cookies?</h2>
                         <p>Son pequeños archivos almacenados en tu dispositivo que nos permiten recordar tus preferencias y mejorar tu experiencia.</p>
@@ -45,7 +45,7 @@ export default function CookiesPage() {
 
                 <div className="flex flex-wrap gap-3 mt-6 justify-center">
                     {['/legal/terms', '/legal/privacy', '/legal/refunds'].map(href => (
-                        <Link key={href} href={href} className="text-xs text-slate-500 hover:text-brand-neon-cyan transition-colors underline capitalize">
+                        <Link key={href} href={href} className="text-xs text-slate-500 hover:text-[#0F766E] transition-colors underline capitalize">
                             {href.split('/').pop()}
                         </Link>
                     ))}
