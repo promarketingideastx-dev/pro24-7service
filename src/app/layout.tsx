@@ -59,7 +59,7 @@ export default function RootLayout({
   const locale = params?.locale ?? 'es';
   return (
     <html lang={locale} className={`${outfit.variable} ${inter.variable}`}>
-      <body className="font-sans antialiased text-white bg-slate-900 selection:bg-sky-500/30 pb-20">
+      <body className="font-sans antialiased text-slate-900 bg-[#F4F6F8] selection:bg-teal-500/20">
         <ErrorBoundary>
           {children}
         </ErrorBoundary>
