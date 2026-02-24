@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Share2, ArrowLeft, Star, MapPin, Heart, Award, CheckCircle2, Phone, MessageCircle, Calendar, Link } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -25,10 +25,11 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     const { user } = useAuth();
     const t = useTranslations('business.publicProfile');
     const locale = useLocale();
-    const [isSticky, setIsSticky] = useState(false);
     const [isFavorited, setIsFavorited] = useState(false);
     const [heartAnim, setHeartAnim] = useState(false);
-    const [favProcessing, setFavProcessing] = useState(false); // prevents double-tap
+    const [favProcessing, setFavProcessing] = useState(false);
+    const [contentScrolled, setContentScrolled] = useState(false);
+    const contentRef = useRef<HTMLDivElement>(null);
 
     // ─── Favorites: load from Firestore (if logged in) or localStorage ────
     const favKey = 'pro247_favorites';
@@ -128,14 +129,13 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
         }
     };
 
-    // Handle Scroll for Sticky Tabs visual effect (optional)
+    // Detectar scroll interno del contenido para sombra en tabs
     useEffect(() => {
-        const handleScroll = () => {
-            const offset = window.scrollY;
-            setIsSticky(offset > 250); // Approx height of header
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        const el = contentRef.current;
+        if (!el) return;
+        const handleScroll = () => setContentScrolled(el.scrollTop > 10);
+        el.addEventListener('scroll', handleScroll, { passive: true });
+        return () => el.removeEventListener('scroll', handleScroll);
     }, []);
 
     const tabs = [
@@ -162,13 +162,13 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     if (!business) return null;
 
     return (
-        <main className="min-h-screen bg-[#F4F6F8] text-slate-900 font-sans pb-24 md:pb-20">
+        <main className="h-[100dvh] flex flex-col overflow-hidden bg-[#F4F6F8] text-slate-900 font-sans">
 
             {/* --- 1. PREMIUM HEADER --- */}
             <header className="relative w-full">
 
-                {/* Cover Image */}
-                <div className="h-48 md:h-64 lg:h-72 w-full bg-slate-800 relative overflow-hidden">
+                {/* Foto de portada — más compacta en móvil para dejar espacio al contenido */}
+                <div className="h-28 md:h-48 lg:h-56 w-full bg-slate-800 relative overflow-hidden">
                     {business.coverImage ? (
                         <img src={business.coverImage} className="w-full h-full object-cover" alt="Cover" />
                     ) : (
@@ -281,8 +281,8 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                 </div>
             </header>
 
-            {/* --- 2. STICKY TABS --- */}
-            <div className={`sticky top-0 z-40 bg-[#F4F6F8]/80 backdrop-blur-xl border-b border-slate-200 mt-6 transition-all duration-300 ${isSticky ? 'shadow-lg shadow-black/50' : ''}`}>
+            {/* --- 2. TABS ANCLADAS --- */}
+            <div className={`shrink-0 bg-[#F4F6F8]/90 backdrop-blur-xl border-b border-slate-200 mt-4 transition-all duration-300 ${contentScrolled ? 'shadow-md' : ''}`}>
                 <div className="flex overflow-x-auto no-scrollbar justify-start md:justify-center px-4">
                     {tabs.map((tab) => (
                         <button
@@ -299,8 +299,8 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                 </div>
             </div>
 
-            {/* --- 3. CONTENT AREA --- */}
-            <div className="min-h-[50vh] bg-[#F4F6F8]">
+            {/* --- 3. ÁREA DE CONTENIDO (único elemento con scroll) --- */}
+            <div ref={contentRef} className="flex-1 overflow-y-auto pb-24">
                 {children}
             </div>
 
