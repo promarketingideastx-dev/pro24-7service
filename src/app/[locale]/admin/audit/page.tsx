@@ -79,8 +79,8 @@ export default function AuditLogPage() {
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
 
-                    <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                        <BookOpen size={20} className="text-brand-neon-cyan" />
+                    <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <BookOpen size={20} className="text-[#14B8A6]" />
                         {t('title')}
                     </h1>
                     <p className="text-xs text-slate-500 mt-0.5">
@@ -104,7 +104,7 @@ export default function AuditLogPage() {
             <div className="bg-white/2 border border-slate-200 rounded-2xl overflow-hidden">
                 {loading ? (
                     <div className="p-12 flex justify-center">
-                        <div className="w-6 h-6 border-2 border-slate-200 border-t-brand-neon-cyan rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-slate-200 border-t-[#14B8A6] rounded-full animate-spin" />
                     </div>
                 ) : displayed.length === 0 ? (
                     <div className="flex flex-col items-center py-20 gap-3 text-slate-500">
@@ -132,9 +132,9 @@ export default function AuditLogPage() {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-start justify-between gap-2">
                                                 <div className="flex items-center gap-2 flex-wrap">
-                                                    <span className="text-white text-sm font-semibold">{label}</span>
+                                                    <span className="text-slate-900 text-sm font-semibold">{label}</span>
                                                     {entry.targetName && (
-                                                        <span className="text-brand-neon-cyan text-xs bg-brand-neon-cyan/10 px-2 py-0.5 rounded-full">
+                                                        <span className="text-[#14B8A6] text-xs bg-[#14B8A6]/10 px-2 py-0.5 rounded-full">
                                                             {entry.targetName}
                                                         </span>
                                                     )}
@@ -143,7 +143,7 @@ export default function AuditLogPage() {
                                             </div>
                                             <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                                                 <span className="flex items-center gap-1 text-[11px] text-slate-500">
-                                                    <Shield size={10} className="text-brand-neon-cyan" />
+                                                    <Shield size={10} className="text-[#14B8A6]" />
                                                     {entry.actorName}
                                                 </span>
                                                 {entry.country && <span className="text-[10px] text-slate-700">{entry.country}</span>}
@@ -162,7 +162,7 @@ export default function AuditLogPage() {
                                             {entry.before && (
                                                 <div className="bg-red-500/5 border border-red-500/10 rounded-lg p-3">
                                                     <p className="text-[10px] text-red-400 font-bold mb-1 uppercase tracking-wider">{t('before')}</p>
-                                                    <pre className="text-[11px] text-slate-300 overflow-x-auto whitespace-pre-wrap">
+                                                    <pre className="text-[11px] text-slate-600 overflow-x-auto whitespace-pre-wrap">
                                                         {JSON.stringify(entry.before, null, 2)}
                                                     </pre>
                                                 </div>
@@ -170,7 +170,7 @@ export default function AuditLogPage() {
                                             {entry.after && (
                                                 <div className="bg-green-500/5 border border-green-500/10 rounded-lg p-3">
                                                     <p className="text-[10px] text-green-400 font-bold mb-1 uppercase tracking-wider">{t('after')}</p>
-                                                    <pre className="text-[11px] text-slate-300 overflow-x-auto whitespace-pre-wrap">
+                                                    <pre className="text-[11px] text-slate-600 overflow-x-auto whitespace-pre-wrap">
                                                         {JSON.stringify(entry.after, null, 2)}
                                                     </pre>
                                                 </div>

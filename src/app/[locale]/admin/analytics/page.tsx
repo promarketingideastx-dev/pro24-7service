@@ -22,7 +22,7 @@ function FunnelBar({ step, maxCount, isTop, label, dropLabel }: {
                 <div className="w-8 text-lg shrink-0 text-center">{step.emoji}</div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-sm font-medium text-white truncate">{label}</span>
+                        <span className="text-sm font-medium text-slate-900 truncate">{label}</span>
                         <div className="flex items-center gap-3 shrink-0">
                             {!isTop && step.dropPct > 0 && (
                                 <span className="flex items-center gap-1 text-[10px] text-red-400">
@@ -30,7 +30,7 @@ function FunnelBar({ step, maxCount, isTop, label, dropLabel }: {
                                     -{step.dropPct}%
                                 </span>
                             )}
-                            <span className="text-xs font-bold text-white">{step.count.toLocaleString()}</span>
+                            <span className="text-xs font-bold text-slate-900">{step.count.toLocaleString()}</span>
                             <span className="text-xs text-slate-500 w-10 text-right">{step.pct}%</span>
                         </div>
                     </div>
@@ -105,8 +105,8 @@ export default function AdminFunnelPage() {
             {/* Header */}
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
-                    <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                        <BarChart2 size={20} className="text-brand-neon-cyan" />
+                    <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <BarChart2 size={20} className="text-[#14B8A6]" />
                         {t('title')}
                     </h1>
                     <p className="text-xs text-slate-500 mt-0.5">{t('step1')} → {t('step6')}</p>
@@ -145,7 +145,7 @@ export default function AdminFunnelPage() {
             <div className="bg-white/2 border border-slate-200 rounded-2xl overflow-hidden">
                 {loading ? (
                     <div className="p-12 flex justify-center">
-                        <div className="w-6 h-6 border-2 border-slate-200 border-t-brand-neon-cyan rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-slate-200 border-t-[#14B8A6] rounded-full animate-spin" />
                     </div>
                 ) : topCount === 0 ? (
                     <div className="flex flex-col items-center py-20 gap-3 text-slate-500">

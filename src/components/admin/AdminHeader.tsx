@@ -152,7 +152,7 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
     };
 
     return (
-        <header className="h-14 bg-[#0a1128] border-b border-slate-200 flex items-center px-4 gap-3 sticky top-0 z-[2000]">
+        <header className="h-14 bg-white border-b border-slate-200 flex items-center px-4 gap-3 sticky top-0 z-[2000]">
             <button onClick={onMenuToggle} className="text-slate-400 hover:text-slate-800 transition-colors lg:hidden">
                 <Menu size={18} />
             </button>
@@ -163,23 +163,23 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
             <div className="relative">
                 <button
                     onClick={() => { setCountryOpen(p => !p); }}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-white/[0.08] hover:border-slate-300 text-sm text-white transition-colors"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 hover:border-slate-300 text-sm text-slate-700 transition-colors"
                 >
-                    <Globe size={14} className="text-brand-neon-cyan" />
+                    <Globe size={14} className="text-[#14B8A6]" />
                     <span>{currentFlag} {selectedCountry}</span>
                     <ChevronDown size={12} className="text-slate-400" />
                 </button>
                 {countryOpen && (
-                    <div className="absolute right-0 top-full mt-1 bg-[#0f1a2e] border border-slate-200 rounded-xl shadow-2xl w-52 z-[2100] overflow-y-auto max-h-80">
+                    <div className="absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl w-52 z-[2100] overflow-y-auto max-h-80">
                         {COUNTRY_CODES.map(code => (
                             <button
                                 key={code}
                                 onClick={() => { setSelectedCountry(code); setCountryOpen(false); }}
-                                className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 hover:bg-slate-50 transition-colors ${selectedCountry === code ? 'text-brand-neon-cyan' : 'text-slate-300'}`}
+                                className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 hover:bg-slate-50 transition-colors ${selectedCountry === code ? 'text-[#14B8A6] font-semibold' : 'text-slate-700'}`}
                             >
                                 <span>{COUNTRY_FLAGS[code]}</span>
                                 <span className="flex-1">{getCountryLabel(code)}</span>
-                                {selectedCountry === code && <span className="text-brand-neon-cyan">✓</span>}
+                                {selectedCountry === code && <span className="text-[#14B8A6]">✓</span>}
                             </button>
                         ))}
                     </div>
@@ -198,7 +198,7 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
                 >
                     <Bell
                         size={17}
-                        className={bellShake ? 'text-brand-neon-cyan' : ''}
+                        className={bellShake ? 'text-[#14B8A6]' : ''}
                         style={bellShake ? {
                             display: 'inline-block',
                             animationName: 'bellRing',
@@ -218,11 +218,11 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
                 <button
                     onClick={() => setSoundMuted(p => !p)}
                     title={soundMuted ? 'Activar sonido de notificaciones' : 'Silenciar notificaciones'}
-                    className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#0a1128] border border-slate-200 flex items-center justify-center text-[8px] hover:border-slate-300 transition-colors"
+                    className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[8px] hover:border-slate-300 transition-colors"
                 >
                     {soundMuted
                         ? <VolumeX size={8} className="text-slate-500" />
-                        : <Volume2 size={8} className="text-brand-neon-cyan" />}
+                        : <Volume2 size={8} className="text-[#14B8A6]" />}
                 </button>
 
                 {/* Inject bell ring keyframes */}
@@ -240,15 +240,15 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
 
                 {/* Mini-dropdown */}
                 {bellOpen && (
-                    <div className="absolute right-0 top-full mt-1 w-80 bg-[#0f1a2e] border border-slate-200 rounded-2xl shadow-2xl z-[2200] overflow-hidden">
+                    <div className="absolute right-0 top-full mt-1 w-80 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[2200] overflow-hidden">
                         {/* Header */}
                         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
                             <div className="flex items-center gap-2">
-                                <span className="text-sm font-semibold text-white">Notificaciones</span>
+                                <span className="text-sm font-semibold text-slate-900">Notificaciones</span>
                                 <button
                                     onClick={() => playBellSound()}
                                     title="Probar sonido"
-                                    className="text-[10px] text-slate-500 hover:text-brand-neon-cyan transition-colors flex items-center gap-0.5"
+                                    className="text-[10px] text-slate-500 hover:text-[#14B8A6] transition-colors flex items-center gap-0.5"
                                 >
                                     <Volume2 size={11} /> test
                                 </button>
@@ -256,7 +256,7 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
                             {unreadCount > 0 && (
                                 <button
                                     onClick={() => AdminNotificationService.markAllRead()}
-                                    className="text-[10px] text-brand-neon-cyan hover:underline flex items-center gap-1"
+                                    className="text-[10px] text-[#14B8A6] hover:underline flex items-center gap-1"
                                 >
                                     <CheckCheck size={11} /> Marcar todas leídas
                                 </button>
@@ -306,12 +306,12 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
                                                     {meta.emoji}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-xs font-semibold text-white leading-snug truncate">{n.title}</p>
+                                                    <p className="text-xs font-semibold text-slate-900 leading-snug truncate">{n.title}</p>
                                                     <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed line-clamp-2">{n.body}</p>
                                                     <p className="text-[10px] text-slate-700 mt-1">{relativeTime(n.createdAt)}</p>
                                                 </div>
                                                 <div className="flex items-center gap-1.5 shrink-0">
-                                                    {!n.read && <div className="w-2 h-2 rounded-full bg-brand-neon-cyan" />}
+                                                    {!n.read && <div className="w-2 h-2 rounded-full bg-[#14B8A6]" />}
                                                     <span className="text-[9px] text-slate-700">{isExpanded ? '▲' : '▼'}</span>
                                                 </div>
                                             </div>
@@ -334,7 +334,7 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
                             <Link
                                 href={`/${locale}/admin/notifications`}
                                 onClick={() => setBellOpen(false)}
-                                className="text-xs text-brand-neon-cyan hover:underline"
+                                className="text-xs text-[#14B8A6] hover:underline"
                             >
                                 Ver todas las notificaciones →
                             </Link>
@@ -345,7 +345,7 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
 
             {/* Admin user + logout */}
             <div className="flex items-center gap-2 pl-3 border-l border-slate-200">
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-neon-cyan to-brand-neon-purple flex items-center justify-center text-black text-xs font-bold">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#14B8A6] to-[#2563EB] flex items-center justify-center text-black text-xs font-bold">
                     {user?.email?.charAt(0).toUpperCase() ?? 'A'}
                 </div>
                 <button onClick={handleLogout} title={t('logout')} className="text-slate-500 hover:text-red-400 transition-colors">

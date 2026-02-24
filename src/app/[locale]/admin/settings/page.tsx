@@ -83,14 +83,14 @@ export default function SettingsPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Settings size={20} className="text-brand-neon-cyan" />
+                    <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <Settings size={20} className="text-[#14B8A6]" />
                         {t('title')}
                     </h1>
                     <p className="text-xs text-slate-500 mt-0.5">{t('subtitle')}</p>
                 </div>
                 <button onClick={save} disabled={saving || !loaded}
-                    className="flex items-center gap-2 px-4 py-2 bg-brand-neon-cyan/10 border border-brand-neon-cyan/20 text-brand-neon-cyan text-sm font-medium rounded-xl hover:bg-brand-neon-cyan/20 transition-colors disabled:opacity-50">
+                    className="flex items-center gap-2 px-4 py-2 bg-[#14B8A6]/10 border border-[#14B8A6]/20 text-[#14B8A6] text-sm font-medium rounded-xl hover:bg-[#14B8A6]/20 transition-colors disabled:opacity-50">
                     {saving ? <RefreshCw size={14} className="animate-spin" /> : <Save size={14} />}
                     {t('save')}
                 </button>
@@ -99,8 +99,8 @@ export default function SettingsPage() {
             {/* Active Countries */}
             <div className="bg-white/2 border border-slate-200 rounded-2xl p-5 space-y-4">
                 <div className="flex items-center gap-2 mb-1">
-                    <Globe size={16} className="text-brand-neon-cyan" />
-                    <h2 className="text-sm font-semibold text-white">{t('activeCountries')}</h2>
+                    <Globe size={16} className="text-[#14B8A6]" />
+                    <h2 className="text-sm font-semibold text-slate-900">{t('activeCountries')}</h2>
                     <span className="ml-auto text-xs text-slate-500">{settings.activeCountries.length} / {ALL_COUNTRIES.length}</span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -109,13 +109,13 @@ export default function SettingsPage() {
                         return (
                             <button key={c.code} onClick={() => toggleCountry(c.code)}
                                 className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-sm transition-all ${active
-                                    ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan/30 text-white'
+                                    ? 'bg-[#14B8A6]/10 border-[#14B8A6]/30 text-white'
                                     : 'bg-white/3 border-slate-200 text-slate-500 hover:text-slate-800 hover:border-slate-300'
                                     }`}>
                                 <span className="text-base">{c.flag}</span>
                                 <span className="flex-1 text-left text-xs font-medium">{c.name}</span>
                                 {active
-                                    ? <ToggleRight size={16} className="text-brand-neon-cyan shrink-0" />
+                                    ? <ToggleRight size={16} className="text-[#14B8A6] shrink-0" />
                                     : <ToggleLeft size={16} className="shrink-0" />
                                 }
                             </button>
@@ -127,20 +127,20 @@ export default function SettingsPage() {
             {/* Beta & Rules */}
             <div className="bg-white/2 border border-slate-200 rounded-2xl p-5 space-y-4">
                 <div className="flex items-center gap-2 mb-1">
-                    <Shield size={16} className="text-brand-neon-cyan" />
-                    <h2 className="text-sm font-semibold text-white">{t('businessRules')}</h2>
+                    <Shield size={16} className="text-[#14B8A6]" />
+                    <h2 className="text-sm font-semibold text-slate-900">{t('businessRules')}</h2>
                 </div>
 
                 {/* Beta override */}
                 <div className="flex items-center justify-between py-3 border-b border-slate-200">
                     <div>
-                        <p className="text-sm text-white font-medium">{t('betaOverride')}</p>
+                        <p className="text-sm text-slate-900 font-medium">{t('betaOverride')}</p>
                         <p className="text-xs text-slate-500 mt-0.5">{t('betaOverrideDesc')}</p>
                     </div>
                     <button onClick={() => setSettings(p => ({ ...p, betaOverride: !p.betaOverride }))}
                         className="shrink-0">
                         {settings.betaOverride
-                            ? <ToggleRight size={28} className="text-brand-neon-cyan" />
+                            ? <ToggleRight size={28} className="text-[#14B8A6]" />
                             : <ToggleLeft size={28} className="text-slate-500" />
                         }
                     </button>
@@ -149,15 +149,15 @@ export default function SettingsPage() {
                 {/* Max images */}
                 <div className="flex items-center justify-between py-2">
                     <div>
-                        <p className="text-sm text-white font-medium">{t('maxImages')}</p>
+                        <p className="text-sm text-slate-900 font-medium">{t('maxImages')}</p>
                         <p className="text-xs text-slate-500 mt-0.5">{t('maxImagesDesc')}</p>
                     </div>
                     <div className="flex items-center gap-2">
                         <button onClick={() => setSettings(p => ({ ...p, maxImagesPerBusiness: Math.max(1, p.maxImagesPerBusiness - 1) }))}
-                            className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-200 text-white text-sm hover:bg-slate-100 transition-colors flex items-center justify-center">−</button>
-                        <span className="text-white font-bold w-6 text-center">{settings.maxImagesPerBusiness}</span>
+                            className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 text-sm hover:bg-slate-100 transition-colors flex items-center justify-center">−</button>
+                        <span className="text-slate-900 font-bold w-6 text-center">{settings.maxImagesPerBusiness}</span>
                         <button onClick={() => setSettings(p => ({ ...p, maxImagesPerBusiness: Math.min(50, p.maxImagesPerBusiness + 1) }))}
-                            className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-200 text-white text-sm hover:bg-slate-100 transition-colors flex items-center justify-center">+</button>
+                            className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 text-sm hover:bg-slate-100 transition-colors flex items-center justify-center">+</button>
                     </div>
                 </div>
             </div>
@@ -165,8 +165,8 @@ export default function SettingsPage() {
             {/* System Info */}
             <div className="bg-white/2 border border-slate-200 rounded-2xl p-5">
                 <div className="flex items-center gap-2 mb-3">
-                    <Info size={16} className="text-brand-neon-cyan" />
-                    <h2 className="text-sm font-semibold text-white">{t('systemInfo')}</h2>
+                    <Info size={16} className="text-[#14B8A6]" />
+                    <h2 className="text-sm font-semibold text-slate-900">{t('systemInfo')}</h2>
                 </div>
                 <div className="space-y-2 text-xs font-mono">
                     {[
@@ -177,7 +177,7 @@ export default function SettingsPage() {
                     ].map(row => (
                         <div key={row.label} className="flex gap-3">
                             <span className="text-slate-600 w-36 shrink-0">{row.label}</span>
-                            <span className="text-slate-300">{row.value}</span>
+                            <span className="text-slate-600">{row.value}</span>
                         </div>
                     ))}
                 </div>

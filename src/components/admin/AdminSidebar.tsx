@@ -60,7 +60,7 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
     ];
 
     return (
-        <aside className={`sticky top-0 h-screen shrink-0 bg-[#0a1128] border-r border-slate-200 flex flex-col z-40 transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'}`}>
+        <aside className={`sticky top-0 h-screen shrink-0 bg-white border-r border-slate-200 flex flex-col z-40 transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'}`}>
             {/* Logo */}
             <div className="flex items-center gap-3 px-4 py-5 border-b border-slate-200">
                 <div className="shrink-0 flex items-center justify-center">
@@ -74,7 +74,7 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
                     />
                 </div>
                 {isOpen && (
-                    <p className="text-brand-neon-cyan text-[10px] font-semibold whitespace-nowrap">Admin CRM</p>
+                    <p className="text-[#14B8A6] text-[10px] font-semibold whitespace-nowrap">Admin CRM</p>
                 )}
                 <button onClick={onToggle} className="ml-auto text-slate-500 hover:text-slate-800 transition-colors">
                     {isOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
@@ -92,7 +92,7 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
                             key={item.href}
                             href={item.href}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${active
-                                ? 'bg-brand-neon-cyan/10 text-brand-neon-cyan border border-brand-neon-cyan/20'
+                                ? 'bg-[#14B8A6]/10 text-[#14B8A6] border border-[#14B8A6]/20'
                                 : 'text-slate-400 hover:text-slate-800 hover:bg-slate-50'
                                 }`}
                         >
@@ -110,14 +110,14 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
                                     <span className="text-sm font-medium flex-1">{item.label}</span>
                                     {hasBadge && (
                                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center leading-none ${active
-                                            ? 'bg-brand-neon-cyan text-black'
+                                            ? 'bg-[#14B8A6] text-black'
                                             : 'bg-red-500 text-white'
                                             }`}>
                                             {item.badge > 99 ? '99+' : item.badge}
                                         </span>
                                     )}
                                     {active && !hasBadge && (
-                                        <span className="w-1.5 h-1.5 rounded-full bg-brand-neon-cyan" />
+                                        <span className="w-1.5 h-1.5 rounded-full bg-[#14B8A6]" />
                                     )}
                                 </>
                             )}

@@ -25,7 +25,7 @@ function KPICard({ icon, label, value, sub, color, trend }: {
     sub?: string; color: string; trend?: 'up' | 'down' | 'neutral';
 }) {
     return (
-        <div className="bg-[#0a1128] border border-slate-200 rounded-2xl p-5 flex flex-col gap-3 hover:border-slate-200 transition-colors">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col gap-3 hover:border-slate-200 transition-colors">
             <div className="flex items-center justify-between">
                 <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center`}>
                     {icon}
@@ -37,7 +37,7 @@ function KPICard({ icon, label, value, sub, color, trend }: {
                 )}
             </div>
             <div>
-                <p className="text-3xl font-bold text-white">{value}</p>
+                <p className="text-3xl font-bold text-slate-900">{value}</p>
                 <p className="text-xs text-slate-500 mt-0.5">{label}</p>
             </div>
             {sub && <p className="text-xs text-slate-600 border-t border-slate-200 pt-2">{sub}</p>}
@@ -87,7 +87,7 @@ export default function AdminDashboardPage() {
 
     if (loading) return (
         <div className="flex items-center justify-center h-64">
-            <div className="w-8 h-8 border-2 border-brand-neon-cyan/30 border-t-brand-neon-cyan rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-[#14B8A6]/30 border-t-[#14B8A6] rounded-full animate-spin" />
         </div>
     );
 
@@ -100,8 +100,8 @@ export default function AdminDashboardPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <Activity size={24} className="text-brand-neon-cyan" />
+                    <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                        <Activity size={24} className="text-[#14B8A6]" />
                         {t('title')}
                     </h1>
                     <p className="text-slate-500 text-xs mt-0.5">
@@ -110,7 +110,7 @@ export default function AdminDashboardPage() {
                     </p>
                 </div>
                 <button onClick={load} disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-300 transition-colors">
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-600 transition-colors">
                     <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> {tc('refresh')}
                 </button>
             </div>
@@ -155,9 +155,9 @@ export default function AdminDashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
                 {/* Plan Distribution */}
-                <div className="bg-[#0a1128] border border-slate-200 rounded-2xl p-5 col-span-1">
-                    <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                        <TrendingUp size={16} className="text-brand-neon-cyan" /> {t('planDistribution')}
+                <div className="bg-white border border-slate-200 rounded-2xl p-5 col-span-1">
+                    <h3 className="text-sm font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                        <TrendingUp size={16} className="text-[#14B8A6]" /> {t('planDistribution')}
                     </h3>
                     <div className="space-y-3">
                         <MiniBar label="⚡ Free" value={s.planCounts.free ?? 0} max={maxPlan} color="bg-slate-400" />
@@ -183,8 +183,8 @@ export default function AdminDashboardPage() {
                 </div>
 
                 {/* Top Countries */}
-                <div className="bg-[#0a1128] border border-slate-200 rounded-2xl p-5 col-span-1">
-                    <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                <div className="bg-white border border-slate-200 rounded-2xl p-5 col-span-1">
+                    <h3 className="text-sm font-semibold text-slate-900 mb-4 flex items-center gap-2">
                         🌍 {t('byCountry')}
                     </h3>
                     {s.topCountries.length === 0 ? (
@@ -197,7 +197,7 @@ export default function AdminDashboardPage() {
                                     label={`${COUNTRY_FLAGS[c.code] ?? '🏳️'} ${c.code}`}
                                     value={c.count}
                                     max={maxCountry}
-                                    color="bg-brand-neon-cyan"
+                                    color="bg-[#14B8A6]"
                                 />
                             ))}
                         </div>
@@ -205,9 +205,9 @@ export default function AdminDashboardPage() {
                 </div>
 
                 {/* Recent Businesses */}
-                <div className="bg-[#0a1128] border border-slate-200 rounded-2xl p-5 col-span-1">
-                    <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                        <UserCheck size={16} className="text-brand-neon-cyan" /> {t('recentBusinesses')}
+                <div className="bg-white border border-slate-200 rounded-2xl p-5 col-span-1">
+                    <h3 className="text-sm font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                        <UserCheck size={16} className="text-[#14B8A6]" /> {t('recentBusinesses')}
                     </h3>
                     {s.recent.length === 0 ? (
                         <p className="text-slate-600 text-xs">{t('noRecentBusinesses')}</p>
@@ -220,12 +220,12 @@ export default function AdminDashboardPage() {
                                         {b.coverImage ? (
                                             <img src={b.coverImage} alt="" className="w-7 h-7 rounded-lg object-cover border border-slate-200 shrink-0" />
                                         ) : (
-                                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-neon-cyan/20 to-brand-neon-purple/20 flex items-center justify-center text-white font-bold text-[10px] shrink-0">
+                                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#14B8A6]/20 to-[#2563EB]/20 flex items-center justify-center text-slate-900 font-bold text-[10px] shrink-0">
                                                 {b.name?.charAt(0) ?? '?'}
                                             </div>
                                         )}
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-xs font-medium text-white truncate">{b.name ?? '—'}</p>
+                                            <p className="text-xs font-medium text-slate-900 truncate">{b.name ?? '—'}</p>
                                             <p className="text-[10px] text-slate-500">{b.city ?? b.country ?? '—'}</p>
                                         </div>
                                         <span className="text-[10px] text-slate-600 shrink-0">{date ?? '—'}</span>
@@ -248,7 +248,7 @@ export default function AdminDashboardPage() {
                     <div key={item.label} className="bg-white/3 border border-slate-200 rounded-xl px-4 py-3 flex items-center gap-3 hover:bg-slate-50 transition-colors">
                         <span className={item.color}>{item.icon}</span>
                         <div>
-                            <p className="text-lg font-bold text-white leading-none">{item.value}</p>
+                            <p className="text-lg font-bold text-slate-900 leading-none">{item.value}</p>
                             <p className="text-[10px] text-slate-500 mt-0.5">{item.label}</p>
                         </div>
                     </div>

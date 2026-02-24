@@ -145,8 +145,8 @@ export default function AdminMapPage() {
                 {/* ── Header ── */}
                 <div className="flex flex-wrap items-center gap-3">
                     <div>
-                        <h1 className="text-lg font-bold text-white flex items-center gap-2">
-                            <Map size={20} className="text-brand-neon-cyan" />
+                        <h1 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <Map size={20} className="text-[#14B8A6]" />
                             {t('title')}
                             {/* Live indicator */}
                             <span className="flex items-center gap-1.5 text-[10px] font-normal text-green-400 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded-full">
@@ -162,7 +162,7 @@ export default function AdminMapPage() {
                                     · Actualizado {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                                 </span>
                             )}
-                            {selectedId && <span className="ml-2 text-brand-neon-cyan">· {t('panelOpen')}</span>}
+                            {selectedId && <span className="ml-2 text-[#14B8A6]">· {t('panelOpen')}</span>}
                         </p>
                     </div>
 
@@ -190,9 +190,9 @@ export default function AdminMapPage() {
 
                     {/* ColorBy toggle */}
                     <button onClick={() => setColorBy(c => c === 'status' ? 'plan' : 'status')}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-xl text-xs text-slate-300 transition-colors">
+                        className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-xl text-xs text-slate-600 transition-colors">
                         {colorBy === 'status'
-                            ? <ToggleRight size={14} className="text-brand-neon-cyan" />
+                            ? <ToggleRight size={14} className="text-[#14B8A6]" />
                             : <ToggleLeft size={14} />}
                         {t('colorBy')}: <strong className="text-white">{colorBy === 'status' ? t('colorByStatus') : t('colorByPlan')}</strong>
                     </button>
@@ -202,7 +202,7 @@ export default function AdminMapPage() {
                 <div className="flex-1 border border-slate-200 rounded-2xl overflow-hidden relative shadow-xl">
                     {loading ? (
                         <div className="flex items-center justify-center h-full bg-slate-100">
-                            <div className="w-8 h-8 border-2 border-brand-neon-cyan/30 border-t-brand-neon-cyan rounded-full animate-spin" />
+                            <div className="w-8 h-8 border-2 border-[#14B8A6]/30 border-t-[#14B8A6] rounded-full animate-spin" />
                         </div>
                     ) : filtered.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full bg-slate-100 gap-2">
@@ -235,7 +235,7 @@ export default function AdminMapPage() {
 
                     {/* Click hint */}
                     {!selectedId && !loading && filtered.length > 0 && (
-                        <div className="absolute bottom-8 left-4 z-[1000] bg-slate-900/40 backdrop-blur text-white text-xs px-3 py-1.5 rounded-full">
+                        <div className="absolute bottom-8 left-4 z-[1000] bg-[#F4F6F8]/40 backdrop-blur text-slate-900 text-xs px-3 py-1.5 rounded-full">
                             {t('clickHint')}
                         </div>
                     )}

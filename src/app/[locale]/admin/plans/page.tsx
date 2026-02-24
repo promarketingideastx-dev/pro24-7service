@@ -14,7 +14,7 @@ import type { BusinessPlan } from '@/services/plan.service';
 
 const PLANS: BusinessPlan[] = ['free', 'premium', 'plus_team', 'vip'];
 const PLAN_COLORS: Record<BusinessPlan, string> = {
-    free: 'bg-slate-500/20 text-slate-300 border-slate-500/30',
+    free: 'bg-slate-500/20 text-slate-600 border-slate-500/30',
     premium: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
     plus_team: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
     vip: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
@@ -112,8 +112,8 @@ export default function PlansPage() {
         <div className="space-y-4">
             {/* Header */}
             <div>
-                <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                    <CreditCard size={20} className="text-brand-neon-cyan" />
+                <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    <CreditCard size={20} className="text-[#14B8A6]" />
                     {t('title')}
                 </h1>
                 <p className="text-xs text-slate-500 mt-0.5">{t('subtitle')}</p>
@@ -123,19 +123,19 @@ export default function PlansPage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                 <div className="bg-white/3 border border-slate-200 rounded-xl p-4 col-span-2 sm:col-span-1">
                     <p className="text-xl mb-1">🏢</p>
-                    <p className="text-xl font-bold text-white">{total}</p>
+                    <p className="text-xl font-bold text-slate-900">{total}</p>
                     <p className="text-[11px] text-slate-500 mt-0.5">{t('total')}</p>
                 </div>
                 {PLANS.map(p => (
                     <div key={p} className="bg-white/3 border border-slate-200 rounded-xl p-4">
                         <p className="text-xl mb-1">{p === 'free' ? '🆓' : p === 'premium' ? '⭐' : p === 'plus_team' ? '💎' : '👑'}</p>
-                        <p className="text-xl font-bold text-white">{byPlan[p]}</p>
+                        <p className="text-xl font-bold text-slate-900">{byPlan[p]}</p>
                         <p className="text-[11px] text-slate-500 mt-0.5">{PlanService.PLAN_LABELS[p]}</p>
                     </div>
                 ))}
-                <div className="bg-brand-neon-cyan/5 border border-brand-neon-cyan/20 rounded-xl p-4">
+                <div className="bg-[#14B8A6]/5 border border-[#14B8A6]/20 rounded-xl p-4">
                     <p className="text-xl mb-1">💰</p>
-                    <p className="text-xl font-bold text-brand-neon-cyan">${mrr.toFixed(0)}</p>
+                    <p className="text-xl font-bold text-[#14B8A6]">${mrr.toFixed(0)}</p>
                     <p className="text-[11px] text-slate-500 mt-0.5">MRR {t('estimated')}</p>
                 </div>
             </div>
@@ -148,14 +148,14 @@ export default function PlansPage() {
                         <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
                         <input value={search} onChange={e => setSearch(e.target.value)}
                             placeholder={tc('search')}
-                            className="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:border-brand-neon-cyan/40 w-full" />
+                            className="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#14B8A6]/40 w-full" />
                     </div>
                     <span className="text-xs text-slate-500 ml-auto">{filtered.length} {t('businesses')}</span>
                 </div>
 
                 {loading ? (
                     <div className="p-12 flex justify-center">
-                        <div className="w-6 h-6 border-2 border-slate-200 border-t-brand-neon-cyan rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-slate-200 border-t-[#14B8A6] rounded-full animate-spin" />
                     </div>
                 ) : filtered.length === 0 ? (
                     <div className="flex flex-col items-center py-16 gap-3 text-slate-500">
@@ -183,7 +183,7 @@ export default function PlansPage() {
                             {filtered.map(biz => (
                                 <div key={biz.id} className="grid grid-cols-[1fr_80px_80px_160px] gap-4 px-4 py-3 items-center hover:bg-white/3 transition-colors">
                                     <div className="min-w-0">
-                                        <p className="text-sm text-white font-medium truncate">{biz.name}</p>
+                                        <p className="text-sm text-slate-900 font-medium truncate">{biz.name}</p>
                                         <p className="text-[10px] text-slate-600 truncate">{biz.category}</p>
                                     </div>
                                     <span className="text-xs text-slate-400">{biz.country}</span>

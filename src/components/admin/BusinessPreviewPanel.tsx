@@ -12,7 +12,7 @@ interface BusinessPreviewPanelProps {
 }
 
 const PLAN_BADGE: Record<string, string> = {
-    free: 'bg-slate-500/20 text-slate-300 border-slate-500/30',
+    free: 'bg-slate-500/20 text-slate-600 border-slate-500/30',
     premium: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
     plus_team: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
     vip: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
@@ -69,15 +69,15 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
         >
             {businessId && <div className="fixed inset-0 z-[-1] bg-black/25" onClick={onClose} />}
 
-            <div className="h-full bg-[#070e20] border-l border-slate-200 flex flex-col shadow-2xl">
+            <div className="h-full bg-white border-l border-slate-200 flex flex-col shadow-2xl">
 
                 {/* ── Top bar ── */}
                 <div className="flex items-center gap-3 px-5 py-3 border-b border-slate-200 shrink-0">
-                    <Tablet size={15} className="text-brand-neon-cyan shrink-0" />
+                    <Tablet size={15} className="text-[#14B8A6] shrink-0" />
                     <div className="flex-1 min-w-0">
                         {loading
                             ? <div className="h-4 w-48 bg-slate-100 rounded animate-pulse" />
-                            : <p className="text-sm font-semibold text-white truncate">{biz?.name ?? '—'}</p>}
+                            : <p className="text-sm font-semibold text-slate-900 truncate">{biz?.name ?? '—'}</p>}
                         <p className="text-[10px] text-slate-500">
                             {biz?.city ?? ''}{biz?.city && biz?.country ? ', ' : ''}{biz?.country ?? ''}
                         </p>
@@ -85,7 +85,7 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
                     <div className="flex items-center gap-1">
                         {profileUrl && (
                             <a href={profileUrl} target="_blank" rel="noopener noreferrer"
-                                className="p-2 text-slate-400 hover:text-brand-neon-cyan transition-colors">
+                                className="p-2 text-slate-400 hover:text-[#14B8A6] transition-colors">
                                 <ExternalLink size={14} />
                             </a>
                         )}
@@ -120,21 +120,21 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 px-5 py-2.5 bg-white/2 border-b border-slate-200 shrink-0">
                         {biz.phone && (
                             <a href={`tel:${biz.phone}`} className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-slate-800 transition-colors">
-                                <Phone size={11} className="text-brand-neon-cyan" />
+                                <Phone size={11} className="text-[#14B8A6]" />
                                 {biz.phone}
                             </a>
                         )}
                         {biz.email && (
                             <a href={`mailto:${biz.email}`} className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-slate-800 transition-colors">
-                                <Mail size={11} className="text-brand-neon-cyan" />
+                                <Mail size={11} className="text-[#14B8A6]" />
                                 {biz.email}
                             </a>
                         )}
                         {biz.website && (
                             <a href={!biz.website.startsWith('http') ? `https://${biz.website}` : biz.website}
                                 target="_blank" rel="noopener noreferrer"
-                                className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-brand-neon-cyan transition-colors">
-                                <Globe size={11} className="text-brand-neon-cyan" />
+                                className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-[#14B8A6] transition-colors">
+                                <Globe size={11} className="text-[#14B8A6]" />
                                 {biz.website}
                             </a>
                         )}
@@ -157,7 +157,7 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
                         {social.tiktok && (
                             <a href={normalizeUrl(social.tiktok, 'https://tiktok.com/@')}
                                 target="_blank" rel="noopener noreferrer"
-                                className="flex items-center gap-1 text-[11px] text-slate-300/80 hover:text-slate-800 transition-colors">
+                                className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-800 transition-colors">
                                 <TikTokIcon />
                                 {social.tiktok.replace(/^@/, '')}
                             </a>
@@ -169,7 +169,7 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
                 )}
 
                 {/* ── Tablet frame ── */}
-                <div className="flex-1 overflow-hidden flex items-center justify-center bg-[#040a16] p-5">
+                <div className="flex-1 overflow-hidden flex items-center justify-center bg-[#F4F6F8] p-5">
                     <div
                         className="flex flex-col bg-[#131927] rounded-[2rem] border-[10px] border-[#1f2937] shadow-[0_0_80px_rgba(0,0,0,0.7)]"
                         style={{ aspectRatio: '3 / 4', height: '100%', maxHeight: '100%', maxWidth: '820px' }}
@@ -180,7 +180,7 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
                         <div className="flex-1 bg-white rounded-xl mx-2 mb-2 overflow-hidden relative min-h-0">
                             {loading ? (
                                 <div className="absolute inset-0 flex items-center justify-center bg-white">
-                                    <div className="w-9 h-9 border-2 border-slate-100 border-t-brand-neon-cyan rounded-full animate-spin" />
+                                    <div className="w-9 h-9 border-2 border-slate-100 border-t-[#14B8A6] rounded-full animate-spin" />
                                 </div>
                             ) : profileUrl ? (
                                 <iframe

@@ -124,8 +124,8 @@ export default function AdminNotificationsPage() {
             {/* Header */}
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
-                    <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Bell size={20} className="text-brand-neon-cyan" />
+                    <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <Bell size={20} className="text-[#14B8A6]" />
                         {t('title')}
                     </h1>
                     <p className="text-xs text-slate-500 mt-0.5">{unreadCount} {t('unread')} · {notifications.length} total</p>
@@ -154,7 +154,7 @@ export default function AdminNotificationsPage() {
 
                     {unreadCount > 0 && (
                         <button onClick={markAllRead}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-neon-cyan/10 border border-brand-neon-cyan/20 text-brand-neon-cyan text-xs font-medium rounded-xl hover:bg-brand-neon-cyan/20 transition-colors">
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#14B8A6]/10 border border-[#14B8A6]/20 text-[#14B8A6] text-xs font-medium rounded-xl hover:bg-[#14B8A6]/20 transition-colors">
                             <CheckCheck size={13} /> {t('markAllRead')}
                         </button>
                     )}
@@ -169,8 +169,8 @@ export default function AdminNotificationsPage() {
 
             {/* Floating selection bar */}
             {selected.size > 0 && (
-                <div className="flex items-center gap-3 px-4 py-3 bg-brand-neon-cyan/10 border border-brand-neon-cyan/20 rounded-xl">
-                    <span className="text-sm text-brand-neon-cyan font-semibold">{selected.size} seleccionadas</span>
+                <div className="flex items-center gap-3 px-4 py-3 bg-[#14B8A6]/10 border border-[#14B8A6]/20 rounded-xl">
+                    <span className="text-sm text-[#14B8A6] font-semibold">{selected.size} seleccionadas</span>
                     <button
                         onClick={deleteSelected}
                         disabled={deleting}
@@ -204,9 +204,9 @@ export default function AdminNotificationsPage() {
                         <div className="flex items-center gap-3 px-3 py-2 text-xs text-slate-500">
                             <button onClick={toggleAll} className="flex items-center gap-2 hover:text-slate-800 transition-colors">
                                 {allSelected
-                                    ? <CheckSquare size={14} className="text-brand-neon-cyan" />
+                                    ? <CheckSquare size={14} className="text-[#14B8A6]" />
                                     : someSelected
-                                        ? <Minus size={14} className="text-brand-neon-cyan" />
+                                        ? <Minus size={14} className="text-[#14B8A6]" />
                                         : <Square size={14} />
                                 }
                                 {allSelected ? 'Deseleccionar todas' : 'Seleccionar todas'}
@@ -241,12 +241,12 @@ export default function AdminNotificationsPage() {
                                          transition-all duration-200
                                          ${leftBorder}
                                          ${isExpanded
-                                            ? 'bg-[#0d1f3c] border-brand-neon-cyan/30 shadow-[0_0_16px_rgba(34,211,238,0.08)]'
+                                            ? 'bg-white border-[#14B8A6]/30 shadow-[0_0_16px_rgba(34,211,238,0.08)]'
                                             : isSelected
-                                                ? 'bg-brand-neon-cyan/5 border-brand-neon-cyan/20'
+                                                ? 'bg-[#14B8A6]/5 border-[#14B8A6]/20'
                                                 : n.read
                                                     ? 'bg-white/[0.02] border-white/[0.04] opacity-40 grayscale-[30%]'
-                                                    : 'bg-[#0d1a30] border-slate-200 hover:border-slate-300'
+                                                    : 'bg-white border-slate-200 hover:border-slate-300'
                                         }
                                      `}
                                 >
@@ -255,10 +255,10 @@ export default function AdminNotificationsPage() {
                                         {/* Checkbox */}
                                         <button
                                             onClick={() => toggleSelect(n.id)}
-                                            className="mt-1 shrink-0 text-slate-600 hover:text-brand-neon-cyan transition-colors"
+                                            className="mt-1 shrink-0 text-slate-600 hover:text-[#14B8A6] transition-colors"
                                         >
                                             {isSelected
-                                                ? <CheckSquare size={15} className="text-brand-neon-cyan" />
+                                                ? <CheckSquare size={15} className="text-[#14B8A6]" />
                                                 : <Square size={15} />
                                             }
                                         </button>
@@ -292,7 +292,7 @@ export default function AdminNotificationsPage() {
                                         <div className="flex items-center gap-1 shrink-0 mt-0.5">
                                             {link && (
                                                 <Link href={link}
-                                                    className="p-1.5 text-slate-500 hover:text-brand-neon-cyan transition-colors rounded-lg hover:bg-slate-50"
+                                                    className="p-1.5 text-slate-500 hover:text-[#14B8A6] transition-colors rounded-lg hover:bg-slate-50"
                                                     title="Ver en CRM">
                                                     <ArrowUpDown size={13} />
                                                 </Link>
@@ -322,7 +322,7 @@ export default function AdminNotificationsPage() {
                                             <p><span className="text-slate-600">Fecha exacta:</span> {n.createdAt?.toDate?.()?.toLocaleString('es-HN') ?? '—'}</p>
                                             {link && (
                                                 <Link href={link}
-                                                    className="inline-flex items-center gap-1 text-brand-neon-cyan hover:underline mt-1">
+                                                    className="inline-flex items-center gap-1 text-[#14B8A6] hover:underline mt-1">
                                                     Ver en el Admin CRM →
                                                 </Link>
                                             )}

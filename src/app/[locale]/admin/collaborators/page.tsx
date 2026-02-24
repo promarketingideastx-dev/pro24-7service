@@ -234,7 +234,7 @@ export default function CollaboratorsPage() {
                 <div>
                     <div className="flex items-center gap-2 mb-1">
                         <Crown className="w-5 h-5 text-amber-400" />
-                        <h1 className="text-xl font-bold text-white">{t('title')}</h1>
+                        <h1 className="text-xl font-bold text-slate-900">{t('title')}</h1>
                         {pendingCount > 0 && (
                             <span className="px-2 py-0.5 text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full">
                                 {pendingCount} {t('pending')}
@@ -255,7 +255,7 @@ export default function CollaboratorsPage() {
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         placeholder="Buscar negocio, email, país..."
-                        className="w-full pl-9 pr-4 h-10 bg-slate-50 border border-slate-200 rounded-xl text-white text-sm placeholder:text-slate-600 outline-none focus:border-amber-400/40"
+                        className="w-full pl-9 pr-4 h-10 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm placeholder:text-slate-600 outline-none focus:border-amber-400/40"
                     />
                 </div>
                 <div className="relative">
@@ -263,7 +263,7 @@ export default function CollaboratorsPage() {
                     <select
                         value={statusFilter}
                         onChange={e => setStatusFilter(e.target.value as any)}
-                        className="pl-9 pr-8 h-10 bg-slate-50 border border-slate-200 rounded-xl text-white text-sm outline-none focus:border-amber-400/40 appearance-none"
+                        className="pl-9 pr-8 h-10 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm outline-none focus:border-amber-400/40 appearance-none"
                     >
                         <option value="all">{t('all')}</option>
                         <option value="active">{t('statusActive')}</option>
@@ -301,7 +301,7 @@ export default function CollaboratorsPage() {
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-2">
                                             <Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                                            <span className="font-semibold text-white">{row.brandName}</span>
+                                            <span className="font-semibold text-slate-900">{row.brandName}</span>
                                         </div>
                                         {row.requestNote && (
                                             <p className="text-xs text-slate-500 mt-0.5 ml-5 line-clamp-1 italic">"{row.requestNote}"</p>
@@ -309,13 +309,13 @@ export default function CollaboratorsPage() {
                                         <p className="text-xs text-slate-600 mt-0.5 ml-5">{row.category}</p>
                                     </td>
                                     <td className="px-4 py-3">
-                                        <div className="flex items-center gap-1.5 text-slate-300">
+                                        <div className="flex items-center gap-1.5 text-slate-600">
                                             <User className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                                             <span className="text-xs truncate max-w-[150px]">{row.ownerEmail || row.ownerUid}</span>
                                         </div>
                                     </td>
                                     <td className="px-4 py-3">
-                                        <div className="flex items-center gap-1.5 text-slate-300">
+                                        <div className="flex items-center gap-1.5 text-slate-600">
                                             <img
                                                 src={`https://flagcdn.com/w20/${row.country.toLowerCase()}.png`}
                                                 alt={row.country}
@@ -391,16 +391,16 @@ export default function CollaboratorsPage() {
 
             {/* Pause reason dialog */}
             {pauseDialog && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#F4F6F8]/40 backdrop-blur-sm p-4">
                     <div className="bg-[#131929] border border-slate-200 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-                        <h3 className="text-white font-bold text-lg mb-2">
+                        <h3 className="text-slate-900 font-bold text-lg mb-2">
                             ⏸️ Pausar: {pauseDialog.name}
                         </h3>
                         <p className="text-slate-400 text-sm mb-4">{t('confirmPause')}</p>
                         <textarea
                             value={pauseReason}
                             onChange={e => setPauseReason(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-white text-sm outline-none focus:border-amber-400/40 resize-none h-24"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-900 text-sm outline-none focus:border-amber-400/40 resize-none h-24"
                             placeholder="Ej: Cuenta en revisión, colaboración finalizada..."
                         />
                         <div className="flex gap-3 mt-4">

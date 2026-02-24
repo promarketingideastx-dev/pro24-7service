@@ -95,7 +95,7 @@ function PlanDropdown({ business, planLabels, planOptions, onChanged }: {
             {open && (
                 <div
                     style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999 }}
-                    className="bg-[#0f1a2e] border border-slate-200 rounded-xl shadow-2xl w-40 overflow-hidden"
+                    className="bg-white border border-slate-200 rounded-xl shadow-2xl w-40 overflow-hidden"
                     onClick={e => e.stopPropagation()}
                 >
                     {planOptions.map(opt => (
@@ -205,8 +205,8 @@ export default function AdminBusinessesPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                            <Building2 size={24} className="text-brand-neon-cyan" />
+                        <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                            <Building2 size={24} className="text-[#14B8A6]" />
                             {t('title')}
                         </h1>
                         <p className="text-slate-400 text-sm mt-0.5">
@@ -215,7 +215,7 @@ export default function AdminBusinessesPage() {
                         </p>
                     </div>
                     <button onClick={load} disabled={loading}
-                        className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-300 transition-colors">
+                        className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-600 transition-colors">
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                         {tc('refresh')}
                     </button>
@@ -233,7 +233,7 @@ export default function AdminBusinessesPage() {
                                 {PLAN_ICONS[opt.value]}
                                 <span className={`text-xs font-semibold ${opt.color}`}>{opt.label}</span>
                             </div>
-                            <p className="text-2xl font-bold text-white">{counts[opt.value] ?? 0}</p>
+                            <p className="text-2xl font-bold text-slate-900">{counts[opt.value] ?? 0}</p>
                         </button>
                     ))}
                 </div>
@@ -246,7 +246,7 @@ export default function AdminBusinessesPage() {
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             placeholder={t('searchPlaceholder')}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-9 pr-4 text-sm text-slate-900 focus:outline-none focus:border-[#14B8A6]/50"
                         />
                     </div>
                 </div>
@@ -254,12 +254,12 @@ export default function AdminBusinessesPage() {
                 {/* Table */}
                 {loading ? (
                     <div className="flex items-center justify-center py-20">
-                        <div className="w-8 h-8 border-2 border-brand-neon-cyan/30 border-t-brand-neon-cyan rounded-full animate-spin" />
+                        <div className="w-8 h-8 border-2 border-[#14B8A6]/30 border-t-[#14B8A6] rounded-full animate-spin" />
                     </div>
                 ) : filtered.length === 0 ? (
                     <div className="text-center py-16 text-slate-500">{t('notFound')}</div>
                 ) : (
-                    <div className="bg-[#0a1128] border border-slate-200 rounded-2xl">
+                    <div className="bg-white border border-slate-200 rounded-2xl">
                         <div className="overflow-x-auto rounded-2xl">
                             <table className="w-full">
                                 <thead>
@@ -284,7 +284,7 @@ export default function AdminBusinessesPage() {
                                         return (
                                             <tr
                                                 key={b.id}
-                                                className={`hover:bg-slate-50 transition-colors cursor-pointer ${isSuspended ? 'opacity-50' : ''} ${selectedBusinessId === b.id ? 'ring-1 ring-inset ring-brand-neon-cyan/30 bg-slate-50' : ''}`}
+                                                className={`hover:bg-slate-50 transition-colors cursor-pointer ${isSuspended ? 'opacity-50' : ''} ${selectedBusinessId === b.id ? 'ring-1 ring-inset ring-[#14B8A6]/30 bg-slate-50' : ''}`}
                                                 onClick={() => setSelectedBusinessId(b.id)}
                                             >
                                                 <td className="px-4 py-3">
@@ -292,18 +292,18 @@ export default function AdminBusinessesPage() {
                                                         {b.logoUrl || b.coverImage ? (
                                                             <img src={b.logoUrl || b.coverImage} alt="" className="w-8 h-8 rounded-lg object-cover border border-slate-200" />
                                                         ) : (
-                                                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-neon-cyan/20 to-brand-neon-purple/20 flex items-center justify-center text-white font-bold text-xs border border-slate-200">
+                                                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#14B8A6]/20 to-[#2563EB]/20 flex items-center justify-center text-slate-900 font-bold text-xs border border-slate-200">
                                                                 {b.name?.charAt(0) ?? '?'}
                                                             </div>
                                                         )}
                                                         <div>
-                                                            <p className="text-sm font-medium text-white truncate max-w-[180px]">{b.name ?? '—'}</p>
+                                                            <p className="text-sm font-medium text-slate-900 truncate max-w-[180px]">{b.name ?? '—'}</p>
                                                             <p className="text-xs text-slate-500 truncate max-w-[180px]">{b.email ?? b.phone ?? '—'}</p>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <p className="text-sm text-slate-300">{b.country ?? '—'}</p>
+                                                    <p className="text-sm text-slate-600">{b.country ?? '—'}</p>
                                                     <p className="text-xs text-slate-500">{b.city ?? ''}</p>
                                                 </td>
                                                 <td className="px-4 py-3 text-xs text-slate-400">{b.category ?? '—'}</td>
