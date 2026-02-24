@@ -77,7 +77,7 @@ export default function ShareAppModal({ isOpen, onClose }: ShareAppModalProps) {
                     <div>
                         <div className="flex items-center gap-2 mb-1">
                             <Share2 className="w-5 h-5 text-cyan-400" />
-                            <h2 className="text-white font-bold text-lg">{t('title')}</h2>
+                            <h2 className="text-slate-900 font-bold text-lg">{t('title')}</h2>
                         </div>
                         <p className="text-slate-400 text-sm">{t('subtitle')}</p>
                     </div>
@@ -102,8 +102,8 @@ export default function ShareAppModal({ isOpen, onClose }: ShareAppModalProps) {
                             className={`
                                 flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl text-xs font-semibold transition-all duration-200
                                 ${activeTab === key
-                                    ? 'bg-cyan-500/20 border border-cyan-400/40 text-cyan-300'
-                                    : 'bg-slate-50 border border-slate-200 text-slate-400 hover:text-slate-200 hover:bg-slate-100'
+                                    ? 'bg-[rgba(20,184,166,0.10)] border border-[#14B8A6]/40 text-[#0F766E]'
+                                    : 'bg-slate-50 border border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-100'
                                 }
                             `}
                         >
@@ -130,14 +130,14 @@ export default function ShareAppModal({ isOpen, onClose }: ShareAppModalProps) {
                                 />
                             </div>
                             <div className="text-center">
-                                <p className="text-white font-semibold text-sm">{t('qrHint')}</p>
+                                <p className="text-slate-900 font-semibold text-sm">{t('qrHint')}</p>
                                 <p className="text-slate-500 text-xs mt-1 font-mono">{shareUrl}</p>
                             </div>
                             {/* Download QR hint */}
                             <div className="w-full bg-slate-50 rounded-2xl p-3 flex items-center gap-3 border border-slate-200">
                                 <Download size={16} className="text-cyan-400 shrink-0" />
                                 <div>
-                                    <p className="text-white text-xs font-semibold">{t('downloadTitle')}</p>
+                                    <p className="text-slate-900 text-xs font-semibold">{t('downloadTitle')}</p>
                                     <p className="text-slate-500 text-xs">{t('downloadSubtitle')}</p>
                                 </div>
                             </div>
@@ -149,7 +149,7 @@ export default function ShareAppModal({ isOpen, onClose }: ShareAppModalProps) {
                         <div className="flex flex-col gap-4">
                             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200">
                                 <p className="text-slate-400 text-xs mb-2">{t('linkHint')}</p>
-                                <p className="text-cyan-300 text-sm font-mono break-all">{shareUrl}</p>
+                                <p className="text-[#0F766E] text-sm font-mono break-all">{shareUrl}</p>
                             </div>
                             <button
                                 onClick={handleNativeShare}
@@ -166,7 +166,7 @@ export default function ShareAppModal({ isOpen, onClose }: ShareAppModalProps) {
                         <div className="flex flex-col gap-4">
                             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200">
                                 <p className="text-slate-400 text-xs mb-2">{t('copyLabel')}</p>
-                                <p className="text-cyan-300 text-sm font-mono break-all">{shareUrl}</p>
+                                <p className="text-[#0F766E] text-sm font-mono break-all">{shareUrl}</p>
                             </div>
                             <button
                                 onClick={handleCopy}
