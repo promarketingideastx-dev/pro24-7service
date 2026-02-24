@@ -345,6 +345,56 @@ function buildPlanActivatedEmail(
   return { subject, html };
 }
 
+// ── Plan Paused email ─────────────────────────────────────────────────────────
+
+function buildPlanPausedEmail(
+  ownerName: string,
+  businessName: string,
+  reason: string,
+  locale: Locale,
+  appUrl: string
+): { subject: string; html: string } {
+  const subjects: Record<Locale, string> = {
+    'es': `Tu cuenta en Pro24/7YA ha sido pausada — ${businessName}`,
+    'en': `Your Pro24/7YA account has been paused — ${businessName}`,
+    'pt-BR': `Sua conta no Pro24/7YA foi pausada — ${businessName}`,
+  };
+  const titles: Record<Locale, string> = {
+    'es': 'Tu cuenta ha sido pausada temporalmente',
+    'en': 'Your account has been temporarily paused',
+    'pt-BR': 'Sua conta foi pausada temporariamente',
+  };
+  const intros: Record<Locale, string> = {
+    'es': `Hola <strong>${ownerName}</strong>, el acceso al dashboard de <strong>${businessName}</strong> ha sido pausado. Motivo:<br/><br/><em style="color:#92400e;background:#fef3c7;padding:6px 10px;border-radius:6px;display:block;">${reason || 'Sin motivo especificado'}</em><br/>Para resolverlo, contáctanos:`,
+    'en': `Hi <strong>${ownerName}</strong>, access to <strong>${businessName}</strong>'s dashboard has been paused. Reason:<br/><br/><em style="color:#92400e;background:#fef3c7;padding:6px 10px;border-radius:6px;display:block;">${reason || 'No reason specified'}</em><br/>To resolve this, contact us:`,
+    'pt-BR': `Olá <strong>${ownerName}</strong>, o acesso ao painel de <strong>${businessName}</strong> foi pausado. Motivo:<br/><br/><em style="color:#92400e;background:#fef3c7;padding:6px 10px;border-radius:6px;display:block;">${reason || 'Sem motivo especificado'}</em><br/>Para resolver, entre em contato:`,
+  };
+  const features: Record<Locale, string[]> = {
+    'es': ['Responde a este correo o escríbenos por WhatsApp', 'Nuestro equipo revisará tu caso en menos de 24h', 'Una vez resuelto, tu cuenta se reactivará de inmediato'],
+    'en': ['Reply to this email or contact us via WhatsApp', 'Our team will review your case within 24h', 'Once resolved, your account will be reactivated immediately'],
+    'pt-BR': ['Responda este e-mail ou entre em contato via WhatsApp', 'Nossa equipe analisará seu caso em menos de 24h', 'Assim que resolvido, sua conta será reativada imediatamente'],
+  };
+  const ctas: Record<Locale, string> = {
+    'es': 'Contactar soporte →',
+    'en': 'Contact support →',
+    'pt-BR': 'Contatar suporte →',
+  };
+
+  const subject = subjects[locale] ?? subjects['es'];
+  const html = buildEmail({
+    subject,
+    headerTitle: titles[locale] ?? titles['es'],
+    headerSubtitle: businessName,
+    bodyIntro: intros[locale] ?? intros['es'],
+    features: features[locale] ?? features['es'],
+    ctaLabel: ctas[locale] ?? ctas['es'],
+    ctaUrl: 'mailto:soporte@pro247ya.com',
+    footerNote: 'Pro24/7YA · Esta es una notificación importante sobre tu cuenta.',
+    locale,
+  });
+  return { subject, html };
+}
+
 // ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
@@ -381,7 +431,17 @@ export async function POST(req: NextRequest) {
         name,
         data?.businessName ?? 'Tu negocio',
         data?.category ?? '',
-        data?.plan ?? 'premium',
+        data?.plan ?? 'vip',
+        validLocale,
+        `https://pro24-7ya.com/${validLocale}/business/dashboard`
+      );
+      subject = result.subject;
+      html = result.html;
+    } else if (type === 'plan_paused') {
+      const result = buildPlanPausedEmail(
+        name,
+        data?.businessName ?? 'Tu negocio',
+        data?.reason ?? '',
         validLocale,
         `https://pro24-7ya.com/${validLocale}/business/dashboard`
       );

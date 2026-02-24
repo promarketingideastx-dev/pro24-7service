@@ -26,6 +26,8 @@ interface CollabRow {
     brandName: string;
     ownerUid: string;
     ownerEmail?: string;
+    ownerName?: string;
+    ownerLocale?: string;
     country: string;
     category: string;
     planStatus: CollabStatus;
@@ -66,7 +68,7 @@ export default function CollaboratorsPage() {
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState<'all' | CollabStatus>('all');
     const [busyId, setBusyId] = useState<string | null>(null);
-    const [pauseDialog, setPauseDialog] = useState<{ id: string; name: string } | null>(null);
+    const [pauseDialog, setPauseDialog] = useState<{ id: string; name: string; row?: CollabRow } | null>(null);
     const [pauseReason, setPauseReason] = useState('');
 
     // ── Realtime listener ────────────────────────────────────────────────────
@@ -85,6 +87,8 @@ export default function CollaboratorsPage() {
                     brandName: r.brandName ?? r.businessName ?? '—',
                     ownerUid: r.ownerUid ?? '',
                     ownerEmail: r.ownerEmail ?? r.email ?? '',
+                    ownerName: r.ownerName ?? r.brandName ?? r.businessName ?? 'Colaborador',
+                    ownerLocale: r.locale ?? r.ownerLocale ?? 'es',
                     country: r.country ?? r.countryCode ?? '—',
                     category: r.category ?? r.categories?.main ?? '—',
                     planStatus: r.planData?.planStatus ?? 'active',
@@ -117,7 +121,8 @@ export default function CollaboratorsPage() {
         id: string,
         name: string,
         planStatus: CollabStatus,
-        extra: Record<string, any> = {}
+        extra: Record<string, any> = {},
+        row?: CollabRow
     ) => {
         setBusyId(id);
         try {
@@ -130,7 +135,27 @@ export default function CollaboratorsPage() {
                 ...extra,
             });
 
-            // Audit log
+            // ── Email notification to collaborator ───────────────────────────
+            if (row?.ownerEmail && (planStatus === 'active' || planStatus === 'paused')) {
+                fetch('/api/welcome-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: planStatus === 'active' ? 'plan_activated' : 'plan_paused',
+                        email: row.ownerEmail,
+                        name: row.ownerName ?? name,
+                        locale: row.ownerLocale ?? 'es',
+                        data: {
+                            businessName: name,
+                            category: row.category,
+                            plan: 'vip',
+                            reason: extra['collaboratorData.pauseReason'] ?? '',
+                        },
+                    }),
+                }).catch(() => { /* silent — non-critical */ });
+            }
+
+            // ── Audit log ────────────────────────────────────────────────────
             await AuditLogService.log({
                 action: `collaborator.${planStatus === 'active' ? 'activated' : planStatus === 'paused' ? 'paused' : 'deactivated'}`,
                 actorUid: user?.uid ?? 'admin',
@@ -141,7 +166,7 @@ export default function CollaboratorsPage() {
                 meta: extra['collaboratorData.pauseReason'] ? { reason: extra['collaboratorData.pauseReason'] } : undefined,
             }).catch(() => { });
 
-            // Admin notification
+            // ── Admin notification ───────────────────────────────────────────
             if (planStatus === 'active') {
                 AdminNotificationService.create({
                     type: 'collaborator_activated',
@@ -193,7 +218,7 @@ export default function CollaboratorsPage() {
         if (!pauseDialog) return;
         await updateStatus(pauseDialog.id, pauseDialog.name, 'paused', {
             'collaboratorData.pauseReason': pauseReason || '',
-        });
+        }, pauseDialog.row);
         setPauseDialog(null);
         setPauseReason('');
     };
@@ -316,7 +341,7 @@ export default function CollaboratorsPage() {
                                             {/* Activate */}
                                             {row.planStatus !== 'active' && (
                                                 <button
-                                                    onClick={() => updateStatus(row.id, row.brandName, 'active')}
+                                                    onClick={() => updateStatus(row.id, row.brandName, 'active', {}, row)}
                                                     disabled={busyId === row.id}
                                                     title={t('actionActivate')}
                                                     className="w-8 h-8 flex items-center justify-center rounded-lg bg-emerald-500/10 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/20 transition-all disabled:opacity-40"
@@ -327,7 +352,7 @@ export default function CollaboratorsPage() {
                                             {/* Pause */}
                                             {row.planStatus === 'active' && (
                                                 <button
-                                                    onClick={() => setPauseDialog({ id: row.id, name: row.brandName })}
+                                                    onClick={() => setPauseDialog({ id: row.id, name: row.brandName, row })}
                                                     disabled={busyId === row.id}
                                                     title={t('actionPause')}
                                                     className="w-8 h-8 flex items-center justify-center rounded-lg bg-amber-500/10 hover:bg-amber-500/25 text-amber-400 border border-amber-500/20 transition-all disabled:opacity-40"
@@ -338,7 +363,7 @@ export default function CollaboratorsPage() {
                                             {/* Deactivate */}
                                             {row.planStatus !== 'inactive' && (
                                                 <button
-                                                    onClick={() => updateStatus(row.id, row.brandName, 'inactive')}
+                                                    onClick={() => updateStatus(row.id, row.brandName, 'inactive', {}, row)}
                                                     disabled={busyId === row.id}
                                                     title={t('actionDeactivate')}
                                                     className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-500/10 hover:bg-slate-500/25 text-slate-400 border border-slate-500/20 transition-all disabled:opacity-40"

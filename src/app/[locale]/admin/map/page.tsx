@@ -98,10 +98,11 @@ export default function AdminMapPage() {
                     city: data.city,
                     country: data.country,
                     plan: data.planData?.plan ?? 'free',
+                    planSource: data.planData?.planSource ?? undefined,
                     category: data.category,
                     status: data.status ?? 'active',
                     suspended: data.suspended === true,
-                    coverImage: data.logoUrl || data.coverImage || undefined, // prefer logo (avatar) over cover
+                    coverImage: data.logoUrl || data.coverImage || undefined,
                 });
             });
             setAllPoints(pts);

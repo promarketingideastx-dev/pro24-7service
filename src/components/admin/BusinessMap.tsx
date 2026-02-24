@@ -10,6 +10,7 @@ export interface MapPoint {
     city?: string;
     country?: string;
     plan?: string;
+    planSource?: string;
     category?: string;
     status?: string;
     suspended?: boolean;
@@ -141,6 +142,18 @@ export default function BusinessMap({ points, center = [14.5, -86.5], zoom = 7, 
                             ? `<img src="${p.coverImage}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none';this.nextSibling.style.display='flex';"/><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;">${emoji}</span>`
                             : emoji
                         }</div>
+                            <!-- Crown badge for VIP collaborators -->
+                            ${p.planSource === 'collaborator_beta' ? `
+                            <div style="
+                                position:absolute; top:-2px; right:-2px;
+                                width:16px; height:16px;
+                                background:#fbbf24;
+                                border-radius:50%;
+                                border:1.5px solid white;
+                                box-shadow:0 1px 4px rgba(0,0,0,0.25);
+                                display:flex; align-items:center; justify-content:center;
+                                font-size:9px; line-height:1;
+                            ">👑</div>` : ''}
                         </div>
                         <style>
                             @keyframes mapPulse {
