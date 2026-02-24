@@ -367,9 +367,8 @@ export default function MapWidget({
             style={{ height: '100%', width: '100%' }}
         >
             <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors | <a href="https://openfreemap.org" target="_blank">OpenFreeMap</a>'
-                url="https://tiles.openfreemap.org/styles/liberty/{z}/{x}/{y}.png"
-                maxZoom={20}
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
             />
             {/* Country border lines — GeoJSON, no labels, no fill */}
             <CountryBordersLayer />
