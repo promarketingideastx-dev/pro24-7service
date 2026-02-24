@@ -33,6 +33,7 @@ export default function Home() {
 
     /* State for simple filtering */
     const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState<'all' | 'new' | 'withSchedule'>('all');
     /* State for Category Modal */
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     /* State for Selected Business (Map Focus) */
@@ -148,6 +149,19 @@ export default function Home() {
 
         // 2. Use Advanced Token Matching
         return matchesSearch(searchableText, term);
+    }).filter(b => {
+        if (statusFilter === 'new') {
+            // Show businesses created in last 30 days
+            const created = (b as any).createdAt?.toDate?.() || (b as any).createdAt;
+            if (!created) return false;
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            return new Date(created) >= thirtyDaysAgo;
+        }
+        if (statusFilter === 'withSchedule') {
+            return !!(b as any).openingHours || !!(b as any).hasSchedule;
+        }
+        return true;
     });
 
     // Effect: Suggestions mechanism (Run when results are empty)
@@ -324,6 +338,26 @@ export default function Home() {
                                 )}
                             </div>
                         </div>
+                    </div>
+
+                    {/* Status Filter Chips */}
+                    <div className="shrink-0 px-6 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
+                        {(['all', 'new', 'withSchedule'] as const).map((f) => {
+                            const labels: Record<string, string> = { all: t('allServices'), new: '🆕 Nuevos', withSchedule: '📅 Con Agenda' };
+                            const active = statusFilter === f;
+                            return (
+                                <button
+                                    key={f}
+                                    onClick={() => setStatusFilter(f)}
+                                    className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${active
+                                            ? 'bg-brand-neon-cyan text-black border-brand-neon-cyan shadow-lg shadow-cyan-500/20'
+                                            : 'bg-white/5 text-slate-400 border-white/10 hover:border-white/20 hover:text-white'
+                                        }`}
+                                >
+                                    {labels[f]}
+                                </button>
+                            );
+                        })}
                     </div>
 
                     {/* Categories Row */}

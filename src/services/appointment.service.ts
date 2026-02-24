@@ -201,5 +201,26 @@ export const AppointmentService = {
             console.error("Error fetching all appointments:", error);
             throw error;
         }
-    }
+    },
+
+    // Get all appointments for a client by email — used by client profile history
+    async getByClientEmail(email: string): Promise<Appointment[]> {
+        try {
+            const q = query(
+                collection(db, COLLECTION_NAME),
+                where('customerEmail', '==', email)
+            );
+            const snapshot = await getDocs(q);
+            const appointments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
+            // Sort newest first on client side (avoids index requirement)
+            return appointments.sort((a, b) => {
+                const aTime = a.date?.toMillis?.() ?? 0;
+                const bTime = b.date?.toMillis?.() ?? 0;
+                return bTime - aTime;
+            });
+        } catch (error) {
+            console.error("Error fetching client appointments:", error);
+            throw error;
+        }
+    },
 };

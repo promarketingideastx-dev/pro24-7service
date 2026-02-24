@@ -1,6 +1,7 @@
 import { auth, db } from '@/lib/firebase';
 import {
     GoogleAuthProvider,
+    OAuthProvider,
     signInWithPopup,
     signOut,
     createUserWithEmailAndPassword,
@@ -39,6 +40,23 @@ export const AuthService = {
             return result.user;
         } catch (error) {
             console.error('Error logging in with Google:', error);
+            throw error;
+        }
+    },
+
+    loginWithApple: async () => {
+        const provider = new OAuthProvider('apple.com');
+        provider.addScope('email');
+        provider.addScope('name');
+        try {
+            const result = await signInWithPopup(auth, provider);
+            const profile = await UserService.getUserProfile(result.user.uid);
+            if (!profile) {
+                await UserService.createUserProfile(result.user.uid, result.user.email || '');
+            }
+            return result.user;
+        } catch (error) {
+            console.error('Error logging in with Apple:', error);
             throw error;
         }
     },

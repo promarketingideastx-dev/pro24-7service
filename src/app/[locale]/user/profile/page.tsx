@@ -5,7 +5,7 @@ import { updateProfile } from 'firebase/auth';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import {
-    User, Mail, Phone, MapPin, Calendar, Edit2, LogOut, Camera, Shield, X, Trash2, AlertTriangle, Heart, Save, ExternalLink, Building2, Lock
+    User, Mail, Phone, MapPin, Calendar, Edit2, LogOut, Camera, Shield, X, Trash2, AlertTriangle, Heart, Save, ExternalLink, Building2, Lock, Clock, CheckCircle, XCircle, AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -13,6 +13,7 @@ import { UserService } from '@/services/user.service';
 import { StorageService } from '@/services/storage.service';
 import ImageUploader from '@/components/ui/ImageUploader';
 import { FavoritesService, FavoriteRecord } from '@/services/favorites.service';
+import { AppointmentService, Appointment } from '@/services/appointment.service';
 import { useLocale, useTranslations } from 'next-intl';
 
 export default function UserProfilePage() {
@@ -35,8 +36,10 @@ export default function UserProfilePage() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [favorites, setFavorites] = useState<FavoriteRecord[]>([]);
     const [favLoading, setFavLoading] = useState(true);
+    const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [aptsLoading, setAptsLoading] = useState(true);
 
-    // Load initial data + favorites
+    // Load initial data + favorites + appointments
     useEffect(() => {
         if (user && userProfile) {
             setFormData({
@@ -50,10 +53,21 @@ export default function UserProfilePage() {
                 .then(setFavorites)
                 .catch(() => { })
                 .finally(() => setFavLoading(false));
+
+            if (user.email) {
+                AppointmentService.getByClientEmail(user.email)
+                    .then((apts) => setAppointments(apts.slice(0, 10)))
+                    .catch(() => { })
+                    .finally(() => setAptsLoading(false));
+            } else {
+                setAptsLoading(false);
+            }
         } else {
             setFavLoading(false);
+            setAptsLoading(false);
         }
     }, [user, userProfile]);
+
 
 
 
@@ -343,7 +357,78 @@ export default function UserProfilePage() {
                     )}
                 </div>
 
-                {/* 3. Danger Zone */}
+                {/* 3. Mis Citas */}
+                <div className="bg-[#151b2e] border border-white/5 rounded-3xl p-6 md:p-8">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-2 bg-brand-neon-cyan/10 rounded-xl">
+                            <Calendar className="w-6 h-6 text-brand-neon-cyan" />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-bold">{t('appointments')}</h2>
+                            <p className="text-slate-500 text-xs">{t('appointmentsDesc')}</p>
+                        </div>
+                        <span className="ml-auto bg-brand-neon-cyan/10 text-brand-neon-cyan border border-brand-neon-cyan/20 text-xs font-bold px-2.5 py-1 rounded-full">
+                            {appointments.length}
+                        </span>
+                    </div>
+
+                    {aptsLoading ? (
+                        <div className="flex justify-center py-8">
+                            <div className="w-6 h-6 rounded-full border-2 border-brand-neon-cyan/30 border-t-brand-neon-cyan animate-spin" />
+                        </div>
+                    ) : appointments.length === 0 ? (
+                        <div className="text-center py-8 text-slate-600">
+                            <Calendar className="w-10 h-10 mx-auto mb-3 opacity-20" />
+                            <p className="text-sm">{t('noAppointments')}</p>
+                            <Link href={`/${locale}`} className="mt-3 inline-block text-xs text-brand-neon-cyan hover:underline">{t('bookFirst')}</Link>
+                        </div>
+                    ) : (
+                        <div className="space-y-2">
+                            {appointments.map((apt) => {
+                                const aptDate = apt.date?.toDate ? apt.date.toDate() : new Date();
+                                const statusKey = `aptStatus_${apt.status}` as any;
+                                const statusColors: Record<string, string> = {
+                                    pending: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+                                    confirmed: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+                                    completed: 'bg-green-500/10 text-green-400 border-green-500/20',
+                                    cancelled: 'bg-red-500/10 text-red-400 border-red-500/20',
+                                    'no-show': 'bg-slate-500/10 text-slate-400 border-slate-500/20',
+                                };
+                                const color = statusColors[apt.status] ?? statusColors.pending;
+                                return (
+                                    <div
+                                        key={apt.id}
+                                        className="flex items-center gap-4 p-4 bg-white/5 border border-white/8 rounded-2xl"
+                                    >
+                                        {/* Date block */}
+                                        <div className="shrink-0 text-center w-12">
+                                            <p className="text-brand-neon-cyan font-bold text-lg leading-none">
+                                                {aptDate.getDate()}
+                                            </p>
+                                            <p className="text-slate-500 text-[10px] uppercase">
+                                                {aptDate.toLocaleString('default', { month: 'short' })}
+                                            </p>
+                                        </div>
+                                        {/* Info */}
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-white font-semibold text-sm truncate">{apt.serviceName}</p>
+                                            <div className="flex items-center gap-2 text-slate-500 text-xs mt-0.5">
+                                                <Clock className="w-3 h-3 shrink-0" />
+                                                <span>{aptDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                            </div>
+                                        </div>
+                                        {/* Status badge */}
+                                        <span className={`shrink-0 text-[10px] font-bold px-2 py-1 rounded-full border ${color}`}>
+                                            {t(statusKey)}
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+
+                {/* 4. Danger Zone */}
                 <div className="border border-red-500/10 bg-red-500/5 rounded-3xl p-6 md:p-8">
                     <div className="flex items-center gap-3 mb-4">
                         <AlertTriangle className="w-5 h-5 text-red-400" />
