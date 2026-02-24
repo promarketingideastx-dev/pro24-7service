@@ -79,7 +79,7 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
                     placeholder={t('search')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-500 focus:outline-none focus:border-slate-200 focus:ring-1 focus:ring-white/10 transition-all"
+                    className="w-full bg-white border border-[#E6E8EC] rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/20 transition-all"
                 />
             </div>
 
@@ -87,17 +87,17 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
             {customers.length > 0 && (
                 <div className="grid grid-cols-3 gap-3">
                     <div className="bg-white border border-slate-200 rounded-xl p-3 text-center">
-                        <p className="text-2xl font-bold text-white">{customers.length}</p>
+                        <p className="text-2xl font-bold text-slate-900">{customers.length}</p>
                         <p className="text-xs text-slate-500 mt-0.5">{t('title')}</p>
                     </div>
                     <div className="bg-white border border-slate-200 rounded-xl p-3 text-center">
-                        <p className="text-2xl font-bold text-brand-neon-cyan">
+                        <p className="text-2xl font-bold text-[#0F766E]">
                             L {Object.values(appointmentStats).reduce((sum, s) => sum + s.ltv, 0).toLocaleString()}
                         </p>
                         <p className="text-xs text-slate-500 mt-0.5">{t('ltvTotal')}</p>
                     </div>
                     <div className="bg-white border border-slate-200 rounded-xl p-3 text-center">
-                        <p className="text-2xl font-bold text-green-400">
+                        <p className="text-2xl font-bold text-green-600">
                             {Object.values(appointmentStats).reduce((sum, s) => sum + s.appointmentCount, 0)}
                         </p>
                         <p className="text-xs text-slate-500 mt-0.5">{t('totalAppts')}</p>
@@ -111,14 +111,14 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
                 <div className="col-span-2">{t('colContact')}</div>
                 <div className="col-span-2">{t('colLastVisit')}</div>
                 <div className="col-span-2">{t('colNextAppt')}</div>
-                <div className="col-span-2 text-brand-neon-cyan">LTV</div>
+                <div className="col-span-2 text-[#0F766E] font-semibold">LTV</div>
                 <div className="col-span-1 text-right">Acc.</div>
             </div>
 
             {/* List */}
             <div className="space-y-2">
                 {filteredCustomers.length === 0 ? (
-                    <div className="text-center py-12 text-slate-500 bg-slate-500 rounded-xl border border-slate-200 border-dashed">
+                    <div className="text-center py-12 text-slate-500 bg-white rounded-xl border border-[#E6E8EC] border-dashed">
                         {searchTerm ? t('noSearchResults') : t('empty')}
                     </div>
                 ) : (
@@ -127,7 +127,7 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
                         return (
                             <div
                                 key={customer.id}
-                                className="group bg-white hover:bg-[#1a2138] border border-slate-200 rounded-xl p-4 transition-all hover:shadow-lg hover:border-slate-200 cursor-pointer"
+                                className="group bg-white hover:bg-[#F8FAFC] border border-[#E6E8EC] hover:border-[#14B8A6]/20 rounded-xl p-4 transition-all hover:shadow-sm cursor-pointer"
                                 onClick={() => router.push(lp(`/business/clients/${customer.id}`))}
                             >
                                 <div className="flex flex-col md:grid md:grid-cols-12 gap-3 items-center">
@@ -141,13 +141,13 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
                                                 </span>
                                             </div>
                                             {stats.appointmentCount > 0 && (
-                                                <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-[#151b2e] flex items-center justify-center">
-                                                    <span className="text-[8px] font-bold text-black">{stats.appointmentCount}</span>
+                                                <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#14B8A6] border-2 border-white flex items-center justify-center">
+                                                    <span className="text-[8px] font-bold text-white">{stats.appointmentCount}</span>
                                                 </div>
                                             )}
                                         </div>
                                         <div className="min-w-0">
-                                            <h3 className="font-semibold text-white truncate group-hover:text-brand-neon-cyan transition-colors">{customer.fullName}</h3>
+                                            <h3 className="font-semibold text-slate-900 truncate group-hover:text-[#14B8A6] transition-colors">{customer.fullName}</h3>
                                             {customer.tags?.includes('public_request') && (
                                                 <span className="text-[10px] text-purple-400 font-medium">{t('onlineBooking')}</span>
                                             )}
@@ -157,7 +157,7 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
                                     {/* Contact */}
                                     <div className="w-full md:col-span-2 flex flex-col gap-1 text-sm">
                                         {customer.phone && (
-                                            <div className="flex items-center gap-1.5 text-slate-300 text-xs">
+                                            <div className="flex items-center gap-1.5 text-slate-600 text-xs">
                                                 <Phone className="w-3 h-3 text-slate-500 shrink-0" />
                                                 <span>{customer.phone}</span>
                                             </div>
@@ -187,7 +187,7 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
                                     <div className="w-full md:col-span-2 text-xs flex items-center gap-1.5">
                                         <Calendar className="w-3 h-3 text-slate-600 shrink-0" />
                                         {stats.nextAppointment ? (
-                                            <span className="text-green-400 font-medium">{format(stats.nextAppointment, "d MMM", { locale: dateFnsLocale })}</span>
+                                            <span className="text-green-600 font-medium">{format(stats.nextAppointment, "d MMM", { locale: dateFnsLocale })}</span>
                                         ) : (
                                             <span className="text-slate-600 italic">{t('noneAppt')}</span>
                                         )}
@@ -195,8 +195,8 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
 
                                     {/* LTV */}
                                     <div className="w-full md:col-span-2 flex items-center gap-1.5">
-                                        <TrendingUp className={`w-3 h-3 shrink-0 ${stats.ltv > 0 ? 'text-brand-neon-cyan' : 'text-slate-600'}`} />
-                                        <span className={`text-sm font-bold ${stats.ltv > 0 ? 'text-brand-neon-cyan' : 'text-slate-600'}`}>
+                                        <TrendingUp className={`w-3 h-3 shrink-0 ${stats.ltv > 0 ? 'text-[#14B8A6]' : 'text-slate-400'}`} />
+                                        <span className={`text-sm font-bold ${stats.ltv > 0 ? 'text-[#0F766E]' : 'text-slate-400'}`}>
                                             {formatCurrency(stats.ltv)}
                                         </span>
                                     </div>

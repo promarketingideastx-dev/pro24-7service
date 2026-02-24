@@ -130,7 +130,7 @@ export default function BusinessProfilePage() {
         }
     };
 
-    if (loading) return <div className="p-12 text-center text-white">{t('loadingProfile')}</div>;
+    if (loading) return <div className="p-12 text-center text-slate-500">{t('loadingProfile')}</div>;
 
     return (
         <div className="space-y-6 max-w-4xl mx-auto">
@@ -139,8 +139,8 @@ export default function BusinessProfilePage() {
                     <ArrowLeft size={24} />
                 </button>
                 <div>
-                    <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
-                    <p className="text-slate-400 text-sm">{t('subtitle')}</p>
+                    <h1 className="text-2xl font-bold text-slate-900">{t('title')}</h1>
+                    <p className="text-slate-500 text-sm">{t('subtitle')}</p>
                 </div>
             </div>
 
@@ -150,9 +150,9 @@ export default function BusinessProfilePage() {
 
                     {/* Images Section (Cover & Logo) */}
                     <GlassPanel className="p-6">
-                        <div className="flex items-center gap-2 mb-4 text-brand-neon-cyan">
+                        <div className="flex items-center gap-2 mb-4 text-[#14B8A6]">
                             <ImageIcon size={20} />
-                            <h2 className="font-bold text-white">{t('profileImages')}</h2>
+                            <h2 className="font-bold text-slate-900">{t('profileImages')}</h2>
                         </div>
 
                         <div className="space-y-6">
@@ -214,10 +214,10 @@ export default function BusinessProfilePage() {
                                         </div>
                                     </div>
                                     <div className="flex-1">
-                                        <div className="text-sm text-slate-300 mb-1">
+                                        <div className="text-sm text-slate-600 mb-1">
                                             {t('logoHint')}
                                         </div>
-                                        <label className="inline-flex cursor-pointer px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-300 hover:text-slate-800 border border-slate-200 rounded-lg items-center gap-2 transition-colors">
+                                        <label className="inline-flex cursor-pointer px-4 py-2 bg-[#F8FAFC] hover:bg-[#F1F5F9] text-slate-700 hover:text-slate-900 border border-[#E6E8EC] rounded-lg items-center gap-2 transition-colors">
                                             {uploadingImage === 'logo' ? <Loader2 className="animate-spin w-4 h-4" /> : <Upload size={16} />}
                                             <span className="text-sm">{t('uploadLogo')}</span>
                                             <input
@@ -236,9 +236,9 @@ export default function BusinessProfilePage() {
 
                     {/* Basic Info */}
                     <GlassPanel className="p-6">
-                        <div className="flex items-center gap-2 mb-4 text-brand-neon-cyan">
+                        <div className="flex items-center gap-2 mb-4 text-[#14B8A6]">
                             <Building size={20} />
-                            <h2 className="font-bold text-white">{t('basicInfo')}</h2>
+                            <h2 className="font-bold text-slate-900">{t('basicInfo')}</h2>
                         </div>
                         <div className="space-y-4">
                             <div>
@@ -247,7 +247,7 @@ export default function BusinessProfilePage() {
                                     type="text"
                                     value={formData.businessName || ''}
                                     onChange={e => setFormData({ ...formData, businessName: e.target.value })}
-                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                    className="w-full bg-[#F4F6F8] border border-[#E6E8EC] rounded-lg px-4 py-2 text-slate-900 focus:border-[#14B8A6] focus:outline-none"
                                 />
                             </div>
                             <div>
@@ -255,7 +255,7 @@ export default function BusinessProfilePage() {
                                 <textarea
                                     value={formData.description || ''}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none h-24 resize-none"
+                                    className="w-full bg-[#F4F6F8] border border-[#E6E8EC] rounded-lg px-4 py-2 text-slate-900 focus:border-[#14B8A6] focus:outline-none h-24 resize-none"
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
@@ -265,7 +265,7 @@ export default function BusinessProfilePage() {
                                         type="tel"
                                         value={formData.phone || ''}
                                         onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        className="w-full bg-[#F4F6F8] border border-[#E6E8EC] rounded-lg px-4 py-2 text-slate-900 focus:border-[#14B8A6] focus:outline-none"
                                     />
                                 </div>
                                 <div>
@@ -274,7 +274,7 @@ export default function BusinessProfilePage() {
                                         type="url"
                                         value={formData.website || ''}
                                         onChange={e => setFormData({ ...formData, website: e.target.value })}
-                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        className="w-full bg-[#F4F6F8] border border-[#E6E8EC] rounded-lg px-4 py-2 text-slate-900 focus:border-[#14B8A6] focus:outline-none"
                                     />
                                 </div>
                             </div>
@@ -286,7 +286,7 @@ export default function BusinessProfilePage() {
                                 </label>
                                 <div className="space-y-2">
                                     {/* Instagram */}
-                                    <div className="flex items-center gap-3 bg-[#0d1120] border border-slate-200 rounded-xl px-3 h-12 focus-within:border-pink-500/60 focus-within:bg-pink-500/5 transition-all">
+                                    <div className="flex items-center gap-3 bg-white border border-[#E6E8EC] rounded-xl px-3 h-12 focus-within:border-pink-400/60 focus-within:bg-pink-50 transition-all">
                                         <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shrink-0">
                                             <Instagram size={14} className="text-white" />
                                         </div>
@@ -296,11 +296,11 @@ export default function BusinessProfilePage() {
                                             value={(formData as any).socialMedia?.instagram || ''}
                                             onChange={e => setFormData({ ...formData, socialMedia: { ...(formData as any).socialMedia, instagram: e.target.value } } as any)}
                                             placeholder="tu_negocio"
-                                            className="flex-1 bg-transparent text-white text-sm focus:outline-none placeholder:text-slate-600"
+                                            className="flex-1 bg-transparent text-slate-900 text-sm focus:outline-none placeholder:text-slate-400"
                                         />
                                     </div>
                                     {/* Facebook */}
-                                    <div className="flex items-center gap-3 bg-[#0d1120] border border-slate-200 rounded-xl px-3 h-12 focus-within:border-blue-500/60 focus-within:bg-blue-500/5 transition-all">
+                                    <div className="flex items-center gap-3 bg-white border border-[#E6E8EC] rounded-xl px-3 h-12 focus-within:border-blue-400/60 focus-within:bg-blue-50 transition-all">
                                         <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
                                             <Facebook size={14} className="text-white" />
                                         </div>
@@ -310,11 +310,11 @@ export default function BusinessProfilePage() {
                                             value={(formData as any).socialMedia?.facebook || ''}
                                             onChange={e => setFormData({ ...formData, socialMedia: { ...(formData as any).socialMedia, facebook: e.target.value } } as any)}
                                             placeholder="tu.negocio"
-                                            className="flex-1 bg-transparent text-white text-sm focus:outline-none placeholder:text-slate-600"
+                                            className="flex-1 bg-transparent text-slate-900 text-sm focus:outline-none placeholder:text-slate-400"
                                         />
                                     </div>
                                     {/* TikTok */}
-                                    <div className="flex items-center gap-3 bg-[#0d1120] border border-slate-200 rounded-xl px-3 h-12 focus-within:border-slate-400/60 focus-within:bg-slate-50 transition-all">
+                                    <div className="flex items-center gap-3 bg-white border border-[#E6E8EC] rounded-xl px-3 h-12 focus-within:border-slate-400/60 focus-within:bg-slate-50 transition-all">
                                         <div className="w-7 h-7 rounded-lg bg-[#111] border border-slate-200 flex items-center justify-center shrink-0">
                                             <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-white"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.17 8.17 0 0 0 4.78 1.53V6.79a4.85 4.85 0 0 1-1.01-.1z" /></svg>
                                         </div>
@@ -324,7 +324,7 @@ export default function BusinessProfilePage() {
                                             value={(formData as any).socialMedia?.tiktok || ''}
                                             onChange={e => setFormData({ ...formData, socialMedia: { ...(formData as any).socialMedia, tiktok: e.target.value } } as any)}
                                             placeholder="tu_negocio"
-                                            className="flex-1 bg-transparent text-white text-sm focus:outline-none placeholder:text-slate-600"
+                                            className="flex-1 bg-transparent text-slate-900 text-sm focus:outline-none placeholder:text-slate-400"
                                         />
                                     </div>
                                 </div>
@@ -337,9 +337,9 @@ export default function BusinessProfilePage() {
 
                     {/* Gallery - Replalced by PortfolioManager */}
                     <GlassPanel className="p-6">
-                        <div className="flex items-center gap-2 mb-4 text-brand-neon-cyan">
+                        <div className="flex items-center gap-2 mb-4 text-[#14B8A6]">
                             <Camera size={20} />
-                            <h2 className="font-bold text-white">{t('gallery')}</h2>
+                            <h2 className="font-bold text-slate-900">{t('gallery')}</h2>
                         </div>
                         <p className="text-slate-400 text-sm mb-4">{t('gallerySubtitle')}</p>
 
@@ -348,16 +348,16 @@ export default function BusinessProfilePage() {
 
                     {/* Opening Hours Section */}
                     <GlassPanel className="p-6">
-                        <div className="flex items-center gap-2 mb-4 text-brand-neon-cyan">
+                        <div className="flex items-center gap-2 mb-4 text-[#14B8A6]">
                             <Clock size={20} />
-                            <h2 className="font-bold text-white">{t('openingHours')}</h2>
+                            <h2 className="font-bold text-slate-900">{t('openingHours')}</h2>
                         </div>
                         <p className="text-slate-400 text-sm mb-4">
                             {t('openingHoursDesc')}
                         </p>
                         <div className="flex items-center justify-between bg-[#F4F6F8] p-4 rounded-lg border border-slate-200">
                             <div>
-                                <span className="block text-white font-medium mb-1">
+                                <span className="block text-slate-900 font-medium mb-1">
                                     {formData.openingHours ? t('scheduleSet') : t('scheduleNotSet')}
                                 </span>
                                 <span className="text-xs text-slate-500">
@@ -366,7 +366,7 @@ export default function BusinessProfilePage() {
                             </div>
                             <button
                                 onClick={() => setScheduleOpen(true)}
-                                className="text-xs px-3 py-1.5 bg-brand-neon-cyan/10 text-brand-neon-cyan border border-brand-neon-cyan/50 rounded-lg hover:bg-brand-neon-cyan/20 transition-colors font-bold"
+                                className="text-xs px-3 py-1.5 bg-[rgba(20,184,166,0.10)] text-[#0F766E] border border-[#14B8A6]/50 rounded-lg hover:bg-[rgba(20,184,166,0.18)] transition-colors font-bold"
                             >
                                 {formData.openingHours ? t('editSchedule') : t('configure')}
                             </button>
@@ -375,16 +375,16 @@ export default function BusinessProfilePage() {
 
                     {/* Location */}
                     <GlassPanel className="p-6">
-                        <div className="flex items-center gap-2 mb-4 text-brand-neon-cyan">
+                        <div className="flex items-center gap-2 mb-4 text-[#14B8A6]">
                             <MapPin size={20} />
-                            <h2 className="font-bold text-white">{t('location')}</h2>
+                            <h2 className="font-bold text-slate-900">{t('location')}</h2>
                         </div>
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-slate-400 text-xs uppercase mb-1">{t('country')}</label>
                                     {/* Country is locked — determined by the CountryContext selection at app start */}
-                                    <div className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white flex items-center gap-2 opacity-70 select-none cursor-not-allowed" title="El país no puede cambiarse desde aquí">
+                                    <div className="w-full bg-[#F4F6F8] border border-[#E6E8EC] rounded-lg px-4 py-2 text-slate-900 flex items-center gap-2 opacity-70 select-none cursor-not-allowed" title="El país no puede cambiarse desde aquí">
                                         <span>{selectedCountry?.flag || '🌍'}</span>
                                         <span className="flex-1 font-medium">{selectedCountry?.name || formData.country}</span>
                                         <svg className="w-3.5 h-3.5 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
@@ -460,35 +460,38 @@ export default function BusinessProfilePage() {
                 {/* Right Column: Actions & Category Summary */}
                 <div className="space-y-6">
                     <GlassPanel className="p-6 sticky top-6">
-                        <h3 className="font-bold text-white mb-4">{t('actions')}</h3>
+                        <h3 className="font-bold text-slate-900 mb-4">{t('actions')}</h3>
                         <button
                             onClick={handleSave}
                             disabled={saving}
-                            className="w-full flex items-center justify-center gap-2 bg-brand-neon-cyan text-black font-bold py-3 rounded-xl hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all disabled:opacity-50"
+                            className="w-full flex items-center justify-center gap-2 bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold py-3 rounded-xl shadow-[0_4px_14px_rgba(20,184,166,0.30)] hover:shadow-[0_6px_20px_rgba(20,184,166,0.45)] transition-all disabled:opacity-50"
                         >
                             <Save size={18} />
                             {saving ? t('saving') : t('saveChanges')}
                         </button>
                     </GlassPanel>
 
-                    <GlassPanel className="p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2 text-brand-neon-cyan">
-                                <Tag size={20} />
-                                <h3 className="font-bold text-white">{t('categoryTitle')}</h3>
-                            </div>
-                            <button
-                                onClick={() => setShowMultiArea(!showMultiArea)}
-                                className={`text-xs px-2 py-1 rounded border transition-colors ${showMultiArea ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan text-brand-neon-cyan' : 'border-slate-200 text-slate-500'}`}
-                            >
-                                {showMultiArea ? t('simpleMode') : t('additionalAreas')}
-                            </button>
+                    <GlassPanel className="p-5">
+                        {/* Title */}
+                        <div className="flex items-center gap-2 text-[#14B8A6] mb-3">
+                            <Tag size={18} />
+                            <h3 className="font-bold text-slate-900 text-sm">{t('categoryTitle')}</h3>
                         </div>
+                        {/* Toggle — full-width row so title never wraps */}
+                        <button
+                            onClick={() => setShowMultiArea(!showMultiArea)}
+                            className={`w-full text-xs px-3 py-2 rounded-lg border font-semibold transition-colors mb-5 ${showMultiArea
+                                ? 'bg-[rgba(20,184,166,0.10)] border-[#14B8A6]/50 text-[#0F766E]'
+                                : 'bg-[#F8FAFC] border-[#E6E8EC] text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                                }`}
+                        >
+                            {showMultiArea ? t('simpleMode') : t('additionalAreas')}
+                        </button>
 
                         <div className="space-y-6">
                             {/* 1. Category Selection */}
                             <div>
-                                <label className="block text-slate-400 text-xs uppercase mb-2">{t('mainArea')}</label>
+                                <label className="block text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-2">{t('mainArea')}</label>
                                 <div className="grid grid-cols-1 gap-2">
                                     {Object.values(TAXONOMY).map(cat => {
                                         let Icon = Tag;
@@ -536,18 +539,18 @@ export default function BusinessProfilePage() {
                                                 className={`
                                                     flex items-center gap-3 p-3 rounded-lg border text-left transition-all
                                                     ${isPrimary
-                                                        ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan text-white'
+                                                        ? 'bg-[rgba(20,184,166,0.10)] border-[#14B8A6] text-[#0F766E]'
                                                         : isAdditional
-                                                            ? 'bg-brand-neon-cyan/5 border-brand-neon-cyan/50 text-slate-200'
-                                                            : 'bg-[#F4F6F8] border-slate-200 text-slate-400 hover:border-slate-300'
+                                                            ? 'bg-[rgba(20,184,166,0.06)] border-[#14B8A6]/40 text-slate-700'
+                                                            : 'bg-[#F8FAFC] border-[#E6E8EC] text-slate-600 hover:border-slate-300'
                                                     }
                                                 `}
                                             >
-                                                <Icon size={20} className={isSelected ? 'text-brand-neon-cyan' : 'text-slate-500'} />
-                                                <div className="flex-1">
-                                                    <span className="text-sm font-medium">{cat.label[localeKey as keyof typeof cat.label]}</span>
-                                                    {isPrimary && <span className="ml-2 text-[10px] bg-brand-neon-cyan text-black px-1.5 rounded font-bold">{t('badgePrimary')}</span>}
-                                                    {isAdditional && <span className="ml-2 text-[10px] bg-slate-100 text-slate-300 px-1.5 rounded">{t('badgeAdditional')}</span>}
+                                                <Icon size={18} className={isSelected ? 'text-[#14B8A6] shrink-0' : 'text-slate-400 shrink-0'} />
+                                                <div className="flex-1 min-w-0 flex items-center flex-wrap gap-x-1.5">
+                                                    <span className="text-sm font-semibold text-inherit truncate">{cat.label[localeKey as keyof typeof cat.label]}</span>
+                                                    {isPrimary && <span className="text-[10px] bg-[#14B8A6] text-white px-1.5 py-0.5 rounded font-bold whitespace-nowrap">{t('badgePrimary')}</span>}
+                                                    {isAdditional && <span className="text-[10px] bg-[rgba(20,184,166,0.12)] text-[#0F766E] border border-[#14B8A6]/30 px-1.5 py-0.5 rounded whitespace-nowrap">{t('badgeAdditional')}</span>}
                                                 </div>
                                             </button>
                                         );
@@ -558,7 +561,7 @@ export default function BusinessProfilePage() {
                             {/* 2. Subcategory Selection */}
                             {formData.category && (
                                 <div className="animate-in fade-in slide-in-from-top-2">
-                                    <label className="block text-slate-400 text-xs uppercase mb-2">{t('mainSpecialty')}</label>
+                                    <label className="block text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-2">{t('mainSpecialty')}</label>
                                     <div className="grid grid-cols-2 gap-2">
                                         {Object.values(TAXONOMY).find(c => c.id === formData.category)?.subcategories.map(sub => {
                                             const isSelected = formData.subcategory === sub.id;
@@ -589,15 +592,15 @@ export default function BusinessProfilePage() {
                                                         specialties: []
                                                     })}
                                                     className={`
-                                                        flex items-center gap-2 p-2 rounded border text-left transition-all
+                                                        flex items-start gap-2 p-2.5 min-h-[44px] rounded-lg border text-left transition-all
                                                         ${isSelected
-                                                            ? 'bg-brand-neon-cyan/20 border-brand-neon-cyan text-white'
-                                                            : 'bg-[#F4F6F8] border-slate-200 text-slate-400 hover:border-slate-300'
+                                                            ? 'bg-[rgba(20,184,166,0.10)] border-[#14B8A6] text-[#0F766E]'
+                                                            : 'bg-[#F4F6F8] border-[#E6E8EC] text-slate-500 hover:border-slate-300 hover:text-slate-700'
                                                         }
                                                     `}
                                                 >
-                                                    <SubIcon size={14} className={isSelected ? 'text-brand-neon-cyan' : 'text-slate-500'} />
-                                                    <span className="text-xs font-medium leading-tight">{sub.label[localeKey as keyof typeof sub.label]}</span>
+                                                    <SubIcon size={14} className={`mt-0.5 shrink-0 ${isSelected ? 'text-[#14B8A6]' : 'text-slate-400'}`} />
+                                                    <span className="text-xs font-semibold leading-tight break-words">{sub.label[localeKey as keyof typeof sub.label]}</span>
                                                 </button>
                                             );
                                         })}
@@ -608,7 +611,7 @@ export default function BusinessProfilePage() {
                             {/* 3. Specialties Selection */}
                             {formData.subcategory && (
                                 <div className="animate-in fade-in slide-in-from-top-2">
-                                    <label className="block text-slate-400 text-xs uppercase mb-2">{t('specificServices')}</label>
+                                    <label className="block text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-2">{t('specificServices')}</label>
                                     <div className="flex flex-wrap gap-2">
                                         {(() => {
                                             const categoryData = Object.values(TAXONOMY).find(c => c.id === formData.category);
@@ -640,8 +643,8 @@ export default function BusinessProfilePage() {
                                                         className={`
                                                             text-xs px-2.5 py-1 rounded-full border transition-all flex items-center gap-1
                                                             ${isSelected
-                                                                ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan text-brand-neon-cyan'
-                                                                : 'bg-transparent border-slate-200 text-slate-400 hover:border-slate-300'
+                                                                ? 'bg-[rgba(20,184,166,0.10)] border-[#14B8A6] text-[#0F766E] font-semibold'
+                                                                : 'bg-transparent border-[#E6E8EC] text-slate-500 hover:border-slate-300 hover:text-slate-700'
                                                             }
                                                         `}
                                                     >

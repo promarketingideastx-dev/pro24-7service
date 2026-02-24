@@ -64,7 +64,7 @@ export default function GalleryTab({ businessId, images: initialImages }: Galler
                     <div
                         key={item.id || idx}
                         onClick={() => setSelectedItem(item)}
-                        className="aspect-square relative cursor-pointer overflow-hidden group bg-slate-800"
+                        className="aspect-square relative cursor-pointer overflow-hidden group bg-slate-100"
                     >
                         <img
                             src={item.url}
@@ -84,7 +84,7 @@ export default function GalleryTab({ businessId, images: initialImages }: Galler
                 >
                     <button
                         onClick={() => setSelectedItem(null)}
-                        className="absolute top-4 right-4 p-2 rounded-full bg-slate-100 text-white hover:bg-slate-100 transition-colors z-10"
+                        className="absolute top-4 right-4 p-2 rounded-full bg-white/90 text-slate-800 hover:bg-white transition-colors z-10"
                     >
                         <X className="w-6 h-6" />
                     </button>
@@ -98,9 +98,9 @@ export default function GalleryTab({ businessId, images: initialImages }: Galler
 
                         {/* Caption Area (New) */}
                         {(selectedItem.description || selectedItem.title) && (
-                            <div className="mt-4 p-4 bg-slate-100 backdrop-blur-md rounded-xl text-center max-w-lg w-full border border-slate-200">
-                                {selectedItem.title && <h4 className="text-white font-bold text-lg mb-1">{selectedItem.title}</h4>}
-                                {selectedItem.description && <p className="text-slate-300 text-sm whitespace-pre-wrap">{selectedItem.description}</p>}
+                            <div className="mt-4 p-4 bg-white/90 backdrop-blur-md rounded-xl text-center max-w-lg w-full border border-slate-200">
+                                {selectedItem.title && <h4 className="text-slate-900 font-bold text-lg mb-1">{selectedItem.title}</h4>}
+                                {selectedItem.description && <p className="text-slate-600 text-sm whitespace-pre-wrap">{selectedItem.description}</p>}
                             </div>
                         )}
                     </div>

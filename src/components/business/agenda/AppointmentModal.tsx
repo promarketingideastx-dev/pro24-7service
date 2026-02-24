@@ -131,7 +131,7 @@ export default function AppointmentModal({
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-slate-200">
                     <div>
-                        <h2 className="text-xl font-bold text-white">
+                        <h2 className="text-xl font-bold text-slate-900">
                             {appointment ? t('editTitle') : t('newTitle')}
                         </h2>
                         <p className="text-sm text-slate-400">
@@ -149,13 +149,13 @@ export default function AppointmentModal({
                     {/* ── Customer Section ── */}
                     {appointment ? (
                         <div className="space-y-1">
-                            <label className="text-xs text-slate-400 font-medium ml-1">{t('client')}</label>
+                            <label className="text-xs text-slate-500 font-semibold ml-1">{t('client')}</label>
                             <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
                                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
                                     {(appointment.customerName || '?').charAt(0).toUpperCase()}
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-white font-medium text-sm leading-tight truncate">
+                                    <p className="text-slate-900 font-medium text-sm leading-tight truncate">
                                         {appointment.customerName || t('noName')}
                                     </p>
                                     {appointment.customerPhone && (
@@ -172,7 +172,7 @@ export default function AppointmentModal({
                         </div>
                     ) : (
                         <div className="space-y-1 relative">
-                            <label className="text-xs text-slate-400 font-medium ml-1">{t('client')} <span className="text-red-500">*</span></label>
+                            <label className="text-xs text-slate-500 font-semibold ml-1">{t('client')} <span className="text-red-500">*</span></label>
                             <input type="hidden" {...register('customerId')} />
                             <div className="relative">
                                 <User className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
@@ -185,13 +185,13 @@ export default function AppointmentModal({
                                         setShowCustomerResults(true);
                                     }}
                                     onFocus={() => setShowCustomerResults(true)}
-                                    className="w-full bg-black/20 border border-slate-200 rounded-xl py-2 pl-9 pr-10 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50"
+                                    className="w-full bg-white border border-[#E6E8EC] rounded-xl py-2 pl-9 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/20"
                                     placeholder={t('clientPlaceholder')}
                                     autoComplete="off"
                                 />
                                 {currentCustomerId ? (
                                     <button type="button" onClick={handleClearCustomer}
-                                        className="absolute right-3 top-2.5 text-brand-neon-cyan text-xs font-bold hover:underline">
+                                        className="absolute right-3 top-2.5 text-[#0F766E] text-xs font-bold hover:underline">
                                         {t('linked')}
                                     </button>
                                 ) : (
@@ -210,10 +210,10 @@ export default function AppointmentModal({
                                         <button key={c.id} type="button" onClick={() => handleSelectCustomer(c)}
                                             className="w-full text-left px-4 py-2 hover:bg-slate-50 text-sm flex items-center justify-between group">
                                             <div>
-                                                <p className="font-medium text-white">{c.fullName}</p>
+                                                <p className="font-medium text-slate-900">{c.fullName}</p>
                                                 <p className="text-xs text-slate-500">{c.phone}</p>
                                             </div>
-                                            <div className="opacity-0 group-hover:opacity-100 text-brand-neon-cyan text-xs">{t('select')}</div>
+                                            <div className="opacity-0 group-hover:opacity-100 text-[#0F766E] text-xs">{t('select')}</div>
                                         </button>
                                     ))}
                                 </div>
@@ -225,9 +225,9 @@ export default function AppointmentModal({
                     {/* Phone */}
                     {!appointment && (
                         <div className="space-y-1">
-                            <label className="text-xs text-slate-400 font-medium ml-1">{t('phone')}</label>
+                            <label className="text-xs text-slate-500 font-semibold ml-1">{t('phone')}</label>
                             <input {...register('customerPhone')}
-                                className="w-full bg-black/20 border border-slate-200 rounded-xl py-2 px-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
+                                className="w-full bg-white border border-[#E6E8EC] rounded-xl py-2 px-4 text-sm text-slate-900 focus:outline-none focus:border-[#14B8A6]"
                                 placeholder="+504 9999-9999" />
                         </div>
                     )}
@@ -239,7 +239,7 @@ export default function AppointmentModal({
                             <Briefcase className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
                             <select
                                 {...register('serviceId', { required: t('serviceRequired') })}
-                                className="w-full bg-black/20 border border-slate-200 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50 appearance-none"
+                                className="w-full bg-white border border-[#E6E8EC] rounded-xl py-2 pl-9 pr-4 text-sm text-slate-900 focus:outline-none focus:border-[#14B8A6] appearance-none"
                             >
                                 <option value="">{t('selectService')}</option>
                                 {services.map(s => (
@@ -261,11 +261,11 @@ export default function AppointmentModal({
                                 type="button"
                                 onClick={() => setValue('employeeId', '')}
                                 className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all w-16 ${!watch('employeeId')
-                                    ? 'border-brand-neon-cyan bg-brand-neon-cyan/10 shadow-[0_0_10px_rgba(0,240,255,0.15)]'
-                                    : 'border-slate-200 bg-white/3 hover:border-slate-300'
+                                    ? 'border-[#14B8A6] bg-[rgba(20,184,166,0.10)] shadow-[0_0_8px_rgba(20,184,166,0.15)]'
+                                    : 'border-slate-200 bg-white hover:border-slate-300'
                                     }`}
                             >
-                                <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-slate-400">
+                                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
                                     <User className="w-5 h-5" />
                                 </div>
                                 <span className="text-[10px] text-slate-400 leading-tight text-center">{t('unassigned')}</span>
@@ -282,8 +282,8 @@ export default function AppointmentModal({
                                 return (
                                     <button key={emp.id} type="button" onClick={() => setValue('employeeId', emp.id!)}
                                         className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all w-16 ${isSelected
-                                            ? 'border-brand-neon-cyan bg-brand-neon-cyan/10 shadow-[0_0_10px_rgba(0,240,255,0.15)]'
-                                            : 'border-slate-200 bg-white/3 hover:border-slate-300'
+                                            ? 'border-[#14B8A6] bg-[rgba(20,184,166,0.10)] shadow-[0_0_8px_rgba(20,184,166,0.15)]'
+                                            : 'border-slate-200 bg-white hover:border-slate-300'
                                             }`}
                                     >
                                         {emp.photoUrl ? (
@@ -293,7 +293,7 @@ export default function AppointmentModal({
                                                 {emp.name.charAt(0).toUpperCase()}
                                             </div>
                                         )}
-                                        <span className={`text-[10px] leading-tight text-center line-clamp-1 ${isSelected ? 'text-brand-neon-cyan font-semibold' : 'text-slate-400'}`}>
+                                        <span className={`text-[10px] leading-tight text-center line-clamp-1 ${isSelected ? 'text-[#0F766E] font-semibold' : 'text-slate-500'}`}>
                                             {emp.name.split(' ')[0]}
                                         </span>
                                     </button>
@@ -308,19 +308,19 @@ export default function AppointmentModal({
                     {/* Date & Time */}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
-                            <label className="text-xs text-slate-400 font-medium ml-1">{t('date')} <span className="text-red-500">*</span></label>
+                            <label className="text-xs text-slate-500 font-semibold ml-1">{t('date')} <span className="text-red-500">*</span></label>
                             <div className="relative">
                                 <CalendarIcon className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
                                 <input type="date" {...register('date', { required: true })}
-                                    className="w-full bg-black/20 border border-slate-200 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50" />
+                                    className="w-full bg-white border border-[#E6E8EC] rounded-xl py-2 pl-9 pr-4 text-sm text-slate-900 focus:outline-none focus:border-[#14B8A6]" />
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-xs text-slate-400 font-medium ml-1">{t('time')} <span className="text-red-500">*</span></label>
+                            <label className="text-xs text-slate-500 font-semibold ml-1">{t('time')} <span className="text-red-500">*</span></label>
                             <div className="relative">
                                 <Clock className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
                                 <input type="time" {...register('time', { required: true })}
-                                    className="w-full bg-black/20 border border-slate-200 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50" />
+                                    className="w-full bg-white border border-[#E6E8EC] rounded-xl py-2 pl-9 pr-4 text-sm text-slate-900 focus:outline-none focus:border-[#14B8A6]" />
                             </div>
                         </div>
                     </div>
@@ -328,9 +328,9 @@ export default function AppointmentModal({
                     {/* Status (Edit only) */}
                     {appointment && (
                         <div className="space-y-1">
-                            <label className="text-xs text-slate-400 font-medium ml-1">{t('status')}</label>
+                            <label className="text-xs text-slate-500 font-semibold ml-1">{t('status')}</label>
                             <select {...register('status')}
-                                className="w-full bg-black/20 border border-slate-200 rounded-xl py-2 px-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
+                                className="w-full bg-white border border-[#E6E8EC] rounded-xl py-2 px-4 text-sm text-slate-900 focus:outline-none focus:border-[#14B8A6]"
                             >
                                 <option value="confirmed">{t('statusConfirmed')}</option>
                                 <option value="pending">{t('statusPending')}</option>
@@ -345,20 +345,20 @@ export default function AppointmentModal({
                     <div className="space-y-1">
                         <label className="text-xs text-slate-400 font-medium ml-1">{t('notes')}</label>
                         <textarea {...register('notes')} rows={3}
-                            className="w-full bg-black/20 border border-slate-200 rounded-xl py-2 px-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50 resize-none"
+                            className="w-full bg-white border border-[#E6E8EC] rounded-xl py-2 px-4 text-sm text-slate-900 focus:outline-none focus:border-[#14B8A6] resize-none"
                             placeholder={t('notesPlaceholder')} />
                     </div>
                 </form>
 
                 {/* Footer */}
                 <div className="p-6 border-t border-slate-200 flex justify-end gap-3">
-                    <button onClick={onClose} className="px-4 py-2 text-sm text-slate-400 hover:text-slate-800 transition-colors">
+                    <button onClick={onClose} className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 transition-colors">
                         {t('cancel')}
                     </button>
                     <button
                         onClick={handleSubmit(onSubmit)}
                         disabled={loading}
-                        className="px-6 py-2 bg-gradient-to-r from-brand-neon-cyan to-brand-neon-purple text-black font-bold rounded-xl text-sm hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all disabled:opacity-50"
+                        className="px-6 py-2 bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold rounded-xl text-sm shadow-[0_4px_14px_rgba(20,184,166,0.30)] transition-all disabled:opacity-50"
                     >
                         {loading ? t('saving') : (appointment ? t('saveChanges') : t('create'))}
                     </button>

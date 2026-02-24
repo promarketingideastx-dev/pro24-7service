@@ -235,7 +235,7 @@ export default function UserProfilePage() {
                                 type="button"
                                 onClick={handleAvatarClick}
                                 disabled={loading}
-                                className="text-xs text-brand-neon-cyan hover:underline disabled:opacity-50"
+                                className="text-xs text-[#14B8A6] hover:underline disabled:opacity-50"
                             >
                                 {loading ? t('uploadingPhoto') : t('changePhoto')}
                             </button>
@@ -249,7 +249,7 @@ export default function UserProfilePage() {
                                     type="text"
                                     value={formData.displayName}
                                     onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl px-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
+                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl px-4 py-3 focus:border-[#14B8A6]/50 focus:outline-none transition-colors"
                                     placeholder={t('namePlaceholder')}
                                 />
                             </div>
@@ -262,7 +262,7 @@ export default function UserProfilePage() {
                                         type="tel"
                                         value={formData.phoneNumber}
                                         onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl pl-10 pr-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
+                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl pl-10 pr-4 py-3 focus:border-[#14B8A6]/50 focus:outline-none transition-colors"
                                         placeholder={t('phonePlaceholder')}
                                     />
                                 </div>
@@ -276,7 +276,7 @@ export default function UserProfilePage() {
                                         type="text"
                                         value={formData.address}
                                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl pl-10 pr-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
+                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl pl-10 pr-4 py-3 focus:border-[#14B8A6]/50 focus:outline-none transition-colors"
                                         placeholder={t('addressPlaceholder')}
                                     />
                                 </div>
@@ -293,7 +293,7 @@ export default function UserProfilePage() {
                                     {loading ? t('saving') : t('saveBtn')}
                                 </button>
                                 {successMessage && (
-                                    <span className="text-green-400 text-xs font-bold animate-in fade-in slide-in-from-left-2">
+                                    <span className="text-green-600 text-xs font-bold animate-in fade-in slide-in-from-left-2">
                                         {successMessage}
                                     </span>
                                 )}
@@ -325,7 +325,7 @@ export default function UserProfilePage() {
                         <div className="text-center py-8 text-slate-600">
                             <Heart className="w-10 h-10 mx-auto mb-3 opacity-20" />
                             <p className="text-sm">{t('noFavorites')}</p>
-                            <Link href={`/${locale}`} className="mt-3 inline-block text-xs text-brand-neon-cyan hover:underline">{t('exploreBiz')}</Link>
+                            <Link href={`/${locale}`} className="mt-3 inline-block text-xs text-[#14B8A6] hover:underline">{t('exploreBiz')}</Link>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -350,7 +350,7 @@ export default function UserProfilePage() {
                                             {[fav.businessCategory, fav.businessCity].filter(Boolean).join(' · ')}
                                         </p>
                                     </div>
-                                    <ExternalLink className="w-4 h-4 text-slate-600 group-hover:text-brand-neon-cyan transition-colors shrink-0" />
+                                    <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-[#14B8A6] transition-colors shrink-0" />
                                 </Link>
                             ))}
                         </div>
@@ -360,27 +360,27 @@ export default function UserProfilePage() {
                 {/* 3. Mis Citas */}
                 <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 bg-brand-neon-cyan/10 rounded-xl">
-                            <Calendar className="w-6 h-6 text-brand-neon-cyan" />
+                        <div className="p-2 bg-[rgba(20,184,166,0.08)] rounded-xl">
+                            <Calendar className="w-6 h-6 text-[#14B8A6]" />
                         </div>
                         <div>
                             <h2 className="text-xl font-bold">{t('appointments')}</h2>
                             <p className="text-slate-500 text-xs">{t('appointmentsDesc')}</p>
                         </div>
-                        <span className="ml-auto bg-brand-neon-cyan/10 text-brand-neon-cyan border border-brand-neon-cyan/20 text-xs font-bold px-2.5 py-1 rounded-full">
+                        <span className="ml-auto bg-[rgba(20,184,166,0.08)] text-[#0F766E] border border-[#14B8A6]/20 text-xs font-bold px-2.5 py-1 rounded-full">
                             {appointments.length}
                         </span>
                     </div>
 
                     {aptsLoading ? (
                         <div className="flex justify-center py-8">
-                            <div className="w-6 h-6 rounded-full border-2 border-brand-neon-cyan/30 border-t-brand-neon-cyan animate-spin" />
+                            <div className="w-6 h-6 rounded-full border-2 border-[#14B8A6]/30 border-t-[#14B8A6] animate-spin" />
                         </div>
                     ) : appointments.length === 0 ? (
                         <div className="text-center py-8 text-slate-600">
                             <Calendar className="w-10 h-10 mx-auto mb-3 opacity-20" />
                             <p className="text-sm">{t('noAppointments')}</p>
-                            <Link href={`/${locale}`} className="mt-3 inline-block text-xs text-brand-neon-cyan hover:underline">{t('bookFirst')}</Link>
+                            <Link href={`/${locale}`} className="mt-3 inline-block text-xs text-[#14B8A6] hover:underline">{t('bookFirst')}</Link>
                         </div>
                     ) : (
                         <div className="space-y-2">
@@ -402,7 +402,7 @@ export default function UserProfilePage() {
                                     >
                                         {/* Date block */}
                                         <div className="shrink-0 text-center w-12">
-                                            <p className="text-brand-neon-cyan font-bold text-lg leading-none">
+                                            <p className="text-[#0F766E] font-bold text-lg leading-none">
                                                 {aptDate.getDate()}
                                             </p>
                                             <p className="text-slate-500 text-[10px] uppercase">
@@ -411,7 +411,7 @@ export default function UserProfilePage() {
                                         </div>
                                         {/* Info */}
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-white font-semibold text-sm truncate">{apt.serviceName}</p>
+                                            <p className="text-slate-900 font-semibold text-sm truncate">{apt.serviceName}</p>
                                             <div className="flex items-center gap-2 text-slate-500 text-xs mt-0.5">
                                                 <Clock className="w-3 h-3 shrink-0" />
                                                 <span>{aptDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -432,7 +432,7 @@ export default function UserProfilePage() {
                 <div className="border border-red-500/10 bg-red-500/5 rounded-3xl p-6 md:p-8">
                     <div className="flex items-center gap-3 mb-4">
                         <AlertTriangle className="w-5 h-5 text-red-400" />
-                        <h2 className="text-lg font-bold text-red-200">{t('dangerZone')}</h2>
+                        <h2 className="text-lg font-bold text-red-600">{t('dangerZone')}</h2>
                     </div>
                     <p className="text-sm text-slate-400 mb-6">
                         {t('dangerDesc')}
@@ -459,7 +459,7 @@ export default function UserProfilePage() {
                             </div>
 
                             <div>
-                                <h3 className="text-xl font-bold text-white mb-2">¿Eliminar Cuenta?</h3>
+                                <h3 className="text-xl font-bold text-slate-900 mb-2">¿Eliminar Cuenta?</h3>
                                 <p className="text-slate-400 text-sm leading-relaxed">
                                     Esta acción es <span className="text-red-400 font-bold">irreversible</span>.
                                     Perderás todos tus datos, historial y acceso a la plataforma.
@@ -481,7 +481,7 @@ export default function UserProfilePage() {
                                 <button
                                     onClick={() => setShowDeleteModal(false)}
                                     disabled={isDeleting}
-                                    className="w-full py-3 bg-slate-50 hover:bg-slate-100 text-slate-300 rounded-xl font-medium transition-colors border border-slate-200 hover:border-slate-200 disabled:opacity-50"
+                                    className="w-full py-3 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl font-medium transition-colors border border-slate-200 hover:border-slate-200 disabled:opacity-50"
                                 >
                                     Cancelar, quiero quedarme
                                 </button>
@@ -500,7 +500,7 @@ export default function UserProfilePage() {
                                 <Lock size={28} />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-white mb-1">Confirma tu identidad</h3>
+                                <h3 className="text-xl font-bold text-slate-900 mb-1">Confirma tu identidad</h3>
                                 <p className="text-slate-400 text-sm">
                                     Por seguridad, ingresa tu contraseña actual para continuar con la eliminación de tu cuenta.
                                 </p>
@@ -511,7 +511,7 @@ export default function UserProfilePage() {
                                 onChange={e => setReauthPassword(e.target.value)}
                                 onKeyDown={e => e.key === 'Enter' && handleReauthAndDelete()}
                                 placeholder="Tu contraseña actual"
-                                className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-400 transition-colors text-sm"
+                                className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-orange-400 transition-colors text-sm"
                                 autoFocus
                             />
                             <div className="flex flex-col gap-3 w-full">
@@ -529,7 +529,7 @@ export default function UserProfilePage() {
                                 <button
                                     onClick={() => { setShowReauthModal(false); setReauthPassword(''); }}
                                     disabled={isDeleting}
-                                    className="w-full py-3 bg-slate-50 hover:bg-slate-100 text-slate-300 rounded-xl font-medium transition-colors border border-slate-200"
+                                    className="w-full py-3 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl font-medium transition-colors border border-slate-200"
                                 >
                                     Cancelar
                                 </button>

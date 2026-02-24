@@ -9,11 +9,11 @@ interface AppointmentItemProps {
 }
 
 const statusColors: Record<string, string> = {
-    confirmed: 'bg-green-500/20 border-green-500/50 text-green-200',
-    pending: 'bg-yellow-500/20 border-yellow-500/50 text-yellow-200',
-    cancelled: 'bg-red-500/10 border-red-500/30 text-red-300 opacity-60',
-    completed: 'bg-slate-500/20 border-slate-500/40 text-slate-300',
-    'no-show': 'bg-slate-600/10 border-slate-600/30 text-slate-400 opacity-50',
+    confirmed: 'bg-green-50 border-green-300 text-green-800',
+    pending: 'bg-amber-50 border-amber-300 text-amber-800',
+    cancelled: 'bg-red-50 border-red-200 text-red-500 opacity-60',
+    completed: 'bg-slate-100 border-slate-300 text-slate-600',
+    'no-show': 'bg-slate-50 border-slate-200 text-slate-400 opacity-50',
 };
 
 

@@ -96,7 +96,7 @@ export default function SmartDeleteCustomerModal({
                         )}
                     </div>
 
-                    <h2 className="text-xl font-bold text-white mb-2">
+                    <h2 className="text-xl font-bold text-slate-900 mb-2">
                         {step === 'checking' ? t('checking') :
                             step === 'deleting' ? t('deleting') :
                                 t('deleteTitle', { name: customer.fullName })}
@@ -119,9 +119,9 @@ export default function SmartDeleteCustomerModal({
                                 <div className="space-y-2">
                                     <button
                                         onClick={() => handleDelete('archive')}
-                                        className="w-full p-3 bg-brand-neon-cyan/10 hover:bg-brand-neon-cyan/20 border border-brand-neon-cyan/30 rounded-lg text-left transition-colors group"
+                                        className="w-full p-3 bg-[rgba(20,184,166,0.08)] hover:bg-[rgba(20,184,166,0.15)] border border-[#14B8A6]/30 rounded-lg text-left transition-colors group"
                                     >
-                                        <span className="flex items-center gap-2 text-brand-neon-cyan font-medium text-sm">
+                                        <span className="flex items-center gap-2 text-[#0F766E] font-medium text-sm">
                                             <Archive size={14} /> {t('archiveLabel')}
                                         </span>
                                         <span className="block text-slate-500 text-xs mt-0.5 pl-5">
@@ -133,7 +133,7 @@ export default function SmartDeleteCustomerModal({
                                         onClick={() => handleDelete('appointments_only')}
                                         className="w-full p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-left transition-colors group"
                                     >
-                                        <span className="block text-white font-medium text-sm">{t('deleteAppts')}</span>
+                                        <span className="block text-slate-800 font-medium text-sm">{t('deleteAppts')}</span>
                                         <span className="block text-slate-500 text-xs mt-0.5">{t('deleteApptDesc')}</span>
                                     </button>
 

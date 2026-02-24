@@ -37,7 +37,7 @@ export default function EmployeeWorkloadModal({ isOpen, onClose, employee, appoi
                         {employee.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold text-white">Agenda de {employee.name}</h2>
+                        <h2 className="text-xl font-bold text-slate-900">Agenda de {employee.name}</h2>
                         <p className="text-slate-400 text-sm">{employee.role} • {appointments.length} Citas Totales</p>
                     </div>
                 </div>
@@ -45,7 +45,7 @@ export default function EmployeeWorkloadModal({ isOpen, onClose, employee, appoi
                 <div className="flex-1 overflow-y-auto custom-scrollbar space-y-6 pr-2">
                     {loading ? (
                         <div className="flex justify-center py-12">
-                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-neon-cyan"></div>
+                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#14B8A6]"></div>
                         </div>
                     ) : appointments.length === 0 ? (
                         <div className="text-center py-12 text-slate-500">
@@ -56,7 +56,7 @@ export default function EmployeeWorkloadModal({ isOpen, onClose, employee, appoi
                         <>
                             {/* Upcoming */}
                             <div>
-                                <h3 className="text-brand-neon-cyan font-bold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <h3 className="text-[#0F766E] font-bold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
                                     <Clock size={14} /> Próximas Citas ({upcoming.length})
                                 </h3>
                                 {upcoming.length > 0 ? (
@@ -113,12 +113,12 @@ function AppointmentCard({ appointment }: { appointment: Appointment }) {
     return (
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center hover:bg-slate-100 transition-colors">
             <div className="flex items-center gap-4">
-                <div className="flex flex-col items-center justify-center w-12 h-12 bg-black/20 rounded-lg border border-slate-200 text-slate-300">
+                <div className="flex flex-col items-center justify-center w-12 h-12 bg-slate-100 rounded-lg border border-slate-200 text-slate-700">
                     <span className="text-xs font-bold uppercase">{format(appointment.date.toDate(), 'MMM', { locale: es })}</span>
                     <span className="text-lg font-bold">{format(appointment.date.toDate(), 'd')}</span>
                 </div>
                 <div>
-                    <h4 className="font-bold text-white text-sm">{appointment.customerName}</h4>
+                    <h4 className="font-bold text-slate-900 text-sm">{appointment.customerName}</h4>
                     <p className="text-slate-400 text-xs flex items-center gap-2">
                         <span>{appointment.serviceName}</span>
                         <span>•</span>

@@ -16,7 +16,7 @@ export default function DayView({ date, appointments, onAppointmentClick, onSlot
     const timeSlots = getTimeSlots(timeFormat);
 
     return (
-        <div className="flex h-full overflow-y-auto custom-scrollbar relative bg-[#0F131F]">
+        <div className="flex h-full overflow-y-auto custom-scrollbar relative bg-white">
             {/* Time Labels Column */}
             <div className="w-16 flex-shrink-0 border-r border-slate-200 bg-white sticky left-0 z-10">
                 {timeSlots.map((time, i) => (

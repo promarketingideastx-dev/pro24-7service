@@ -79,7 +79,7 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
 
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50">
-                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                         {customerToEdit ? t('editTitle') : t('newTitle')}
                     </h2>
                     <button onClick={onClose} className="p-1 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition-colors">
@@ -101,7 +101,7 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                             value={formData.fullName}
                             onChange={handleChange}
                             placeholder={t('fullNamePlaceholder')}
-                            className="w-full bg-black/20 border border-slate-200 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all"
+                            className="w-full bg-white border border-[#E6E8EC] rounded-lg px-3 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/20 transition-all"
                             autoFocus
                         />
                     </div>
@@ -109,7 +109,7 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                     {/* Phone & Email */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1">
-                            <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
+                            <label className="text-xs font-semibold text-slate-500 flex items-center gap-1">
                                 <Phone className="w-3 h-3" /> {t('phone')}
                             </label>
                             <input
@@ -118,11 +118,11 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                                 value={formData.phone}
                                 onChange={handleChange}
                                 placeholder="+504 9999-9999"
-                                className="w-full bg-black/20 border border-slate-200 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all"
+                                className="w-full bg-white border border-[#E6E8EC] rounded-lg px-3 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/20 transition-all"
                             />
                         </div>
                         <div className="space-y-1">
-                            <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
+                            <label className="text-xs font-semibold text-slate-500 flex items-center gap-1">
                                 <Mail className="w-3 h-3" /> {t('email')}
                             </label>
                             <input
@@ -131,14 +131,14 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                                 value={formData.email}
                                 onChange={handleChange}
                                 placeholder={t('emailPlaceholder')}
-                                className="w-full bg-black/20 border border-slate-200 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all"
+                                className="w-full bg-white border border-[#E6E8EC] rounded-lg px-3 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/20 transition-all"
                             />
                         </div>
                     </div>
 
                     {/* Address */}
                     <div className="space-y-1">
-                        <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
+                        <label className="text-xs font-semibold text-slate-500 flex items-center gap-1">
                             <MapPin className="w-3 h-3" /> {t('address')}
                         </label>
                         <input
@@ -147,13 +147,13 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                             value={formData.address}
                             onChange={handleChange}
                             placeholder={t('addressPlaceholder')}
-                            className="w-full bg-black/20 border border-slate-200 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all"
+                            className="w-full bg-white border border-[#E6E8EC] rounded-lg px-3 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/20 transition-all"
                         />
                     </div>
 
                     {/* Notes */}
                     <div className="space-y-1">
-                        <label className="text-xs font-medium text-slate-400 flex items-center gap-1">
+                        <label className="text-xs font-semibold text-slate-500 flex items-center gap-1">
                             <FileText className="w-3 h-3" /> {t('notes')}
                         </label>
                         <textarea
@@ -162,7 +162,7 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                             onChange={handleChange}
                             rows={3}
                             placeholder={t('notesPlaceholder')}
-                            className="w-full bg-black/20 border border-slate-200 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all resize-none"
+                            className="w-full bg-white border border-[#E6E8EC] rounded-lg px-3 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/20 transition-all resize-none"
                         />
                     </div>
 
@@ -171,17 +171,17 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 py-2.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-300 font-medium text-sm transition-colors"
+                            className="flex-1 py-2.5 rounded-lg bg-[#F4F6F8] hover:bg-slate-100 text-slate-600 font-medium text-sm border border-[#E6E8EC] transition-colors"
                         >
                             {t('cancel')}
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 py-2.5 rounded-lg bg-brand-neon-cyan text-black font-bold text-sm shadow-lg shadow-cyan-500/20 hover:bg-cyan-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            className="flex-1 py-2.5 rounded-lg bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold text-sm shadow-[0_4px_14px_rgba(20,184,166,0.30)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {loading ? (
-                                <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
                                 <span>{customerToEdit ? t('saveChanges') : t('createClient')}</span>
                             )}

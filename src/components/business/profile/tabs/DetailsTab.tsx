@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl';
 
 const MapWidget = dynamic(() => import('@/components/ui/MapWidget'), {
     ssr: false,
-    loading: () => <div className="h-64 w-full bg-slate-900 rounded-2xl animate-pulse" />,
+    loading: () => <div className="h-64 w-full bg-slate-100 rounded-2xl animate-pulse" />,
 });
 
 interface DetailsTabProps {
@@ -50,20 +50,20 @@ export default function DetailsTab({ business }: DetailsTabProps) {
 
             {/* About */}
             <div className="bg-white rounded-3xl p-6 border border-slate-200">
-                <h3 className="font-bold text-white text-lg mb-4 flex items-center gap-2">
+                <h3 className="font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
                     {t('aboutUs')}
                 </h3>
-                <p className="text-slate-300 leading-relaxed whitespace-pre-line">
+                <p className="text-slate-600 leading-relaxed whitespace-pre-line">
                     {business.fullDescription || business.description || t('noDescription')}
                 </p>
             </div>
 
             {/* Contact Info */}
             <div className="bg-white rounded-3xl p-6 border border-slate-200">
-                <h3 className="font-bold text-white text-lg mb-4">{t('contactInfo')}</h3>
+                <h3 className="font-bold text-slate-900 text-lg mb-4">{t('contactInfo')}</h3>
                 <div className="space-y-4">
                     <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-brand-neon-cyan shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-[#14B8A6] shrink-0">
                             <MapPin className="w-5 h-5" />
                         </div>
                         <div>
@@ -101,7 +101,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                     <Phone className="w-5 h-5" />
                                 </div>
                                 <div className="flex-1">
-                                    <span className="block text-white font-medium mb-3">{t('phone')}</span>
+                                    <span className="block text-slate-800 font-medium mb-3">{t('phone')}</span>
                                     <div className="flex flex-wrap gap-3">
                                         {/* WhatsApp CTA */}
                                         <a
@@ -130,11 +130,11 @@ export default function DetailsTab({ business }: DetailsTabProps) {
 
                     {business.website && (
                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-brand-neon-cyan shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-[#14B8A6] shrink-0">
                                 <Globe className="w-5 h-5" />
                             </div>
                             <div>
-                                <span className="block text-white font-medium mb-1">{t('website')}</span>
+                                <span className="block text-slate-800 font-medium mb-1">{t('website')}</span>
                                 <a
                                     href={!business.website.startsWith('http') ? `https://${business.website}` : business.website}
                                     target="_blank"
@@ -150,14 +150,14 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                     {/* Social Media */}
                     {hasSocial && (
                         <div className="pt-2 border-t border-slate-200">
-                            <span className="block text-white font-medium mb-3">{t('followUs')}</span>
+                            <span className="block text-slate-800 font-medium mb-3">{t('followUs')}</span>
                             <div className="flex flex-wrap gap-3">
                                 {social.instagram && (
                                     <a
                                         href={normalizeUrl(social.instagram, 'https://instagram.com/')}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 hover:bg-pink-500/15 border border-slate-200 hover:border-pink-500/40 text-slate-300 hover:text-pink-400 transition-all text-sm"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 hover:bg-pink-500/15 border border-slate-200 hover:border-pink-500/40 text-slate-600 hover:text-pink-500 transition-all text-sm"
                                     >
                                         <InstagramIcon />
                                         <span>{t('instagram')}</span>
@@ -168,7 +168,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                         href={normalizeUrl(social.facebook, 'https://facebook.com/')}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 hover:bg-blue-500/15 border border-slate-200 hover:border-blue-500/40 text-slate-300 hover:text-blue-400 transition-all text-sm"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 hover:bg-blue-500/15 border border-slate-200 hover:border-blue-500/40 text-slate-600 hover:text-blue-500 transition-all text-sm"
                                     >
                                         <FacebookIcon />
                                         <span>{t('facebook')}</span>
@@ -179,7 +179,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                         href={normalizeUrl(social.tiktok, 'https://tiktok.com/@')}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-white/40 text-slate-300 hover:text-slate-800 transition-all text-sm"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-800 transition-all text-sm"
                                     >
                                         <TikTokIcon />
                                         <span>{t('tiktok')}</span>
@@ -193,8 +193,8 @@ export default function DetailsTab({ business }: DetailsTabProps) {
 
             {/* Hours */}
             <div className="bg-white rounded-3xl p-6 border border-slate-200">
-                <h3 className="font-bold text-white text-lg mb-4 flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-brand-neon-cyan" />
+                <h3 className="font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-[#14B8A6]" />
                     {t('openingHours')}
                 </h3>
                 <div className="mb-4">

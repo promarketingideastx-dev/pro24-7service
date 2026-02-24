@@ -52,7 +52,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
     return (
         <BusinessGuard>
             <AppointmentRefreshProvider>
-                <div className="min-h-screen bg-[#F4F6F8] text-white flex flex-col md:flex-row relative overflow-hidden">
+                <div className="min-h-screen bg-[#F4F6F8] text-slate-900 flex flex-col md:flex-row relative overflow-hidden">
 
                     {/* Background Ambient Effects (Consistent with Auth) */}
                     <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-500/05 rounded-full blur-[100px] pointer-events-none"></div>
@@ -69,7 +69,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                         <div className="flex items-center gap-2">
                             <LanguageSwitcher variant="icon" />
                             {user?.uid && <BusinessNotifBell businessId={user.uid} />}
-                            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-slate-300">
+                            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-slate-500 hover:text-slate-900">
                                 {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                             </button>
                         </div>
@@ -90,8 +90,8 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                                             <span className="font-extrabold text-sm text-black">P24</span>
                                         </div>
                                         <div>
-                                            <h1 className="font-bold text-lg leading-none">PRO24/7</h1>
-                                            <span className="text-[10px] text-cyan-400 font-medium tracking-wider uppercase">Business</span>
+                                            <h1 className="font-bold text-lg leading-none text-slate-900">PRO24/7</h1>
+                                            <span className="text-[10px] text-[#14B8A6] font-semibold tracking-wider uppercase">Business</span>
                                         </div>
                                     </div>
                                     <LanguageSwitcher variant="icon" />
@@ -100,7 +100,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                                 {/* SWITCH TO CLIENT MODE */}
                                 <Link
                                     href={lp('/')}
-                                    className="w-full flex items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg py-2 text-xs font-medium text-slate-300 transition-colors"
+                                    className="w-full flex items-center justify-center gap-2 bg-[#F8FAFC] hover:bg-white border border-[#E6E8EC] hover:border-[#14B8A6]/30 rounded-lg py-2 text-xs font-semibold text-slate-600 hover:text-[#0F766E] transition-all"
                                 >
                                     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                                     {t('clientMode')}
@@ -115,17 +115,21 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                                         href={item.href}
                                         onClick={() => setIsMobileMenuOpen(false)}
                                         className={`
-                                        flex items-center gap-3 px-4 py-3 rounded-xl transition-all group
+                                        flex items-center gap-3 px-4 py-3 rounded-xl transition-all group relative
                                         ${isActive(item.href)
-                                                ? 'bg-gradient-to-r from-cyan-600/20 to-blue-600/20 text-white border border-cyan-500/30'
-                                                : 'text-slate-400 hover:bg-slate-50 hover:text-slate-800'
+                                                ? 'bg-[rgba(20,184,166,0.10)] text-[#0F766E] border border-[#14B8A6]/25'
+                                                : 'text-slate-600 hover:bg-[#F8FAFC] hover:text-slate-900'
                                             }
                                     `}
                                     >
-                                        <span className={isActive(item.href) ? 'text-cyan-400' : 'text-slate-500 group-hover:text-slate-900'}>
+                                        {/* Left accent bar for active */}
+                                        {isActive(item.href) && (
+                                            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-[#14B8A6] rounded-r-full" />
+                                        )}
+                                        <span className={isActive(item.href) ? 'text-[#14B8A6]' : 'text-slate-400 group-hover:text-slate-700'}>
                                             {item.icon}
                                         </span>
-                                        <span className="font-medium text-sm">{item.name}</span>
+                                        <span className="font-semibold text-sm">{item.name}</span>
                                     </Link>
                                 ))}
                             </nav>
@@ -134,18 +138,18 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                             {isAdmin && (
                                 <Link
                                     href={lp('/admin/dashboard')}
-                                    className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all mb-2 bg-gradient-to-r from-brand-neon-cyan/10 to-brand-neon-purple/10 border border-brand-neon-cyan/25 text-brand-neon-cyan hover:from-brand-neon-cyan/20 hover:to-brand-neon-purple/20"
+                                    className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all mb-2 bg-[#14B8A6] hover:bg-[#0F9488] text-white shadow-[0_4px_12px_rgba(20,184,166,0.30)]"
                                 >
-                                    <Shield size={18} className="text-brand-neon-cyan" />
+                                    <Shield size={18} className="text-white" />
                                     <span className="font-bold text-sm">Admin CRM</span>
-                                    <span className="ml-auto text-[9px] bg-brand-neon-cyan/20 text-brand-neon-cyan px-1.5 py-0.5 rounded-full font-bold">ADMIN</span>
+                                    <span className="ml-auto text-[9px] bg-white/25 text-white px-1.5 py-0.5 rounded-full font-bold">ADMIN</span>
                                 </Link>
                             )}
 
                             {/* Logout */}
                             <button
                                 onClick={async () => await AuthService.logout()}
-                                className="mt-auto flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                                className="mt-auto flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-500 transition-colors font-medium text-sm"
                             >
                                 <span className="rotate-180"><LogOut size={20} /></span>
                                 <span className="font-medium text-sm">{t('logout')}</span>

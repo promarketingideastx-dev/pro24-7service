@@ -12,12 +12,12 @@ export default function DmcaPage() {
 
                 <div className="bg-[#0a1128] border border-slate-200 rounded-2xl p-8 space-y-6 text-sm text-slate-300 leading-relaxed">
                     <section>
-                        <h2 className="text-white font-bold text-base mb-2">Política de Derechos de Autor</h2>
+                        <h2 className="text-slate-900 font-bold text-base mb-2">Política de Derechos de Autor</h2>
                         <p>PRO24/7 respeta los derechos de propiedad intelectual. Respondemos a notificaciones de infracción de derechos de autor de conformidad con el Digital Millennium Copyright Act (DMCA), 17 U.S.C. § 512, y las leyes de propiedad intelectual aplicables en cada país.</p>
                     </section>
 
                     <section>
-                        <h2 className="text-white font-bold text-base mb-2">Reportar contenido infractor</h2>
+                        <h2 className="text-slate-900 font-bold text-base mb-2">Reportar contenido infractor</h2>
                         <p className="mb-3">Si crees que tu obra protegida ha sido usada sin autorización en nuestra plataforma, envía una notificación que incluya:</p>
                         <ol className="space-y-2 list-decimal list-inside text-slate-400">
                             <li>Identificación de la obra protegida por derechos de autor</li>
@@ -30,13 +30,13 @@ export default function DmcaPage() {
                     </section>
 
                     <section>
-                        <h2 className="text-white font-bold text-base mb-2">Enviar notificación DMCA</h2>
+                        <h2 className="text-slate-900 font-bold text-base mb-2">Enviar notificación DMCA</h2>
                         <p>Correo designado: <a href="mailto:dmca@pro247.app" className="text-brand-neon-cyan">dmca@pro247.app</a></p>
                         <p className="mt-1 text-slate-500">Tiempo de respuesta: máximo 5 días hábiles. El contenido infractor será retirado mientras se investiga.</p>
                     </section>
 
                     <section>
-                        <h2 className="text-white font-bold text-base mb-2">Contra-notificación</h2>
+                        <h2 className="text-slate-900 font-bold text-base mb-2">Contra-notificación</h2>
                         <p>Si tu contenido fue eliminado por error, puedes enviar una contra-notificación al mismo correo con evidencia de que tienes derecho a usar ese contenido.</p>
                     </section>
                 </div>

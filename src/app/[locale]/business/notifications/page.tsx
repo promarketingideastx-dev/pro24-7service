@@ -51,8 +51,8 @@ export default function BusinessNotificationsPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Bell className="w-5 h-5 text-cyan-400" />
+                    <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <Bell className="w-5 h-5 text-[#14B8A6]" />
                         {t('title')}
                         {unreadCount > 0 && (
                             <span className="px-2 py-0.5 text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full">
@@ -79,9 +79,9 @@ export default function BusinessNotificationsPage() {
                     <button
                         key={f}
                         onClick={() => setFilter(f)}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === f
-                            ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
-                            : 'text-slate-400 hover:text-slate-800 bg-slate-50 border border-slate-200'
+                        className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${filter === f
+                            ? 'bg-[rgba(20,184,166,0.12)] text-[#0F766E] border border-[#14B8A6]/30'
+                            : 'text-slate-600 hover:text-slate-900 bg-[#F8FAFC] border border-[#E6E8EC]'
                             }`}
                     >
                         {t(`filter_${f}`)}
@@ -118,7 +118,7 @@ export default function BusinessNotificationsPage() {
                                 {/* Content */}
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-start justify-between gap-2">
-                                        <p className="text-white font-semibold text-sm leading-tight">{item.title}</p>
+                                        <p className="text-slate-900 font-semibold text-sm leading-tight">{item.title}</p>
                                         {!item.read && (
                                             <div className="w-2 h-2 rounded-full bg-cyan-400 shrink-0 mt-1" />
                                         )}

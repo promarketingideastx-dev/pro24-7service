@@ -25,7 +25,7 @@ const PLANS = [
             'Soporte por email',
         ],
         ctaText: 'Activar Premium',
-        ctaStyle: 'border border-slate-300 text-white hover:bg-slate-50',
+        ctaStyle: 'border border-slate-300 text-slate-700 hover:bg-slate-50',
     },
     {
         id: 'plus_team',
@@ -89,7 +89,7 @@ export default function PricingPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] text-white relative overflow-hidden">
+        <div className="min-h-screen bg-[#F4F6F8] text-slate-900 relative overflow-hidden">
             {/* Background glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-purple-500/5 rounded-full blur-[100px] pointer-events-none" />
@@ -102,7 +102,7 @@ export default function PricingPage() {
                         <Zap className="w-3 h-3 fill-current" />
                         7 días de prueba gratis · Sin tarjeta de crédito
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                    <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
                         Elige tu plan de{' '}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
                             Pro24/7YA
@@ -120,8 +120,8 @@ export default function PricingPage() {
                         <div
                             key={plan.id}
                             className={`relative rounded-3xl p-8 border flex flex-col transition-all duration-300 ${plan.highlight
-                                    ? 'bg-gradient-to-b from-[#0f1f3d] to-[#0B0F19] border-cyan-500/50 shadow-[0_0_60px_rgba(0,240,255,0.1)] scale-[1.02]'
-                                    : 'bg-white/60 border-slate-200 hover:border-slate-300'
+                                ? 'bg-gradient-to-b from-[#0f1f3d] to-[#0B0F19] border-cyan-500/50 shadow-[0_0_60px_rgba(0,240,255,0.1)] scale-[1.02]'
+                                : 'bg-white/60 border-slate-200 hover:border-slate-300'
                                 }`}
                         >
                             {/* Badge */}
@@ -134,12 +134,12 @@ export default function PricingPage() {
 
                             {/* Plan name & price */}
                             <div className="mb-6">
-                                <h2 className="text-xl font-bold text-white mb-1">{plan.name}</h2>
+                                <h2 className={`text-xl font-bold mb-1 ${plan.highlight ? 'text-white' : 'text-slate-900'}`}>{plan.name}</h2>
                                 <p className="text-slate-400 text-sm mb-4">{plan.description}</p>
 
                                 {plan.price !== null ? (
                                     <div className="flex items-end gap-1">
-                                        <span className="text-4xl font-black text-white">${plan.price}</span>
+                                        <span className={`text-4xl font-black ${plan.highlight ? 'text-white' : 'text-slate-900'}`}>${plan.price}</span>
                                         <span className="text-slate-400 text-sm mb-1">/ {plan.period}</span>
                                     </div>
                                 ) : (
@@ -153,7 +153,7 @@ export default function PricingPage() {
                             {/* Features */}
                             <ul className="space-y-3 flex-1 mb-8">
                                 {plan.features.map((feature, i) => (
-                                    <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
+                                    <li key={i} className={`flex items-start gap-2 text-sm ${plan.highlight ? 'text-slate-300' : 'text-slate-600'}`}>
                                         <Check className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
                                         {feature}
                                     </li>
@@ -182,7 +182,7 @@ export default function PricingPage() {
                             ¿Tienes preguntas?{' '}
                             <a
                                 href="mailto:hola@pro247ya.com"
-                                className="text-cyan-400 hover:underline"
+                                className="text-[#0F766E] hover:underline"
                             >
                                 Contáctanos
                             </a>

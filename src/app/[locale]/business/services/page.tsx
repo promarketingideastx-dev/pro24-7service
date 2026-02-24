@@ -187,12 +187,12 @@ export default function ServicesPage() {
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
-                    <p className="text-slate-400 text-sm">{t('subtitle')}</p>
+                    <h1 className="text-2xl font-bold text-slate-900">{t('title')}</h1>
+                    <p className="text-slate-500 text-sm">{t('subtitle')}</p>
                 </div>
                 <button
                     onClick={() => openModal()}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-xl text-sm font-bold text-white hover:opacity-90 transition-opacity shadow-[0_0_20px_rgba(0,200,255,0.25)]"
+                    className="flex items-center gap-2 px-4 py-2 bg-[#14B8A6] hover:bg-[#0F9488] rounded-xl text-sm font-bold text-white transition-colors shadow-[0_4px_12px_rgba(20,184,166,0.30)]"
                 >
                     <Plus size={16} /> {t('add')}
                 </button>
@@ -205,16 +205,16 @@ export default function ServicesPage() {
                 </div>
             ) : services.length === 0 ? (
                 <GlassPanel className="p-12 flex flex-col items-center justify-center min-h-[400px] text-center border-dashed border-slate-300">
-                    <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-4 text-slate-500">
+                    <div className="w-16 h-16 rounded-full bg-[#F1F5F9] flex items-center justify-center mb-4 text-[#14B8A6]">
                         <Clock size={32} />
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">{t('emptyTitle')}</h3>
-                    <p className="text-slate-400 max-w-sm mb-6">
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">{t('emptyTitle')}</h3>
+                    <p className="text-slate-500 max-w-sm mb-6">
                         {t('emptyDesc')}
                     </p>
                     <button
                         onClick={() => openModal()}
-                        className="px-4 py-2 bg-brand-neon-cyan/10 hover:bg-brand-neon-cyan/20 border border-brand-neon-cyan/30 text-brand-neon-cyan rounded-xl text-sm font-bold transition-colors"
+                        className="px-4 py-2 bg-[rgba(20,184,166,0.10)] hover:bg-[rgba(20,184,166,0.18)] border border-[#14B8A6]/30 text-[#0F766E] rounded-xl text-sm font-bold transition-colors"
                     >
                         {t('addFirst')}
                     </button>
@@ -272,11 +272,11 @@ export default function ServicesPage() {
             {/* Service Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-[#0f1629] border border-slate-200 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+                    <div className="bg-white border border-[#E6E8EC] w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
                         {/* Modal Header */}
                         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
                             <div>
-                                <h2 className="text-lg font-bold text-white">
+                                <h2 className="text-lg font-bold text-slate-900">
                                     {editingId ? t('editService') : t('add')}
                                 </h2>
                                 <p className="text-xs text-slate-500 mt-0.5">
@@ -400,8 +400,8 @@ export default function ServicesPage() {
                                                 })}
                                                 className={`text-xs px-3 py-1.5 rounded-full border transition-all
                                                     ${formData.category === spec
-                                                        ? 'bg-brand-neon-cyan/15 border-brand-neon-cyan text-brand-neon-cyan'
-                                                        : 'border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-200'
+                                                        ? 'bg-[rgba(20,184,166,0.12)] border-[#14B8A6] text-[#0F766E]'
+                                                        : 'border-[#E6E8EC] text-slate-600 hover:border-slate-300 hover:text-slate-800'
                                                     }`}
                                             >
                                                 {formData.category === spec && <Check size={10} className="inline mr-1" />}
@@ -431,7 +431,7 @@ export default function ServicesPage() {
                                                     name: lang === 'es' ? e.target.value : prev.name,
                                                     nameI18n: { ...prev.nameI18n!, [lang]: e.target.value } as any
                                                 }))}
-                                                className="flex-1 bg-[#F4F6F8] border border-slate-200 rounded-xl px-4 py-2.5 text-white focus:border-brand-neon-cyan focus:outline-none transition-colors placeholder:text-slate-600 text-sm"
+                                                className={`flex-1 bg-[#F4F6F8] border border-[#E6E8EC] rounded-xl px-4 py-2.5 text-slate-900 focus:border-[#14B8A6] focus:outline-none transition-colors placeholder:text-slate-400 text-sm`}
                                                 placeholder={lang === 'es' ? t('serviceNamePlaceholder') : lang === 'en' ? 'e.g. Regular Cut...' : 'Ex. Corte Regular...'}
                                             />
                                         </div>
@@ -445,7 +445,7 @@ export default function ServicesPage() {
                                 <textarea
                                     value={formData.description}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none resize-none h-20 placeholder:text-slate-600 transition-colors"
+                                    className="w-full bg-[#F4F6F8] border border-[#E6E8EC] rounded-xl px-4 py-3 text-slate-900 focus:border-[#14B8A6] focus:outline-none resize-none h-20 placeholder:text-slate-400 transition-colors"
                                     placeholder={t('descriptionPlaceholder')}
                                 />
                             </div>
@@ -464,7 +464,7 @@ export default function ServicesPage() {
                                             placeholder="0.00"
                                             value={formData.price === 0 ? '' : formData.price}
                                             onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
-                                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl pl-9 pr-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            className="w-full bg-[#F4F6F8] border border-[#E6E8EC] rounded-xl pl-9 pr-4 py-3 text-slate-900 focus:border-[#14B8A6] focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                     </div>
                                 </div>
@@ -485,7 +485,7 @@ export default function ServicesPage() {
                                                     setFormData({ ...formData, durationMinutes: val });
                                                 }
                                             }}
-                                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none appearance-none transition-colors"
+                                            className="w-full bg-[#F4F6F8] border border-[#E6E8EC] rounded-xl px-4 py-3 text-slate-900 focus:border-[#14B8A6] focus:outline-none appearance-none transition-colors"
                                         >
                                             {DURATION_OPTIONS.map(d => (
                                                 <option key={d} value={d}>{formatDuration(d)}</option>
@@ -547,7 +547,7 @@ export default function ServicesPage() {
                                     <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all ${formData.isExtra ? 'left-5' : 'left-1'}`} />
                                 </div>
                                 <div>
-                                    <p className={`text-sm font-semibold ${formData.isExtra ? 'text-amber-300' : 'text-slate-300'}`}>
+                                    <p className={`text-sm font-semibold ${formData.isExtra ? 'text-amber-700' : 'text-slate-700'}`}>
                                         <Zap size={13} className="inline mr-1" />
                                         {t('extraService')}
                                     </p>
@@ -582,11 +582,11 @@ export default function ServicesPage() {
                             <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-4 text-red-500">
                                 <AlertTriangle size={24} />
                             </div>
-                            <h3 className="font-bold text-white text-lg mb-2">{t('deleteTitle')}</h3>
-                            <p className="text-slate-400 text-sm">{t('deleteDesc')}</p>
+                            <h3 className="font-bold text-slate-900 text-lg mb-2">{t('deleteTitle')}</h3>
+                            <p className="text-slate-500 text-sm">{t('deleteDesc')}</p>
                         </div>
                         <div className="flex gap-3">
-                            <button onClick={() => setServiceToDelete(null)} className="flex-1 py-2.5 bg-slate-50 hover:bg-slate-100 text-white rounded-xl font-medium transition-colors">
+                            <button onClick={() => setServiceToDelete(null)} className="flex-1 py-2.5 bg-[#F8FAFC] hover:bg-[#F1F5F9] text-slate-700 rounded-xl font-medium transition-colors border border-[#E6E8EC]">
                                 {t('cancel')}
                             </button>
                             <button onClick={handleDelete} className="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-colors">
@@ -635,7 +635,7 @@ function ServiceCard({ service, onEdit, onDelete, extraLabel, noDescLabel, local
             <div className="p-5 flex flex-col flex-1">
                 {/* Name row + edit/delete (fallback when no image) */}
                 <div className="flex items-start justify-between mb-3 gap-2">
-                    <h3 className="font-bold text-white text-base leading-tight pr-12">{displayName}</h3>
+                    <h3 className="font-bold text-slate-900 text-base leading-tight pr-12">{displayName}</h3>
                     {!service.imageUrl && (
                         <div className="flex gap-1 absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-[#F4F6F8] rounded-lg p-1">
                             <button onClick={onEdit} className="p-1.5 hover:text-brand-neon-cyan text-slate-400 transition-colors"><Edit2 size={14} /></button>
@@ -661,7 +661,7 @@ function ServiceCard({ service, onEdit, onDelete, extraLabel, noDescLabel, local
                 </p>
 
                 <div className="mt-auto pt-3 border-t border-slate-200 flex items-center justify-between">
-                    <span className="text-lg font-bold text-white">
+                    <span className="text-lg font-bold text-slate-900">
                         {service.currency} {Number(service.price).toLocaleString('es-HN', { minimumFractionDigits: 2 })}
                     </span>
                     <span className="flex items-center gap-1 text-xs text-slate-500 bg-slate-50 px-2 py-1 rounded-lg">

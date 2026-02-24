@@ -21,7 +21,7 @@ export default function WeekView({ date, appointments, onAppointmentClick, onSlo
     const timeSlots = getTimeSlots(timeFormat);
 
     return (
-        <div className="flex flex-col h-full bg-[#0F131F]">
+        <div className="flex flex-col h-full bg-white">
             {/* Header Row */}
             <div className="flex border-b border-slate-200 bg-white">
                 <div className="w-16 flex-shrink-0 border-r border-slate-200" />
@@ -29,8 +29,8 @@ export default function WeekView({ date, appointments, onAppointmentClick, onSlo
                     <div key={i} className="flex-1 flex flex-col items-center justify-center py-2 border-r border-slate-200 last:border-r-0">
                         <span className="text-xs text-slate-400 uppercase">{format(day, 'EEE', { locale: dateFnsLocale })}</span>
                         <div className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold mt-1 ${format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
-                            ? 'bg-brand-neon-cyan text-black'
-                            : 'text-white'
+                            ? 'bg-[#14B8A6] text-white'
+                            : 'text-slate-700'
                             }`}>
                             {format(day, 'd')}
                         </div>

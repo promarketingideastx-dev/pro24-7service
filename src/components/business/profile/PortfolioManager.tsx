@@ -41,14 +41,14 @@ function ConfirmDeleteModal({
                         <AlertTriangle size={20} />
                     </div>
                     <div>
-                        <h3 className="text-white font-bold text-base leading-tight">{title}</h3>
+                        <h3 className="text-slate-900 font-bold text-base leading-tight">{title}</h3>
                         <p className="text-slate-400 text-sm mt-1 leading-relaxed">{body}</p>
                     </div>
                 </div>
                 <div className="flex gap-3">
                     <button
                         onClick={onCancel}
-                        className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-300 hover:bg-slate-50 transition-colors text-sm font-medium"
+                        className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium"
                     >
                         {cancelLabel}
                     </button>
@@ -203,11 +203,11 @@ export default function PortfolioManager({ businessId }: PortfolioManagerProps) 
 
             <div className="space-y-6">
                 <div className="flex justify-between items-center">
-                    <h3 className="font-bold text-white text-lg">{t('galleryAndWork')}</h3>
+                    <h3 className="font-bold text-slate-900 text-lg">{t('galleryAndWork')}</h3>
                     {!isAdding && (
                         <button
                             onClick={() => setIsAdding(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-brand-neon-cyan/10 text-brand-neon-cyan border border-brand-neon-cyan/50 rounded-lg hover:bg-brand-neon-cyan/20 transition-colors text-sm font-bold"
+                            className="flex items-center gap-2 px-4 py-2 bg-[rgba(20,184,166,0.08)] text-[#0F766E] border border-[#14B8A6]/50 rounded-lg hover:bg-[rgba(20,184,166,0.15)] transition-colors text-sm font-bold"
                         >
                             <Plus size={16} />
                             {t('addPhoto')}
@@ -219,7 +219,7 @@ export default function PortfolioManager({ businessId }: PortfolioManagerProps) 
                 {isAdding && (
                     <div className="bg-white border border-slate-200 rounded-xl p-6 animate-in fade-in slide-in-from-top-4">
                         <div className="flex justify-between items-start mb-4">
-                            <h4 className="text-white font-medium">{t('newPost')}</h4>
+                            <h4 className="text-slate-900 font-medium">{t('newPost')}</h4>
                             <button onClick={() => setIsAdding(false)} className="text-slate-400 hover:text-slate-800"><X size={20} /></button>
                         </div>
 
@@ -251,7 +251,7 @@ export default function PortfolioManager({ businessId }: PortfolioManagerProps) 
                                             <div className="bg-slate-50 p-3 rounded-full inline-block mb-3">
                                                 <Upload className="text-slate-400" size={24} />
                                             </div>
-                                            <p className="text-sm text-slate-300 font-medium">{t('uploadImage')}</p>
+                                            <p className="text-sm text-slate-500 font-medium">{t('uploadImage')}</p>
                                             <p className="text-xs text-slate-500 mt-1">{t('uploadHint')}</p>
                                         </div>
                                     )}
@@ -274,7 +274,7 @@ export default function PortfolioManager({ businessId }: PortfolioManagerProps) 
                                         value={newItem.title}
                                         onChange={e => setNewItem(prev => ({ ...prev, title: e.target.value }))}
                                         placeholder={t('titlePlaceholder')}
-                                        className="w-full bg-black/20 border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        className="w-full bg-white border border-[#E6E8EC] rounded-lg px-4 py-2 text-slate-900 focus:border-[#14B8A6] focus:outline-none"
                                     />
                                 </div>
                                 <div>
@@ -283,14 +283,14 @@ export default function PortfolioManager({ businessId }: PortfolioManagerProps) 
                                         value={newItem.description}
                                         onChange={e => setNewItem(prev => ({ ...prev, description: e.target.value }))}
                                         placeholder={t('descPlaceholder')}
-                                        className="w-full bg-black/20 border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none h-32 resize-none"
+                                        className="w-full bg-white border border-[#E6E8EC] rounded-lg px-4 py-2 text-slate-900 focus:border-[#14B8A6] focus:outline-none h-32 resize-none"
                                     />
                                 </div>
 
                                 <button
                                     onClick={handleSave}
                                     disabled={!newItem.file || uploading}
-                                    className="w-full py-3 bg-brand-neon-cyan text-black font-bold rounded-lg hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    className="w-full py-3 bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold rounded-lg shadow-[0_4px_14px_rgba(20,184,166,0.25)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
                                     {uploading ? <Loader2 className="animate-spin" size={20} /> : <Upload size={20} />}
                                     {uploading ? t('saving') : t('publishPhoto')}
@@ -309,7 +309,7 @@ export default function PortfolioManager({ businessId }: PortfolioManagerProps) 
                 ) : (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {items.map((item) => (
-                            <div key={item.id} className="group relative aspect-square rounded-xl overflow-hidden bg-black/20 border border-slate-200">
+                            <div key={item.id} className="group relative aspect-square rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
                                 <img src={item.url} alt={item.title || 'Portfolio'} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
 
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3">
@@ -320,7 +320,7 @@ export default function PortfolioManager({ businessId }: PortfolioManagerProps) 
                                                 handleSetCover(item.url);
                                             }}
                                             title={t('setAsCover')}
-                                            className="p-1.5 bg-black/50 text-white rounded-full hover:bg-brand-neon-cyan hover:text-black transition-colors"
+                                            className="p-1.5 bg-black/50 text-white rounded-full hover:bg-[#14B8A6] hover:text-white transition-colors"
                                         >
                                             <ImageIcon size={14} />
                                         </button>

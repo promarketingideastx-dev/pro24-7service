@@ -65,7 +65,7 @@ export default function PaymentSettingsPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-brand-neon-cyan" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#14B8A6]" />
             </div>
         );
     }
@@ -74,13 +74,13 @@ export default function PaymentSettingsPage() {
         <div className="space-y-6 max-w-4xl mx-auto pb-20">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
+                    <h1 className="text-2xl font-bold text-slate-900">{t('title')}</h1>
                     <p className="text-slate-400 text-sm">{t('subtitle')}</p>
                 </div>
                 <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex items-center gap-2 bg-brand-neon-cyan text-black px-4 py-2 rounded-lg font-bold hover:bg-cyan-400 transition-colors disabled:opacity-50"
+                    className="flex items-center gap-2 bg-[#14B8A6] hover:bg-[#0F9488] text-white px-4 py-2 rounded-lg font-bold transition-colors disabled:opacity-50 shadow-[0_4px_14px_rgba(20,184,166,0.25)]"
                 >
                     {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     {saving ? t('saving') : t('saveChanges')}
@@ -98,7 +98,7 @@ export default function PaymentSettingsPage() {
                                 <BadgeDollarSign className="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-white">{t('cash')}</h3>
+                                <h3 className="font-bold text-slate-900">{t('cash')}</h3>
                                 <p className="text-xs text-slate-400">{t('cashDesc')}</p>
                             </div>
                         </div>
@@ -109,7 +109,7 @@ export default function PaymentSettingsPage() {
                                 checked={settings.acceptsCash}
                                 onChange={(e) => setSettings({ ...settings, acceptsCash: e.target.checked })}
                             />
-                            <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-neon-cyan"></div>
+                            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#14B8A6]"></div>
                         </label>
                     </div>
                 </GlassPanel>
@@ -122,7 +122,7 @@ export default function PaymentSettingsPage() {
                                 <Building2 className="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-white">{t('bankTransfer')}</h3>
+                                <h3 className="font-bold text-slate-900">{t('bankTransfer')}</h3>
                                 <p className="text-xs text-slate-400">{t('bankTransferDesc')}</p>
                             </div>
                         </div>
@@ -133,7 +133,7 @@ export default function PaymentSettingsPage() {
                                 checked={settings.acceptsBankTransfer}
                                 onChange={(e) => setSettings({ ...settings, acceptsBankTransfer: e.target.checked })}
                             />
-                            <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-neon-cyan"></div>
+                            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#14B8A6]"></div>
                         </label>
                     </div>
 
@@ -144,7 +144,7 @@ export default function PaymentSettingsPage() {
                                 value={settings.bankTransferDetails || ''}
                                 onChange={(e) => setSettings({ ...settings, bankTransferDetails: e.target.value })}
                                 placeholder="Ej: Banco Atlántida, Cta: 1234567890, Nombre: Juan Pérez. Enviar comprobante a WhatsApp."
-                                className="w-full bg-black/20 border border-slate-200 rounded-lg p-3 text-sm text-white focus:border-brand-neon-cyan focus:ring-1 focus:ring-brand-neon-cyan outline-none resize-none h-24"
+                                className="w-full bg-white border border-[#E6E8EC] rounded-lg p-3 text-sm text-slate-900 focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/20 outline-none resize-none h-24"
                                 maxLength={500}
                             />
                             <p className="text-[10px] text-slate-500 text-right">{settings.bankTransferDetails?.length || 0}/500</p>
@@ -160,7 +160,7 @@ export default function PaymentSettingsPage() {
                                 <Wallet className="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-white">{t('digitalWallet')}</h3>
+                                <h3 className="font-bold text-slate-900">{t('digitalWallet')}</h3>
                                 <p className="text-xs text-slate-400">{t('digitalWalletDesc')}</p>
                             </div>
                         </div>
@@ -171,7 +171,7 @@ export default function PaymentSettingsPage() {
                                 checked={settings.acceptsDigitalWallet}
                                 onChange={(e) => setSettings({ ...settings, acceptsDigitalWallet: e.target.checked })}
                             />
-                            <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-neon-cyan"></div>
+                            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#14B8A6]"></div>
                         </label>
                     </div>
 
@@ -182,7 +182,7 @@ export default function PaymentSettingsPage() {
                                 value={settings.digitalWalletDetails || ''}
                                 onChange={(e) => setSettings({ ...settings, digitalWalletDetails: e.target.value })}
                                 placeholder="Ej: PayPal: usuario@email.com o Link de pago."
-                                className="w-full bg-black/20 border border-slate-200 rounded-lg p-3 text-sm text-white focus:border-brand-neon-cyan focus:ring-1 focus:ring-brand-neon-cyan outline-none resize-none h-20"
+                                className="w-full bg-white border border-[#E6E8EC] rounded-lg p-3 text-sm text-slate-900 focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/20 outline-none resize-none h-20"
                                 maxLength={200}
                             />
                         </div>
@@ -197,7 +197,7 @@ export default function PaymentSettingsPage() {
                                 <CreditCard className="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-white">{t('deposit')}</h3>
+                                <h3 className="font-bold text-slate-900">{t('deposit')}</h3>
                                 <p className="text-xs text-slate-400">{t('depositDesc')}</p>
                             </div>
                         </div>
@@ -208,7 +208,7 @@ export default function PaymentSettingsPage() {
                                 checked={settings.requiresDeposit}
                                 onChange={(e) => setSettings({ ...settings, requiresDeposit: e.target.checked })}
                             />
-                            <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-neon-cyan"></div>
+                            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#14B8A6]"></div>
                         </label>
                     </div>
 
@@ -220,7 +220,7 @@ export default function PaymentSettingsPage() {
                                     <select
                                         value={settings.depositType}
                                         onChange={(e) => setSettings({ ...settings, depositType: e.target.value as 'fixed' | 'percent' })}
-                                        className="w-full bg-black/20 border border-slate-200 rounded-lg p-2 text-sm text-white outline-none"
+                                        className="w-full bg-white border border-[#E6E8EC] rounded-lg p-2 text-sm text-slate-900 outline-none focus:border-[#14B8A6]"
                                     >
                                         <option value="fixed">{t('depositFixed')}</option>
                                         <option value="percent">{t('depositPercent')}</option>
@@ -232,7 +232,7 @@ export default function PaymentSettingsPage() {
                                         type="number"
                                         value={settings.depositValue}
                                         onChange={(e) => setSettings({ ...settings, depositValue: Number(e.target.value) })}
-                                        className="w-full bg-black/20 border border-slate-200 rounded-lg p-2 text-sm text-white outline-none focus:border-brand-neon-cyan"
+                                        className="w-full bg-white border border-[#E6E8EC] rounded-lg p-2 text-sm text-slate-900 outline-none focus:border-[#14B8A6]"
                                         min="0"
                                     />
                                 </div>
@@ -243,7 +243,7 @@ export default function PaymentSettingsPage() {
                                     value={settings.depositNotes || ''}
                                     onChange={(e) => setSettings({ ...settings, depositNotes: e.target.value })}
                                     placeholder="Ej: No reembolsable si cancela con menos de 24h."
-                                    className="w-full bg-black/20 border border-slate-200 rounded-lg p-3 text-sm text-white focus:border-brand-neon-cyan focus:ring-1 focus:ring-brand-neon-cyan outline-none resize-none h-16"
+                                    className="w-full bg-white border border-[#E6E8EC] rounded-lg p-3 text-sm text-slate-900 focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/20 outline-none resize-none h-16"
                                     maxLength={200}
                                 />
                             </div>

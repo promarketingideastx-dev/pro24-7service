@@ -162,7 +162,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     if (!business) return null;
 
     return (
-        <main className="min-h-screen bg-[#F4F6F8] text-white font-sans pb-24 md:pb-20">
+        <main className="min-h-screen bg-[#F4F6F8] text-slate-900 font-sans pb-24 md:pb-20">
 
             {/* --- 1. PREMIUM HEADER --- */}
             <header className="relative w-full">
@@ -172,7 +172,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                     {business.coverImage ? (
                         <img src={business.coverImage} className="w-full h-full object-cover" alt="Cover" />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
                             <span className="text-6xl opacity-20">🏢</span>
                         </div>
                     )}
@@ -192,7 +192,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                         {!isOwner && (
                             <button
                                 onClick={onBookClick}
-                                className="hidden md:flex bg-brand-neon-cyan/90 hover:bg-cyan-400 text-black px-4 py-2 rounded-full text-sm font-bold backdrop-blur-md transition-all shadow-lg shadow-cyan-500/20 items-center gap-2"
+                                className="hidden md:flex bg-[#14B8A6] hover:bg-[#0F9488] text-white px-4 py-2 rounded-full text-sm font-bold backdrop-blur-md transition-all shadow-lg shadow-teal-500/20 items-center gap-2"
                             >
                                 <Calendar className="w-4 h-4" />
                                 {t('bookAppointment')}
@@ -203,14 +203,14 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                         {isOwner && (
                             <button
                                 onClick={() => router.push('/business/dashboard')}
-                                className="px-3 py-1.5 rounded-full bg-brand-neon-cyan/20 border border-brand-neon-cyan/50 text-brand-neon-cyan text-xs font-bold backdrop-blur-md hover:bg-brand-neon-cyan/30"
+                                className="px-3 py-1.5 rounded-full bg-[rgba(20,184,166,0.15)] border border-[#14B8A6]/50 text-[#0F766E] text-xs font-bold backdrop-blur-md hover:bg-[rgba(20,184,166,0.25)]"
                             >
                                 Editar Perfil
                             </button>
                         )}
                         <button
                             onClick={handleShare}
-                            className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white border border-slate-200 hover:bg-brand-neon-cyan/20 hover:border-brand-neon-cyan/40 hover:text-brand-neon-cyan active:scale-90 transition-all"
+                            className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white border border-slate-200 hover:bg-[rgba(20,184,166,0.2)] hover:border-[#14B8A6]/40 hover:text-[#14B8A6] active:scale-90 transition-all"
                             title={t('shareTitle')}
                         >
                             <Share2 className="w-5 h-5" />
@@ -233,18 +233,18 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                 <div className="px-6 -mt-12 relative flex flex-col md:flex-row gap-4 md:items-end">
 
                     {/* Avatar / Logo */}
-                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl md:rounded-3xl bg-slate-800 border-4 border-[#0B0F19] shadow-2xl overflow-hidden shrink-0 relative z-10 group">
+                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl md:rounded-3xl bg-slate-100 border-4 border-white shadow-2xl overflow-hidden shrink-0 relative z-10 group">
                         {/* Fallback logic for avatar if needed, using coverImage as proxy or first gallery image */}
                         {business.logoUrl || business.coverImage ? (
                             <img src={business.logoUrl || business.coverImage} className="w-full h-full object-cover" alt="Logo" />
                         ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-slate-700 text-3xl">
+                            <div className="w-full h-full flex items-center justify-center bg-slate-100 text-3xl">
                                 {business.name?.charAt(0) || 'B'}
                             </div>
                         )}
                         {/* Verified Badge Overlay */}
                         {business.verified && (
-                            <div className="absolute bottom-1 right-1 bg-green-500 text-white rounded-full p-0.5 border-2 border-[#0B0F19]">
+                            <div className="absolute bottom-1 right-1 bg-green-500 text-white rounded-full p-0.5 border-2 border-white">
                                 <CheckCircle2 className="w-4 h-4" />
                             </div>
                         )}
@@ -254,10 +254,10 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                     <div className="flex-1 pb-2">
                         <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-3">
                             <div>
-                                <h1 className="text-2xl md:text-4xl font-bold text-white mb-1 leading-tight">{business.name}</h1>
+                                <h1 className="text-2xl md:text-4xl font-bold text-slate-900 mb-1 leading-tight">{business.name}</h1>
 
                                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-400">
-                                    <span className="flex items-center text-brand-neon-cyan font-medium bg-brand-neon-cyan/10 px-2 py-0.5 rounded">
+                                    <span className="flex items-center text-[#0F766E] font-medium bg-[rgba(20,184,166,0.1)] px-2 py-0.5 rounded">
                                         <Award className="w-4 h-4 mr-1" />
                                         {business.rating || '5.0'}
                                     </span>
@@ -289,7 +289,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                             key={tab.id}
                             onClick={() => onTabChange(tab.id)}
                             className={`px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 transition-all ${activeTab === tab.id
-                                ? 'border-brand-neon-cyan text-brand-neon-cyan'
+                                ? 'border-[#14B8A6] text-[#0F766E]'
                                 : 'border-transparent text-slate-400 hover:text-slate-800'
                                 }`}
                         >
@@ -318,7 +318,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                     {/* Call Button (Optional, can be hidden if no phone) */}
                     <button
                         onClick={handleCall}
-                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-800 text-slate-300 border border-slate-200 hover:bg-slate-700 active:scale-95 transition-all"
+                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 active:scale-95 transition-all"
                     >
                         <Phone className="w-5 h-5" />
                     </button>
@@ -326,7 +326,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                     {/* Book Action - Main */}
                     <button
                         onClick={onBookClick}
-                        className="flex-1 bg-brand-neon-cyan hover:bg-cyan-400 text-black px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all"
+                        className="flex-1 bg-[#14B8A6] hover:bg-[#0F9488] text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-teal-500/20 active:scale-95 transition-all"
                     >
                         <Calendar className="w-5 h-5" />
                         {t('bookAppointment')}

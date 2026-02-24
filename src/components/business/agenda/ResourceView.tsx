@@ -51,7 +51,7 @@ export default function ResourceView({ date, appointments, onAppointmentClick, o
     }
 
     return (
-        <div className="flex flex-col h-full bg-[#0F131F]">
+        <div className="flex flex-col h-full bg-white">
             {/* Header Row */}
             <div className="flex border-b border-slate-200 bg-white">
                 <div className="w-16 flex-shrink-0 border-r border-slate-200" />
@@ -62,7 +62,7 @@ export default function ResourceView({ date, appointments, onAppointmentClick, o
                 </div>
                 {employees.map((emp) => (
                     <div key={emp.id} className="flex-1 flex flex-col items-center justify-center py-3 border-r border-slate-200 last:border-r-0 min-w-[150px]">
-                        <div className="text-sm font-bold text-white truncate px-2">{emp.name}</div>
+                        <div className="text-sm font-bold text-slate-800 truncate px-2">{emp.name}</div>
                         <div className="text-[10px] text-slate-400 truncate px-2">{emp.role || t('staffDefault')}</div>
                     </div>
                 ))}

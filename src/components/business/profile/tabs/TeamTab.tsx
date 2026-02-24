@@ -50,7 +50,7 @@ export default function TeamTab({ businessId }: TeamTabProps) {
     if (loading) {
         return (
             <div className="flex justify-center py-12">
-                <div className="w-7 h-7 border-2 border-slate-300 border-t-brand-neon-cyan rounded-full animate-spin" />
+                <div className="w-7 h-7 border-2 border-slate-300 border-t-[#14B8A6] rounded-full animate-spin" />
             </div>
         );
     }
@@ -58,7 +58,7 @@ export default function TeamTab({ businessId }: TeamTabProps) {
     if (members.length === 0) {
         return (
             <div className="flex flex-col items-center py-16 text-center gap-3">
-                <div className="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center text-slate-500">
+                <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
                     <Users size={28} />
                 </div>
                 <p className="text-slate-400 text-sm">{t('publicProfile.noTeamMembers')}</p>
@@ -92,13 +92,13 @@ export default function TeamTab({ businessId }: TeamTabProps) {
                     return (
                         <div
                             key={emp.id}
-                            className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white/3 border border-slate-200 hover:border-brand-neon-cyan/20 transition-colors"
+                            className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white border border-slate-200 hover:border-[#14B8A6]/20 transition-colors"
                         >
                             <AvatarCircle emp={emp} />
                             <div className="text-center mt-1">
-                                <p className="text-white font-semibold text-sm leading-tight">{emp.name}</p>
+                                <p className="text-slate-900 font-semibold text-sm leading-tight">{emp.name}</p>
                                 {emp.role && (
-                                    <p className="text-brand-neon-cyan text-xs font-medium mt-0.5">{emp.role}</p>
+                                    <p className="text-[#0F766E] text-xs font-medium mt-0.5">{emp.role}</p>
                                 )}
                                 <p className="text-slate-500 text-[11px] mt-0.5">{roleLabel}</p>
                                 {emp.description && (

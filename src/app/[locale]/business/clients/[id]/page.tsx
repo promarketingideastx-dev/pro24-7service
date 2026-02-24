@@ -12,11 +12,11 @@ import CustomerFormModal from '@/components/business/clients/CustomerFormModal';
 import { useAuth } from '@/context/AuthContext';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-    confirmed: { label: 'Confirmada', color: 'text-green-400 bg-green-500/10 border-green-500/30', icon: <CheckCircle className="w-3 h-3" /> },
-    completed: { label: 'Completada', color: 'text-blue-400 bg-blue-500/10 border-blue-500/30', icon: <CheckCircle className="w-3 h-3" /> },
-    pending: { label: 'Pendiente', color: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30', icon: <AlertCircle className="w-3 h-3" /> },
-    cancelled: { label: 'Cancelada', color: 'text-red-400 bg-red-500/10 border-red-500/30', icon: <XCircle className="w-3 h-3" /> },
-    'no-show': { label: 'No Asistió', color: 'text-slate-400 bg-slate-500/10 border-slate-500/30', icon: <XCircle className="w-3 h-3" /> },
+    confirmed: { label: 'Confirmada', color: 'text-green-700 bg-green-50 border-green-200', icon: <CheckCircle className="w-3 h-3" /> },
+    completed: { label: 'Completada', color: 'text-blue-700 bg-blue-50 border-blue-200', icon: <CheckCircle className="w-3 h-3" /> },
+    pending: { label: 'Pendiente', color: 'text-amber-700 bg-amber-50 border-amber-200', icon: <AlertCircle className="w-3 h-3" /> },
+    cancelled: { label: 'Cancelada', color: 'text-red-600 bg-red-50 border-red-200', icon: <XCircle className="w-3 h-3" /> },
+    'no-show': { label: 'No Asistió', color: 'text-slate-500 bg-slate-50 border-slate-200', icon: <XCircle className="w-3 h-3" /> },
 };
 
 export default function CustomerDetailPage() {
@@ -100,35 +100,35 @@ export default function CustomerDetailPage() {
             <div className="flex items-center gap-4">
                 <button
                     onClick={() => router.back()}
-                    className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-300 transition-colors"
+                    className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors"
                 >
                     <ArrowLeft className="w-5 h-5" />
                 </button>
                 <div>
-                    <h1 className="text-xl font-bold text-white">Perfil del Cliente</h1>
+                    <h1 className="text-xl font-bold text-slate-900">Perfil del Cliente</h1>
                     <p className="text-xs text-slate-500">{customer.fullName}</p>
                 </div>
             </div>
 
             {/* Stats Row */}
             <div className="grid grid-cols-3 gap-3">
-                <div className="bg-white border border-brand-neon-cyan/20 rounded-xl p-4 text-center">
-                    <TrendingUp className="w-4 h-4 text-brand-neon-cyan mx-auto mb-1" />
-                    <p className="text-xl font-bold text-brand-neon-cyan">
+                <div className="bg-white border border-[#14B8A6]/20 rounded-xl p-4 text-center">
+                    <TrendingUp className="w-4 h-4 text-[#14B8A6] mx-auto mb-1" />
+                    <p className="text-xl font-bold text-[#0F766E]">
                         {ltv > 0 ? `L ${ltv.toLocaleString()}` : '—'}
                     </p>
                     <p className="text-[10px] text-slate-500 mt-0.5">LTV Total</p>
                 </div>
                 <div className="bg-white border border-slate-200 rounded-xl p-4 text-center">
                     <Clock className="w-4 h-4 text-slate-500 mx-auto mb-1" />
-                    <p className="text-sm font-bold text-white">
+                    <p className="text-sm font-bold text-slate-900">
                         {lastVisit ? format(lastVisit.date.toDate(), 'd MMM', { locale: es }) : '—'}
                     </p>
                     <p className="text-[10px] text-slate-500 mt-0.5">Última Visita</p>
                 </div>
                 <div className="bg-white border border-slate-200 rounded-xl p-4 text-center">
-                    <Calendar className="w-4 h-4 text-green-400 mx-auto mb-1" />
-                    <p className="text-sm font-bold text-green-400">
+                    <Calendar className="w-4 h-4 text-[#14B8A6] mx-auto mb-1" />
+                    <p className="text-sm font-bold text-[#0F766E]">
                         {nextAppt ? format(nextAppt.date.toDate(), 'd MMM', { locale: es }) : '—'}
                     </p>
                     <p className="text-[10px] text-slate-500 mt-0.5">Próxima Cita</p>
@@ -144,38 +144,38 @@ export default function CustomerDetailPage() {
                         <div className="absolute top-4 right-4">
                             <button
                                 onClick={() => setIsEditOpen(true)}
-                                className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-brand-neon-cyan transition-colors"
+                                className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-[#14B8A6] transition-colors"
                             >
                                 <Edit2 className="w-4 h-4" />
                             </button>
                         </div>
 
                         <div className="flex flex-col items-center text-center">
-                            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center border-4 border-[#0B0F19] shadow-xl mb-4">
+                            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center border-4 border-white shadow-xl mb-4">
                                 <span className="text-2xl font-bold text-white">{customer.fullName.charAt(0).toUpperCase()}</span>
                             </div>
-                            <h2 className="text-xl font-bold text-white mb-1">{customer.fullName}</h2>
+                            <h2 className="text-xl font-bold text-slate-900 mb-1">{customer.fullName}</h2>
                             {customer.createdAt && (
                                 <p className="text-slate-500 text-xs">
                                     Cliente desde {format(customer.createdAt.toDate(), 'PPP', { locale: es })}
                                 </p>
                             )}
-                            <div className="mt-1 px-3 py-0.5 rounded-full bg-brand-neon-cyan/10 border border-brand-neon-cyan/20 text-xs text-brand-neon-cyan font-medium">
+                            <div className="mt-1 px-3 py-0.5 rounded-full bg-[rgba(20,184,166,0.08)] border border-[#14B8A6]/20 text-xs text-[#0F766E] font-medium">
                                 {appointments.length} cita{appointments.length !== 1 ? 's' : ''}
                             </div>
                         </div>
 
                         <div className="mt-6 space-y-3">
-                            <div className="flex items-center gap-3 text-slate-300">
+                            <div className="flex items-center gap-3 text-slate-600">
                                 <Phone className="w-4 h-4 text-slate-500 shrink-0" />
                                 <span className="text-sm">{customer.phone || 'Sin teléfono'}</span>
                             </div>
-                            <div className="flex items-center gap-3 text-slate-300">
+                            <div className="flex items-center gap-3 text-slate-600">
                                 <Mail className="w-4 h-4 text-slate-500 shrink-0" />
                                 <span className="text-sm truncate">{customer.email || 'Sin email'}</span>
                             </div>
                             {customer.address && (
-                                <div className="flex items-center gap-3 text-slate-300">
+                                <div className="flex items-center gap-3 text-slate-600">
                                     <MapPin className="w-4 h-4 text-slate-500 shrink-0" />
                                     <span className="text-sm">{customer.address}</span>
                                 </div>
@@ -193,13 +193,13 @@ export default function CustomerDetailPage() {
                             onChange={(e) => { setNotes(e.target.value); setNotesDirty(true); }}
                             rows={5}
                             placeholder="Escribe notas privadas sobre este cliente..."
-                            className="w-full bg-black/20 border border-slate-200 rounded-xl p-3 text-sm text-slate-300 placeholder:text-slate-600 resize-none focus:outline-none focus:border-brand-neon-cyan/50 transition-colors"
+                            className="w-full bg-white border border-[#E6E8EC] rounded-xl p-3 text-sm text-slate-900 placeholder:text-slate-400 resize-none focus:outline-none focus:border-[#14B8A6] transition-colors"
                         />
                         {notesDirty && (
                             <button
                                 onClick={handleSaveNotes}
                                 disabled={savingNotes}
-                                className="mt-2 w-full py-2 bg-brand-neon-cyan/20 hover:bg-brand-neon-cyan/30 border border-brand-neon-cyan/30 text-brand-neon-cyan rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all"
+                                className="mt-2 w-full py-2 bg-[rgba(20,184,166,0.08)] hover:bg-[rgba(20,184,166,0.15)] border border-[#14B8A6]/30 text-[#0F766E] rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all"
                             >
                                 <Save className="w-3.5 h-3.5" />
                                 {savingNotes ? 'Guardando...' : 'Guardar Notas'}
@@ -211,14 +211,14 @@ export default function CustomerDetailPage() {
                 {/* Right Column: Appointment History */}
                 <div className="lg:col-span-2">
                     <div className="bg-white border border-slate-200 rounded-2xl p-6">
-                        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                            <Calendar className="w-5 h-5 text-brand-neon-cyan" />
+                        <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                            <Calendar className="w-5 h-5 text-[#14B8A6]" />
                             Historial de Citas
                             <span className="ml-auto text-xs font-normal text-slate-500">{appointments.length} registros</span>
                         </h3>
 
                         {appointments.length === 0 ? (
-                            <div className="text-center py-12 text-slate-500 bg-black/20 rounded-xl border border-slate-200 border-dashed">
+                            <div className="text-center py-12 text-slate-500 bg-slate-50 rounded-xl border border-slate-200 border-dashed">
                                 <Calendar className="w-8 h-8 mx-auto mb-2 opacity-20" />
                                 <p>No hay citas registradas para este cliente.</p>
                             </div>
@@ -235,9 +235,9 @@ export default function CustomerDetailPage() {
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2 flex-wrap">
-                                                        <span className="font-semibold text-white text-sm">{apt.serviceName}</span>
+                                                        <span className="font-semibold text-slate-900 text-sm">{apt.serviceName}</span>
                                                         {apt.servicePrice != null && apt.servicePrice > 0 && (
-                                                            <span className="text-xs text-brand-neon-cyan font-bold">L {apt.servicePrice}</span>
+                                                            <span className="text-xs text-[#0F766E] font-bold">L {apt.servicePrice}</span>
                                                         )}
                                                     </div>
                                                     <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">

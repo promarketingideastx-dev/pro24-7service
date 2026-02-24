@@ -42,7 +42,7 @@ export default function CalendarHeader({
 
             {/* Left: Date Navigation */}
             <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
-                <div className="flex items-center gap-1 bg-black/20 rounded-lg p-1">
+                <div className="flex items-center gap-1 bg-white border border-[#E6E8EC] rounded-lg p-1">
                     <button
                         onClick={handlePrev}
                         className="p-2 hover:bg-slate-100 rounded-md text-slate-300 hover:text-slate-800 transition-colors"
@@ -63,18 +63,18 @@ export default function CalendarHeader({
                     </button>
                 </div>
 
-                <h2 className="text-xl font-bold text-white capitalize">
+                <h2 className="text-xl font-bold text-slate-900 capitalize">
                     {format(currentDate, 'MMMM yyyy', { locale: dateFnsLocale })}
                 </h2>
             </div>
 
             {/* Right: View Switcher */}
-            <div className="flex bg-black/20 p-1 rounded-xl w-full md:w-auto">
+            <div className="flex bg-[#F4F6F8] border border-[#E6E8EC] p-1 rounded-xl w-full md:w-auto">
                 <button
                     onClick={() => onViewChange('day')}
                     className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all ${view === 'day'
-                        ? 'bg-brand-neon-cyan text-black shadow-[0_0_15px_rgba(0,240,255,0.3)]'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-white text-[#0F766E] font-semibold border border-[#14B8A6]/30 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700'
                         }`}
                 >
                     {t('viewDay')}
@@ -82,8 +82,8 @@ export default function CalendarHeader({
                 <button
                     onClick={() => onViewChange('week')}
                     className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all ${view === 'week'
-                        ? 'bg-brand-neon-cyan text-black shadow-[0_0_15px_rgba(0,240,255,0.3)]'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-white text-[#0F766E] font-semibold border border-[#14B8A6]/30 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700'
                         }`}
                 >
                     {t('viewWeek')}
@@ -91,8 +91,8 @@ export default function CalendarHeader({
                 <button
                     onClick={() => onViewChange('resource')}
                     className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${view === 'resource'
-                        ? 'bg-brand-neon-cyan text-black shadow-[0_0_15px_rgba(0,240,255,0.3)]'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-white text-[#0F766E] font-semibold border border-[#14B8A6]/30 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700'
                         }`}
                 >
                     <Users size={14} />

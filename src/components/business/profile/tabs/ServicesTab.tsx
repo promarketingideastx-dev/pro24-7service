@@ -37,7 +37,7 @@ export default function ServicesTab({ businessId, services: initialServices, onB
     if (loading) {
         return (
             <div className="p-8 flex justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-brand-neon-cyan"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#14B8A6]"></div>
             </div>
         );
     }
@@ -64,7 +64,7 @@ export default function ServicesTab({ businessId, services: initialServices, onB
                     className="group bg-white border border-slate-200 rounded-2xl p-4 hover:border-brand-neon-cyan/30 hover:bg-slate-50 transition-all cursor-pointer flex justify-between gap-4"
                 >
                     <div className="flex-1">
-                        <h3 className="font-bold text-white text-base mb-1 group-hover:text-brand-neon-cyan transition-colors">
+                        <h3 className="font-bold text-slate-900 text-base mb-1 group-hover:text-[#0F766E] transition-colors">
                             {getServiceName(service, locale)}
                         </h3>
                         <p className="text-slate-400 text-sm line-clamp-2 mb-3">
@@ -76,7 +76,7 @@ export default function ServicesTab({ businessId, services: initialServices, onB
 
                     <div className="flex flex-col items-end justify-between shrink-0">
                         <div className="text-right">
-                            <div className="text-lg font-bold text-white">
+                            <div className="text-lg font-bold text-slate-900">
                                 {service.currency} {service.price}
                             </div>
                             {service.isVariablePrice && (
@@ -84,7 +84,7 @@ export default function ServicesTab({ businessId, services: initialServices, onB
                             )}
                         </div>
 
-                        <button className="w-8 h-8 rounded-full bg-brand-neon-cyan/10 flex items-center justify-center text-brand-neon-cyan group-hover:bg-brand-neon-cyan group-hover:text-black transition-colors">
+                        <button className="w-8 h-8 rounded-full bg-[rgba(20,184,166,0.08)] flex items-center justify-center text-[#14B8A6] group-hover:bg-[#14B8A6] group-hover:text-white transition-colors">
                             <ChevronRight className="w-5 h-5" />
                         </button>
                     </div>
