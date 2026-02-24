@@ -477,20 +477,19 @@ export default function Home() {
                                                 <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]"></span>
                                                 {sub.label[localeKey as keyof typeof sub.label]}
                                             </h3>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                            <div className="flex flex-wrap gap-2">
                                                 {sub.specialties.map((spec, i) => (
-                                                    <div
+                                                    <button
                                                         key={i}
                                                         onClick={() => {
-                                                            // Always search with ES key — Firestore tags are stored in Spanish
                                                             setSearchTerm((spec as any).es);
                                                             setSelectedCategory(null);
                                                         }}
-                                                        className="flex items-center gap-2 text-[15px] text-slate-600 bg-[#F8FAFC] px-3 py-2.5 rounded-lg hover:bg-[rgba(20,184,166,0.08)] hover:text-[#0F766E] cursor-pointer transition-colors group/item border border-transparent hover:border-[#14B8A6]/20"
+                                                        className="flex items-center gap-1.5 bg-white border border-slate-200 shadow-sm rounded-xl px-3 py-2 text-[14px] text-slate-700 hover:bg-[rgba(20,184,166,0.06)] hover:border-[#14B8A6]/50 hover:text-[#0F766E] cursor-pointer transition-all group/item active:scale-95"
                                                     >
-                                                        <ChevronRight className="w-3 h-3 text-slate-400 group-hover/item:text-[#14B8A6]" />
-                                                        {(spec as any)[localeKey] ?? (spec as any).es}
-                                                    </div>
+                                                        <ChevronRight className="w-3 h-3 text-slate-400 group-hover/item:text-[#14B8A6] shrink-0 transition-colors" />
+                                                        <span>{(spec as any)[localeKey] ?? (spec as any).es}</span>
+                                                    </button>
                                                 ))}
                                             </div>
                                         </div>
