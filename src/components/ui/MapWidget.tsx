@@ -1,46 +1,12 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, GeoJSON } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useTranslations } from 'next-intl';
 import { BusinessMock } from '@/data/mockBusinesses';
 import { COUNTRIES, CountryCode } from '@/lib/locations';
-
-// ── Country borders layer ───────────────────────────────────────────────────
-// Fetches lightweight GeoJSON (Natural Earth 110m) and draws country border
-// lines only — no labels, no fill, just the dividing lines.
-function CountryBordersLayer() {
-    const [geoData, setGeoData] = useState<any>(null);
-
-    useEffect(() => {
-        fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
-            .then(r => r.json())
-            .then(data => setGeoData(data))
-            .catch(() => { /* silently ignore if offline */ });
-    }, []);
-
-    if (!geoData) return null;
-
-    return (
-        <GeoJSON
-            key="country-borders"
-            data={geoData}
-            style={() => ({
-                color: '#64748b',      // slate-500 — visible but not aggressive
-                weight: 1.5,
-                opacity: 0.8,
-                fillOpacity: 0,        // No fill — just the border line
-                dashArray: undefined,
-            })}
-            onEachFeature={(_feature, layer) => {
-                // No popups, no tooltips — borders only
-                layer.off();
-            }}
-        />
-    );
-}
 
 
 interface MapWidgetProps {
@@ -371,9 +337,6 @@ export default function MapWidget({
                 url="https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png"
                 maxZoom={20}
             />
-            {/* Country border lines — GeoJSON, no labels, no fill */}
-            <CountryBordersLayer />
-
             <TapToZoom />
             <MapUpdater businesses={businesses} selectedBusiness={selectedBusiness} countryCoordinates={countryCoordinates} countryCode={countryCode} />
 
