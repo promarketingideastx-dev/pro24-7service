@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Calendar, ChevronRight, Zap } from 'lucide-react';
+import { Camera, ChevronRight, Zap } from 'lucide-react';
 import { ServicesService, getServiceName } from '@/services/businessProfile.service';
 import { useTranslations, useLocale } from 'next-intl';
 
@@ -53,40 +53,61 @@ export default function ServicesTab({ businessId, services: initialServices, onB
         );
     }
 
-    // Group services (Optional: if we had categories of services, we'd group here. For now flat is fine or simple filter)
-
     return (
         <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {services.map((service) => (
                 <div
                     key={service.id}
                     onClick={() => onBook(service)}
-                    className="group bg-white border border-slate-200 rounded-2xl p-4 hover:border-brand-neon-cyan/30 hover:bg-slate-50 transition-all cursor-pointer flex justify-between gap-4"
+                    className="group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-[#14B8A6]/40 hover:shadow-lg transition-all cursor-pointer flex flex-col"
                 >
-                    <div className="flex-1">
-                        <h3 className="font-bold text-slate-900 text-base mb-1 group-hover:text-[#0F766E] transition-colors">
-                            {getServiceName(service, locale)}
-                        </h3>
-                        <p className="text-slate-400 text-sm line-clamp-2 mb-3">
-                            {service.description || t('noDescription')}
-                        </p>
-
-
-                    </div>
-
-                    <div className="flex flex-col items-end justify-between shrink-0">
-                        <div className="text-right">
-                            <div className="text-lg font-bold text-slate-900">
-                                {service.currency} {service.price}
+                    {/* ── Photo Banner ── */}
+                    {service.imageUrl ? (
+                        <div className="relative h-36 sm:h-44 overflow-hidden bg-slate-100 shrink-0">
+                            <img
+                                src={service.imageUrl}
+                                alt={getServiceName(service, locale)}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            {/* subtle dark gradient at bottom for readability */}
+                            <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/30 to-transparent" />
+                        </div>
+                    ) : (
+                        /* Placeholder — clearly shows the space a photo would occupy */
+                        <div className="h-36 sm:h-44 bg-gradient-to-br from-slate-100 to-slate-200 flex flex-col items-center justify-center gap-2 shrink-0 border-b border-slate-200 group-hover:from-[rgba(20,184,166,0.06)] group-hover:to-[rgba(20,184,166,0.10)] transition-colors duration-300">
+                            <div className="w-12 h-12 rounded-full bg-white/70 border border-slate-300 flex items-center justify-center shadow-sm">
+                                <Camera className="w-5 h-5 text-slate-400" />
                             </div>
-                            {service.isVariablePrice && (
-                                <span className="text-[10px] text-slate-500 uppercase">{t('fromPrice')}</span>
-                            )}
+                            <span className="text-xs text-slate-400 font-medium">Sin foto del servicio</span>
+                        </div>
+                    )}
+
+                    {/* ── Content ── */}
+                    <div className="p-4 flex-1 flex flex-col justify-between gap-3">
+                        <div>
+                            <h3 className="font-bold text-slate-900 text-base mb-1 group-hover:text-[#0F766E] transition-colors">
+                                {getServiceName(service, locale)}
+                            </h3>
+                            <p className="text-slate-500 text-sm line-clamp-2">
+                                {service.description || t('noDescription')}
+                            </p>
                         </div>
 
-                        <button className="w-8 h-8 rounded-full bg-[rgba(20,184,166,0.08)] flex items-center justify-center text-[#14B8A6] group-hover:bg-[#14B8A6] group-hover:text-white transition-colors">
-                            <ChevronRight className="w-5 h-5" />
-                        </button>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <div className="text-lg font-bold text-slate-900">
+                                    {service.currency} {service.price}
+                                </div>
+                                {service.isVariablePrice && (
+                                    <span className="text-[10px] text-slate-500 uppercase">{t('fromPrice')}</span>
+                                )}
+                            </div>
+
+                            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[rgba(20,184,166,0.08)] text-[#14B8A6] text-sm font-semibold group-hover:bg-[#14B8A6] group-hover:text-white transition-colors">
+                                {t('book') || 'Agendar'}
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             ))}
