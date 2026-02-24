@@ -98,13 +98,13 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
     return (
         <div className="space-y-5">
             {/* Calendar card */}
-            <div className="bg-[#0d1526] border border-slate-200 rounded-2xl overflow-hidden">
+            <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                 {/* Month header */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
                     <button onClick={prevMonth} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-800">
                         <ChevronLeft size={18} />
                     </button>
-                    <span className="text-white font-semibold text-sm">
+                    <span className="text-slate-900 font-semibold text-sm">
                         {months[calMonth]} {calYear}
                     </span>
                     <button onClick={nextMonth} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-800">
@@ -136,10 +136,10 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
                                 onClick={() => handleDayClick(day)}
                                 className={`
                                     relative h-9 w-full flex items-center justify-center rounded-xl text-sm font-medium transition-all
-                                    ${isPast ? 'text-white/15 cursor-not-allowed' : 'cursor-pointer hover:bg-slate-100'}
-                                    ${isSelected ? 'bg-brand-neon-cyan text-black font-bold shadow-lg shadow-cyan-500/30 hover:bg-brand-neon-cyan' : ''}
-                                    ${isToday && !isSelected ? 'ring-1 ring-brand-neon-cyan/50 text-brand-neon-cyan' : ''}
-                                    ${!isPast && !isSelected ? 'text-white' : ''}
+                                    ${isPast ? 'text-slate-300 cursor-not-allowed' : 'cursor-pointer hover:bg-slate-100'}
+                                    ${isSelected ? 'bg-[#14B8A6] text-white font-bold shadow-md hover:bg-[#0F9488]' : ''}
+                                    ${isToday && !isSelected ? 'ring-1 ring-[#14B8A6]/50 text-[#14B8A6] font-semibold' : ''}
+                                    ${!isPast && !isSelected ? 'text-slate-800' : ''}
                                 `}
                             >
                                 {day}
@@ -151,7 +151,7 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
 
             {/* Selected date display */}
             {selectedDate && (
-                <div className={`flex items-center gap-2 text-sm px-3 py-2 rounded-xl border ${dayStatus.isOpen ? 'bg-brand-neon-cyan/8 border-brand-neon-cyan/20 text-brand-neon-cyan' : 'bg-amber-500/10 border-amber-500/20 text-amber-400'}`}>
+                <div className={`flex items-center gap-2 text-sm px-3 py-2 rounded-xl border ${dayStatus.isOpen ? 'bg-[#14B8A6]/8 border-[#14B8A6]/20 text-[#14B8A6]' : 'bg-amber-500/10 border-amber-500/20 text-amber-400'}`}>
                     <Calendar size={14} className="shrink-0" />
                     <span>
                         {dayStatus.isOpen
@@ -163,8 +163,8 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
 
             {/* Time slots */}
             <div className="space-y-2">
-                <label className="text-white text-sm font-semibold flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-brand-neon-cyan" />
+                <label className="text-slate-900 text-sm font-semibold flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-[#14B8A6]" />
                     {t('schedule')}
                 </label>
                 {!selectedDate ? (
@@ -181,8 +181,8 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
                             return (
                                 <button key={time} onClick={() => onTimeSelect(time)}
                                     className={`py-2.5 px-1 text-sm rounded-xl border font-medium transition-all ${active
-                                        ? 'bg-brand-neon-cyan text-black border-brand-neon-cyan shadow-lg shadow-cyan-500/20'
-                                        : 'bg-slate-50 border-slate-200 text-white hover:bg-slate-100 hover:border-brand-neon-cyan/30'
+                                        ? 'bg-[#14B8A6] text-black border-[#14B8A6] shadow-lg shadow-cyan-500/20'
+                                        : 'bg-slate-50 border-slate-200 text-slate-900 hover:bg-slate-100 hover:border-[#14B8A6]/30'
                                         }`}>
                                     {display}
                                 </button>
@@ -197,7 +197,7 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
                 disabled={!selectedDate || !selectedTime}
                 className={`w-full py-3.5 font-bold rounded-xl transition-all text-base ${(!selectedDate || !selectedTime)
                     ? 'bg-slate-100 text-slate-500 cursor-not-allowed'
-                    : 'bg-brand-neon-cyan text-black hover:opacity-90 hover:shadow-lg hover:shadow-cyan-500/30'
+                    : 'bg-[#14B8A6] text-black hover:opacity-90 hover:shadow-lg hover:shadow-cyan-500/30'
                     }`}
             >
                 {selectedDate && selectedTime ? `${t('continue')} → ${selectedDate}` : t('continue')}
@@ -400,10 +400,10 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                     setStep(hasPayment ? 'payment' : 'datetime');
                                 }
                             }} className="p-1 hover:bg-slate-100 rounded-full">
-                                <ChevronLeft className="w-5 h-5 text-white" />
+                                <ChevronLeft className="w-5 h-5 text-slate-900" />
                             </button>
                         )}
-                        <h2 className="text-lg font-bold text-white">{t('title')}</h2>
+                        <h2 className="text-lg font-bold text-slate-900">{t('title')}</h2>
                     </div>
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-800">
                         <X size={24} />
@@ -411,11 +411,11 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 </div>
 
                 {/* Progress Bar */}
-                <div className="flex gap-1 p-1 bg-black/20">
-                    <div className={`h-1 flex-1 rounded-full ${['service', 'datetime', 'payment', 'contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-slate-100'}`} />
-                    <div className={`h-1 flex-1 rounded-full ${['datetime', 'payment', 'contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-slate-100'}`} />
-                    <div className={`h-1 flex-1 rounded-full ${['payment', 'contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-slate-100'}`} />
-                    <div className={`h-1 flex-1 rounded-full ${['contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-slate-100'}`} />
+                <div className="flex gap-1 p-1 bg-slate-50">
+                    <div className={`h-1 flex-1 rounded-full ${['service', 'datetime', 'payment', 'contact'].includes(step) ? 'bg-[#14B8A6]' : 'bg-slate-100'}`} />
+                    <div className={`h-1 flex-1 rounded-full ${['datetime', 'payment', 'contact'].includes(step) ? 'bg-[#14B8A6]' : 'bg-slate-100'}`} />
+                    <div className={`h-1 flex-1 rounded-full ${['payment', 'contact'].includes(step) ? 'bg-[#14B8A6]' : 'bg-slate-100'}`} />
+                    <div className={`h-1 flex-1 rounded-full ${['contact'].includes(step) ? 'bg-[#14B8A6]' : 'bg-slate-100'}`} />
                 </div>
 
                 {/* Body */}
@@ -424,7 +424,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                     {/* STEP 1: SERVICE */}
                     {step === 'service' && (
                         <div className="space-y-4">
-                            <h3 className="text-white font-medium mb-4">{t('selectService')}</h3>
+                            <h3 className="text-slate-900 font-medium mb-4">{t('selectService')}</h3>
                             {services.length === 0 ? (
                                 <p className="text-slate-500 text-center py-8">{t('noServices')}</p>
                             ) : (
@@ -433,13 +433,13 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                         <button
                                             key={service.id}
                                             onClick={() => handleServiceSelect(service)}
-                                            className="w-full p-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-brand-neon-cyan/50 rounded-xl flex justify-between items-center transition-all group"
+                                            className="w-full p-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-[#14B8A6]/50 rounded-xl flex justify-between items-center transition-all group"
                                         >
                                             <div className="text-left">
-                                                <p className="font-bold text-white group-hover:text-brand-neon-cyan transition-colors">{service.name}</p>
+                                                <p className="font-bold text-slate-900 group-hover:text-[#14B8A6] transition-colors">{service.name}</p>
                                                 <p className="text-sm text-slate-400">${service.price}</p>
                                             </div>
-                                            <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-brand-neon-cyan" />
+                                            <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-[#14B8A6]" />
                                         </button>
                                     ))}
                                 </div>
@@ -467,7 +467,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                     {/* STEP 2.5: PAYMENT INFO */}
                     {step === 'payment' && paymentSettings && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                            <h3 className="text-white font-medium mb-4">{t('paymentInfo')}</h3>
+                            <h3 className="text-slate-900 font-medium mb-4">{t('paymentInfo')}</h3>
 
                             {/* Deposit Warning */}
                             {paymentSettings.requiresDeposit && (
@@ -476,12 +476,12 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                         <Briefcase size={16} />
                                         {t('depositPolicy')}
                                     </h4>
-                                    <p className="text-slate-300 text-sm mb-2">
+                                    <p className="text-slate-600 text-sm mb-2">
                                         {t('depositRequired')}
                                     </p>
-                                    <div className="bg-black/20 p-3 rounded-lg flex justify-between items-center">
+                                    <div className="bg-slate-50 p-3 rounded-lg flex justify-between items-center">
                                         <span className="text-slate-400 text-sm">{t('requiredAmount')}:</span>
-                                        <span className="text-white font-bold">
+                                        <span className="text-slate-900 font-bold">
                                             {paymentSettings.depositType === 'percent'
                                                 ? `${paymentSettings.depositValue}%`
                                                 : `L. ${paymentSettings.depositValue}`
@@ -495,7 +495,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                             )}
 
                             <div className="space-y-3">
-                                <label className="text-slate-400 text-sm">{t('acceptedMethods')}:</label>
+                                <label className="text-slate-700 text-sm font-semibold">{t('acceptedMethods')}:</label>
                                 <div className="grid grid-cols-1 gap-3">
                                     {paymentSettings.acceptsCash && (
                                         <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
@@ -503,7 +503,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                                 <Briefcase className="w-4 h-4" />
                                             </div>
                                             <div>
-                                                <p className="text-white font-medium text-sm">{t('cash')}</p>
+                                                <p className="text-slate-900 font-medium text-sm">{t('cash')}</p>
                                                 <p className="text-xs text-slate-500">{t('cashInStore')}</p>
                                             </div>
                                         </div>
@@ -514,10 +514,10 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                                 <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
                                                     <Briefcase className="w-4 h-4" />
                                                 </div>
-                                                <p className="text-white font-medium text-sm">{t('bankTransfer')}</p>
+                                                <p className="text-slate-900 font-medium text-sm">{t('bankTransfer')}</p>
                                             </div>
                                             {paymentSettings.bankTransferDetails && (
-                                                <div className="bg-black/20 p-2 rounded text-xs text-slate-400 whitespace-pre-line">
+                                                <div className="bg-slate-50 p-2 rounded text-xs text-slate-400 whitespace-pre-line">
                                                     {paymentSettings.bankTransferDetails}
                                                 </div>
                                             )}
@@ -529,10 +529,10 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                                 <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500">
                                                     <Briefcase className="w-4 h-4" />
                                                 </div>
-                                                <p className="text-white font-medium text-sm">{t('digitalWallet')}</p>
+                                                <p className="text-slate-900 font-medium text-sm">{t('digitalWallet')}</p>
                                             </div>
                                             {paymentSettings.digitalWalletDetails && (
-                                                <div className="bg-black/20 p-2 rounded text-xs text-slate-400 whitespace-pre-line">
+                                                <div className="bg-slate-50 p-2 rounded text-xs text-slate-400 whitespace-pre-line">
                                                     {paymentSettings.digitalWalletDetails}
                                                 </div>
                                             )}
@@ -543,7 +543,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
 
                             <button
                                 onClick={() => setStep('contact')}
-                                className="w-full py-3 bg-brand-neon-cyan text-black font-bold rounded-xl mt-4 hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+                                className="w-full py-3 bg-[#14B8A6] text-black font-bold rounded-xl mt-4 hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
                             >
                                 {t('understoodContinue')}
                             </button>
@@ -553,9 +553,9 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                     {/* STEP 3: CONTACT & CONFIRM */}
                     {step === 'contact' && (
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                            <div className="p-4 bg-brand-neon-cyan/10 border border-brand-neon-cyan/20 rounded-xl mb-6">
-                                <h4 className="text-brand-neon-cyan font-bold text-sm mb-1">{t('requestSummary')}</h4>
-                                <p className="text-white text-sm">{selectedService?.name}</p>
+                            <div className="p-4 bg-[#14B8A6]/10 border border-[#14B8A6]/20 rounded-xl mb-6">
+                                <h4 className="text-[#14B8A6] font-bold text-sm mb-1">{t('requestSummary')}</h4>
+                                <p className="text-slate-900 text-sm">{selectedService?.name}</p>
                                 <p className="text-slate-400 text-xs flex gap-2 mt-1">
                                     <Calendar size={12} className="mt-0.5" />
                                     {format(new Date(`${selectedDate}T${selectedTime}`), 'PPP', { locale: dateFnsLocale })}
@@ -569,7 +569,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 <label className="text-slate-400 text-sm">{t('yourName')} <span className="text-red-500">*</span></label>
                                 <input
                                     {...register('name', { required: true })}
-                                    className="w-full bg-black/20 border border-slate-200 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-brand-neon-cyan text-base"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-slate-900 focus:outline-none focus:border-[#14B8A6] text-base"
                                     placeholder={t('namePlaceholder')}
                                 />
                             </div>
@@ -578,7 +578,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 <label className="text-slate-400 text-sm">{t('phone')} <span className="text-red-500">*</span></label>
                                 <input
                                     {...register('phone', { required: true })}
-                                    className="w-full bg-black/20 border border-slate-200 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-brand-neon-cyan text-base"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-slate-900 focus:outline-none focus:border-[#14B8A6] text-base"
                                     placeholder="+504..."
                                 />
                             </div>
@@ -587,7 +587,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 <label className="text-slate-400 text-sm">{t('email')} ({t('optional')})</label>
                                 <input
                                     {...register('email')}
-                                    className="w-full bg-black/20 border border-slate-200 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-brand-neon-cyan text-base"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-slate-900 focus:outline-none focus:border-[#14B8A6] text-base"
                                     placeholder={t('emailPlaceholder')}
                                 />
                             </div>
@@ -597,14 +597,14 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 <textarea
                                     {...register('notes')}
                                     rows={2}
-                                    className="w-full bg-black/20 border border-slate-200 rounded-xl py-2 px-4 text-white focus:outline-none focus:border-brand-neon-cyan resize-none"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-4 text-slate-900 focus:outline-none focus:border-[#14B8A6] resize-none"
                                 />
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-4 bg-gradient-to-r from-brand-neon-cyan to-brand-neon-purple text-black font-bold rounded-xl mt-4 hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all flex items-center justify-center gap-2 text-base"
+                                className="w-full py-4 bg-gradient-to-r from-[#14B8A6] to-[#2563EB] text-black font-bold rounded-xl mt-4 hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all flex items-center justify-center gap-2 text-base"
                             >
                                 {loading ? t('sending') : t('confirmRequest')}
                             </button>
