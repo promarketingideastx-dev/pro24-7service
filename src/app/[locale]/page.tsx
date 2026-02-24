@@ -189,7 +189,7 @@ export default function Home() {
         <>
             <main className="h-screen bg-[#F4F6F8] text-slate-900 overflow-hidden font-sans flex flex-col">
                 {/* ── Header ── */}
-                <header className="shrink-0 bg-gradient-to-br from-[#0D9488] to-[#0F766E] px-5 pt-5 pb-5 z-50">
+                <header className="shrink-0 bg-gradient-to-br from-slate-800 to-slate-900 px-5 pt-5 pb-5 z-50">
 
                     {/* Row 1: Country + Actions */}
                     <div className="flex items-center justify-between mb-4">
@@ -214,10 +214,10 @@ export default function Home() {
                             <button
                                 onClick={() => setShowShare(true)}
                                 title={t('share')}
-                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white transition-all"
+                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#14B8A6] hover:bg-[#0F9488] text-white text-sm font-semibold shadow-[0_4px_12px_rgba(20,184,166,0.35)] transition-all"
                             >
                                 <Share2 size={16} />
-                                <span className="text-sm font-semibold">{t('share')}</span>
+                                <span>{t('share')}</span>
                             </button>
 
                             {user ? (
