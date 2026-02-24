@@ -39,12 +39,12 @@ function ForgotPasswordForm() {
     };
 
     return (
-        <div className="bg-[#151b2e]/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl">
+        <div className="bg-white backdrop-blur-xl border border-slate-200 p-8 rounded-3xl shadow-2xl">
 
             {/* Back link */}
             <Link
                 href={lp('/auth/login')}
-                className="inline-flex items-center gap-2 text-slate-400 hover:text-white text-sm mb-6 transition-colors group"
+                className="inline-flex items-center gap-2 text-slate-400 hover:text-slate-800 text-sm mb-6 transition-colors group"
             >
                 <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                 {t('backToLogin')}
@@ -56,20 +56,20 @@ function ForgotPasswordForm() {
                     <div className="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto mb-4">
                         <CheckCircle2 className="w-8 h-8 text-green-400" />
                     </div>
-                    <h2 className="text-xl font-bold text-white mb-2">{t('resetEmailSentTitle')}</h2>
+                    <h2 className="text-xl font-bold text-slate-900 mb-2">{t('resetEmailSentTitle')}</h2>
                     <p className="text-slate-400 text-sm leading-relaxed mb-6">
                         {t('resetEmailSentDesc').replace('{email}', email)}
                     </p>
                     <Link
                         href={lp('/auth/login')}
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white text-sm font-medium transition-all"
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-100 border border-slate-200 text-white text-sm font-medium transition-all"
                     >
                         {t('backToLogin')}
                     </Link>
                 </div>
             ) : (
                 <>
-                    <h2 className="text-xl font-bold text-white mb-2">{t('forgotPasswordTitle')}</h2>
+                    <h2 className="text-xl font-bold text-slate-900 mb-2">{t('forgotPasswordTitle')}</h2>
                     <p className="text-slate-400 text-sm mb-6">{t('forgotPasswordDesc')}</p>
 
                     {error && (
@@ -90,7 +90,7 @@ function ForgotPasswordForm() {
                                     autoFocus
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all"
+                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all"
                                     placeholder="ejemplo@correo.com"
                                 />
                             </div>
@@ -102,7 +102,7 @@ function ForgotPasswordForm() {
                             className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-sm shadow-lg hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? (
-                                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <span className="w-5 h-5 border-2 border-slate-300 border-t-white rounded-full animate-spin" />
                             ) : (
                                 <>
                                     <Send className="w-4 h-4" />

@@ -98,16 +98,16 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
     return (
         <div className="space-y-5">
             {/* Calendar card */}
-            <div className="bg-[#0d1526] border border-white/8 rounded-2xl overflow-hidden">
+            <div className="bg-[#0d1526] border border-slate-200 rounded-2xl overflow-hidden">
                 {/* Month header */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/8">
-                    <button onClick={prevMonth} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+                    <button onClick={prevMonth} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-800">
                         <ChevronLeft size={18} />
                     </button>
                     <span className="text-white font-semibold text-sm">
                         {months[calMonth]} {calYear}
                     </span>
-                    <button onClick={nextMonth} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white">
+                    <button onClick={nextMonth} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-800">
                         <ChevronRight size={18} />
                     </button>
                 </div>
@@ -136,7 +136,7 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
                                 onClick={() => handleDayClick(day)}
                                 className={`
                                     relative h-9 w-full flex items-center justify-center rounded-xl text-sm font-medium transition-all
-                                    ${isPast ? 'text-white/15 cursor-not-allowed' : 'cursor-pointer hover:bg-white/10'}
+                                    ${isPast ? 'text-white/15 cursor-not-allowed' : 'cursor-pointer hover:bg-slate-100'}
                                     ${isSelected ? 'bg-brand-neon-cyan text-black font-bold shadow-lg shadow-cyan-500/30 hover:bg-brand-neon-cyan' : ''}
                                     ${isToday && !isSelected ? 'ring-1 ring-brand-neon-cyan/50 text-brand-neon-cyan' : ''}
                                     ${!isPast && !isSelected ? 'text-white' : ''}
@@ -182,7 +182,7 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
                                 <button key={time} onClick={() => onTimeSelect(time)}
                                     className={`py-2.5 px-1 text-sm rounded-xl border font-medium transition-all ${active
                                         ? 'bg-brand-neon-cyan text-black border-brand-neon-cyan shadow-lg shadow-cyan-500/20'
-                                        : 'bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-brand-neon-cyan/30'
+                                        : 'bg-slate-50 border-slate-200 text-white hover:bg-slate-100 hover:border-brand-neon-cyan/30'
                                         }`}>
                                     {display}
                                 </button>
@@ -196,7 +196,7 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
                 onClick={onSubmit}
                 disabled={!selectedDate || !selectedTime}
                 className={`w-full py-3.5 font-bold rounded-xl transition-all text-base ${(!selectedDate || !selectedTime)
-                    ? 'bg-white/10 text-slate-500 cursor-not-allowed'
+                    ? 'bg-slate-100 text-slate-500 cursor-not-allowed'
                     : 'bg-brand-neon-cyan text-black hover:opacity-90 hover:shadow-lg hover:shadow-cyan-500/30'
                     }`}
             >
@@ -380,11 +380,11 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center sm:p-4 bg-black/80 backdrop-blur-sm">
-            <div className="bg-[#151b2e] border border-white/10 rounded-t-3xl sm:rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
+        <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/50 backdrop-blur-sm">
+            <div className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
 
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-white/10">
+                <div className="flex items-center justify-between p-4 border-b border-slate-200">
                     <div className="flex items-center gap-3">
                         {step !== 'service' && (
                             <button onClick={() => {
@@ -399,23 +399,23 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                     );
                                     setStep(hasPayment ? 'payment' : 'datetime');
                                 }
-                            }} className="p-1 hover:bg-white/10 rounded-full">
+                            }} className="p-1 hover:bg-slate-100 rounded-full">
                                 <ChevronLeft className="w-5 h-5 text-white" />
                             </button>
                         )}
                         <h2 className="text-lg font-bold text-white">{t('title')}</h2>
                     </div>
-                    <button onClick={onClose} className="text-slate-400 hover:text-white">
+                    <button onClick={onClose} className="text-slate-400 hover:text-slate-800">
                         <X size={24} />
                     </button>
                 </div>
 
                 {/* Progress Bar */}
                 <div className="flex gap-1 p-1 bg-black/20">
-                    <div className={`h-1 flex-1 rounded-full ${['service', 'datetime', 'payment', 'contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-white/10'}`} />
-                    <div className={`h-1 flex-1 rounded-full ${['datetime', 'payment', 'contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-white/10'}`} />
-                    <div className={`h-1 flex-1 rounded-full ${['payment', 'contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-white/10'}`} />
-                    <div className={`h-1 flex-1 rounded-full ${['contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-white/10'}`} />
+                    <div className={`h-1 flex-1 rounded-full ${['service', 'datetime', 'payment', 'contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-slate-100'}`} />
+                    <div className={`h-1 flex-1 rounded-full ${['datetime', 'payment', 'contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-slate-100'}`} />
+                    <div className={`h-1 flex-1 rounded-full ${['payment', 'contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-slate-100'}`} />
+                    <div className={`h-1 flex-1 rounded-full ${['contact'].includes(step) ? 'bg-brand-neon-cyan' : 'bg-slate-100'}`} />
                 </div>
 
                 {/* Body */}
@@ -433,7 +433,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                         <button
                                             key={service.id}
                                             onClick={() => handleServiceSelect(service)}
-                                            className="w-full p-4 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-brand-neon-cyan/50 rounded-xl flex justify-between items-center transition-all group"
+                                            className="w-full p-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-brand-neon-cyan/50 rounded-xl flex justify-between items-center transition-all group"
                                         >
                                             <div className="text-left">
                                                 <p className="font-bold text-white group-hover:text-brand-neon-cyan transition-colors">{service.name}</p>
@@ -498,7 +498,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 <label className="text-slate-400 text-sm">{t('acceptedMethods')}:</label>
                                 <div className="grid grid-cols-1 gap-3">
                                     {paymentSettings.acceptsCash && (
-                                        <div className="p-3 bg-white/5 border border-white/10 rounded-xl flex items-center gap-3">
+                                        <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
                                             <div className="p-2 bg-green-500/10 rounded-lg text-green-500">
                                                 <Briefcase className="w-4 h-4" />
                                             </div>
@@ -509,7 +509,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                         </div>
                                     )}
                                     {paymentSettings.acceptsBankTransfer && (
-                                        <div className="p-3 bg-white/5 border border-white/10 rounded-xl">
+                                        <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
                                             <div className="flex items-center gap-3 mb-2">
                                                 <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
                                                     <Briefcase className="w-4 h-4" />
@@ -524,7 +524,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                         </div>
                                     )}
                                     {paymentSettings.acceptsDigitalWallet && (
-                                        <div className="p-3 bg-white/5 border border-white/10 rounded-xl">
+                                        <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
                                             <div className="flex items-center gap-3 mb-2">
                                                 <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500">
                                                     <Briefcase className="w-4 h-4" />
@@ -569,7 +569,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 <label className="text-slate-400 text-sm">{t('yourName')} <span className="text-red-500">*</span></label>
                                 <input
                                     {...register('name', { required: true })}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-brand-neon-cyan text-base"
+                                    className="w-full bg-black/20 border border-slate-200 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-brand-neon-cyan text-base"
                                     placeholder={t('namePlaceholder')}
                                 />
                             </div>
@@ -578,7 +578,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 <label className="text-slate-400 text-sm">{t('phone')} <span className="text-red-500">*</span></label>
                                 <input
                                     {...register('phone', { required: true })}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-brand-neon-cyan text-base"
+                                    className="w-full bg-black/20 border border-slate-200 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-brand-neon-cyan text-base"
                                     placeholder="+504..."
                                 />
                             </div>
@@ -587,7 +587,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 <label className="text-slate-400 text-sm">{t('email')} ({t('optional')})</label>
                                 <input
                                     {...register('email')}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-brand-neon-cyan text-base"
+                                    className="w-full bg-black/20 border border-slate-200 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-brand-neon-cyan text-base"
                                     placeholder={t('emailPlaceholder')}
                                 />
                             </div>
@@ -597,7 +597,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 <textarea
                                     {...register('notes')}
                                     rows={2}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2 px-4 text-white focus:outline-none focus:border-brand-neon-cyan resize-none"
+                                    className="w-full bg-black/20 border border-slate-200 rounded-xl py-2 px-4 text-white focus:outline-none focus:border-brand-neon-cyan resize-none"
                                 />
                             </div>
 

@@ -62,7 +62,7 @@ export default function AppInstallBanner({ businessName }: AppInstallBannerProps
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-[80] px-4 pb-4 animate-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-[#151b2e] border border-brand-neon-cyan/20 rounded-2xl shadow-2xl shadow-black/60 p-4 flex items-center gap-3 relative overflow-hidden">
+            <div className="bg-white border border-brand-neon-cyan/20 rounded-2xl shadow-2xl shadow-black/60 p-4 flex items-center gap-3 relative overflow-hidden">
                 {/* Subtle glow bg */}
                 <div className="absolute inset-0 bg-gradient-to-r from-brand-neon-cyan/5 to-brand-neon-purple/5 pointer-events-none" />
 
@@ -98,7 +98,7 @@ export default function AppInstallBanner({ businessName }: AppInstallBannerProps
                 {/* Dismiss */}
                 <button
                     onClick={dismiss}
-                    className="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-all relative z-10"
+                    className="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition-all relative z-10"
                     aria-label="Cerrar"
                 >
                     <X className="w-4 h-4" />

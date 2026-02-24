@@ -83,7 +83,7 @@ export function Step4Contact({ data, update }: any) {
                             {field.key === 'phone' && <span className="text-red-400 text-xs ml-1">*</span>}
                         </label>
 
-                        <div className="flex items-center bg-slate-800 border border-white/10 rounded-xl overflow-hidden focus-within:border-blue-500 transition-colors">
+                        <div className="flex items-center bg-slate-800 border border-slate-200 rounded-xl overflow-hidden focus-within:border-blue-500 transition-colors">
                             {field.prefix && (
                                 <span className="pl-4 text-slate-500 text-sm select-none whitespace-nowrap">
                                     {field.prefix}

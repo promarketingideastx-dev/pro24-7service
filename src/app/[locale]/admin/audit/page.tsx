@@ -91,8 +91,8 @@ export default function AuditLogPage() {
                     {ACTION_TYPES.map(t => (
                         <button key={t.key} onClick={() => setTypeFilter(t.key)}
                             className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${typeFilter === t.key
-                                ? 'bg-white/10 border-white/20 text-white'
-                                : 'bg-white/3 border-white/8 text-slate-400 hover:text-white'
+                                ? 'bg-slate-100 border-slate-300 text-white'
+                                : 'bg-white/3 border-slate-200 text-slate-400 hover:text-slate-800'
                                 }`}>
                             {t.label}
                         </button>
@@ -101,10 +101,10 @@ export default function AuditLogPage() {
             </div>
 
             {/* Table */}
-            <div className="bg-white/2 border border-white/8 rounded-2xl overflow-hidden">
+            <div className="bg-white/2 border border-slate-200 rounded-2xl overflow-hidden">
                 {loading ? (
                     <div className="p-12 flex justify-center">
-                        <div className="w-6 h-6 border-2 border-white/10 border-t-brand-neon-cyan rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-slate-200 border-t-brand-neon-cyan rounded-full animate-spin" />
                     </div>
                 ) : displayed.length === 0 ? (
                     <div className="flex flex-col items-center py-20 gap-3 text-slate-500">
@@ -176,7 +176,7 @@ export default function AuditLogPage() {
                                                 </div>
                                             )}
                                             {entry.meta && (
-                                                <div className="bg-white/3 border border-white/8 rounded-lg p-3">
+                                                <div className="bg-white/3 border border-slate-200 rounded-lg p-3">
                                                     <p className="text-[10px] text-slate-400 font-bold mb-1 uppercase tracking-wider">Contexto</p>
                                                     <pre className="text-[11px] text-slate-400 overflow-x-auto whitespace-pre-wrap">
                                                         {JSON.stringify(entry.meta, null, 2)}

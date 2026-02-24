@@ -45,7 +45,7 @@ export default function ServicesTab({ businessId, services: initialServices, onB
     if (services.length === 0) {
         return (
             <div className="p-8 text-center text-slate-500 flex flex-col items-center">
-                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
+                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
                     <Zap className="w-8 h-8 opacity-20" />
                 </div>
                 <p>{t('noServices')}</p>
@@ -61,7 +61,7 @@ export default function ServicesTab({ businessId, services: initialServices, onB
                 <div
                     key={service.id}
                     onClick={() => onBook(service)}
-                    className="group bg-[#151b2e] border border-white/5 rounded-2xl p-4 hover:border-brand-neon-cyan/30 hover:bg-white/5 transition-all cursor-pointer flex justify-between gap-4"
+                    className="group bg-white border border-slate-200 rounded-2xl p-4 hover:border-brand-neon-cyan/30 hover:bg-slate-50 transition-all cursor-pointer flex justify-between gap-4"
                 >
                     <div className="flex-1">
                         <h3 className="font-bold text-white text-base mb-1 group-hover:text-brand-neon-cyan transition-colors">

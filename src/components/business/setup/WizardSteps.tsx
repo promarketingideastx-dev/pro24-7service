@@ -14,7 +14,7 @@ export default function WizardSteps({ currentStep, steps }: WizardStepsProps) {
         <div className="w-full mb-8">
             <div className="flex items-center justify-between relative">
                 {/* Progress Bar Background */}
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-white/10 rounded-full -z-10"></div>
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-slate-100 rounded-full -z-10"></div>
 
                 {/* Active Progress Bar */}
                 <div
@@ -34,7 +34,7 @@ export default function WizardSteps({ currentStep, steps }: WizardStepsProps) {
                                         ? 'border-brand-neon-cyan bg-brand-neon-cyan/20 text-white shadow-[0_0_15px_rgba(0,240,255,0.3)] scale-110'
                                         : isCompleted
                                             ? 'border-green-500 bg-green-500/20 text-green-400'
-                                            : 'border-white/10 bg-[#0B0F19] text-slate-500'
+                                            : 'border-slate-200 bg-[#F4F6F8] text-slate-500'
                                     }
                                 `}
                             >

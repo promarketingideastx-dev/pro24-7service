@@ -135,7 +135,7 @@ export default function AdminNotificationsPage() {
                     {/* Sort toggle */}
                     <button
                         onClick={() => setSortDesc(p => !p)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white/3 border border-white/8 text-slate-400 hover:text-white text-xs font-medium rounded-xl transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white/3 border border-slate-200 text-slate-400 hover:text-slate-800 text-xs font-medium rounded-xl transition-colors"
                     >
                         {sortDesc ? <ArrowDown size={12} /> : <ArrowUp size={12} />}
                         {sortDesc ? 'Más recientes' : 'Más antiguas'}
@@ -145,8 +145,8 @@ export default function AdminNotificationsPage() {
                     {(['all', 'unread'] as const).map(f => (
                         <button key={f} onClick={() => setFilter(f)}
                             className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all border ${filter === f
-                                ? 'bg-white/10 border-white/20 text-white'
-                                : 'bg-white/3 border-white/8 text-slate-400 hover:text-white'
+                                ? 'bg-slate-100 border-slate-300 text-white'
+                                : 'bg-white/3 border-slate-200 text-slate-400 hover:text-slate-800'
                                 }`}>
                             {f === 'all' ? t('all') : `${t('unread')} (${unreadCount})`}
                         </button>
@@ -180,7 +180,7 @@ export default function AdminNotificationsPage() {
                     </button>
                     <button
                         onClick={() => setSelected(new Set())}
-                        className="text-xs text-slate-400 hover:text-white transition-colors"
+                        className="text-xs text-slate-400 hover:text-slate-800 transition-colors"
                     >
                         Cancelar
                     </button>
@@ -191,7 +191,7 @@ export default function AdminNotificationsPage() {
             <div className="space-y-1.5">
                 {loading ? (
                     Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-16 bg-white/3 rounded-xl animate-pulse border border-white/5" />
+                        <div key={i} className="h-16 bg-white/3 rounded-xl animate-pulse border border-slate-200" />
                     ))
                 ) : displayed.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-slate-500 gap-3">
@@ -202,7 +202,7 @@ export default function AdminNotificationsPage() {
                     <>
                         {/* Select-all row */}
                         <div className="flex items-center gap-3 px-3 py-2 text-xs text-slate-500">
-                            <button onClick={toggleAll} className="flex items-center gap-2 hover:text-white transition-colors">
+                            <button onClick={toggleAll} className="flex items-center gap-2 hover:text-slate-800 transition-colors">
                                 {allSelected
                                     ? <CheckSquare size={14} className="text-brand-neon-cyan" />
                                     : someSelected
@@ -246,7 +246,7 @@ export default function AdminNotificationsPage() {
                                                 ? 'bg-brand-neon-cyan/5 border-brand-neon-cyan/20'
                                                 : n.read
                                                     ? 'bg-white/[0.02] border-white/[0.04] opacity-40 grayscale-[30%]'
-                                                    : 'bg-[#0d1a30] border-white/10 hover:border-white/20'
+                                                    : 'bg-[#0d1a30] border-slate-200 hover:border-slate-300'
                                         }
                                      `}
                                 >
@@ -292,20 +292,20 @@ export default function AdminNotificationsPage() {
                                         <div className="flex items-center gap-1 shrink-0 mt-0.5">
                                             {link && (
                                                 <Link href={link}
-                                                    className="p-1.5 text-slate-500 hover:text-brand-neon-cyan transition-colors rounded-lg hover:bg-white/5"
+                                                    className="p-1.5 text-slate-500 hover:text-brand-neon-cyan transition-colors rounded-lg hover:bg-slate-50"
                                                     title="Ver en CRM">
                                                     <ArrowUpDown size={13} />
                                                 </Link>
                                             )}
                                             {!n.read && (
                                                 <button onClick={() => markRead(n.id)}
-                                                    className="p-1.5 text-slate-500 hover:text-green-400 transition-colors rounded-lg hover:bg-white/5"
+                                                    className="p-1.5 text-slate-500 hover:text-green-400 transition-colors rounded-lg hover:bg-slate-50"
                                                     title="Marcar leída">
                                                     <CheckCheck size={13} />
                                                 </button>
                                             )}
                                             <button onClick={() => deleteOne(n.id)}
-                                                className="p-1.5 text-slate-500 hover:text-red-400 transition-colors rounded-lg hover:bg-white/5"
+                                                className="p-1.5 text-slate-500 hover:text-red-400 transition-colors rounded-lg hover:bg-slate-50"
                                                 title="Eliminar">
                                                 <Trash2 size={13} />
                                             </button>
@@ -314,7 +314,7 @@ export default function AdminNotificationsPage() {
 
                                     {/* Expanded detail panel */}
                                     {isExpanded && (
-                                        <div className="px-14 pb-3.5 text-xs text-slate-400 border-t border-white/5 pt-2.5 space-y-1.5">
+                                        <div className="px-14 pb-3.5 text-xs text-slate-400 border-t border-slate-200 pt-2.5 space-y-1.5">
                                             <p><span className="text-slate-600">Tipo:</span> {n.type}</p>
                                             {n.relatedName && <p><span className="text-slate-600">Negocio:</span> {n.relatedName}</p>}
                                             {n.country && <p><span className="text-slate-600">País:</span> {n.country}</p>}

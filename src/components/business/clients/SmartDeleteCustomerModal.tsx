@@ -81,9 +81,9 @@ export default function SmartDeleteCustomerModal({
     if (!isOpen || !customer) return null;
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-[#151b2e] border border-white/10 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
-                <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 hover:text-white">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white border border-slate-200 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
+                <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 hover:text-slate-800">
                     <X size={20} />
                 </button>
 
@@ -131,7 +131,7 @@ export default function SmartDeleteCustomerModal({
 
                                     <button
                                         onClick={() => handleDelete('appointments_only')}
-                                        className="w-full p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-left transition-colors group"
+                                        className="w-full p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-left transition-colors group"
                                     >
                                         <span className="block text-white font-medium text-sm">{t('deleteAppts')}</span>
                                         <span className="block text-slate-500 text-xs mt-0.5">{t('deleteApptDesc')}</span>
@@ -162,7 +162,7 @@ export default function SmartDeleteCustomerModal({
 
                         <button
                             onClick={onClose}
-                            className="w-full py-2.5 text-slate-400 hover:text-white transition-colors text-sm font-medium"
+                            className="w-full py-2.5 text-slate-400 hover:text-slate-800 transition-colors text-sm font-medium"
                         >
                             {t('cancel')}
                         </button>

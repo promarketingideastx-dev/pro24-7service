@@ -70,19 +70,19 @@ export default function WriteReviewModal({ isOpen, onClose, onSuccess, businessI
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             {/* Backdrop */}
             <div
-                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
                 onClick={onClose}
             ></div>
 
             {/* Modal */}
-            <div className="relative w-full max-w-lg bg-[#151b2e] rounded-2xl border border-white/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="relative w-full max-w-lg bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
 
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-white/5">
+                <div className="flex items-center justify-between p-6 border-b border-slate-200">
                     <h3 className="text-xl font-bold text-white">{t('rateTitle', { name: businessName })}</h3>
                     <button
                         onClick={onClose}
-                        className="p-2 text-slate-400 hover:text-white rounded-full hover:bg-white/5 transition-colors"
+                        className="p-2 text-slate-400 hover:text-slate-800 rounded-full hover:bg-slate-50 transition-colors"
                     >
                         <X size={20} />
                     </button>
@@ -130,7 +130,7 @@ export default function WriteReviewModal({ isOpen, onClose, onSuccess, businessI
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
                             placeholder={t('placeholder')}
-                            className="w-full bg-slate-900/50 border border-white/10 rounded-xl p-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-neon-cyan/50 resize-none h-32"
+                            className="w-full bg-slate-900/50 border border-slate-200 rounded-xl p-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-neon-cyan/50 resize-none h-32"
                         />
                         <div className="flex justify-end">
                             <span className={`text-xs ${comment.length > 0 && comment.length < 10 ? 'text-red-400' : 'text-slate-500'}`}>
@@ -142,10 +142,10 @@ export default function WriteReviewModal({ isOpen, onClose, onSuccess, businessI
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-white/5 bg-black/20 flex gap-3 justify-end">
+                <div className="p-6 border-t border-slate-200 bg-black/20 flex gap-3 justify-end">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 text-slate-300 hover:text-white font-medium transition-colors"
+                        className="px-4 py-2 text-slate-300 hover:text-slate-800 font-medium transition-colors"
                     >
                         {t('cancel')}
                     </button>

@@ -35,7 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     if (loading || isAdmin === null) {
         return (
-            <div className="min-h-screen bg-[#060d1f] flex items-center justify-center">
+            <div className="min-h-screen bg-[#F0F2F5] flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-10 h-10 border-2 border-brand-neon-cyan/30 border-t-brand-neon-cyan rounded-full animate-spin" />
                     <p className="text-slate-400 text-sm">Verificando acceso...</p>
@@ -49,11 +49,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
         <AdminContextProvider>
             {/* !pb-0 neutraliza el pb-20 global del body; isolate-admin evita gradient negro */}
-            <div id="admin-root" className="h-screen bg-[#060d1f] flex overflow-hidden !pb-0" style={{ background: '#060d1f' }}>
+            <div id="admin-root" className="h-screen bg-[#F0F2F5] flex overflow-hidden !pb-0" style={{ background: '#060d1f' }}>
                 <AdminSidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(p => !p)} />
-                <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#060d1f]">
+                <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#F0F2F5]">
                     <AdminHeader onMenuToggle={() => setSidebarOpen(p => !p)} />
-                    <main className="flex-1 p-6 overflow-y-auto bg-[#060d1f]">
+                    <main className="flex-1 p-6 overflow-y-auto bg-[#F0F2F5]">
                         {children}
                     </main>
                 </div>

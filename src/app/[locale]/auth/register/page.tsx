@@ -190,8 +190,8 @@ function RegisterForm() {
     };
 
     return (
-        <div className="bg-[#151b2e]/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl">
-            <h2 className="text-xl font-bold text-white mb-2">{t('createAccount')} 🚀</h2>
+        <div className="bg-white backdrop-blur-xl border border-slate-200 p-8 rounded-3xl shadow-2xl">
+            <h2 className="text-xl font-bold text-slate-900 mb-2">{t('createAccount')} 🚀</h2>
             <p className="text-slate-400 text-sm mb-6">{t('enterData')}</p>
 
             {/* Email Exists Warning */}
@@ -238,8 +238,8 @@ function RegisterForm() {
                                 if (emailCheckStatus === 'exists') setEmailCheckStatus('idle'); // Reset on change
                             }}
                             onBlur={handleEmailBlur}
-                            className={`w-full bg-[#0B0F19] border rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none transition-all
-                                ${emailCheckStatus === 'exists' ? 'border-blue-500/50 focus:border-blue-500' : 'border-white/10 focus:border-cyan-500/50'}
+                            className={`w-full bg-[#F4F6F8] border rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all
+                                ${emailCheckStatus === 'exists' ? 'border-blue-500/50 focus:border-blue-500' : 'border-slate-200 focus:border-cyan-500/50'}
                             `}
                             placeholder="tucorreo@ejemplo.com"
                         />
@@ -262,13 +262,13 @@ function RegisterForm() {
                             required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-[#0B0F19] border border-white/10 rounded-xl py-3 pl-10 pr-10 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all"
+                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl py-3 pl-10 pr-10 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all"
                             placeholder="Mínimo 6 caracteres"
                         />
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors focus:outline-none"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 transition-colors focus:outline-none"
                             aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                         >
                             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -286,13 +286,13 @@ function RegisterForm() {
                             required
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full bg-[#0B0F19] border border-white/10 rounded-xl py-3 pl-10 pr-10 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all"
+                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl py-3 pl-10 pr-10 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all"
                             placeholder="Repite tu contraseña"
                         />
                         <button
                             type="button"
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors focus:outline-none"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 transition-colors focus:outline-none"
                             aria-label={showConfirmPassword ? t('hidePassword') : t('showPassword')}
                         >
                             {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -308,7 +308,7 @@ function RegisterForm() {
                     className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-sm shadow-lg hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {loading || emailCheckStatus === 'checking' ? (
-                        <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                        <span className="w-5 h-5 border-2 border-slate-300 border-t-white rounded-full animate-spin"></span>
                     ) : (
                         <>
                             <UserPlus className="w-4 h-4" />
@@ -321,10 +321,10 @@ function RegisterForm() {
 
             <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-white/10"></div>
+                    <div className="w-full border-t border-slate-200"></div>
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-[#151b2e] px-2 text-slate-500">{t('orContinueWith')}</span>
+                    <span className="bg-white px-2 text-slate-500">{t('orContinueWith')}</span>
                 </div>
             </div>
 
@@ -359,7 +359,7 @@ function RegisterForm() {
                 type="button"
                 onClick={handleAppleLogin}
                 disabled={loading}
-                className="mt-3 w-full py-3.5 rounded-xl bg-black border border-white/15 text-white font-bold text-sm hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
+                className="mt-3 w-full py-3.5 rounded-xl bg-black border border-slate-300 text-white font-bold text-sm hover:bg-slate-100 transition-colors flex items-center justify-center gap-2"
             >
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />

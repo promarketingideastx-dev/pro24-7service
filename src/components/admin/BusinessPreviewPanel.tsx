@@ -69,14 +69,14 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
         >
             {businessId && <div className="fixed inset-0 z-[-1] bg-black/25" onClick={onClose} />}
 
-            <div className="h-full bg-[#070e20] border-l border-white/10 flex flex-col shadow-2xl">
+            <div className="h-full bg-[#070e20] border-l border-slate-200 flex flex-col shadow-2xl">
 
                 {/* ── Top bar ── */}
-                <div className="flex items-center gap-3 px-5 py-3 border-b border-white/5 shrink-0">
+                <div className="flex items-center gap-3 px-5 py-3 border-b border-slate-200 shrink-0">
                     <Tablet size={15} className="text-brand-neon-cyan shrink-0" />
                     <div className="flex-1 min-w-0">
                         {loading
-                            ? <div className="h-4 w-48 bg-white/10 rounded animate-pulse" />
+                            ? <div className="h-4 w-48 bg-slate-100 rounded animate-pulse" />
                             : <p className="text-sm font-semibold text-white truncate">{biz?.name ?? '—'}</p>}
                         <p className="text-[10px] text-slate-500">
                             {biz?.city ?? ''}{biz?.city && biz?.country ? ', ' : ''}{biz?.country ?? ''}
@@ -90,7 +90,7 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
                             </a>
                         )}
                         <button onClick={() => setIframeKey(k => k + 1)}
-                            className="p-2 text-slate-400 hover:text-white transition-colors">
+                            className="p-2 text-slate-400 hover:text-slate-800 transition-colors">
                             <RefreshCw size={14} />
                         </button>
                         <button onClick={onClose}
@@ -102,7 +102,7 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
 
                 {/* ── Status / plan info bar ── */}
                 {biz && (
-                    <div className="flex items-center gap-3 px-5 py-2 bg-white/3 border-b border-white/5 shrink-0 text-xs">
+                    <div className="flex items-center gap-3 px-5 py-2 bg-white/3 border-b border-slate-200 shrink-0 text-xs">
                         <span className="flex items-center gap-1.5 font-semibold" style={{ color: statusColor }}>
                             <span className="w-2 h-2 rounded-full" style={{ background: statusColor }} />
                             {statusLabel}
@@ -117,15 +117,15 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
 
                 {/* ── Contact info bar ── */}
                 {biz && (
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 px-5 py-2.5 bg-white/2 border-b border-white/5 shrink-0">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 px-5 py-2.5 bg-white/2 border-b border-slate-200 shrink-0">
                         {biz.phone && (
-                            <a href={`tel:${biz.phone}`} className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-white transition-colors">
+                            <a href={`tel:${biz.phone}`} className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-slate-800 transition-colors">
                                 <Phone size={11} className="text-brand-neon-cyan" />
                                 {biz.phone}
                             </a>
                         )}
                         {biz.email && (
-                            <a href={`mailto:${biz.email}`} className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-white transition-colors">
+                            <a href={`mailto:${biz.email}`} className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-slate-800 transition-colors">
                                 <Mail size={11} className="text-brand-neon-cyan" />
                                 {biz.email}
                             </a>
@@ -157,7 +157,7 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
                         {social.tiktok && (
                             <a href={normalizeUrl(social.tiktok, 'https://tiktok.com/@')}
                                 target="_blank" rel="noopener noreferrer"
-                                className="flex items-center gap-1 text-[11px] text-slate-300/80 hover:text-white transition-colors">
+                                className="flex items-center gap-1 text-[11px] text-slate-300/80 hover:text-slate-800 transition-colors">
                                 <TikTokIcon />
                                 {social.tiktok.replace(/^@/, '')}
                             </a>
@@ -175,7 +175,7 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
                         style={{ aspectRatio: '3 / 4', height: '100%', maxHeight: '100%', maxWidth: '820px' }}
                     >
                         <div className="flex items-center justify-center py-3 shrink-0">
-                            <div className="w-2.5 h-2.5 rounded-full bg-[#232e42] border border-white/10 shadow-inner" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-[#232e42] border border-slate-200 shadow-inner" />
                         </div>
                         <div className="flex-1 bg-white rounded-xl mx-2 mb-2 overflow-hidden relative min-h-0">
                             {loading ? (
@@ -198,7 +198,7 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
                             )}
                         </div>
                         <div className="flex justify-center py-3 shrink-0">
-                            <div className="w-20 h-1 rounded-full bg-white/20" />
+                            <div className="w-20 h-1 rounded-full bg-slate-100" />
                         </div>
                     </div>
                 </div>

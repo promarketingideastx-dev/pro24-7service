@@ -77,7 +77,7 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
             {/* Bell button */}
             <button
                 onClick={handleOpen}
-                className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-all"
+                className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-300 hover:text-slate-800 transition-all"
                 aria-label="Notificaciones"
             >
                 <Bell size={18} />
@@ -90,7 +90,7 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
 
             {/* Dropdown */}
             {open && (
-                <div className="absolute right-0 top-12 w-80 bg-[#0d1929] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                <div className="absolute right-0 top-12 w-80 bg-[#0d1929] border border-slate-200 rounded-2xl shadow-2xl z-50 overflow-hidden">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-white/6">
                         <span className="text-sm font-bold text-white">{t('title')}</span>
                         <a href={`./notifications`} className="text-xs text-cyan-400 hover:underline">

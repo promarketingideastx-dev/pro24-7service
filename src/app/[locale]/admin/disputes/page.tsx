@@ -75,9 +75,9 @@ function DisputePanel({ dispute, onClose }: { dispute: DisputeDocument; onClose:
             <div className="flex-1 bg-black/50" onClick={onClose} />
 
             {/* Panel */}
-            <div className="w-full max-w-xl bg-[#0a1128] border-l border-white/10 flex flex-col shadow-2xl">
+            <div className="w-full max-w-xl bg-[#0a1128] border-l border-slate-200 flex flex-col shadow-2xl">
                 {/* Header */}
-                <div className="flex items-start justify-between p-4 border-b border-white/5 shrink-0">
+                <div className="flex items-start justify-between p-4 border-b border-slate-200 shrink-0">
                     <div className="flex-1 min-w-0">
                         <p className="text-white font-bold truncate">{dispute.title}</p>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -89,13 +89,13 @@ function DisputePanel({ dispute, onClose }: { dispute: DisputeDocument; onClose:
                             {dispute.country && <span className="text-[10px] text-slate-600">· {dispute.country}</span>}
                         </div>
                     </div>
-                    <button onClick={onClose} className="text-slate-400 hover:text-white p-1 ml-2 shrink-0">
+                    <button onClick={onClose} className="text-slate-400 hover:text-slate-800 p-1 ml-2 shrink-0">
                         <X size={18} />
                     </button>
                 </div>
 
                 {/* Reporter info */}
-                <div className="px-4 py-3 bg-white/3 border-b border-white/5 shrink-0 flex items-center gap-3 text-xs text-slate-400">
+                <div className="px-4 py-3 bg-white/3 border-b border-slate-200 shrink-0 flex items-center gap-3 text-xs text-slate-400">
                     <User size={13} />
                     <span className="font-medium text-white">{dispute.reporterName}</span>
                     {dispute.reporterEmail && <span>{dispute.reporterEmail}</span>}
@@ -103,7 +103,7 @@ function DisputePanel({ dispute, onClose }: { dispute: DisputeDocument; onClose:
                 </div>
 
                 {/* Description (initial) */}
-                <div className="px-4 py-3 bg-[#0d1526] border-b border-white/5 shrink-0">
+                <div className="px-4 py-3 bg-[#0d1526] border-b border-slate-200 shrink-0">
                     <p className="text-sm text-slate-300 leading-relaxed">{dispute.description}</p>
                 </div>
 
@@ -116,13 +116,13 @@ function DisputePanel({ dispute, onClose }: { dispute: DisputeDocument; onClose:
                             const isAdmin = msg.authorRole === 'admin';
                             return (
                                 <div key={msg.id} className={`flex gap-2 ${isAdmin ? 'flex-row-reverse' : ''}`}>
-                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs ${isAdmin ? 'bg-brand-neon-cyan/20 text-brand-neon-cyan' : 'bg-white/10 text-slate-400'}`}>
+                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs ${isAdmin ? 'bg-brand-neon-cyan/20 text-brand-neon-cyan' : 'bg-slate-100 text-slate-400'}`}>
                                         {isAdmin ? <Shield size={12} /> : <User size={12} />}
                                     </div>
                                     <div className={`max-w-[80%] ${isAdmin ? 'items-end' : 'items-start'} flex flex-col gap-0.5`}>
                                         <div className={`px-3 py-2 rounded-xl text-sm ${isAdmin
                                             ? 'bg-brand-neon-cyan/10 border border-brand-neon-cyan/20 text-white'
-                                            : 'bg-white/5 border border-white/10 text-slate-300'
+                                            : 'bg-slate-50 border border-slate-200 text-slate-300'
                                             }`}>
                                             {msg.body}
                                         </div>
@@ -135,7 +135,7 @@ function DisputePanel({ dispute, onClose }: { dispute: DisputeDocument; onClose:
                 </div>
 
                 {/* Reply box */}
-                <div className="p-3 border-t border-white/5 shrink-0">
+                <div className="p-3 border-t border-slate-200 shrink-0">
                     <div className="flex gap-2">
                         <textarea
                             value={reply}
@@ -143,7 +143,7 @@ function DisputePanel({ dispute, onClose }: { dispute: DisputeDocument; onClose:
                             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendReply(); } }}
                             rows={2}
                             placeholder="Escribe una respuesta..."
-                            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white resize-none focus:outline-none focus:border-brand-neon-cyan/50"
+                            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-white resize-none focus:outline-none focus:border-brand-neon-cyan/50"
                         />
                         <button onClick={sendReply} disabled={sending || !reply.trim()}
                             className="px-3 bg-brand-neon-cyan text-black rounded-xl font-bold hover:opacity-90 disabled:opacity-30 transition-all">
@@ -154,13 +154,13 @@ function DisputePanel({ dispute, onClose }: { dispute: DisputeDocument; onClose:
 
                 {/* Status actions */}
                 {dispute.status !== 'closed' && (
-                    <div className="p-3 border-t border-white/5 shrink-0 space-y-2">
+                    <div className="p-3 border-t border-slate-200 shrink-0 space-y-2">
                         {(dispute.status === 'open' || dispute.status === 'in_progress') && (
                             <input
                                 value={resolution}
                                 onChange={e => setResolution(e.target.value)}
                                 placeholder="Nota de resolución (opcional)"
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white/20"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-slate-300"
                             />
                         )}
                         <div className="flex gap-2">
@@ -177,7 +177,7 @@ function DisputePanel({ dispute, onClose }: { dispute: DisputeDocument; onClose:
                                 </button>
                             )}
                             <button onClick={() => changeStatus('closed')}
-                                className="py-2 px-3 bg-white/5 border border-white/10 text-slate-400 text-xs rounded-xl hover:bg-white/10 transition-colors">
+                                className="py-2 px-3 bg-slate-50 border border-slate-200 text-slate-400 text-xs rounded-xl hover:bg-slate-100 transition-colors">
                                 <XCircle size={13} />
                             </button>
                         </div>
@@ -242,12 +242,12 @@ export default function AdminDisputesPage() {
                             return (
                                 <button key={f.key} onClick={() => setStatusFilter(f.key as any)}
                                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${statusFilter === f.key
-                                        ? 'bg-white/10 border-white/20 text-white'
-                                        : 'bg-white/3 border-white/8 text-slate-400 hover:text-white'
+                                        ? 'bg-slate-100 border-slate-300 text-white'
+                                        : 'bg-white/3 border-slate-200 text-slate-400 hover:text-slate-800'
                                         }`}>
                                     {sm && <span className={`w-1.5 h-1.5 rounded-full ${sm.color.replace('text-', 'bg-')}`} />}
                                     {f.label}
-                                    <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded-full">{counts[f.key] ?? 0}</span>
+                                    <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-full">{counts[f.key] ?? 0}</span>
                                 </button>
                             );
                         })}
@@ -255,10 +255,10 @@ export default function AdminDisputesPage() {
                 </div>
 
                 {/* Table */}
-                <div className="bg-white/2 border border-white/8 rounded-2xl overflow-hidden">
+                <div className="bg-white/2 border border-slate-200 rounded-2xl overflow-hidden">
                     {loading ? (
                         <div className="p-8 text-center">
-                            <div className="w-6 h-6 border-2 border-white/10 border-t-brand-neon-cyan rounded-full animate-spin mx-auto" />
+                            <div className="w-6 h-6 border-2 border-slate-200 border-t-brand-neon-cyan rounded-full animate-spin mx-auto" />
                         </div>
                     ) : displayed.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20 text-slate-500 gap-3">
@@ -268,7 +268,7 @@ export default function AdminDisputesPage() {
                     ) : (
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b border-white/5">
+                                <tr className="border-b border-slate-200">
                                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('ticket')}</th>
                                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">{t('category')}</th>
                                     <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">{t('reportedBy')}</th>

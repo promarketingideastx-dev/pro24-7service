@@ -34,7 +34,7 @@ function FunnelBar({ step, maxCount, isTop, label, dropLabel }: {
                             <span className="text-xs text-slate-500 w-10 text-right">{step.pct}%</span>
                         </div>
                     </div>
-                    <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-2 bg-slate-50 rounded-full overflow-hidden">
                         <div
                             className="h-full rounded-full transition-all duration-700 ease-out"
                             style={{
@@ -116,8 +116,8 @@ export default function AdminFunnelPage() {
                     {DAY_OPTIONS.map(opt => (
                         <button key={opt.value} onClick={() => setDays(opt.value)}
                             className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${days === opt.value
-                                ? 'bg-white/10 border-white/20 text-white'
-                                : 'bg-white/3 border-white/8 text-slate-400 hover:text-white'
+                                ? 'bg-slate-100 border-slate-300 text-white'
+                                : 'bg-white/3 border-slate-200 text-slate-400 hover:text-slate-800'
                                 }`}>
                             {opt.label}
                         </button>
@@ -133,7 +133,7 @@ export default function AdminFunnelPage() {
                     { label: t('step6'), value: bottomCount.toLocaleString(), icon: '✅', color: 'text-green-400' },
                     { label: t('totalConversion'), value: `${overallConversion}%`, icon: '📊', color: 'text-purple-400' },
                 ].map(kpi => (
-                    <div key={kpi.label} className="bg-white/3 border border-white/8 rounded-xl p-4">
+                    <div key={kpi.label} className="bg-white/3 border border-slate-200 rounded-xl p-4">
                         <p className="text-xl mb-1">{kpi.icon}</p>
                         <p className={`text-xl font-bold ${kpi.color}`}>{kpi.value}</p>
                         <p className="text-[11px] text-slate-500 mt-0.5">{kpi.label}</p>
@@ -142,10 +142,10 @@ export default function AdminFunnelPage() {
             </div>
 
             {/* Funnel */}
-            <div className="bg-white/2 border border-white/8 rounded-2xl overflow-hidden">
+            <div className="bg-white/2 border border-slate-200 rounded-2xl overflow-hidden">
                 {loading ? (
                     <div className="p-12 flex justify-center">
-                        <div className="w-6 h-6 border-2 border-white/10 border-t-brand-neon-cyan rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-slate-200 border-t-brand-neon-cyan rounded-full animate-spin" />
                     </div>
                 ) : topCount === 0 ? (
                     <div className="flex flex-col items-center py-20 gap-3 text-slate-500">
@@ -171,7 +171,7 @@ export default function AdminFunnelPage() {
 
             {/* Note */}
             <p className="text-[11px] text-slate-600 text-center">
-                {t('firestoreNote')} <code className="font-mono bg-white/5 px-1 rounded">analytics_events</code>
+                {t('firestoreNote')} <code className="font-mono bg-slate-50 px-1 rounded">analytics_events</code>
             </p>
         </div>
     );

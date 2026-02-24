@@ -204,7 +204,7 @@ export default function ServicesPage() {
                     <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-500" />
                 </div>
             ) : services.length === 0 ? (
-                <GlassPanel className="p-12 flex flex-col items-center justify-center min-h-[400px] text-center border-dashed border-white/20">
+                <GlassPanel className="p-12 flex flex-col items-center justify-center min-h-[400px] text-center border-dashed border-slate-300">
                     <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-4 text-slate-500">
                         <Clock size={32} />
                     </div>
@@ -226,7 +226,7 @@ export default function ServicesPage() {
                         <div>
                             <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
                                 <Tag size={14} /> {t('mainServices')}
-                                <span className="bg-white/5 text-slate-500 text-xs px-2 py-0.5 rounded-full">{regularServices.length}</span>
+                                <span className="bg-slate-50 text-slate-500 text-xs px-2 py-0.5 rounded-full">{regularServices.length}</span>
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {regularServices.map(service => (
@@ -272,9 +272,9 @@ export default function ServicesPage() {
             {/* Service Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-[#0f1629] border border-white/8 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+                    <div className="bg-[#0f1629] border border-slate-200 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
                         {/* Modal Header */}
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
                             <div>
                                 <h2 className="text-lg font-bold text-white">
                                     {editingId ? t('editService') : t('add')}
@@ -283,7 +283,7 @@ export default function ServicesPage() {
                                     {t('modalSubtitle')}
                                 </p>
                             </div>
-                            <button onClick={() => setIsModalOpen(false)} className="p-1.5 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+                            <button onClick={() => setIsModalOpen(false)} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-colors">
                                 <X size={20} />
                             </button>
                         </div>
@@ -300,7 +300,7 @@ export default function ServicesPage() {
                                     className={`relative w-full h-36 rounded-xl border-2 border-dashed cursor-pointer overflow-hidden transition-all
                                         ${imagePreview
                                             ? 'border-brand-neon-cyan/40 bg-transparent'
-                                            : 'border-white/10 bg-white/3 hover:border-white/25 hover:bg-white/5'}`}
+                                            : 'border-slate-200 bg-white/3 hover:border-white/25 hover:bg-slate-50'}`}
                                 >
                                     {imagePreview ? (
                                         <>
@@ -311,14 +311,14 @@ export default function ServicesPage() {
                                             <button
                                                 type="button"
                                                 onClick={e => { e.stopPropagation(); setImagePreview(null); setFormData(prev => ({ ...prev, imageUrl: '' })); }}
-                                                className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-red-500/80 transition-colors"
+                                                className="absolute top-2 right-2 w-6 h-6 rounded-full bg-slate-900/40 flex items-center justify-center text-white hover:bg-red-500/80 transition-colors"
                                             >
                                                 <X size={12} />
                                             </button>
                                         </>
                                     ) : imageUploading ? (
                                         <div className="flex flex-col items-center justify-center h-full gap-2">
-                                            <div className="w-5 h-5 border-2 border-white/20 border-t-brand-neon-cyan rounded-full animate-spin" />
+                                            <div className="w-5 h-5 border-2 border-slate-300 border-t-brand-neon-cyan rounded-full animate-spin" />
                                             <p className="text-xs text-slate-500">{t('uploadingImage')}</p>
                                         </div>
                                     ) : (
@@ -401,7 +401,7 @@ export default function ServicesPage() {
                                                 className={`text-xs px-3 py-1.5 rounded-full border transition-all
                                                     ${formData.category === spec
                                                         ? 'bg-brand-neon-cyan/15 border-brand-neon-cyan text-brand-neon-cyan'
-                                                        : 'border-white/10 text-slate-400 hover:border-white/30 hover:text-slate-200'
+                                                        : 'border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-200'
                                                     }`}
                                             >
                                                 {formData.category === spec && <Check size={10} className="inline mr-1" />}
@@ -431,7 +431,7 @@ export default function ServicesPage() {
                                                     name: lang === 'es' ? e.target.value : prev.name,
                                                     nameI18n: { ...prev.nameI18n!, [lang]: e.target.value } as any
                                                 }))}
-                                                className="flex-1 bg-[#0B0F19] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-brand-neon-cyan focus:outline-none transition-colors placeholder:text-slate-600 text-sm"
+                                                className="flex-1 bg-[#F4F6F8] border border-slate-200 rounded-xl px-4 py-2.5 text-white focus:border-brand-neon-cyan focus:outline-none transition-colors placeholder:text-slate-600 text-sm"
                                                 placeholder={lang === 'es' ? t('serviceNamePlaceholder') : lang === 'en' ? 'e.g. Regular Cut...' : 'Ex. Corte Regular...'}
                                             />
                                         </div>
@@ -445,7 +445,7 @@ export default function ServicesPage() {
                                 <textarea
                                     value={formData.description}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none resize-none h-20 placeholder:text-slate-600 transition-colors"
+                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none resize-none h-20 placeholder:text-slate-600 transition-colors"
                                     placeholder={t('descriptionPlaceholder')}
                                 />
                             </div>
@@ -464,7 +464,7 @@ export default function ServicesPage() {
                                             placeholder="0.00"
                                             value={formData.price === 0 ? '' : formData.price}
                                             onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
-                                            className="w-full bg-[#0B0F19] border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl pl-9 pr-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                     </div>
                                 </div>
@@ -485,7 +485,7 @@ export default function ServicesPage() {
                                                     setFormData({ ...formData, durationMinutes: val });
                                                 }
                                             }}
-                                            className="w-full bg-[#0B0F19] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none appearance-none transition-colors"
+                                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none appearance-none transition-colors"
                                         >
                                             {DURATION_OPTIONS.map(d => (
                                                 <option key={d} value={d}>{formatDuration(d)}</option>
@@ -496,7 +496,7 @@ export default function ServicesPage() {
                                     </div>
                                     {/* Custom H:M picker */}
                                     {useCustomDuration && (
-                                        <div className="mt-2 bg-[#0B0F19] border border-brand-neon-cyan/30 rounded-xl px-4 py-3 animate-in fade-in slide-in-from-top-1 duration-150">
+                                        <div className="mt-2 bg-[#F4F6F8] border border-brand-neon-cyan/30 rounded-xl px-4 py-3 animate-in fade-in slide-in-from-top-1 duration-150">
                                             <div className="flex items-center gap-2">
                                                 <Clock size={14} className="text-brand-neon-cyan shrink-0" />
                                                 <div className="flex items-center gap-2">
@@ -508,7 +508,7 @@ export default function ServicesPage() {
                                                             max={23}
                                                             value={customHours}
                                                             onChange={e => setCustomHours(Math.min(23, Math.max(0, Number(e.target.value))))}
-                                                            className="w-14 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-white text-center text-sm focus:border-brand-neon-cyan focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                            className="w-14 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-white text-center text-sm focus:border-brand-neon-cyan focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                         />
                                                     </div>
                                                     <span className="text-slate-400 font-bold mt-4">:</span>
@@ -521,7 +521,7 @@ export default function ServicesPage() {
                                                             step={5}
                                                             value={customMins}
                                                             onChange={e => setCustomMins(Math.min(59, Math.max(0, Number(e.target.value))))}
-                                                            className="w-14 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-white text-center text-sm focus:border-brand-neon-cyan focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                            className="w-14 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-white text-center text-sm focus:border-brand-neon-cyan focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                         />
                                                     </div>
                                                 </div>
@@ -540,10 +540,10 @@ export default function ServicesPage() {
                                 className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all select-none
                                     ${formData.isExtra
                                         ? 'bg-amber-500/10 border-amber-500/40'
-                                        : 'bg-white/3 border-white/8 hover:bg-white/5'
+                                        : 'bg-white/3 border-slate-200 hover:bg-slate-50'
                                     }`}
                             >
-                                <div className={`w-10 h-6 rounded-full relative transition-colors ${formData.isExtra ? 'bg-amber-500' : 'bg-white/10'}`}>
+                                <div className={`w-10 h-6 rounded-full relative transition-colors ${formData.isExtra ? 'bg-amber-500' : 'bg-slate-100'}`}>
                                     <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all ${formData.isExtra ? 'left-5' : 'left-1'}`} />
                                 </div>
                                 <div>
@@ -577,7 +577,7 @@ export default function ServicesPage() {
             {/* Delete Confirmation */}
             {serviceToDelete && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-[#0f1629] border border-white/10 w-full max-w-sm rounded-2xl p-6 shadow-2xl">
+                    <div className="bg-[#0f1629] border border-slate-200 w-full max-w-sm rounded-2xl p-6 shadow-2xl">
                         <div className="flex flex-col items-center text-center mb-6">
                             <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-4 text-red-500">
                                 <AlertTriangle size={24} />
@@ -586,7 +586,7 @@ export default function ServicesPage() {
                             <p className="text-slate-400 text-sm">{t('deleteDesc')}</p>
                         </div>
                         <div className="flex gap-3">
-                            <button onClick={() => setServiceToDelete(null)} className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl font-medium transition-colors">
+                            <button onClick={() => setServiceToDelete(null)} className="flex-1 py-2.5 bg-slate-50 hover:bg-slate-100 text-white rounded-xl font-medium transition-colors">
                                 {t('cancel')}
                             </button>
                             <button onClick={handleDelete} className="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-colors">
@@ -637,7 +637,7 @@ function ServiceCard({ service, onEdit, onDelete, extraLabel, noDescLabel, local
                 <div className="flex items-start justify-between mb-3 gap-2">
                     <h3 className="font-bold text-white text-base leading-tight pr-12">{displayName}</h3>
                     {!service.imageUrl && (
-                        <div className="flex gap-1 absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-[#0B0F19] rounded-lg p-1">
+                        <div className="flex gap-1 absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity bg-[#F4F6F8] rounded-lg p-1">
                             <button onClick={onEdit} className="p-1.5 hover:text-brand-neon-cyan text-slate-400 transition-colors"><Edit2 size={14} /></button>
                             <button onClick={onDelete} className="p-1.5 hover:text-red-400 text-slate-400 transition-colors"><Trash2 size={14} /></button>
                         </div>
@@ -660,11 +660,11 @@ function ServiceCard({ service, onEdit, onDelete, extraLabel, noDescLabel, local
                     {service.description || noDescLabel || '—'}
                 </p>
 
-                <div className="mt-auto pt-3 border-t border-white/5 flex items-center justify-between">
+                <div className="mt-auto pt-3 border-t border-slate-200 flex items-center justify-between">
                     <span className="text-lg font-bold text-white">
                         {service.currency} {Number(service.price).toLocaleString('es-HN', { minimumFractionDigits: 2 })}
                     </span>
-                    <span className="flex items-center gap-1 text-xs text-slate-500 bg-white/5 px-2 py-1 rounded-lg">
+                    <span className="flex items-center gap-1 text-xs text-slate-500 bg-slate-50 px-2 py-1 rounded-lg">
                         <Clock size={11} /> {service.durationMinutes ? formatDuration(service.durationMinutes) : '—'}
                     </span>
                 </div>

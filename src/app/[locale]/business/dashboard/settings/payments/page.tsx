@@ -144,7 +144,7 @@ export default function PaymentSettingsPage() {
                                 value={settings.bankTransferDetails || ''}
                                 onChange={(e) => setSettings({ ...settings, bankTransferDetails: e.target.value })}
                                 placeholder="Ej: Banco Atlántida, Cta: 1234567890, Nombre: Juan Pérez. Enviar comprobante a WhatsApp."
-                                className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-sm text-white focus:border-brand-neon-cyan focus:ring-1 focus:ring-brand-neon-cyan outline-none resize-none h-24"
+                                className="w-full bg-black/20 border border-slate-200 rounded-lg p-3 text-sm text-white focus:border-brand-neon-cyan focus:ring-1 focus:ring-brand-neon-cyan outline-none resize-none h-24"
                                 maxLength={500}
                             />
                             <p className="text-[10px] text-slate-500 text-right">{settings.bankTransferDetails?.length || 0}/500</p>
@@ -182,7 +182,7 @@ export default function PaymentSettingsPage() {
                                 value={settings.digitalWalletDetails || ''}
                                 onChange={(e) => setSettings({ ...settings, digitalWalletDetails: e.target.value })}
                                 placeholder="Ej: PayPal: usuario@email.com o Link de pago."
-                                className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-sm text-white focus:border-brand-neon-cyan focus:ring-1 focus:ring-brand-neon-cyan outline-none resize-none h-20"
+                                className="w-full bg-black/20 border border-slate-200 rounded-lg p-3 text-sm text-white focus:border-brand-neon-cyan focus:ring-1 focus:ring-brand-neon-cyan outline-none resize-none h-20"
                                 maxLength={200}
                             />
                         </div>
@@ -213,14 +213,14 @@ export default function PaymentSettingsPage() {
                     </div>
 
                     {settings.requiresDeposit && (
-                        <div className="space-y-4 animate-in fade-in slide-in-from-top-2 pt-2 border-t border-white/5">
+                        <div className="space-y-4 animate-in fade-in slide-in-from-top-2 pt-2 border-t border-slate-200">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-xs text-slate-400 font-medium block mb-1">{t('depositType')}</label>
                                     <select
                                         value={settings.depositType}
                                         onChange={(e) => setSettings({ ...settings, depositType: e.target.value as 'fixed' | 'percent' })}
-                                        className="w-full bg-black/20 border border-white/10 rounded-lg p-2 text-sm text-white outline-none"
+                                        className="w-full bg-black/20 border border-slate-200 rounded-lg p-2 text-sm text-white outline-none"
                                     >
                                         <option value="fixed">{t('depositFixed')}</option>
                                         <option value="percent">{t('depositPercent')}</option>
@@ -232,7 +232,7 @@ export default function PaymentSettingsPage() {
                                         type="number"
                                         value={settings.depositValue}
                                         onChange={(e) => setSettings({ ...settings, depositValue: Number(e.target.value) })}
-                                        className="w-full bg-black/20 border border-white/10 rounded-lg p-2 text-sm text-white outline-none focus:border-brand-neon-cyan"
+                                        className="w-full bg-black/20 border border-slate-200 rounded-lg p-2 text-sm text-white outline-none focus:border-brand-neon-cyan"
                                         min="0"
                                     />
                                 </div>
@@ -243,7 +243,7 @@ export default function PaymentSettingsPage() {
                                     value={settings.depositNotes || ''}
                                     onChange={(e) => setSettings({ ...settings, depositNotes: e.target.value })}
                                     placeholder="Ej: No reembolsable si cancela con menos de 24h."
-                                    className="w-full bg-black/20 border border-white/10 rounded-lg p-3 text-sm text-white focus:border-brand-neon-cyan focus:ring-1 focus:ring-brand-neon-cyan outline-none resize-none h-16"
+                                    className="w-full bg-black/20 border border-slate-200 rounded-lg p-3 text-sm text-white focus:border-brand-neon-cyan focus:ring-1 focus:ring-brand-neon-cyan outline-none resize-none h-16"
                                     maxLength={200}
                                 />
                             </div>

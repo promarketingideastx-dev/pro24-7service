@@ -27,7 +27,7 @@ export default function WeeklyScheduleView({ schedule }: WeeklyScheduleViewProps
     };
 
     return (
-        <div className="bg-white/5 rounded-xl p-4 border border-white/5 space-y-3">
+        <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
             <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 mb-2">
                 <Clock className="w-3.5 h-3.5" />
                 {t('businessHours')}
@@ -38,7 +38,7 @@ export default function WeeklyScheduleView({ schedule }: WeeklyScheduleViewProps
                     const isToday = dayKey === todayKey;
 
                     return (
-                        <div key={dayKey} className={`flex justify-between items-center text-sm ${isToday ? 'text-white font-medium bg-white/5 -mx-2 px-2 py-1 rounded' : 'text-slate-400'}`}>
+                        <div key={dayKey} className={`flex justify-between items-center text-sm ${isToday ? 'text-white font-medium bg-slate-50 -mx-2 px-2 py-1 rounded' : 'text-slate-400'}`}>
                             <span>{getDayLabel(dayKey, dayLabels)}</span>
                             <span>
                                 {daySchedule?.enabled

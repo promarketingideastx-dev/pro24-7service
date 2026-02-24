@@ -68,7 +68,7 @@ function OnboardingContent() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-[#0B0F19] p-6 relative overflow-hidden">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-[#F4F6F8] p-6 relative overflow-hidden">
             {/* Background Effects */}
             <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
             <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none"></div>
@@ -93,7 +93,7 @@ function OnboardingContent() {
                     <button
                         onClick={() => handleRoleSelection('client')}
                         disabled={loading}
-                        className="flex flex-col items-center p-8 bg-[#151b2e]/60 backdrop-blur-md border border-white/10 rounded-3xl hover:border-brand-neon-cyan hover:bg-[#151b2e]/80 hover:shadow-[0_0_30px_rgba(0,240,255,0.15)] transition-all group text-left relative overflow-hidden"
+                        className="flex flex-col items-center p-8 bg-white/60 backdrop-blur-md border border-slate-200 rounded-3xl hover:border-brand-neon-cyan hover:bg-slate-500 hover:shadow-[0_0_30px_rgba(0,240,255,0.15)] transition-all group text-left relative overflow-hidden"
                     >
                         <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                             <Search className="w-8 h-8 text-blue-400" />
@@ -111,7 +111,7 @@ function OnboardingContent() {
                     <button
                         onClick={() => handleRoleSelection('provider')}
                         disabled={loading}
-                        className="flex flex-col items-center p-8 bg-[#151b2e]/60 backdrop-blur-md border border-white/10 rounded-3xl hover:border-green-400 hover:bg-[#151b2e]/80 hover:shadow-[0_0_30px_rgba(74,222,128,0.15)] transition-all group text-left relative overflow-hidden"
+                        className="flex flex-col items-center p-8 bg-white/60 backdrop-blur-md border border-slate-200 rounded-3xl hover:border-green-400 hover:bg-slate-500 hover:shadow-[0_0_30px_rgba(74,222,128,0.15)] transition-all group text-left relative overflow-hidden"
                     >
                         <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                             <Briefcase className="w-8 h-8 text-green-400" />
@@ -129,7 +129,7 @@ function OnboardingContent() {
                 <div className="mt-12">
                     <button
                         onClick={() => router.push(lp('/'))}
-                        className="text-slate-500 hover:text-white text-xs font-medium transition-colors flex items-center gap-2"
+                        className="text-slate-500 hover:text-slate-800 text-xs font-medium transition-colors flex items-center gap-2"
                     >
                         <span>{t('exploreOnly')}</span>
                         <span className="underline decoration-slate-600 underline-offset-4 hover:decoration-white">{t('backHome')}</span>
@@ -142,7 +142,7 @@ function OnboardingContent() {
 
 export default function OnboardingPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-[#0B0F19]" />}>
+        <Suspense fallback={<div className="min-h-screen bg-[#F4F6F8]" />}>
             <OnboardingContent />
         </Suspense>
     );

@@ -25,12 +25,12 @@ function AvatarCircle({ emp }: { emp: EmployeeData }) {
             <img
                 src={emp.photoUrl}
                 alt={emp.name}
-                className="w-20 h-20 rounded-full object-cover border-2 border-white/10 mx-auto"
+                className="w-20 h-20 rounded-full object-cover border-2 border-slate-200 mx-auto"
             />
         );
     }
     return (
-        <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-bold text-2xl mx-auto border-2 border-white/10`}>
+        <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-bold text-2xl mx-auto border-2 border-slate-200`}>
             {emp.name.charAt(0).toUpperCase()}
         </div>
     );
@@ -50,7 +50,7 @@ export default function TeamTab({ businessId }: TeamTabProps) {
     if (loading) {
         return (
             <div className="flex justify-center py-12">
-                <div className="w-7 h-7 border-2 border-white/20 border-t-brand-neon-cyan rounded-full animate-spin" />
+                <div className="w-7 h-7 border-2 border-slate-300 border-t-brand-neon-cyan rounded-full animate-spin" />
             </div>
         );
     }
@@ -92,7 +92,7 @@ export default function TeamTab({ businessId }: TeamTabProps) {
                     return (
                         <div
                             key={emp.id}
-                            className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white/3 border border-white/5 hover:border-brand-neon-cyan/20 transition-colors"
+                            className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white/3 border border-slate-200 hover:border-brand-neon-cyan/20 transition-colors"
                         >
                             <AvatarCircle emp={emp} />
                             <div className="text-center mt-1">

@@ -153,7 +153,7 @@ export default function BusinessSetupPage() {
                                 type="text"
                                 value={formData.businessName}
                                 onChange={e => setFormData({ ...formData, businessName: e.target.value })}
-                                className="w-full h-12 bg-[#151b2e] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
+                                className="w-full h-12 bg-white border border-slate-200 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
                                 placeholder="Ej: Mi Negocio Profesional"
                             />
                         </div>
@@ -162,7 +162,7 @@ export default function BusinessSetupPage() {
                             <textarea
                                 value={formData.description}
                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                className="w-full h-24 bg-[#151b2e] border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-neon-cyan resize-none"
+                                className="w-full h-24 bg-white border border-slate-200 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-neon-cyan resize-none"
                                 placeholder="Ej: Soluciones profesionales para ti."
                             />
                         </div>
@@ -173,7 +173,7 @@ export default function BusinessSetupPage() {
                                     type="tel"
                                     value={formData.phone}
                                     onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                    className="w-full h-12 bg-[#151b2e] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
+                                    className="w-full h-12 bg-white border border-slate-200 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
                                     placeholder={`${getCountryConfig((formData.country as any) || 'HN').phonePrefix} 0000-0000`}
                                 />
                             </div>
@@ -183,7 +183,7 @@ export default function BusinessSetupPage() {
                                     type="url"
                                     value={formData.website}
                                     onChange={e => setFormData({ ...formData, website: e.target.value })}
-                                    className="w-full h-12 bg-[#151b2e] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
+                                    className="w-full h-12 bg-white border border-slate-200 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
                                     placeholder="https://..."
                                 />
                             </div>
@@ -197,7 +197,7 @@ export default function BusinessSetupPage() {
                             <div className="space-y-2">
 
                                 {/* Instagram */}
-                                <div className="flex items-center gap-3 bg-[#0d1120] border border-white/8 rounded-xl px-3 h-14 focus-within:border-pink-500/60 focus-within:bg-pink-500/5 transition-all group">
+                                <div className="flex items-center gap-3 bg-[#0d1120] border border-slate-200 rounded-xl px-3 h-14 focus-within:border-pink-500/60 focus-within:bg-pink-500/5 transition-all group">
                                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shrink-0">
                                         <Instagram size={16} className="text-white" />
                                     </div>
@@ -215,7 +215,7 @@ export default function BusinessSetupPage() {
                                 </div>
 
                                 {/* Facebook */}
-                                <div className="flex items-center gap-3 bg-[#0d1120] border border-white/8 rounded-xl px-3 h-14 focus-within:border-blue-500/60 focus-within:bg-blue-500/5 transition-all group">
+                                <div className="flex items-center gap-3 bg-[#0d1120] border border-slate-200 rounded-xl px-3 h-14 focus-within:border-blue-500/60 focus-within:bg-blue-500/5 transition-all group">
                                     <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
                                         <Facebook size={16} className="text-white" />
                                     </div>
@@ -232,8 +232,8 @@ export default function BusinessSetupPage() {
                                 </div>
 
                                 {/* TikTok */}
-                                <div className="flex items-center gap-3 bg-[#0d1120] border border-white/8 rounded-xl px-3 h-14 focus-within:border-slate-400/60 focus-within:bg-white/5 transition-all group">
-                                    <div className="w-8 h-8 rounded-lg bg-[#111] border border-white/10 flex items-center justify-center shrink-0">
+                                <div className="flex items-center gap-3 bg-[#0d1120] border border-slate-200 rounded-xl px-3 h-14 focus-within:border-slate-400/60 focus-within:bg-slate-50 transition-all group">
+                                    <div className="w-8 h-8 rounded-lg bg-[#111] border border-slate-200 flex items-center justify-center shrink-0">
                                         <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.17 8.17 0 0 0 4.78 1.53V6.79a4.85 4.85 0 0 1-1.01-.1z" /></svg>
                                     </div>
                                     <div className="flex items-center flex-1 min-w-0">
@@ -261,7 +261,7 @@ export default function BusinessSetupPage() {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-slate-400 text-sm mb-1">País</label>
-                                <div className="w-full h-12 bg-[#151b2e]/50 border border-white/5 rounded-lg px-4 flex items-center text-slate-400 cursor-not-allowed">
+                                <div className="w-full h-12 bg-slate-500 border border-slate-200 rounded-lg px-4 flex items-center text-slate-400 cursor-not-allowed">
                                     {currentCountryConfig.name} ({currentCountryConfig.code})
                                 </div>
                             </div>
@@ -278,7 +278,7 @@ export default function BusinessSetupPage() {
                                             city: selectedRegion?.cities?.[0] || ''
                                         });
                                     }}
-                                    className="w-full h-12 bg-[#151b2e] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
+                                    className="w-full h-12 bg-white border border-slate-200 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
                                 >
                                     <option value="">Selecciona...</option>
                                     {regions.map(reg => (
@@ -302,8 +302,8 @@ export default function BusinessSetupPage() {
                                         onChange={e => !hasPredefinedCities && setFormData({ ...formData, city: e.target.value })}
                                         className={`w-full h-12 rounded-lg px-4 focus:outline-none transition-colors
                                             ${hasPredefinedCities
-                                                ? 'bg-[#151b2e]/50 border border-white/5 text-slate-400 cursor-not-allowed'
-                                                : 'bg-[#151b2e] border border-white/10 text-white focus:border-brand-neon-cyan'
+                                                ? 'bg-slate-500 border border-slate-200 text-slate-400 cursor-not-allowed'
+                                                : 'bg-white border border-slate-200 text-white focus:border-brand-neon-cyan'
                                             }
                                         `}
                                         placeholder={hasPredefinedCities ? "Se selecciona automáticamente" : "Escribe tu ciudad"}
@@ -324,7 +324,7 @@ export default function BusinessSetupPage() {
                                 type="text"
                                 value={formData.address}
                                 onChange={e => setFormData({ ...formData, address: e.target.value })}
-                                className="w-full h-12 bg-[#151b2e] border border-white/10 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
+                                className="w-full h-12 bg-white border border-slate-200 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
                                 placeholder="Colonia, Calle, # de Casa/Local"
                             />
                         </div>
@@ -338,7 +338,7 @@ export default function BusinessSetupPage() {
                                         className={`h-10 rounded border text-sm font-medium transition-colors
                                             ${formData.modality === m
                                                 ? 'bg-brand-neon-cyan/20 border-brand-neon-cyan text-white'
-                                                : 'bg-[#151b2e] border-white/10 text-slate-400 hover:border-white/30'
+                                                : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300'
                                             }
                                         `}
                                     >
@@ -358,7 +358,7 @@ export default function BusinessSetupPage() {
                                 <label className="block text-slate-400 text-sm">¿En qué área trabajas? *</label>
                                 <button
                                     onClick={() => setShowMultiArea(!showMultiArea)}
-                                    className={`text-xs px-2 py-1 rounded border transition-colors ${showMultiArea ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan text-brand-neon-cyan' : 'border-white/10 text-slate-500'}`}
+                                    className={`text-xs px-2 py-1 rounded border transition-colors ${showMultiArea ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan text-brand-neon-cyan' : 'border-slate-200 text-slate-500'}`}
                                 >
                                     {showMultiArea ? 'Modo Simple' : 'Agregar otra área (Opcional)'}
                                 </button>
@@ -418,12 +418,12 @@ export default function BusinessSetupPage() {
                                                     ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan text-white shadow-[0_0_15px_rgba(0,240,255,0.15)] ring-1 ring-brand-neon-cyan'
                                                     : isAdditional
                                                         ? 'bg-brand-neon-cyan/5 border-brand-neon-cyan/50 text-slate-200'
-                                                        : 'bg-[#151b2e] border-white/5 text-slate-400 hover:border-white/20 hover:bg-[#1a233b]'
+                                                        : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-[#1a233b]'
                                                 }
                                             `}
                                         >
                                             {isPrimary && <div className="absolute top-2 right-2 text-xs bg-brand-neon-cyan text-black px-1.5 rounded font-bold">Principal</div>}
-                                            {isAdditional && <div className="absolute top-2 right-2 text-xs bg-white/10 text-slate-300 px-1.5 rounded">Adicional</div>}
+                                            {isAdditional && <div className="absolute top-2 right-2 text-xs bg-slate-100 text-slate-300 px-1.5 rounded">Adicional</div>}
 
                                             <Icon size={32} className={`mb-3 ${isSelected ? 'text-brand-neon-cyan' : 'text-slate-500'}`} />
                                             <span className="font-medium text-center">{cat.label.es}</span>
@@ -438,12 +438,12 @@ export default function BusinessSetupPage() {
                                     {formData.additionalCategories.map(catId => {
                                         const catLabel = Object.values(TAXONOMY).find(c => c.id === catId)?.label.es;
                                         return (
-                                            <span key={catId} className="bg-white/5 border border-white/10 text-slate-300 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                                            <span key={catId} className="bg-slate-50 border border-slate-200 text-slate-300 text-xs px-2 py-1 rounded-full flex items-center gap-1">
                                                 {catLabel}
                                                 <button onClick={() => setFormData({
                                                     ...formData,
                                                     additionalCategories: formData.additionalCategories?.filter(id => id !== catId)
-                                                })} className="hover:text-white">×</button>
+                                                })} className="hover:text-slate-800">×</button>
                                             </span>
                                         );
                                     })}
@@ -487,11 +487,11 @@ export default function BusinessSetupPage() {
                                                     flex items-center gap-3 p-3 rounded-lg border text-left transition-all
                                                     ${isSelected
                                                         ? 'bg-brand-neon-cyan/20 border-brand-neon-cyan text-white'
-                                                        : 'bg-[#151b2e]/50 border-white/5 text-slate-400 hover:border-white/20 hover:text-slate-200'
+                                                        : 'bg-slate-500 border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-200'
                                                     }
                                                 `}
                                             >
-                                                <div className={`p-2 rounded-full ${isSelected ? 'bg-brand-neon-cyan/20' : 'bg-white/5'}`}>
+                                                <div className={`p-2 rounded-full ${isSelected ? 'bg-brand-neon-cyan/20' : 'bg-slate-50'}`}>
                                                     <SubIcon size={18} className={isSelected ? 'text-brand-neon-cyan' : 'text-slate-500'} />
                                                 </div>
                                                 <span className="text-sm font-medium leading-tight">{sub.label.es}</span>
@@ -521,7 +521,7 @@ export default function BusinessSetupPage() {
                                     }
 
                                     return (
-                                        <div className="bg-[#151b2e]/30 border border-white/5 rounded-xl p-4">
+                                        <div className="bg-white/30 border border-slate-200 rounded-xl p-4">
                                             <div className="flex flex-wrap gap-2">
                                                 {availableSpecialties.map(spec => {
                                                     const specKey = spec.es;
@@ -555,7 +555,7 @@ export default function BusinessSetupPage() {
                                                                 text-sm px-3 py-1.5 rounded-full border transition-all flex items-center gap-1
                                                                 ${isSelected
                                                                     ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan text-brand-neon-cyan'
-                                                                    : 'bg-transparent border-white/10 text-slate-400 hover:border-white/30 hover:text-slate-200'
+                                                                    : 'bg-transparent border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-200'
                                                                 }
                                                             `}
                                                         >
@@ -597,7 +597,7 @@ export default function BusinessSetupPage() {
                 // Review Step (moved from 4)
                 return (
                     <div className="space-y-4 text-sm">
-                        <div className="bg-[#151b2e]/50 p-4 rounded-lg border border-white/5">
+                        <div className="bg-slate-500 p-4 rounded-lg border border-slate-200">
                             <h3 className="text-white font-bold mb-2">Resumen del Negocio</h3>
                             <div className="grid grid-cols-[100px_1fr] gap-2">
                                 <span className="text-slate-500">Nombre:</span>
@@ -625,7 +625,7 @@ export default function BusinessSetupPage() {
                                 <div className="text-slate-200 flex flex-wrap gap-1">
                                     {formData.specialties?.length ? (
                                         formData.specialties.map(s => (
-                                            <span key={s} className="text-xs bg-white/10 px-2 py-0.5 rounded-full">{s}</span>
+                                            <span key={s} className="text-xs bg-slate-100 px-2 py-0.5 rounded-full">{s}</span>
                                         ))
                                     ) : (
                                         <span className="text-slate-500 italic">Ninguna</span>
@@ -637,7 +637,7 @@ export default function BusinessSetupPage() {
                                     {formData.images && formData.images.length > 0 ? (
                                         <div className="flex gap-2 mt-1">
                                             {formData.images.map((img, i) => (
-                                                <img key={i} src={img} className="w-10 h-10 rounded object-cover border border-white/10" />
+                                                <img key={i} src={img} className="w-10 h-10 rounded object-cover border border-slate-200" />
                                             ))}
                                         </div>
                                     ) : <span className="text-red-400">Pendiente</span>}
@@ -660,11 +660,11 @@ export default function BusinessSetupPage() {
     const progressPercent = Math.round(((currentStep - 1) / (STEPS.length - 1)) * 100);
 
     return (
-        <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center p-4 md:p-8">
-            <div className="w-full max-w-5xl bg-[#0f1629] rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-white/5 min-h-[600px]">
+        <div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center p-4 md:p-8">
+            <div className="w-full max-w-5xl bg-[#0f1629] rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-slate-200 min-h-[600px]">
 
                 {/* ── LEFT SIDEBAR ── */}
-                <div className="w-full md:w-72 bg-[#0a1020] border-b md:border-b-0 md:border-r border-white/5 flex flex-col p-6 shrink-0">
+                <div className="w-full md:w-72 bg-[#0a1020] border-b md:border-b-0 md:border-r border-slate-200 flex flex-col p-6 shrink-0">
                     {/* Logo / Header */}
                     <div className="flex items-center gap-3 mb-8">
                         <div className="w-10 h-10 rounded-xl bg-brand-neon-cyan/10 border border-brand-neon-cyan/20 flex items-center justify-center">
@@ -690,7 +690,7 @@ export default function BusinessSetupPage() {
                                 >
                                     {/* Step indicator */}
                                     <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold transition-all
-                                        ${isDone ? 'bg-green-500 text-white' : isActive ? 'bg-brand-neon-cyan text-black' : 'bg-white/5 text-slate-500 border border-white/10'}`}>
+                                        ${isDone ? 'bg-green-500 text-white' : isActive ? 'bg-brand-neon-cyan text-black' : 'bg-slate-50 text-slate-500 border border-slate-200'}`}>
                                         {isDone ? <Check size={12} /> : stepNum}
                                     </div>
                                     <span className={`text-sm font-medium transition-colors ${isActive ? 'text-white' : isDone ? 'text-green-400' : 'text-slate-500'}`}>
@@ -703,12 +703,12 @@ export default function BusinessSetupPage() {
                     </nav>
 
                     {/* Progress bar */}
-                    <div className="mt-6 pt-4 border-t border-white/5">
+                    <div className="mt-6 pt-4 border-t border-slate-200">
                         <div className="flex justify-between text-xs text-slate-500 mb-2">
                             <span>Progreso</span>
                             <span>{progressPercent}%</span>
                         </div>
-                        <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-1.5 bg-slate-50 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-gradient-to-r from-brand-neon-cyan to-blue-500 rounded-full transition-all duration-500"
                                 style={{ width: `${progressPercent}%` }}
@@ -725,11 +725,11 @@ export default function BusinessSetupPage() {
                     </div>
 
                     {/* Footer Navigation */}
-                    <div className="shrink-0 border-t border-white/5 px-6 md:px-10 py-5 flex items-center justify-between bg-[#0f1629]">
+                    <div className="shrink-0 border-t border-slate-200 px-6 md:px-10 py-5 flex items-center justify-between bg-[#0f1629]">
                         {currentStep > 1 ? (
                             <button
                                 onClick={handleBack}
-                                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition-all text-sm font-medium"
+                                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-slate-400 hover:text-slate-800 hover:border-slate-300 transition-all text-sm font-medium"
                             >
                                 <ArrowLeft size={16} /> Atrás
                             </button>

@@ -2,42 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ================================================
+   LIGHT MODE DESIGN SYSTEM — PRO24/7
+   Revert: git checkout -- src/ tailwind.config.ts
+   ================================================ */
+
 :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 11, 15, 25;
-    /* #0B0F19 Deep Space */
-    --background-end-rgb: 0, 0, 0;
+    --foreground-rgb: 15, 23, 42;
+    --background-start-rgb: 244, 246, 248;
+    --background-end-rgb: 248, 250, 252;
 }
 
+html,
 body {
     color: rgb(var(--foreground-rgb));
-    background: linear-gradient(to bottom,
-            transparent,
-            rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+    background-color: #F4F6F8;
     min-height: 100vh;
 }
 
-/* Custom Scrollbar for Premium Feel */
+/* ---- Custom Scrollbar — Light Mode ---- */
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #0f172a;
+    background: #F1F5F9;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #334155;
+    background: #CBD5E1;
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #475569;
+    background: #94A3B8;
 }
 
-/* Utilities */
+/* ---- Utilities ---- */
 .glass-panel {
-    @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-glass;
+    @apply bg-white/80 backdrop-blur-md border border-slate-200 shadow-sm;
+}
+
+.light-card {
+    background: #FFFFFF;
+    border: 1px solid #E6E8EC;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .text-glow {
@@ -53,7 +62,7 @@ body {
     scrollbar-width: none;
 }
 
-/* Leaflet Popup Compact Overrides */
+/* Leaflet Popup */
 .custom-popup .leaflet-popup-content-wrapper {
     padding: 0 !important;
     border-radius: 8px !important;
@@ -69,13 +78,13 @@ body {
     background: white;
 }
 
-/* Admin CRM: override body gradient + padding-bottom to avoid black area */
+/* Admin CRM */
 body:has(#admin-root) {
-    background: #060d1f !important;
+    background-color: #F0F2F5 !important;
     padding-bottom: 0 !important;
 }
 
-/* Hide native browser calendar icon on styled date inputs */
+/* Hide native calendar icon */
 input[type="date"].styled-date::-webkit-calendar-picker-indicator {
     opacity: 0;
     position: absolute;

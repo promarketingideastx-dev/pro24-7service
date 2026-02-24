@@ -97,7 +97,7 @@ export default function SettingsPage() {
             </div>
 
             {/* Active Countries */}
-            <div className="bg-white/2 border border-white/8 rounded-2xl p-5 space-y-4">
+            <div className="bg-white/2 border border-slate-200 rounded-2xl p-5 space-y-4">
                 <div className="flex items-center gap-2 mb-1">
                     <Globe size={16} className="text-brand-neon-cyan" />
                     <h2 className="text-sm font-semibold text-white">{t('activeCountries')}</h2>
@@ -110,7 +110,7 @@ export default function SettingsPage() {
                             <button key={c.code} onClick={() => toggleCountry(c.code)}
                                 className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-sm transition-all ${active
                                     ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan/30 text-white'
-                                    : 'bg-white/3 border-white/8 text-slate-500 hover:text-white hover:border-white/20'
+                                    : 'bg-white/3 border-slate-200 text-slate-500 hover:text-slate-800 hover:border-slate-300'
                                     }`}>
                                 <span className="text-base">{c.flag}</span>
                                 <span className="flex-1 text-left text-xs font-medium">{c.name}</span>
@@ -125,14 +125,14 @@ export default function SettingsPage() {
             </div>
 
             {/* Beta & Rules */}
-            <div className="bg-white/2 border border-white/8 rounded-2xl p-5 space-y-4">
+            <div className="bg-white/2 border border-slate-200 rounded-2xl p-5 space-y-4">
                 <div className="flex items-center gap-2 mb-1">
                     <Shield size={16} className="text-brand-neon-cyan" />
                     <h2 className="text-sm font-semibold text-white">{t('businessRules')}</h2>
                 </div>
 
                 {/* Beta override */}
-                <div className="flex items-center justify-between py-3 border-b border-white/5">
+                <div className="flex items-center justify-between py-3 border-b border-slate-200">
                     <div>
                         <p className="text-sm text-white font-medium">{t('betaOverride')}</p>
                         <p className="text-xs text-slate-500 mt-0.5">{t('betaOverrideDesc')}</p>
@@ -154,16 +154,16 @@ export default function SettingsPage() {
                     </div>
                     <div className="flex items-center gap-2">
                         <button onClick={() => setSettings(p => ({ ...p, maxImagesPerBusiness: Math.max(1, p.maxImagesPerBusiness - 1) }))}
-                            className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-colors flex items-center justify-center">−</button>
+                            className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-200 text-white text-sm hover:bg-slate-100 transition-colors flex items-center justify-center">−</button>
                         <span className="text-white font-bold w-6 text-center">{settings.maxImagesPerBusiness}</span>
                         <button onClick={() => setSettings(p => ({ ...p, maxImagesPerBusiness: Math.min(50, p.maxImagesPerBusiness + 1) }))}
-                            className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-colors flex items-center justify-center">+</button>
+                            className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-200 text-white text-sm hover:bg-slate-100 transition-colors flex items-center justify-center">+</button>
                     </div>
                 </div>
             </div>
 
             {/* System Info */}
-            <div className="bg-white/2 border border-white/8 rounded-2xl p-5">
+            <div className="bg-white/2 border border-slate-200 rounded-2xl p-5">
                 <div className="flex items-center gap-2 mb-3">
                     <Info size={16} className="text-brand-neon-cyan" />
                     <h2 className="text-sm font-semibold text-white">{t('systemInfo')}</h2>

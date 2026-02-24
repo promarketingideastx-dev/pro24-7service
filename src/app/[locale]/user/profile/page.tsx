@@ -177,16 +177,16 @@ export default function UserProfilePage() {
         }
     };
 
-    if (!user) return <div className="min-h-screen bg-[#0B0F19] text-white flex items-center justify-center">{t('loading')}</div>;
+    if (!user) return <div className="min-h-screen bg-[#F4F6F8] text-white flex items-center justify-center">{t('loading')}</div>;
 
     return (
-        <div className="min-h-screen bg-[#0B0F19] text-white pb-20">
+        <div className="min-h-screen bg-[#F4F6F8] text-white pb-20">
             {/* Header / Nav Back */}
-            <div className="bg-[#151b2e] border-b border-white/5 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+            <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
                 <Link href="/" className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
                     PRO24/7
                 </Link>
-                <button type="button" onClick={() => router.back()} className="text-sm text-slate-400 hover:text-white">
+                <button type="button" onClick={() => router.back()} className="text-sm text-slate-400 hover:text-slate-800">
                     {t('back')}
                 </button>
             </div>
@@ -194,7 +194,7 @@ export default function UserProfilePage() {
             <div className="max-w-3xl mx-auto px-6 py-10 space-y-8">
 
                 {/* 1. Identity Section */}
-                <div className="bg-[#151b2e] border border-white/5 rounded-3xl p-6 md:p-8">
+                <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-blue-500/10 rounded-xl">
                             <User className="w-6 h-6 text-blue-400" />
@@ -207,7 +207,7 @@ export default function UserProfilePage() {
                         <div className="flex flex-col items-center gap-4">
                             <div
                                 onClick={handleAvatarClick}
-                                className="relative group w-32 h-32 rounded-full overflow-hidden border-2 border-white/10 bg-slate-800 cursor-pointer hover:border-brand-neon-cyan transition-colors"
+                                className="relative group w-32 h-32 rounded-full overflow-hidden border-2 border-slate-200 bg-slate-800 cursor-pointer hover:border-brand-neon-cyan transition-colors"
                             >
                                 {avatarPreview || user.photoURL ? (
                                     <img src={avatarPreview || user.photoURL || ''} alt="Avatar" className="w-full h-full object-cover" />
@@ -249,7 +249,7 @@ export default function UserProfilePage() {
                                     type="text"
                                     value={formData.displayName}
                                     onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-xl px-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
+                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl px-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
                                     placeholder={t('namePlaceholder')}
                                 />
                             </div>
@@ -262,7 +262,7 @@ export default function UserProfilePage() {
                                         type="tel"
                                         value={formData.phoneNumber}
                                         onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
+                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl pl-10 pr-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
                                         placeholder={t('phonePlaceholder')}
                                     />
                                 </div>
@@ -276,7 +276,7 @@ export default function UserProfilePage() {
                                         type="text"
                                         value={formData.address}
                                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-xl pl-10 pr-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
+                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl pl-10 pr-4 py-3 focus:border-brand-neon-cyan/50 focus:outline-none transition-colors"
                                         placeholder={t('addressPlaceholder')}
                                     />
                                 </div>
@@ -303,7 +303,7 @@ export default function UserProfilePage() {
                 </div>
 
                 {/* 2. Mis Favoritos (Negocios Guardados) */}
-                <div className="bg-[#151b2e] border border-white/5 rounded-3xl p-6 md:p-8">
+                <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-red-500/10 rounded-xl">
                             <Heart className="w-6 h-6 text-red-400 fill-red-400" />
@@ -333,10 +333,10 @@ export default function UserProfilePage() {
                                 <Link
                                     key={fav.businessId}
                                     href={`/${locale}/negocio/${fav.businessId}`}
-                                    className="group flex items-center gap-4 p-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl transition-all active:scale-[0.98]"
+                                    className="group flex items-center gap-4 p-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 rounded-2xl transition-all active:scale-[0.98]"
                                 >
                                     {/* Logo / Avatar */}
-                                    <div className="w-12 h-12 rounded-xl bg-slate-800 border border-white/10 shrink-0 overflow-hidden flex items-center justify-center">
+                                    <div className="w-12 h-12 rounded-xl bg-slate-800 border border-slate-200 shrink-0 overflow-hidden flex items-center justify-center">
                                         {fav.businessLogoUrl ? (
                                             <img src={fav.businessLogoUrl} alt={fav.businessName} className="w-full h-full object-cover" />
                                         ) : (
@@ -358,7 +358,7 @@ export default function UserProfilePage() {
                 </div>
 
                 {/* 3. Mis Citas */}
-                <div className="bg-[#151b2e] border border-white/5 rounded-3xl p-6 md:p-8">
+                <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-brand-neon-cyan/10 rounded-xl">
                             <Calendar className="w-6 h-6 text-brand-neon-cyan" />
@@ -398,7 +398,7 @@ export default function UserProfilePage() {
                                 return (
                                     <div
                                         key={apt.id}
-                                        className="flex items-center gap-4 p-4 bg-white/5 border border-white/8 rounded-2xl"
+                                        className="flex items-center gap-4 p-4 bg-slate-50 border border-slate-200 rounded-2xl"
                                     >
                                         {/* Date block */}
                                         <div className="shrink-0 text-center w-12">
@@ -451,8 +451,8 @@ export default function UserProfilePage() {
 
             {/* Delete Account Modal */}
             {showDeleteModal && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-[#151b2e] border border-red-500/20 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative ring-1 ring-red-500/20">
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white border border-red-500/20 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative ring-1 ring-red-500/20">
                         <div className="flex flex-col items-center text-center gap-4">
                             <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-2 animate-pulse">
                                 <AlertTriangle size={32} />
@@ -473,7 +473,7 @@ export default function UserProfilePage() {
                                     className="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.5)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
                                     {isDeleting ? (
-                                        <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Eliminando...</>
+                                        <><div className="w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin" /> Eliminando...</>
                                     ) : (
                                         <><Trash2 size={18} /> Sí, eliminar todo</>
                                     )}
@@ -481,7 +481,7 @@ export default function UserProfilePage() {
                                 <button
                                     onClick={() => setShowDeleteModal(false)}
                                     disabled={isDeleting}
-                                    className="w-full py-3 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl font-medium transition-colors border border-white/5 hover:border-white/10 disabled:opacity-50"
+                                    className="w-full py-3 bg-slate-50 hover:bg-slate-100 text-slate-300 rounded-xl font-medium transition-colors border border-slate-200 hover:border-slate-200 disabled:opacity-50"
                                 >
                                     Cancelar, quiero quedarme
                                 </button>
@@ -493,8 +493,8 @@ export default function UserProfilePage() {
 
             {/* Re-authentication Modal (for email/pass users) */}
             {showReauthModal && (
-                <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-[#151b2e] border border-orange-500/20 w-full max-w-sm rounded-3xl p-6 shadow-2xl ring-1 ring-orange-500/20">
+                <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white border border-orange-500/20 w-full max-w-sm rounded-3xl p-6 shadow-2xl ring-1 ring-orange-500/20">
                         <div className="flex flex-col items-center text-center gap-4">
                             <div className="w-14 h-14 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-400">
                                 <Lock size={28} />
@@ -511,7 +511,7 @@ export default function UserProfilePage() {
                                 onChange={e => setReauthPassword(e.target.value)}
                                 onKeyDown={e => e.key === 'Enter' && handleReauthAndDelete()}
                                 placeholder="Tu contraseña actual"
-                                className="w-full bg-[#0B0F19] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-400 transition-colors text-sm"
+                                className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-400 transition-colors text-sm"
                                 autoFocus
                             />
                             <div className="flex flex-col gap-3 w-full">
@@ -521,7 +521,7 @@ export default function UserProfilePage() {
                                     className="w-full py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                                 >
                                     {isDeleting ? (
-                                        <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Eliminando...</>
+                                        <><div className="w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin" /> Eliminando...</>
                                     ) : (
                                         <><Trash2 size={18} /> Eliminar cuenta</>
                                     )}
@@ -529,7 +529,7 @@ export default function UserProfilePage() {
                                 <button
                                     onClick={() => { setShowReauthModal(false); setReauthPassword(''); }}
                                     disabled={isDeleting}
-                                    className="w-full py-3 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl font-medium transition-colors border border-white/5"
+                                    className="w-full py-3 bg-slate-50 hover:bg-slate-100 text-slate-300 rounded-xl font-medium transition-colors border border-slate-200"
                                 >
                                     Cancelar
                                 </button>

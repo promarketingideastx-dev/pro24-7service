@@ -11,7 +11,7 @@ export default function SchedulePage() {
             </div>
 
             <GlassPanel className="p-12 flex flex-col items-center justify-center min-h-[400px] text-center">
-                <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mb-4">
                     <span className="text-4xl">📅</span>
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">Agenda de Trabajo</h3>

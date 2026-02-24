@@ -23,11 +23,11 @@ export default function EmployeeWorkloadModal({ isOpen, onClose, employee, appoi
     const past = appointments.filter(a => a.date.toDate() < now);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-[#151b2e] border border-white/10 w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white border border-slate-200 w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-slate-500 hover:text-white"
+                    className="absolute top-4 right-4 text-slate-500 hover:text-slate-800"
                 >
                     <X size={20} />
                 </button>
@@ -111,9 +111,9 @@ function AppointmentCard({ appointment }: { appointment: Appointment }) {
     };
 
     return (
-        <div className="bg-white/5 border border-white/5 rounded-xl p-3 flex justify-between items-center hover:bg-white/10 transition-colors">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex justify-between items-center hover:bg-slate-100 transition-colors">
             <div className="flex items-center gap-4">
-                <div className="flex flex-col items-center justify-center w-12 h-12 bg-black/20 rounded-lg border border-white/5 text-slate-300">
+                <div className="flex flex-col items-center justify-center w-12 h-12 bg-black/20 rounded-lg border border-slate-200 text-slate-300">
                     <span className="text-xs font-bold uppercase">{format(appointment.date.toDate(), 'MMM', { locale: es })}</span>
                     <span className="text-lg font-bold">{format(appointment.date.toDate(), 'd')}</span>
                 </div>

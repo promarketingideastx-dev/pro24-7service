@@ -46,7 +46,7 @@ export function Step2Category({ data, update }: any) {
                         }}
                         className={`cursor-pointer p-4 rounded-xl border transition-all ${data.category === cat.id
                             ? 'bg-blue-600/20 border-blue-500 text-white'
-                            : 'bg-slate-800 border-white/5 hover:bg-slate-700/50 text-slate-300'
+                            : 'bg-slate-800 border-slate-200 hover:bg-slate-700/50 text-slate-300'
                             }`}
                     >
                         <div className="text-2xl mb-2">
@@ -77,7 +77,7 @@ export function Step2Category({ data, update }: any) {
                                 }}
                                 className={`cursor-pointer px-4 py-3 rounded-lg border text-sm font-medium transition-all ${data.subcategory === sub.id
                                     ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20'
-                                    : 'bg-slate-800 border-white/5 hover:border-white/20 text-slate-300'
+                                    : 'bg-slate-800 border-slate-200 hover:border-slate-300 text-slate-300'
                                     }`}
                             >
                                 {getLabel(sub.label)}

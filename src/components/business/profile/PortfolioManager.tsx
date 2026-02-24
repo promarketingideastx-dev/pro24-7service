@@ -33,7 +33,7 @@ function ConfirmDeleteModal({
             onClick={onCancel}
         >
             <div
-                className="bg-[#151b2e] border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-200"
+                className="bg-white border border-slate-200 rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-200"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex items-start gap-4 mb-5">
@@ -48,7 +48,7 @@ function ConfirmDeleteModal({
                 <div className="flex gap-3">
                     <button
                         onClick={onCancel}
-                        className="flex-1 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 transition-colors text-sm font-medium"
+                        className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-300 hover:bg-slate-50 transition-colors text-sm font-medium"
                     >
                         {cancelLabel}
                     </button>
@@ -217,10 +217,10 @@ export default function PortfolioManager({ businessId }: PortfolioManagerProps) 
 
                 {/* Add New Form */}
                 {isAdding && (
-                    <div className="bg-[#151b2e] border border-white/10 rounded-xl p-6 animate-in fade-in slide-in-from-top-4">
+                    <div className="bg-white border border-slate-200 rounded-xl p-6 animate-in fade-in slide-in-from-top-4">
                         <div className="flex justify-between items-start mb-4">
                             <h4 className="text-white font-medium">{t('newPost')}</h4>
-                            <button onClick={() => setIsAdding(false)} className="text-slate-400 hover:text-white"><X size={20} /></button>
+                            <button onClick={() => setIsAdding(false)} className="text-slate-400 hover:text-slate-800"><X size={20} /></button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -230,7 +230,7 @@ export default function PortfolioManager({ businessId }: PortfolioManagerProps) 
                                     onClick={() => !newItem.file && fileInputRef.current?.click()}
                                     className={`
                                         aspect-square rounded-xl border-2 border-dashed flex flex-col items-center justify-center relative overflow-hidden cursor-pointer transition-all
-                                        ${newItem.previewUrl ? 'border-brand-neon-cyan/50' : 'border-white/10 hover:bg-white/5 hover:border-white/30'}
+                                        ${newItem.previewUrl ? 'border-brand-neon-cyan/50' : 'border-slate-200 hover:bg-slate-50 hover:border-slate-300'}
                                     `}
                                 >
                                     {newItem.previewUrl ? (
@@ -241,14 +241,14 @@ export default function PortfolioManager({ businessId }: PortfolioManagerProps) 
                                                     e.stopPropagation();
                                                     setNewItem(prev => ({ ...prev, file: null, previewUrl: null }));
                                                 }}
-                                                className="absolute top-2 right-2 p-1 bg-black/60 text-white rounded-full hover:bg-red-500"
+                                                className="absolute top-2 right-2 p-1 bg-slate-900/40 text-white rounded-full hover:bg-red-500"
                                             >
                                                 <X size={16} />
                                             </button>
                                         </>
                                     ) : (
                                         <div className="text-center p-4">
-                                            <div className="bg-white/5 p-3 rounded-full inline-block mb-3">
+                                            <div className="bg-slate-50 p-3 rounded-full inline-block mb-3">
                                                 <Upload className="text-slate-400" size={24} />
                                             </div>
                                             <p className="text-sm text-slate-300 font-medium">{t('uploadImage')}</p>
@@ -274,7 +274,7 @@ export default function PortfolioManager({ businessId }: PortfolioManagerProps) 
                                         value={newItem.title}
                                         onChange={e => setNewItem(prev => ({ ...prev, title: e.target.value }))}
                                         placeholder={t('titlePlaceholder')}
-                                        className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        className="w-full bg-black/20 border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
                                     />
                                 </div>
                                 <div>
@@ -283,7 +283,7 @@ export default function PortfolioManager({ businessId }: PortfolioManagerProps) 
                                         value={newItem.description}
                                         onChange={e => setNewItem(prev => ({ ...prev, description: e.target.value }))}
                                         placeholder={t('descPlaceholder')}
-                                        className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none h-32 resize-none"
+                                        className="w-full bg-black/20 border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none h-32 resize-none"
                                     />
                                 </div>
 
@@ -302,14 +302,14 @@ export default function PortfolioManager({ businessId }: PortfolioManagerProps) 
 
                 {/* Grid List */}
                 {items.length === 0 && !isAdding ? (
-                    <div className="text-center py-12 border border-dashed border-white/10 rounded-xl">
+                    <div className="text-center py-12 border border-dashed border-slate-200 rounded-xl">
                         <ImageIcon className="mx-auto text-slate-600 mb-4" size={48} />
                         <p className="text-slate-400">{t('noPhotosYet')}</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {items.map((item) => (
-                            <div key={item.id} className="group relative aspect-square rounded-xl overflow-hidden bg-black/20 border border-white/5">
+                            <div key={item.id} className="group relative aspect-square rounded-xl overflow-hidden bg-black/20 border border-slate-200">
                                 <img src={item.url} alt={item.title || 'Portfolio'} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
 
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3">
@@ -330,7 +330,7 @@ export default function PortfolioManager({ businessId }: PortfolioManagerProps) 
                                                 handleSetLogo(item.url);
                                             }}
                                             title={t('setAsLogo')}
-                                            className="p-1.5 bg-black/50 text-white rounded-full hover:bg-purple-500 hover:text-white transition-colors"
+                                            className="p-1.5 bg-black/50 text-white rounded-full hover:bg-purple-500 hover:text-slate-800 transition-colors"
                                         >
                                             <div className="text-[10px] font-bold px-1">LOGO</div>
                                         </button>

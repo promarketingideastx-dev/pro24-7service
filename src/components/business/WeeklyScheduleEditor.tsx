@@ -84,11 +84,11 @@ export default function WeeklyScheduleEditor({
     const dayLabels: Record<string, string> = { mon: 'Lunes', tue: 'Martes', wed: 'Miércoles', thu: 'Jueves', fri: 'Viernes', sat: 'Sábado', sun: 'Domingo' };
 
     return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-[#151b2e] border border-white/10 w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white border border-slate-200 w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-slate-500 hover:text-white"
+                    className="absolute top-4 right-4 text-slate-500 hover:text-slate-800"
                 >
                     <X size={20} />
                 </button>
@@ -105,7 +105,7 @@ export default function WeeklyScheduleEditor({
                     </div>
                     <button
                         onClick={handleCopyMondayToAll}
-                        className="text-xs flex items-center gap-1 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition-colors border border-white/5"
+                        className="text-xs flex items-center gap-1 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-lg text-slate-300 hover:text-slate-800 transition-colors border border-slate-200"
                     >
                         <Copy size={12} />
                         Copiar Lunes a todos
@@ -117,7 +117,7 @@ export default function WeeklyScheduleEditor({
                         const isEnabled = schedule[day].enabled;
 
                         return (
-                            <div key={day} className={`flex items-center gap-4 p-3 rounded-xl border ${isEnabled ? 'bg-white/5 border-white/10' : 'bg-transparent border-transparent opacity-60'} transition-all`}>
+                            <div key={day} className={`flex items-center gap-4 p-3 rounded-xl border ${isEnabled ? 'bg-slate-50 border-slate-200' : 'bg-transparent border-transparent opacity-60'} transition-all`}>
                                 <div className="w-24 font-medium text-slate-300">{dayLabels[day]}</div>
 
                                 <div
@@ -133,7 +133,7 @@ export default function WeeklyScheduleEditor({
                                         value={schedule[day].start}
                                         disabled={!isEnabled}
                                         onChange={e => setSchedule({ ...schedule, [day]: { ...schedule[day], start: e.target.value } })}
-                                        className="bg-[#0B0F19] border border-white/10 rounded px-2 py-1 text-white text-sm focus:border-brand-neon-cyan focus:outline-none disabled:opacity-30"
+                                        className="bg-[#F4F6F8] border border-slate-200 rounded px-2 py-1 text-white text-sm focus:border-brand-neon-cyan focus:outline-none disabled:opacity-30"
                                     />
                                     <span className="text-slate-500">-</span>
                                     <input
@@ -141,7 +141,7 @@ export default function WeeklyScheduleEditor({
                                         value={schedule[day].end}
                                         disabled={!isEnabled}
                                         onChange={e => setSchedule({ ...schedule, [day]: { ...schedule[day], end: e.target.value } })}
-                                        className="bg-[#0B0F19] border border-white/10 rounded px-2 py-1 text-white text-sm focus:border-brand-neon-cyan focus:outline-none disabled:opacity-30"
+                                        className="bg-[#F4F6F8] border border-slate-200 rounded px-2 py-1 text-white text-sm focus:border-brand-neon-cyan focus:outline-none disabled:opacity-30"
                                     />
                                 </div>
                             </div>
@@ -149,10 +149,10 @@ export default function WeeklyScheduleEditor({
                     })}
                 </div>
 
-                <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-white/10">
+                <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-slate-200">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+                        className="px-4 py-2 text-slate-400 hover:text-slate-800 transition-colors"
                     >
                         Cancelar
                     </button>

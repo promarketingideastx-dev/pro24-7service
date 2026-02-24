@@ -16,7 +16,7 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
     if (!business) return null;
 
     return (
-        <div className="flex flex-col h-full bg-[#151b2e] text-white">
+        <div className="flex flex-col h-full bg-white text-white">
 
             {/* Cover Image & Header */}
             <div className="relative h-48 sm:h-56 shrink-0 w-full">
@@ -38,7 +38,7 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
                             </p>
                         </div>
                         <div className="flex flex-col items-end">
-                            <div className="flex items-center gap-1 bg-black/40 backdrop-blur px-2 py-1 rounded-lg border border-white/10">
+                            <div className="flex items-center gap-1 bg-black/40 backdrop-blur px-2 py-1 rounded-lg border border-slate-200">
                                 <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
                                 <span className="text-white font-bold text-sm">{business.rating || '5.0'}</span>
                             </div>
@@ -119,7 +119,7 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
                         <div className="aspect-square bg-slate-700 rounded-lg"></div>
                     </div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 flex items-center gap-2 text-xs font-bold text-white shadow-xl hover:scale-105 transition-transform">
+                        <div className="bg-slate-900/40 backdrop-blur-md px-4 py-2 rounded-full border border-slate-200 flex items-center gap-2 text-xs font-bold text-white shadow-xl hover:scale-105 transition-transform">
                             <span className="w-2 h-2 rounded-full bg-brand-neon-cyan animate-pulse"></span>
                             Ver Fotos y Reseñas
                         </div>
@@ -129,7 +129,7 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
             </div>
 
             {/* Footer Actions (Sticky) */}
-            <div className="p-6 border-t border-white/5 bg-[#0f172a] space-y-3">
+            <div className="p-6 border-t border-slate-200 bg-[#F8FAFC] space-y-3">
                 <button
                     onClick={() => setIsBookingOpen(true)}
                     className="w-full py-3.5 rounded-xl bg-gradient-to-r from-brand-neon-cyan to-brand-neon-purple text-black font-bold text-sm shadow-lg hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-2"
@@ -139,7 +139,7 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
                 </button>
                 <button
                     onClick={onLogin}
-                    className="w-full py-3.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-medium text-sm transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-300 font-medium text-sm transition-colors flex items-center justify-center gap-2"
                 >
                     <LogIn className="w-4 h-4" />
                     Soy Cliente (Login)

@@ -28,7 +28,7 @@ export default function CookieConsent() {
     return (
         <div className="fixed bottom-0 left-0 right-0 z-[9999] p-4 sm:p-6 pointer-events-none">
             <div className="max-w-2xl mx-auto pointer-events-auto">
-                <div className="bg-[#0a1128]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-5">
+                <div className="bg-[#0a1128]/95 backdrop-blur-xl border border-slate-200 rounded-2xl shadow-2xl p-5">
                     {/* Header */}
                     <div className="flex items-start gap-3 mb-3">
                         <div className="w-9 h-9 rounded-xl bg-brand-neon-cyan/10 border border-brand-neon-cyan/20 flex items-center justify-center shrink-0 mt-0.5">
@@ -44,7 +44,7 @@ export default function CookieConsent() {
                                 <a href="/legal/cookies" className="text-brand-neon-cyan underline hover:no-underline">Política de Cookies</a>.
                             </p>
                         </div>
-                        <button onClick={() => accept(false)} className="text-slate-500 hover:text-white transition-colors shrink-0">
+                        <button onClick={() => accept(false)} className="text-slate-500 hover:text-slate-800 transition-colors shrink-0">
                             <X size={16} />
                         </button>
                     </div>
@@ -65,7 +65,7 @@ export default function CookieConsent() {
                                 { name: '📊 Análisis', desc: 'Nos ayudan a entender cómo usas la app para mejorarla.', locked: false },
                                 { name: '🎯 Marketing', desc: 'Medir efectividad de campañas en Meta, Google, TikTok.', locked: false },
                             ].map(item => (
-                                <div key={item.name} className="p-3 bg-white/5 rounded-xl border border-white/8">
+                                <div key={item.name} className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                                     <p className="font-semibold text-white mb-1">{item.name}</p>
                                     <p className="text-slate-500 leading-relaxed">{item.desc}</p>
                                     {item.locked && <span className="text-[10px] text-brand-neon-cyan mt-1 inline-block">Siempre activa</span>}
@@ -78,7 +78,7 @@ export default function CookieConsent() {
                     <div className="flex gap-2 flex-col sm:flex-row">
                         <button
                             onClick={() => accept(false)}
-                            className="flex-1 sm:flex-none px-4 py-2 text-xs text-slate-400 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors"
+                            className="flex-1 sm:flex-none px-4 py-2 text-xs text-slate-400 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors"
                         >
                             Solo necesarias
                         </button>

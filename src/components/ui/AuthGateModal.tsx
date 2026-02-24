@@ -34,8 +34,8 @@ export default function AuthGateModal({ isOpen, onClose, businessName, metrics, 
     };
 
     return (
-        <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="relative bg-[#151b2e] w-full max-w-md rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col animate-in scale-95 duration-200">
+        <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="relative bg-white w-full max-w-md rounded-3xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col animate-in scale-95 duration-200">
 
                 {/* Background Decor */}
                 <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-brand-neon-cyan/20 to-transparent opacity-50 pointer-events-none"></div>
@@ -44,12 +44,12 @@ export default function AuthGateModal({ isOpen, onClose, businessName, metrics, 
 
                     <button
                         onClick={onClose}
-                        className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                        className="absolute top-4 right-4 p-2 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition-colors"
                     >
                         <X className="w-5 h-5" />
                     </button>
 
-                    <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                    <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                         <Lock className="w-8 h-8 text-brand-neon-cyan" />
                     </div>
 
@@ -72,7 +72,7 @@ export default function AuthGateModal({ isOpen, onClose, businessName, metrics, 
 
                         <button
                             onClick={handleLogin}
-                            className="w-full py-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium text-base transition-all flex items-center justify-center gap-2"
+                            className="w-full py-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-white font-medium text-base transition-all flex items-center justify-center gap-2"
                         >
                             <LogIn className="w-5 h-5 text-slate-400" />
                             {t('signIn')}

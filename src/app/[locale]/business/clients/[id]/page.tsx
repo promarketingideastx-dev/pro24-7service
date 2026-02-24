@@ -100,7 +100,7 @@ export default function CustomerDetailPage() {
             <div className="flex items-center gap-4">
                 <button
                     onClick={() => router.back()}
-                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 transition-colors"
+                    className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-300 transition-colors"
                 >
                     <ArrowLeft className="w-5 h-5" />
                 </button>
@@ -112,21 +112,21 @@ export default function CustomerDetailPage() {
 
             {/* Stats Row */}
             <div className="grid grid-cols-3 gap-3">
-                <div className="bg-[#151b2e] border border-brand-neon-cyan/20 rounded-xl p-4 text-center">
+                <div className="bg-white border border-brand-neon-cyan/20 rounded-xl p-4 text-center">
                     <TrendingUp className="w-4 h-4 text-brand-neon-cyan mx-auto mb-1" />
                     <p className="text-xl font-bold text-brand-neon-cyan">
                         {ltv > 0 ? `L ${ltv.toLocaleString()}` : '—'}
                     </p>
                     <p className="text-[10px] text-slate-500 mt-0.5">LTV Total</p>
                 </div>
-                <div className="bg-[#151b2e] border border-white/5 rounded-xl p-4 text-center">
+                <div className="bg-white border border-slate-200 rounded-xl p-4 text-center">
                     <Clock className="w-4 h-4 text-slate-500 mx-auto mb-1" />
                     <p className="text-sm font-bold text-white">
                         {lastVisit ? format(lastVisit.date.toDate(), 'd MMM', { locale: es }) : '—'}
                     </p>
                     <p className="text-[10px] text-slate-500 mt-0.5">Última Visita</p>
                 </div>
-                <div className="bg-[#151b2e] border border-white/5 rounded-xl p-4 text-center">
+                <div className="bg-white border border-slate-200 rounded-xl p-4 text-center">
                     <Calendar className="w-4 h-4 text-green-400 mx-auto mb-1" />
                     <p className="text-sm font-bold text-green-400">
                         {nextAppt ? format(nextAppt.date.toDate(), 'd MMM', { locale: es }) : '—'}
@@ -140,11 +140,11 @@ export default function CustomerDetailPage() {
 
                 {/* Left Column: Profile Card */}
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="bg-[#151b2e] border border-white/5 rounded-2xl p-6 relative overflow-hidden">
+                    <div className="bg-white border border-slate-200 rounded-2xl p-6 relative overflow-hidden">
                         <div className="absolute top-4 right-4">
                             <button
                                 onClick={() => setIsEditOpen(true)}
-                                className="p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-brand-neon-cyan transition-colors"
+                                className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-brand-neon-cyan transition-colors"
                             >
                                 <Edit2 className="w-4 h-4" />
                             </button>
@@ -184,7 +184,7 @@ export default function CustomerDetailPage() {
                     </div>
 
                     {/* Private Notes — Inline Editor */}
-                    <div className="bg-[#151b2e] border border-white/5 rounded-2xl p-5">
+                    <div className="bg-white border border-slate-200 rounded-2xl p-5">
                         <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
                             <FileText className="w-3 h-3" /> Notas Privadas
                         </h3>
@@ -193,7 +193,7 @@ export default function CustomerDetailPage() {
                             onChange={(e) => { setNotes(e.target.value); setNotesDirty(true); }}
                             rows={5}
                             placeholder="Escribe notas privadas sobre este cliente..."
-                            className="w-full bg-black/20 border border-white/5 rounded-xl p-3 text-sm text-slate-300 placeholder:text-slate-600 resize-none focus:outline-none focus:border-brand-neon-cyan/50 transition-colors"
+                            className="w-full bg-black/20 border border-slate-200 rounded-xl p-3 text-sm text-slate-300 placeholder:text-slate-600 resize-none focus:outline-none focus:border-brand-neon-cyan/50 transition-colors"
                         />
                         {notesDirty && (
                             <button
@@ -210,7 +210,7 @@ export default function CustomerDetailPage() {
 
                 {/* Right Column: Appointment History */}
                 <div className="lg:col-span-2">
-                    <div className="bg-[#151b2e] border border-white/5 rounded-2xl p-6">
+                    <div className="bg-white border border-slate-200 rounded-2xl p-6">
                         <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                             <Calendar className="w-5 h-5 text-brand-neon-cyan" />
                             Historial de Citas
@@ -218,7 +218,7 @@ export default function CustomerDetailPage() {
                         </h3>
 
                         {appointments.length === 0 ? (
-                            <div className="text-center py-12 text-slate-500 bg-black/20 rounded-xl border border-white/5 border-dashed">
+                            <div className="text-center py-12 text-slate-500 bg-black/20 rounded-xl border border-slate-200 border-dashed">
                                 <Calendar className="w-8 h-8 mx-auto mb-2 opacity-20" />
                                 <p>No hay citas registradas para este cliente.</p>
                             </div>
@@ -230,7 +230,7 @@ export default function CustomerDetailPage() {
                                     return (
                                         <div
                                             key={apt.id}
-                                            className="bg-white/5 border border-white/5 rounded-xl p-4 hover:bg-white/8 transition-colors"
+                                            className="bg-slate-50 border border-slate-200 rounded-xl p-4 hover:bg-slate-50 transition-colors"
                                         >
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="flex-1 min-w-0">

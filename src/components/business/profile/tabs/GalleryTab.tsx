@@ -84,7 +84,7 @@ export default function GalleryTab({ businessId, images: initialImages }: Galler
                 >
                     <button
                         onClick={() => setSelectedItem(null)}
-                        className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors z-10"
+                        className="absolute top-4 right-4 p-2 rounded-full bg-slate-100 text-white hover:bg-slate-100 transition-colors z-10"
                     >
                         <X className="w-6 h-6" />
                     </button>
@@ -98,7 +98,7 @@ export default function GalleryTab({ businessId, images: initialImages }: Galler
 
                         {/* Caption Area (New) */}
                         {(selectedItem.description || selectedItem.title) && (
-                            <div className="mt-4 p-4 bg-white/10 backdrop-blur-md rounded-xl text-center max-w-lg w-full border border-white/10">
+                            <div className="mt-4 p-4 bg-slate-100 backdrop-blur-md rounded-xl text-center max-w-lg w-full border border-slate-200">
                                 {selectedItem.title && <h4 className="text-white font-bold text-lg mb-1">{selectedItem.title}</h4>}
                                 {selectedItem.description && <p className="text-slate-300 text-sm whitespace-pre-wrap">{selectedItem.description}</p>}
                             </div>

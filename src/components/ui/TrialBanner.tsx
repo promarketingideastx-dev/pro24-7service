@@ -63,7 +63,7 @@ export function TrialBanner({ business, onDismiss }: TrialBannerProps) {
             {onDismiss && (
                 <button
                     onClick={onDismiss}
-                    className="shrink-0 p-1 rounded-full hover:bg-white/10 transition-colors"
+                    className="shrink-0 p-1 rounded-full hover:bg-slate-100 transition-colors"
                     aria-label="Dismiss"
                 >
                     <X className="w-3.5 h-3.5" />
@@ -85,8 +85,8 @@ export function TrialExpiredOverlay({ business }: { business: { planData?: any }
     if (!status.isExpired || status.overriddenByCRM) return null;
 
     return (
-        <div className="fixed inset-0 z-[9999] bg-[#0B0F19]/95 backdrop-blur-sm flex items-center justify-center p-6">
-            <div className="bg-[#151b2e] border border-white/10 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl">
+        <div className="fixed inset-0 z-[9999] bg-[#F4F6F8]/95 backdrop-blur-sm flex items-center justify-center p-6">
+            <div className="bg-white border border-slate-200 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl">
                 <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-6">
                     <Clock className="w-8 h-8 text-amber-400" />
                 </div>

@@ -4,7 +4,7 @@ export default function AuthLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="min-h-screen bg-[#0B0F19] text-white flex flex-col justify-center items-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-[#F4F6F8] text-white flex flex-col justify-center items-center p-4 relative overflow-hidden">
             {/* Ambient Background */}
             <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
             <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none"></div>
@@ -13,7 +13,7 @@ export default function AuthLayout({
             <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in duration-300">
 
                 {/* Back Button */}
-                <a href="/" className="absolute top-0 left-0 p-2 text-slate-500 hover:text-white transition-colors flex items-center gap-2 group" title="Volver al inicio">
+                <a href="/" className="absolute top-0 left-0 p-2 text-slate-500 hover:text-slate-800 transition-colors flex items-center gap-2 group" title="Volver al inicio">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:-translate-x-1 transition-transform">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
                         <polyline points="12 19 5 12 12 5"></polyline>

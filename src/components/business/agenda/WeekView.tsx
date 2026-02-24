@@ -23,10 +23,10 @@ export default function WeekView({ date, appointments, onAppointmentClick, onSlo
     return (
         <div className="flex flex-col h-full bg-[#0F131F]">
             {/* Header Row */}
-            <div className="flex border-b border-white/10 bg-[#151b2e]">
-                <div className="w-16 flex-shrink-0 border-r border-white/10" />
+            <div className="flex border-b border-slate-200 bg-white">
+                <div className="w-16 flex-shrink-0 border-r border-slate-200" />
                 {weekDays.map((day, i) => (
-                    <div key={i} className="flex-1 flex flex-col items-center justify-center py-2 border-r border-white/10 last:border-r-0">
+                    <div key={i} className="flex-1 flex flex-col items-center justify-center py-2 border-r border-slate-200 last:border-r-0">
                         <span className="text-xs text-slate-400 uppercase">{format(day, 'EEE', { locale: dateFnsLocale })}</span>
                         <div className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold mt-1 ${format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
                             ? 'bg-brand-neon-cyan text-black'
@@ -41,11 +41,11 @@ export default function WeekView({ date, appointments, onAppointmentClick, onSlo
             {/* Grid Body */}
             <div className="flex-1 overflow-y-auto overflow-x-auto custom-scrollbar relative flex">
                 {/* Time Labels Column */}
-                <div className="w-16 flex-shrink-0 border-r border-white/10 bg-[#151b2e] sticky left-0 z-10">
+                <div className="w-16 flex-shrink-0 border-r border-slate-200 bg-white sticky left-0 z-10">
                     {timeSlots.map((time, i) => (
                         <div
                             key={time}
-                            className="border-b border-white/5 text-xs text-slate-500 flex items-start justify-end pr-2 pt-1"
+                            className="border-b border-slate-200 text-xs text-slate-500 flex items-start justify-end pr-2 pt-1"
                             style={{ height: SLOT_HEIGHT }}
                         >
                             {i % 2 === 0 ? time : ''}
@@ -60,14 +60,14 @@ export default function WeekView({ date, appointments, onAppointmentClick, onSlo
                     return (
                         <div
                             key={i}
-                            className="flex-1 relative border-r border-white/5 last:border-r-0 min-w-[100px]"
+                            className="flex-1 relative border-r border-slate-200 last:border-r-0 min-w-[100px]"
                             style={{ minHeight: TOTAL_HEIGHT }}
                         >
                             {/* Slots */}
                             {timeSlots.map((time) => (
                                 <div
                                     key={time}
-                                    className="border-b border-white/5 absolute w-full hover:bg-white/5 transition-colors cursor-pointer"
+                                    className="border-b border-slate-200 absolute w-full hover:bg-slate-50 transition-colors cursor-pointer"
                                     style={{ top: getTopOffset(time), height: SLOT_HEIGHT }}
                                     onClick={() => {
                                         if (onSlotClick) {

@@ -49,7 +49,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
         <div className="p-6 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
             {/* About */}
-            <div className="bg-[#151b2e] rounded-3xl p-6 border border-white/5">
+            <div className="bg-white rounded-3xl p-6 border border-slate-200">
                 <h3 className="font-bold text-white text-lg mb-4 flex items-center gap-2">
                     {t('aboutUs')}
                 </h3>
@@ -59,11 +59,11 @@ export default function DetailsTab({ business }: DetailsTabProps) {
             </div>
 
             {/* Contact Info */}
-            <div className="bg-[#151b2e] rounded-3xl p-6 border border-white/5">
+            <div className="bg-white rounded-3xl p-6 border border-slate-200">
                 <h3 className="font-bold text-white text-lg mb-4">{t('contactInfo')}</h3>
                 <div className="space-y-4">
                     <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-brand-neon-cyan shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-brand-neon-cyan shrink-0">
                             <MapPin className="w-5 h-5" />
                         </div>
                         <div>
@@ -75,7 +75,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                     </div>
 
                     {/* MAP WIDGET INTEGRATION */}
-                    <div className="h-64 w-full rounded-2xl overflow-hidden border border-white/10 mt-4 relative z-0">
+                    <div className="h-64 w-full rounded-2xl overflow-hidden border border-slate-200 mt-4 relative z-0">
                         <MapWidget
                             businesses={[{
                                 id: business.id || 'preview',
@@ -97,7 +97,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                         const cleanPhone = business.phone.replace(/\D/g, '');
                         return (
                             <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-brand-neon-cyan shrink-0 mt-1">
+                                <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-brand-neon-cyan shrink-0 mt-1">
                                     <Phone className="w-5 h-5" />
                                 </div>
                                 <div className="flex-1">
@@ -130,7 +130,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
 
                     {business.website && (
                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-brand-neon-cyan shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-brand-neon-cyan shrink-0">
                                 <Globe className="w-5 h-5" />
                             </div>
                             <div>
@@ -149,7 +149,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
 
                     {/* Social Media */}
                     {hasSocial && (
-                        <div className="pt-2 border-t border-white/5">
+                        <div className="pt-2 border-t border-slate-200">
                             <span className="block text-white font-medium mb-3">{t('followUs')}</span>
                             <div className="flex flex-wrap gap-3">
                                 {social.instagram && (
@@ -157,7 +157,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                         href={normalizeUrl(social.instagram, 'https://instagram.com/')}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-pink-500/15 border border-white/10 hover:border-pink-500/40 text-slate-300 hover:text-pink-400 transition-all text-sm"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 hover:bg-pink-500/15 border border-slate-200 hover:border-pink-500/40 text-slate-300 hover:text-pink-400 transition-all text-sm"
                                     >
                                         <InstagramIcon />
                                         <span>{t('instagram')}</span>
@@ -168,7 +168,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                         href={normalizeUrl(social.facebook, 'https://facebook.com/')}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-blue-500/15 border border-white/10 hover:border-blue-500/40 text-slate-300 hover:text-blue-400 transition-all text-sm"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 hover:bg-blue-500/15 border border-slate-200 hover:border-blue-500/40 text-slate-300 hover:text-blue-400 transition-all text-sm"
                                     >
                                         <FacebookIcon />
                                         <span>{t('facebook')}</span>
@@ -179,7 +179,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                         href={normalizeUrl(social.tiktok, 'https://tiktok.com/@')}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 hover:border-white/40 text-slate-300 hover:text-white transition-all text-sm"
+                                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-white/40 text-slate-300 hover:text-slate-800 transition-all text-sm"
                                     >
                                         <TikTokIcon />
                                         <span>{t('tiktok')}</span>
@@ -192,7 +192,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
             </div>
 
             {/* Hours */}
-            <div className="bg-[#151b2e] rounded-3xl p-6 border border-white/5">
+            <div className="bg-white rounded-3xl p-6 border border-slate-200">
                 <h3 className="font-bold text-white text-lg mb-4 flex items-center gap-2">
                     <Clock className="w-5 h-5 text-brand-neon-cyan" />
                     {t('openingHours')}

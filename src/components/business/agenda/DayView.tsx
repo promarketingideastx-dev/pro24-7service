@@ -18,11 +18,11 @@ export default function DayView({ date, appointments, onAppointmentClick, onSlot
     return (
         <div className="flex h-full overflow-y-auto custom-scrollbar relative bg-[#0F131F]">
             {/* Time Labels Column */}
-            <div className="w-16 flex-shrink-0 border-r border-white/10 bg-[#151b2e] sticky left-0 z-10">
+            <div className="w-16 flex-shrink-0 border-r border-slate-200 bg-white sticky left-0 z-10">
                 {timeSlots.map((time, i) => (
                     <div
                         key={time}
-                        className="border-b border-white/5 text-xs text-slate-500 flex items-start justify-end pr-2 pt-1"
+                        className="border-b border-slate-200 text-xs text-slate-500 flex items-start justify-end pr-2 pt-1"
                         style={{ height: SLOT_HEIGHT }}
                     >
                         {i % 2 === 0 ? time : ''}
@@ -36,7 +36,7 @@ export default function DayView({ date, appointments, onAppointmentClick, onSlot
                 {timeSlots.map((time) => (
                     <div
                         key={time}
-                        className="border-b border-white/5 absolute w-full hover:bg-white/5 transition-colors cursor-pointer"
+                        className="border-b border-slate-200 absolute w-full hover:bg-slate-50 transition-colors cursor-pointer"
                         style={{ top: getTopOffset(time), height: SLOT_HEIGHT }}
                         onClick={() => {
                             if (onSlotClick) {

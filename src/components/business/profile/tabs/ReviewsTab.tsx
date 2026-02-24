@@ -75,7 +75,7 @@ export default function ReviewsTab({ business }: ReviewsTabProps) {
             )}
 
             {/* Summary Card */}
-            <div className="bg-[#151b2e] rounded-3xl p-8 border border-white/5 flex flex-col md:flex-row items-center justify-between gap-8 mb-8">
+            <div className="bg-white rounded-3xl p-8 border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-8 mb-8">
 
                 {/* Left: Rating */}
                 <div className="flex flex-col items-center md:items-start">
@@ -113,16 +113,16 @@ export default function ReviewsTab({ business }: ReviewsTabProps) {
                         <Loader2 className="animate-spin w-8 h-8" />
                     </div>
                 ) : reviews.length === 0 ? (
-                    <div className="text-center p-12 bg-white/5 rounded-2xl border border-white/5 border-dashed">
+                    <div className="text-center p-12 bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
                         <MessageSquare className="w-12 h-12 text-slate-600 mx-auto mb-4" />
                         <h4 className="text-white font-medium text-lg">{t('noReviews')}</h4>
                         <p className="text-slate-400 text-sm mt-1">{t('beFirstReview')}</p>
                     </div>
                 ) : (
                     reviews.map((review) => (
-                        <div key={review.id} className="bg-[#151b2e] p-6 rounded-2xl border border-white/5 flex gap-4 transition-all hover:bg-white/5">
+                        <div key={review.id} className="bg-white p-6 rounded-2xl border border-slate-200 flex gap-4 transition-all hover:bg-slate-50">
                             {/* Avatar */}
-                            <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-700 shrink-0 border border-white/10">
+                            <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-700 shrink-0 border border-slate-200">
                                 {review.userAvatar ? (
                                     <img src={review.userAvatar} alt={review.userName} className="w-full h-full object-cover" />
                                 ) : (

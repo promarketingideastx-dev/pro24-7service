@@ -38,26 +38,26 @@ export default function CalendarHeader({
     };
 
     return (
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 bg-white/5 p-4 rounded-2xl border border-white/10 backdrop-blur-md">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-200 backdrop-blur-md">
 
             {/* Left: Date Navigation */}
             <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
                 <div className="flex items-center gap-1 bg-black/20 rounded-lg p-1">
                     <button
                         onClick={handlePrev}
-                        className="p-2 hover:bg-white/10 rounded-md text-slate-300 hover:text-white transition-colors"
+                        className="p-2 hover:bg-slate-100 rounded-md text-slate-300 hover:text-slate-800 transition-colors"
                     >
                         <ChevronLeft size={20} />
                     </button>
                     <button
                         onClick={onToday}
-                        className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors"
+                        className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-800 transition-colors"
                     >
                         {t('today')}
                     </button>
                     <button
                         onClick={handleNext}
-                        className="p-2 hover:bg-white/10 rounded-md text-slate-300 hover:text-white transition-colors"
+                        className="p-2 hover:bg-slate-100 rounded-md text-slate-300 hover:text-slate-800 transition-colors"
                     >
                         <ChevronRight size={20} />
                     </button>

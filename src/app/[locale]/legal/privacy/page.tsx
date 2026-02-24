@@ -6,12 +6,12 @@ export const metadata: Metadata = { title: 'Política de Privacidad | PRO24/7' }
 export default function PrivacyPage() {
     const year = new Date().getFullYear();
     return (
-        <div className="min-h-screen bg-[#060d1f] py-16 px-4">
+        <div className="min-h-screen bg-[#F0F2F5] py-16 px-4">
             <div className="max-w-3xl mx-auto">
                 <h1 className="text-2xl font-bold text-white mb-1">Política de Privacidad</h1>
                 <p className="text-slate-400 text-sm mb-8">PRO24/7 · Última actualización: {year}</p>
 
-                <div className="bg-[#0a1128] border border-white/5 rounded-2xl p-8 space-y-6 text-sm text-slate-300 leading-relaxed">
+                <div className="bg-[#0a1128] border border-slate-200 rounded-2xl p-8 space-y-6 text-sm text-slate-300 leading-relaxed">
                     <section>
                         <h2 className="text-white font-bold text-base mb-2">1. Datos que recopilamos</h2>
                         <p>Recopilamos: nombre, correo, teléfono, ubicación aproximada, historial de citas, fotos subidas voluntariamente, preferencias de servicios, dirección IP y datos de uso de la app.</p>

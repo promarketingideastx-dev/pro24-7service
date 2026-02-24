@@ -99,7 +99,7 @@ export default function CountrySelector() {
                                 transition-all duration-200 select-none
                                 ${locale === code
                                     ? 'bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.25)]'
-                                    : 'bg-white/5 border border-white/8 text-slate-400 hover:text-slate-200 hover:bg-white/10'
+                                    : 'bg-slate-50 border border-slate-200 text-slate-400 hover:text-slate-200 hover:bg-slate-100'
                                 }
                             `}
                         >
@@ -125,7 +125,7 @@ export default function CountrySelector() {
                 <div className="relative group">
                     {/* Glow ring on focus */}
                     <div className="absolute -inset-px rounded-2xl bg-gradient-to-r from-cyan-500/0 via-cyan-500/40 to-cyan-500/0 opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 blur-sm" />
-                    <div className="relative flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl px-5 h-14 group-focus-within:border-cyan-500/40 transition-colors duration-300">
+                    <div className="relative flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-5 h-14 group-focus-within:border-cyan-500/40 transition-colors duration-300">
                         <Search className="w-5 h-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors shrink-0" />
                         <input
                             type="text"
@@ -157,7 +157,7 @@ export default function CountrySelector() {
                                     className="
                                         group relative flex flex-col items-center gap-3 p-4 rounded-2xl
                                         bg-white/4 border border-white/6
-                                        hover:bg-white/8 hover:border-cyan-400/30
+                                        hover:bg-slate-50 hover:border-cyan-400/30
                                         hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(6,182,212,0.12)]
                                         active:scale-95
                                         transition-all duration-200

@@ -125,7 +125,7 @@ export default function ClientsPage() {
             {loading ? (
                 <div className="space-y-4">
                     {[1, 2, 3].map((i) => (
-                        <div key={i} className="h-20 bg-[#151b2e] rounded-xl animate-pulse"></div>
+                        <div key={i} className="h-20 bg-white rounded-xl animate-pulse"></div>
                     ))}
                 </div>
             ) : (

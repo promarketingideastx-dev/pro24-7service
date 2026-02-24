@@ -121,13 +121,13 @@ export default function PlansPage() {
 
             {/* KPIs */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                <div className="bg-white/3 border border-white/8 rounded-xl p-4 col-span-2 sm:col-span-1">
+                <div className="bg-white/3 border border-slate-200 rounded-xl p-4 col-span-2 sm:col-span-1">
                     <p className="text-xl mb-1">🏢</p>
                     <p className="text-xl font-bold text-white">{total}</p>
                     <p className="text-[11px] text-slate-500 mt-0.5">{t('total')}</p>
                 </div>
                 {PLANS.map(p => (
-                    <div key={p} className="bg-white/3 border border-white/8 rounded-xl p-4">
+                    <div key={p} className="bg-white/3 border border-slate-200 rounded-xl p-4">
                         <p className="text-xl mb-1">{p === 'free' ? '🆓' : p === 'premium' ? '⭐' : p === 'plus_team' ? '💎' : '👑'}</p>
                         <p className="text-xl font-bold text-white">{byPlan[p]}</p>
                         <p className="text-[11px] text-slate-500 mt-0.5">{PlanService.PLAN_LABELS[p]}</p>
@@ -141,21 +141,21 @@ export default function PlansPage() {
             </div>
 
             {/* Table */}
-            <div className="bg-white/2 border border-white/8 rounded-2xl overflow-hidden">
+            <div className="bg-white/2 border border-slate-200 rounded-2xl overflow-hidden">
                 {/* Table header */}
-                <div className="flex items-center gap-3 px-4 py-3 border-b border-white/5">
+                <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-200">
                     <div className="relative flex-1 max-w-xs">
                         <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
                         <input value={search} onChange={e => setSearch(e.target.value)}
                             placeholder={tc('search')}
-                            className="pl-8 pr-3 py-1.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-neon-cyan/40 w-full" />
+                            className="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:border-brand-neon-cyan/40 w-full" />
                     </div>
                     <span className="text-xs text-slate-500 ml-auto">{filtered.length} {t('businesses')}</span>
                 </div>
 
                 {loading ? (
                     <div className="p-12 flex justify-center">
-                        <div className="w-6 h-6 border-2 border-white/10 border-t-brand-neon-cyan rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-slate-200 border-t-brand-neon-cyan rounded-full animate-spin" />
                     </div>
                 ) : filtered.length === 0 ? (
                     <div className="flex flex-col items-center py-16 gap-3 text-slate-500">
@@ -165,14 +165,14 @@ export default function PlansPage() {
                 ) : (
                     <>
                         {/* Column headers */}
-                        <div className="grid grid-cols-[1fr_80px_80px_160px] gap-4 px-4 py-2 text-[10px] text-slate-600 uppercase tracking-wider border-b border-white/5">
-                            <button className="flex items-center gap-1 text-left hover:text-white transition-colors" onClick={() => toggleSort('name')}>
+                        <div className="grid grid-cols-[1fr_80px_80px_160px] gap-4 px-4 py-2 text-[10px] text-slate-600 uppercase tracking-wider border-b border-slate-200">
+                            <button className="flex items-center gap-1 text-left hover:text-slate-800 transition-colors" onClick={() => toggleSort('name')}>
                                 {t('business')} <SortIcon col="name" />
                             </button>
-                            <button className="flex items-center gap-1 hover:text-white transition-colors" onClick={() => toggleSort('country')}>
+                            <button className="flex items-center gap-1 hover:text-slate-800 transition-colors" onClick={() => toggleSort('country')}>
                                 {tc('country')} <SortIcon col="country" />
                             </button>
-                            <button className="flex items-center gap-1 hover:text-white transition-colors" onClick={() => toggleSort('plan')}>
+                            <button className="flex items-center gap-1 hover:text-slate-800 transition-colors" onClick={() => toggleSort('plan')}>
                                 {t('plan')} <SortIcon col="plan" />
                             </button>
                             <span>{t('changePlan')}</span>

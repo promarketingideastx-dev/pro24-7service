@@ -25,7 +25,7 @@ const PLANS = [
             'Soporte por email',
         ],
         ctaText: 'Activar Premium',
-        ctaStyle: 'border border-white/20 text-white hover:bg-white/5',
+        ctaStyle: 'border border-slate-300 text-white hover:bg-slate-50',
     },
     {
         id: 'plus_team',
@@ -89,7 +89,7 @@ export default function PricingPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#0B0F19] text-white relative overflow-hidden">
+        <div className="min-h-screen bg-[#F4F6F8] text-white relative overflow-hidden">
             {/* Background glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-purple-500/5 rounded-full blur-[100px] pointer-events-none" />
@@ -121,7 +121,7 @@ export default function PricingPage() {
                             key={plan.id}
                             className={`relative rounded-3xl p-8 border flex flex-col transition-all duration-300 ${plan.highlight
                                     ? 'bg-gradient-to-b from-[#0f1f3d] to-[#0B0F19] border-cyan-500/50 shadow-[0_0_60px_rgba(0,240,255,0.1)] scale-[1.02]'
-                                    : 'bg-[#151b2e]/60 border-white/10 hover:border-white/20'
+                                    : 'bg-white/60 border-slate-200 hover:border-slate-300'
                                 }`}
                         >
                             {/* Badge */}

@@ -176,12 +176,12 @@ export default function AdminMapPage() {
                         ].map(f => (
                             <button key={f.key} onClick={() => setStatusFilter(f.key)}
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all border ${statusFilter === f.key
-                                    ? 'border-white/20 bg-white/10 text-white'
-                                    : 'bg-white/3 border-white/8 text-slate-400 hover:text-white'
+                                    ? 'border-slate-300 bg-slate-100 text-white'
+                                    : 'bg-white/3 border-slate-200 text-slate-400 hover:text-slate-800'
                                     }`}>
                                 {f.dot && <span className="w-2 h-2 rounded-full" style={{ background: f.dot }} />}
                                 {f.label}
-                                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${f.count > 0 ? 'bg-white/10 text-white' : 'bg-white/5 text-slate-600'}`}>
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${f.count > 0 ? 'bg-slate-100 text-white' : 'bg-slate-50 text-slate-600'}`}>
                                     {f.count}
                                 </span>
                             </button>
@@ -190,7 +190,7 @@ export default function AdminMapPage() {
 
                     {/* ColorBy toggle */}
                     <button onClick={() => setColorBy(c => c === 'status' ? 'plan' : 'status')}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl text-xs text-slate-300 transition-colors">
+                        className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-xl text-xs text-slate-300 transition-colors">
                         {colorBy === 'status'
                             ? <ToggleRight size={14} className="text-brand-neon-cyan" />
                             : <ToggleLeft size={14} />}
@@ -199,7 +199,7 @@ export default function AdminMapPage() {
                 </div>
 
                 {/* ── Map ── */}
-                <div className="flex-1 border border-white/10 rounded-2xl overflow-hidden relative shadow-xl">
+                <div className="flex-1 border border-slate-200 rounded-2xl overflow-hidden relative shadow-xl">
                     {loading ? (
                         <div className="flex items-center justify-center h-full bg-slate-100">
                             <div className="w-8 h-8 border-2 border-brand-neon-cyan/30 border-t-brand-neon-cyan rounded-full animate-spin" />
@@ -235,7 +235,7 @@ export default function AdminMapPage() {
 
                     {/* Click hint */}
                     {!selectedId && !loading && filtered.length > 0 && (
-                        <div className="absolute bottom-8 left-4 z-[1000] bg-black/60 backdrop-blur text-white text-xs px-3 py-1.5 rounded-full">
+                        <div className="absolute bottom-8 left-4 z-[1000] bg-slate-900/40 backdrop-blur text-white text-xs px-3 py-1.5 rounded-full">
                             {t('clickHint')}
                         </div>
                     )}

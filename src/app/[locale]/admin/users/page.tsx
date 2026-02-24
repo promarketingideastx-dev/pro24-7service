@@ -75,12 +75,12 @@ function ActionMenu({ user, onRefresh }: { user: UserRecord; onRefresh: () => vo
     const dropdown = open ? (
         <div
             style={{ position: 'fixed', top: coords.top, right: coords.right, zIndex: 9999 }}
-            className="bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl w-44 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-100"
+            className="bg-[#0f1a2e] border border-slate-200 rounded-xl shadow-2xl w-44 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-100"
             onMouseDown={e => e.stopPropagation()}
         >
             <button
                 onClick={toggleBan}
-                className={`w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 hover:bg-white/5 transition-colors ${user.isBanned ? 'text-green-400' : 'text-red-400'}`}
+                className={`w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 hover:bg-slate-50 transition-colors ${user.isBanned ? 'text-green-400' : 'text-red-400'}`}
             >
                 {user.isBanned ? <><UserCheck size={12} /> Desbloquear</> : <><UserX size={12} /> Bloquear</>}
             </button>
@@ -93,7 +93,7 @@ function ActionMenu({ user, onRefresh }: { user: UserRecord; onRefresh: () => vo
                 ref={btnRef}
                 onClick={handleOpen}
                 disabled={loading}
-                className="p-1.5 rounded-lg border border-white/10 text-slate-400 hover:bg-white/8 hover:text-white hover:border-white/20 transition-all disabled:opacity-40"
+                className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50 hover:text-slate-800 hover:border-slate-300 transition-all disabled:opacity-40"
                 title="Acciones"
             >
                 <MoreHorizontal size={14} />
@@ -184,7 +184,7 @@ export default function AdminUsersPage() {
                     </p>
                 </div>
                 <button onClick={load} disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm text-slate-300 transition-colors">
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-300 transition-colors">
                     <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> {tc('refresh')}
                 </button>
             </div>
@@ -197,7 +197,7 @@ export default function AdminUsersPage() {
                     { label: t('newLast30'), val: newLast30, icon: <Clock size={16} />, color: 'text-green-400' },
                     { label: t('blocked'), val: banned, icon: <UserX size={16} />, color: 'text-red-400' },
                 ].map(s => (
-                    <div key={s.label} className="bg-[#0a1128] border border-white/5 rounded-2xl p-4">
+                    <div key={s.label} className="bg-[#0a1128] border border-slate-200 rounded-2xl p-4">
                         <div className={`flex items-center gap-2 mb-1 ${s.color}`}>{s.icon}<span className="text-xs font-medium">{s.label}</span></div>
                         <p className="text-2xl font-bold text-white">{s.val}</p>
                     </div>
@@ -210,12 +210,12 @@ export default function AdminUsersPage() {
                     <Search size={14} className="absolute left-3 top-2.5 text-slate-500" />
                     <input value={search} onChange={e => setSearch(e.target.value)}
                         placeholder={t('searchPlaceholder')}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50" />
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50" />
                 </div>
                 <div className="flex gap-1.5 flex-wrap">
                     {FILTERS.map(f => (
                         <button key={f.key} onClick={() => setFilter(f.key)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors border ${filter === f.key ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan/30 text-brand-neon-cyan' : 'bg-white/3 border-white/8 text-slate-400 hover:text-white'}`}>
+                            className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors border ${filter === f.key ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan/30 text-brand-neon-cyan' : 'bg-white/3 border-slate-200 text-slate-400 hover:text-slate-800'}`}>
                             {f.label} <span className="ml-1 opacity-60">{f.count}</span>
                         </button>
                     ))}
@@ -230,11 +230,11 @@ export default function AdminUsersPage() {
             ) : filtered.length === 0 ? (
                 <div className="text-center py-16 text-slate-500">No se encontraron usuarios</div>
             ) : (
-                <div className="bg-[#0a1128] border border-white/5 rounded-2xl">
+                <div className="bg-[#0a1128] border border-slate-200 rounded-2xl">
                     <div className="overflow-x-auto rounded-2xl">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b border-white/5 text-xs text-slate-500 uppercase">
+                                <tr className="border-b border-slate-200 text-xs text-slate-500 uppercase">
                                     <th className="text-left px-4 py-3">{t('title')}</th>
                                     <th className="text-left px-4 py-3">{t('country')}</th>
                                     <th className="text-left px-4 py-3">{t('role')}</th>

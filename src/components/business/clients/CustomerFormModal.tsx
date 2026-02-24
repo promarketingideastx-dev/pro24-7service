@@ -74,15 +74,15 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-[#151b2e] w-full max-w-md rounded-2xl border border-white/10 shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-white w-full max-w-md rounded-2xl border border-slate-200 shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
 
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-white/5 bg-white/5">
+                <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50">
                     <h2 className="text-lg font-bold text-white flex items-center gap-2">
                         {customerToEdit ? t('editTitle') : t('newTitle')}
                     </h2>
-                    <button onClick={onClose} className="p-1 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+                    <button onClick={onClose} className="p-1 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition-colors">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
@@ -101,7 +101,7 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                             value={formData.fullName}
                             onChange={handleChange}
                             placeholder={t('fullNamePlaceholder')}
-                            className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all"
+                            className="w-full bg-black/20 border border-slate-200 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all"
                             autoFocus
                         />
                     </div>
@@ -118,7 +118,7 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                                 value={formData.phone}
                                 onChange={handleChange}
                                 placeholder="+504 9999-9999"
-                                className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all"
+                                className="w-full bg-black/20 border border-slate-200 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all"
                             />
                         </div>
                         <div className="space-y-1">
@@ -131,7 +131,7 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                                 value={formData.email}
                                 onChange={handleChange}
                                 placeholder={t('emailPlaceholder')}
-                                className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all"
+                                className="w-full bg-black/20 border border-slate-200 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all"
                             />
                         </div>
                     </div>
@@ -147,7 +147,7 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                             value={formData.address}
                             onChange={handleChange}
                             placeholder={t('addressPlaceholder')}
-                            className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all"
+                            className="w-full bg-black/20 border border-slate-200 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all"
                         />
                     </div>
 
@@ -162,7 +162,7 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                             onChange={handleChange}
                             rows={3}
                             placeholder={t('notesPlaceholder')}
-                            className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all resize-none"
+                            className="w-full bg-black/20 border border-slate-200 rounded-lg px-3 py-2.5 text-white placeholder:text-slate-600 focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50 transition-all resize-none"
                         />
                     </div>
 
@@ -171,7 +171,7 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 font-medium text-sm transition-colors"
+                            className="flex-1 py-2.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-300 font-medium text-sm transition-colors"
                         >
                             {t('cancel')}
                         </button>

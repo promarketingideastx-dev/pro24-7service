@@ -308,7 +308,7 @@ export default function TeamPage() {
                     <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-500" />
                 </div>
             ) : employees.length === 0 ? (
-                <GlassPanel className="p-12 flex flex-col items-center justify-center min-h-[400px] text-center border-dashed border-white/20">
+                <GlassPanel className="p-12 flex flex-col items-center justify-center min-h-[400px] text-center border-dashed border-slate-300">
                     <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-4 text-slate-500">
                         <Users size={32} />
                     </div>
@@ -330,7 +330,7 @@ export default function TeamPage() {
                             <div className="flex justify-between items-start mb-4">
                                 <div className="flex items-center gap-3">
                                     {emp.photoUrl ? (
-                                        <img src={emp.photoUrl} alt={emp.name} className="w-12 h-12 rounded-full object-cover border-2 border-white/10" />
+                                        <img src={emp.photoUrl} alt={emp.name} className="w-12 h-12 rounded-full object-cover border-2 border-slate-200" />
                                     ) : (
                                         <div className={`w-12 h-12 rounded-full bg-gradient-to-tr ${getAvatarGradient(emp)} flex items-center justify-center text-white font-bold text-lg`}>
                                             {emp.name.charAt(0).toUpperCase()}
@@ -344,7 +344,7 @@ export default function TeamPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex bg-white/5 rounded-lg p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex bg-slate-50 rounded-lg p-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button onClick={() => handleEdit(emp)} className="p-1.5 hover:text-cyan-400 text-slate-400"><Edit2 size={16} /></button>
                                     <button onClick={() => handleDeleteClick(emp)} className="p-1.5 hover:text-red-400 text-slate-400"><Trash2 size={16} /></button>
                                 </div>
@@ -393,7 +393,7 @@ export default function TeamPage() {
                                                     const isPast = apptDate && apptDate < now;
                                                     return (
                                                         <div key={appt.id}
-                                                            className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 border ${isPast ? 'bg-white/2 border-white/5 opacity-60' : 'bg-white/5 border-white/8'}`}>
+                                                            className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 border ${isPast ? 'bg-white/2 border-slate-200 opacity-60' : 'bg-slate-50 border-slate-200'}`}>
                                                             <div className="flex-1 min-w-0">
                                                                 <p className="text-[11px] text-white font-medium truncate">{appt.customerName}</p>
                                                                 <p className="text-[10px] text-slate-500 truncate">
@@ -415,20 +415,20 @@ export default function TeamPage() {
                                 );
                             })()}
 
-                            <div className="mt-auto pt-3 border-t border-white/5 flex items-center justify-between">
+                            <div className="mt-auto pt-3 border-t border-slate-200 flex items-center justify-between">
                                 <span className={`text-xs px-2 py-0.5 rounded-full ${emp.active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
                                     {emp.active ? t('active') : t('inactive')}
                                 </span>
                                 <button
                                     onClick={() => handleOpenSchedule(emp)}
-                                    className="flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-white px-2 py-1 hover:bg-white/5 rounded-lg transition-colors"
+                                    className="flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-slate-800 px-2 py-1 hover:bg-slate-50 rounded-lg transition-colors"
                                 >
                                     <Clock size={14} className={emp.availabilityWeekly ? 'text-brand-neon-cyan' : 'text-slate-500'} />
                                     {emp.availabilityWeekly ? t('scheduleSet') : t('scheduleDefault')}
                                 </button>
                                 <button
                                     onClick={() => handleOpenWorkload(emp)}
-                                    className="flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-brand-neon-cyan px-2 py-1 hover:bg-white/5 rounded-lg transition-colors"
+                                    className="flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-brand-neon-cyan px-2 py-1 hover:bg-slate-50 rounded-lg transition-colors"
                                 >
                                     <Users size={14} /> {t('viewSchedule')}
                                 </button>
@@ -441,17 +441,17 @@ export default function TeamPage() {
             {/* ── Add / Edit Member Modal ── */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-[#0f1629] border border-white/8 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+                    <div className="bg-[#0f1629] border border-slate-200 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
 
                         {/* Modal Header */}
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
                             <div>
                                 <h2 className="text-lg font-bold text-white">
                                     {editingId ? t('editMember') : t('add')}
                                 </h2>
                                 <p className="text-xs text-slate-500 mt-0.5">{t('modalSubtitle')}</p>
                             </div>
-                            <button onClick={() => setIsModalOpen(false)} className="p-1.5 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+                            <button onClick={() => setIsModalOpen(false)} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-colors">
                                 <X size={20} />
                             </button>
                         </div>
@@ -459,11 +459,11 @@ export default function TeamPage() {
                         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[78vh] overflow-y-auto custom-scrollbar">
 
                             {/* ── Photo Picker ── */}
-                            <div className="flex flex-col items-center gap-3 pb-5 border-b border-white/5">
+                            <div className="flex flex-col items-center gap-3 pb-5 border-b border-slate-200">
                                 <div className="relative group">
                                     <div
                                         onClick={() => setPhotoPickerOpen(v => !v)}
-                                        className="w-20 h-20 rounded-full cursor-pointer overflow-hidden border-2 border-white/10 hover:border-brand-neon-cyan/50 transition-all relative"
+                                        className="w-20 h-20 rounded-full cursor-pointer overflow-hidden border-2 border-slate-200 hover:border-brand-neon-cyan/50 transition-all relative"
                                     >
                                         {photoPreview ? (
                                             <img src={photoPreview} alt="preview" className="w-full h-full object-cover" />
@@ -481,7 +481,7 @@ export default function TeamPage() {
                                         </div>
                                         {photoUploading && (
                                             <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                <div className="w-5 h-5 border-2 border-slate-300 border-t-white rounded-full animate-spin" />
                                             </div>
                                         )}
                                     </div>
@@ -495,15 +495,15 @@ export default function TeamPage() {
                                 <p className="text-xs text-slate-500">{t('tapToAddPhoto')}</p>
 
                                 {photoPickerOpen && (
-                                    <div className="w-full bg-[#0a0f1e] border border-white/10 rounded-xl p-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
+                                    <div className="w-full bg-[#0a0f1e] border border-slate-200 rounded-xl p-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-150">
                                         <div className="grid grid-cols-2 gap-2">
-                                            <label className="flex flex-col items-center gap-2 p-3 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer border border-white/5 hover:border-white/15 transition-colors">
+                                            <label className="flex flex-col items-center gap-2 p-3 bg-slate-50 hover:bg-slate-100 rounded-xl cursor-pointer border border-slate-200 hover:border-slate-300 transition-colors">
                                                 <ImageIcon size={20} className="text-slate-300" />
                                                 <span className="text-xs text-slate-400 font-medium">{t('gallery')}</span>
                                                 <input type="file" accept="image/*" className="hidden"
                                                     onChange={e => e.target.files?.[0] && handlePhotoFile(e.target.files[0])} />
                                             </label>
-                                            <label className="flex flex-col items-center gap-2 p-3 bg-white/5 hover:bg-white/10 rounded-xl cursor-pointer border border-white/5 hover:border-white/15 transition-colors">
+                                            <label className="flex flex-col items-center gap-2 p-3 bg-slate-50 hover:bg-slate-100 rounded-xl cursor-pointer border border-slate-200 hover:border-slate-300 transition-colors">
                                                 <Camera size={20} className="text-slate-300" />
                                                 <span className="text-xs text-slate-400 font-medium">{t('camera')}</span>
                                                 <input type="file" accept="image/*" capture="user" className="hidden"
@@ -537,7 +537,7 @@ export default function TeamPage() {
                                     required
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
                                     placeholder={t('fullNamePlaceholder')}
                                 />
                             </div>
@@ -548,7 +548,7 @@ export default function TeamPage() {
                                 <select
                                     value={formData.roleType || 'technician'}
                                     onChange={e => setFormData({ ...formData, roleType: e.target.value as any })}
-                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none appearance-none"
+                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none appearance-none"
                                 >
                                     <option value="manager">{t('roleManager')}</option>
                                     <option value="reception">{t('roleReception')}</option>
@@ -569,7 +569,7 @@ export default function TeamPage() {
                                         required
                                         value={formData.roleCustom || ''}
                                         onChange={e => setFormData({ ...formData, roleCustom: e.target.value })}
-                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
                                         placeholder={t('specifyRolePlaceholder')}
                                     />
                                 </div>
@@ -588,7 +588,7 @@ export default function TeamPage() {
                                                 className={`text-xs px-2.5 py-1 rounded-full border transition-all
                                                     ${formData.role === spec
                                                         ? 'bg-brand-neon-cyan/15 border-brand-neon-cyan text-brand-neon-cyan'
-                                                        : 'border-white/10 text-slate-400 hover:border-white/30 hover:text-slate-200'}`}
+                                                        : 'border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-200'}`}
                                             >
                                                 {resolveSpecLabel(spec)}
                                             </button>
@@ -599,7 +599,7 @@ export default function TeamPage() {
                                     type="text"
                                     value={formData.role}
                                     onChange={e => setFormData({ ...formData, role: e.target.value })}
-                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
                                     placeholder={t('titleSpecialtyPlaceholder')}
                                 />
                             </div>
@@ -616,7 +616,7 @@ export default function TeamPage() {
                                             rows={3}
                                             value={formData.description || ''}
                                             onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                            className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none resize-none text-sm leading-relaxed"
+                                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none resize-none text-sm leading-relaxed"
                                             placeholder={t('descriptionPlaceholder')}
                                         />
                                         <p className={`text-right text-xs mt-1 ${over ? 'text-red-400' : 'text-slate-600'}`}>
@@ -628,7 +628,7 @@ export default function TeamPage() {
 
 
                             {/* Active toggle */}
-                            <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
+                            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
                                 <div
                                     onClick={() => setFormData({ ...formData, active: !formData.active })}
                                     className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${formData.active ? 'bg-green-500' : 'bg-slate-700'}`}
@@ -661,7 +661,7 @@ export default function TeamPage() {
             {/* Delete Confirmation */}
             {memberToDelete && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-[#0f1629] border border-white/10 w-full max-w-sm rounded-2xl p-6 shadow-2xl">
+                    <div className="bg-[#0f1629] border border-slate-200 w-full max-w-sm rounded-2xl p-6 shadow-2xl">
                         <div className="flex flex-col items-center text-center gap-4">
                             <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-2">
                                 <AlertTriangle size={24} />
@@ -673,7 +673,7 @@ export default function TeamPage() {
                                 </p>
                             </div>
                             <div className="flex gap-3 w-full mt-2">
-                                <button onClick={() => setMemberToDelete(null)} className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl transition-colors font-medium">
+                                <button onClick={() => setMemberToDelete(null)} className="flex-1 px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-300 rounded-xl transition-colors font-medium">
                                     {t('cancel')}
                                 </button>
                                 <button onClick={confirmDelete} disabled={isSubmitting} className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-colors font-bold">

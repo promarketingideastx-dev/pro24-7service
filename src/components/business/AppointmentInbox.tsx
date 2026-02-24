@@ -191,15 +191,15 @@ export default function AppointmentInbox({
 
     return (
         <>
-            <div className="bg-[#151b2e]/50 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm">
+            <div className="bg-slate-500 border border-slate-200 rounded-2xl overflow-hidden backdrop-blur-sm">
                 {/* Tabs */}
-                <div className="flex border-b border-white/10">
+                <div className="flex border-b border-slate-200">
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as any)}
                             className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-medium transition-colors relative
-                                ${activeTab === tab.id ? 'text-white bg-white/5' : 'text-slate-400 hover:text-white hover:bg-white/5'}
+                                ${activeTab === tab.id ? 'text-white bg-slate-50' : 'text-slate-400 hover:text-slate-800 hover:bg-slate-50'}
                             `}
                         >
                             {tab.icon}
@@ -219,7 +219,7 @@ export default function AppointmentInbox({
                         </div>
                     ) : appointments.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-48 text-slate-500">
-                            <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
+                            <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center mb-3">
                                 <Clock size={20} className="text-slate-600" />
                             </div>
                             <p>{t('empty')}</p>
@@ -229,7 +229,7 @@ export default function AppointmentInbox({
                             {appointments.map((apt) => (
                                 <div
                                     key={apt.id}
-                                    className="bg-white/5 border border-white/5 rounded-xl p-4 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center hover:bg-white/10 transition-colors"
+                                    className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center hover:bg-slate-100 transition-colors"
                                 >
                                     {/* Info */}
                                     <div className="flex items-start gap-4">
@@ -317,8 +317,8 @@ export default function AppointmentInbox({
 
             {/* ── Rejection Reason Modal ───────────────────────────────────── */}
             {rejectTarget && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="bg-[#131929] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+                    <div className="bg-[#131929] border border-slate-200 rounded-2xl p-6 w-full max-w-md shadow-2xl">
                         <h3 className="text-white font-bold text-lg mb-1">
                             ❌ Rechazar cita
                         </h3>
@@ -333,7 +333,7 @@ export default function AppointmentInbox({
                         <textarea
                             value={rejectReason}
                             onChange={e => setRejectReason(e.target.value.slice(0, MAX_CHARS))}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-red-400/40 resize-none h-32 leading-relaxed"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-white text-sm outline-none focus:border-red-400/40 resize-none h-32 leading-relaxed"
                         />
                         <p className={`text-right text-xs mt-1 ${rejectReason.length >= MAX_CHARS ? 'text-red-400' : 'text-slate-600'}`}>
                             {rejectReason.length}/{MAX_CHARS}
@@ -346,7 +346,7 @@ export default function AppointmentInbox({
                         <div className="flex gap-3">
                             <button
                                 onClick={() => { setRejectTarget(null); setRejectReason(DEFAULT_REJECTION_TEXT); }}
-                                className="flex-1 py-2.5 rounded-xl border border-white/10 text-slate-400 hover:text-white text-sm transition-colors"
+                                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-400 hover:text-slate-800 text-sm transition-colors"
                             >
                                 Cancelar
                             </button>

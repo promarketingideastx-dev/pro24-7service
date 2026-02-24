@@ -9,12 +9,12 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                // Premium Palette
+                // Light Mode Palette
                 brand: {
-                    dark: '#0B0F19',     // Deep Space
-                    primary: '#38BDF8',  // Sky 400 (Legacy)
-                    accent: '#818CF8',   // Indigo 400 (Legacy)
-                    surface: '#1E293B',  // Slate 800
+                    dark: '#F4F6F8',
+                    primary: '#38BDF8',
+                    accent: '#00F0FF',
+                    surface: '#FFFFFF',
                     neon: {
                         cyan: '#00F0FF',
                         magenta: '#FF003C',
@@ -24,14 +24,16 @@ const config: Config = {
             },
             backgroundImage: {
                 "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-                "glass": "linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.00) 100%)",
-                "glass-hover": "linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%)",
+                "glass": "linear-gradient(145deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.00) 100%)",
+                "glass-hover": "linear-gradient(145deg, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.01) 100%)",
                 "neon-gradient": "linear-gradient(to right, #00F0FF, #BD00FF)",
             },
             boxShadow: {
                 "neon": "0 0 10px rgba(0, 240, 255, 0.5), 0 0 20px rgba(0, 240, 255, 0.3)",
                 "neon-hover": "0 0 15px rgba(0, 240, 255, 0.7), 0 0 30px rgba(0, 240, 255, 0.5)",
                 "glass": "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
+                "card": "0 4px 12px rgba(0,0,0,0.06)",
+                "card-hover": "0 8px 24px rgba(0,0,0,0.10)",
             },
             backdropBlur: {
                 xs: '2px',

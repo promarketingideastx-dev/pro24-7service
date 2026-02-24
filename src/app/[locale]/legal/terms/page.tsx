@@ -17,7 +17,7 @@ export default function TermsPage() {
     const year = new Date().getFullYear();
 
     return (
-        <div className="min-h-screen bg-[#060d1f] py-16 px-4">
+        <div className="min-h-screen bg-[#F0F2F5] py-16 px-4">
             <div className="max-w-3xl mx-auto">
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-8">
@@ -30,7 +30,7 @@ export default function TermsPage() {
                     </div>
                 </div>
 
-                <div className="bg-[#0a1128] border border-white/5 rounded-2xl p-8 prose prose-invert max-w-none">
+                <div className="bg-[#0a1128] border border-slate-200 rounded-2xl p-8 prose prose-invert max-w-none">
                     <div className="space-y-6 text-sm text-slate-300 leading-relaxed">
 
                         <section>

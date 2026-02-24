@@ -162,7 +162,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     if (!business) return null;
 
     return (
-        <main className="min-h-screen bg-[#0B0F19] text-white font-sans pb-24 md:pb-20">
+        <main className="min-h-screen bg-[#F4F6F8] text-white font-sans pb-24 md:pb-20">
 
             {/* --- 1. PREMIUM HEADER --- */}
             <header className="relative w-full">
@@ -183,7 +183,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                 <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-50">
                     <button
                         onClick={() => router.back()}
-                        className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white border border-white/10 hover:bg-black/60 transition-all"
+                        className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white border border-slate-200 hover:bg-slate-900/40 transition-all"
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </button>
@@ -210,7 +210,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                         )}
                         <button
                             onClick={handleShare}
-                            className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white border border-white/10 hover:bg-brand-neon-cyan/20 hover:border-brand-neon-cyan/40 hover:text-brand-neon-cyan active:scale-90 transition-all"
+                            className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white border border-slate-200 hover:bg-brand-neon-cyan/20 hover:border-brand-neon-cyan/40 hover:text-brand-neon-cyan active:scale-90 transition-all"
                             title={t('shareTitle')}
                         >
                             <Share2 className="w-5 h-5" />
@@ -220,7 +220,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                             disabled={favProcessing}
                             className={`p-2 rounded-full backdrop-blur-md border transition-all ${favProcessing ? 'opacity-60 cursor-wait' : 'active:scale-90'} ${isFavorited
                                 ? 'bg-red-500/20 border-red-500/40 text-red-400 shadow-[0_0_12px_rgba(239,68,68,0.4)]'
-                                : 'bg-black/40 border-white/10 text-white hover:bg-red-500/10 hover:border-red-400/30 hover:text-red-400'
+                                : 'bg-black/40 border-slate-200 text-white hover:bg-red-500/10 hover:border-red-400/30 hover:text-red-400'
                                 } ${heartAnim ? 'scale-125' : 'scale-100'}`}
                             title={isFavorited ? t('favRemoveTitle') : t('favAddTitle')}
                         >
@@ -282,7 +282,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
             </header>
 
             {/* --- 2. STICKY TABS --- */}
-            <div className={`sticky top-0 z-40 bg-[#0B0F19]/80 backdrop-blur-xl border-b border-white/5 mt-6 transition-all duration-300 ${isSticky ? 'shadow-lg shadow-black/50' : ''}`}>
+            <div className={`sticky top-0 z-40 bg-[#F4F6F8]/80 backdrop-blur-xl border-b border-slate-200 mt-6 transition-all duration-300 ${isSticky ? 'shadow-lg shadow-black/50' : ''}`}>
                 <div className="flex overflow-x-auto no-scrollbar justify-start md:justify-center px-4">
                     {tabs.map((tab) => (
                         <button
@@ -290,7 +290,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                             onClick={() => onTabChange(tab.id)}
                             className={`px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 transition-all ${activeTab === tab.id
                                 ? 'border-brand-neon-cyan text-brand-neon-cyan'
-                                : 'border-transparent text-slate-400 hover:text-white'
+                                : 'border-transparent text-slate-400 hover:text-slate-800'
                                 }`}
                         >
                             {tab.label}
@@ -300,13 +300,13 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
             </div>
 
             {/* --- 3. CONTENT AREA --- */}
-            <div className="min-h-[50vh] bg-[#0B0F19]">
+            <div className="min-h-[50vh] bg-[#F4F6F8]">
                 {children}
             </div>
 
             {/* --- 4. MOBILE STICKY ACTION BAR (hidden when modal is open) --- */}
             {!isOwner && !isModalOpen && (
-                <div className="fixed bottom-0 left-0 right-0 bg-[#0B0F19]/90 backdrop-blur-lg border-t border-white/10 p-4 md:hidden z-50 flex gap-3 animate-in slide-in-from-bottom-full duration-500">
+                <div className="fixed bottom-0 left-0 right-0 bg-[#F4F6F8]/90 backdrop-blur-lg border-t border-slate-200 p-4 md:hidden z-50 flex gap-3 animate-in slide-in-from-bottom-full duration-500">
                     {/* WhatsApp Button */}
                     <button
                         onClick={handleWhatsApp}
@@ -318,7 +318,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                     {/* Call Button (Optional, can be hidden if no phone) */}
                     <button
                         onClick={handleCall}
-                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-800 text-slate-300 border border-white/10 hover:bg-slate-700 active:scale-95 transition-all"
+                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-800 text-slate-300 border border-slate-200 hover:bg-slate-700 active:scale-95 transition-all"
                     >
                         <Phone className="w-5 h-5" />
                     </button>

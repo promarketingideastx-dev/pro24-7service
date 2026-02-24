@@ -126,7 +126,7 @@ export default function AgendaPage() {
                 onToday={() => setCurrentDate(new Date())}
             />
 
-            <div className="flex-1 overflow-hidden relative border border-white/10 rounded-2xl bg-[#0F131F]">
+            <div className="flex-1 overflow-hidden relative border border-slate-200 rounded-2xl bg-[#0F131F]">
                 <CalendarGrid
                     date={currentDate}
                     view={view}

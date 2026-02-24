@@ -65,7 +65,7 @@ export default function BusinessNotificationsPage() {
                 {unreadCount > 0 && (
                     <button
                         onClick={handleMarkAllRead}
-                        className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white border border-white/10 hover:border-white/20 px-3 py-1.5 rounded-lg transition-colors"
+                        className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-800 border border-slate-200 hover:border-slate-300 px-3 py-1.5 rounded-lg transition-colors"
                     >
                         <CheckCheck size={14} />
                         {t('markAllRead')}
@@ -81,7 +81,7 @@ export default function BusinessNotificationsPage() {
                         onClick={() => setFilter(f)}
                         className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === f
                             ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
-                            : 'text-slate-400 hover:text-white bg-white/5 border border-white/5'
+                            : 'text-slate-400 hover:text-slate-800 bg-slate-50 border border-slate-200'
                             }`}
                     >
                         {t(`filter_${f}`)}
@@ -106,8 +106,8 @@ export default function BusinessNotificationsPage() {
                                 key={item.id}
                                 onClick={() => !item.read && handleMarkOne(item.id)}
                                 className={`flex gap-4 p-4 rounded-2xl border transition-all cursor-pointer ${item.read
-                                    ? 'bg-white/3 border-white/5 opacity-60'
-                                    : 'bg-white/6 border-white/10 hover:bg-white/10'
+                                    ? 'bg-white/3 border-slate-200 opacity-60'
+                                    : 'bg-white/6 border-slate-200 hover:bg-slate-100'
                                     }`}
                             >
                                 {/* Emoji icon */}

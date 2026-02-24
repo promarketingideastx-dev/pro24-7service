@@ -79,7 +79,7 @@ export default function MediaPage() {
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             placeholder={t('search')}
-                            className="pl-8 pr-3 py-1.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-neon-cyan/40 w-44"
+                            className="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:border-brand-neon-cyan/40 w-44"
                         />
                     </div>
                 </div>
@@ -94,7 +94,7 @@ export default function MediaPage() {
                     { key: 'gallery', label: t('typeGallery'), value: galleryCount, icon: '🖼️', color: 'text-cyan-400' },
                 ].map(kpi => (
                     <button key={kpi.key} onClick={() => setTypeFilter(kpi.key as any)}
-                        className={`bg-white/3 border rounded-xl p-4 text-left transition-all ${typeFilter === kpi.key ? 'border-brand-neon-cyan/30 bg-brand-neon-cyan/5' : 'border-white/8 hover:border-white/20'}`}>
+                        className={`bg-white/3 border rounded-xl p-4 text-left transition-all ${typeFilter === kpi.key ? 'border-brand-neon-cyan/30 bg-brand-neon-cyan/5' : 'border-slate-200 hover:border-slate-300'}`}>
                         <p className="text-xl mb-1">{kpi.icon}</p>
                         <p className={`text-xl font-bold ${kpi.color}`}>{kpi.value}</p>
                         <p className="text-[11px] text-slate-500 mt-0.5">{kpi.label}</p>
@@ -103,10 +103,10 @@ export default function MediaPage() {
             </div>
 
             {/* Grid */}
-            <div className="bg-white/2 border border-white/8 rounded-2xl overflow-hidden min-h-[300px]">
+            <div className="bg-white/2 border border-slate-200 rounded-2xl overflow-hidden min-h-[300px]">
                 {loading ? (
                     <div className="p-12 flex justify-center">
-                        <div className="w-6 h-6 border-2 border-white/10 border-t-brand-neon-cyan rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-slate-200 border-t-brand-neon-cyan rounded-full animate-spin" />
                     </div>
                 ) : filtered.length === 0 ? (
                     <div className="flex flex-col items-center py-20 gap-3 text-slate-500">
@@ -117,11 +117,11 @@ export default function MediaPage() {
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 p-4">
                         {filtered.map((img, i) => (
                             <button key={i} onClick={() => setSelected(img)}
-                                className="group relative aspect-square rounded-xl overflow-hidden border border-white/8 hover:border-brand-neon-cyan/40 transition-all hover:scale-[1.02] bg-white/5">
+                                className="group relative aspect-square rounded-xl overflow-hidden border border-slate-200 hover:border-brand-neon-cyan/40 transition-all hover:scale-[1.02] bg-slate-50">
                                 <img src={img.url} alt={img.businessName} className="w-full h-full object-cover" loading="lazy" />
-                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 p-1">
+                                <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 p-1">
                                     <p className="text-white text-[10px] font-semibold text-center leading-tight line-clamp-2">{img.businessName}</p>
-                                    <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-full text-white">{TYPE_LABEL[img.type]}</span>
+                                    <span className="text-[9px] bg-slate-100 px-1.5 py-0.5 rounded-full text-white">{TYPE_LABEL[img.type]}</span>
                                 </div>
                             </button>
                         ))}
@@ -131,9 +131,9 @@ export default function MediaPage() {
 
             {/* Modal */}
             {selected && (
-                <div className="fixed inset-0 z-[4000] bg-black/80 backdrop-blur flex items-center justify-center p-4" onClick={() => setSelected(null)}>
-                    <div className="bg-[#0a1128] border border-white/10 rounded-2xl overflow-hidden max-w-2xl w-full shadow-2xl" onClick={e => e.stopPropagation()}>
-                        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+                <div className="fixed inset-0 z-[4000] bg-slate-900/50 backdrop-blur flex items-center justify-center p-4" onClick={() => setSelected(null)}>
+                    <div className="bg-[#0a1128] border border-slate-200 rounded-2xl overflow-hidden max-w-2xl w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
                             <div>
                                 <p className="text-sm font-semibold text-white">{selected.businessName}</p>
                                 <p className="text-[10px] text-slate-500">{selected.country} · {TYPE_LABEL[selected.type]}</p>

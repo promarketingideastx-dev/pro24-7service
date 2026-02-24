@@ -125,11 +125,11 @@ export default function AppointmentModal({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="bg-[#151b2e] border border-white/10 rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+            <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[90vh]">
 
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-white/10">
+                <div className="flex items-center justify-between p-6 border-b border-slate-200">
                     <div>
                         <h2 className="text-xl font-bold text-white">
                             {appointment ? t('editTitle') : t('newTitle')}
@@ -138,7 +138,7 @@ export default function AppointmentModal({
                             {appointment ? t('editSubtitle') : t('newSubtitle')}
                         </p>
                     </div>
-                    <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
+                    <button onClick={onClose} className="text-slate-400 hover:text-slate-800 transition-colors">
                         <X size={24} />
                     </button>
                 </div>
@@ -150,7 +150,7 @@ export default function AppointmentModal({
                     {appointment ? (
                         <div className="space-y-1">
                             <label className="text-xs text-slate-400 font-medium ml-1">{t('client')}</label>
-                            <div className="flex items-center gap-3 bg-white/5 border border-white/8 rounded-xl px-4 py-3">
+                            <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
                                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
                                     {(appointment.customerName || '?').charAt(0).toUpperCase()}
                                 </div>
@@ -162,7 +162,7 @@ export default function AppointmentModal({
                                         <p className="text-slate-500 text-xs">{appointment.customerPhone}</p>
                                     )}
                                 </div>
-                                <span className="ml-auto text-[10px] text-slate-600 bg-white/5 px-2 py-0.5 rounded-full shrink-0">
+                                <span className="ml-auto text-[10px] text-slate-600 bg-slate-50 px-2 py-0.5 rounded-full shrink-0">
                                     {t('locked')}
                                 </span>
                             </div>
@@ -185,7 +185,7 @@ export default function AppointmentModal({
                                         setShowCustomerResults(true);
                                     }}
                                     onFocus={() => setShowCustomerResults(true)}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 pr-10 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50"
+                                    className="w-full bg-black/20 border border-slate-200 rounded-xl py-2 pl-9 pr-10 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50 focus:ring-1 focus:ring-brand-neon-cyan/50"
                                     placeholder={t('clientPlaceholder')}
                                     autoComplete="off"
                                 />
@@ -198,17 +198,17 @@ export default function AppointmentModal({
                                     customerSearch && (
                                         <button type="button"
                                             onClick={() => { setCustomerSearch(''); setValue('customerName', ''); setValue('customerId', ''); }}
-                                            className="absolute right-3 top-2.5 text-slate-500 hover:text-white">
+                                            className="absolute right-3 top-2.5 text-slate-500 hover:text-slate-800">
                                             <X className="w-4 h-4" />
                                         </button>
                                     )
                                 )}
                             </div>
                             {showCustomerResults && customerSearch && filteredCustomers.length > 0 && !currentCustomerId && (
-                                <div className="absolute z-10 w-full bg-[#151b2e] border border-white/10 rounded-xl shadow-xl mt-1 max-h-40 overflow-y-auto custom-scrollbar">
+                                <div className="absolute z-10 w-full bg-white border border-slate-200 rounded-xl shadow-xl mt-1 max-h-40 overflow-y-auto custom-scrollbar">
                                     {filteredCustomers.map(c => (
                                         <button key={c.id} type="button" onClick={() => handleSelectCustomer(c)}
-                                            className="w-full text-left px-4 py-2 hover:bg-white/5 text-sm flex items-center justify-between group">
+                                            className="w-full text-left px-4 py-2 hover:bg-slate-50 text-sm flex items-center justify-between group">
                                             <div>
                                                 <p className="font-medium text-white">{c.fullName}</p>
                                                 <p className="text-xs text-slate-500">{c.phone}</p>
@@ -227,7 +227,7 @@ export default function AppointmentModal({
                         <div className="space-y-1">
                             <label className="text-xs text-slate-400 font-medium ml-1">{t('phone')}</label>
                             <input {...register('customerPhone')}
-                                className="w-full bg-black/20 border border-white/10 rounded-xl py-2 px-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
+                                className="w-full bg-black/20 border border-slate-200 rounded-xl py-2 px-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
                                 placeholder="+504 9999-9999" />
                         </div>
                     )}
@@ -239,7 +239,7 @@ export default function AppointmentModal({
                             <Briefcase className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
                             <select
                                 {...register('serviceId', { required: t('serviceRequired') })}
-                                className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50 appearance-none"
+                                className="w-full bg-black/20 border border-slate-200 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50 appearance-none"
                             >
                                 <option value="">{t('selectService')}</option>
                                 {services.map(s => (
@@ -262,7 +262,7 @@ export default function AppointmentModal({
                                 onClick={() => setValue('employeeId', '')}
                                 className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all w-16 ${!watch('employeeId')
                                     ? 'border-brand-neon-cyan bg-brand-neon-cyan/10 shadow-[0_0_10px_rgba(0,240,255,0.15)]'
-                                    : 'border-white/10 bg-white/3 hover:border-white/20'
+                                    : 'border-slate-200 bg-white/3 hover:border-slate-300'
                                     }`}
                             >
                                 <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-slate-400">
@@ -283,11 +283,11 @@ export default function AppointmentModal({
                                     <button key={emp.id} type="button" onClick={() => setValue('employeeId', emp.id!)}
                                         className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all w-16 ${isSelected
                                             ? 'border-brand-neon-cyan bg-brand-neon-cyan/10 shadow-[0_0_10px_rgba(0,240,255,0.15)]'
-                                            : 'border-white/10 bg-white/3 hover:border-white/20'
+                                            : 'border-slate-200 bg-white/3 hover:border-slate-300'
                                             }`}
                                     >
                                         {emp.photoUrl ? (
-                                            <img src={emp.photoUrl} alt={emp.name} className="w-10 h-10 rounded-full object-cover border border-white/10" />
+                                            <img src={emp.photoUrl} alt={emp.name} className="w-10 h-10 rounded-full object-cover border border-slate-200" />
                                         ) : (
                                             <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white font-bold text-sm`}>
                                                 {emp.name.charAt(0).toUpperCase()}
@@ -312,7 +312,7 @@ export default function AppointmentModal({
                             <div className="relative">
                                 <CalendarIcon className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
                                 <input type="date" {...register('date', { required: true })}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50" />
+                                    className="w-full bg-black/20 border border-slate-200 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50" />
                             </div>
                         </div>
                         <div className="space-y-1">
@@ -320,7 +320,7 @@ export default function AppointmentModal({
                             <div className="relative">
                                 <Clock className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
                                 <input type="time" {...register('time', { required: true })}
-                                    className="w-full bg-black/20 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50" />
+                                    className="w-full bg-black/20 border border-slate-200 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50" />
                             </div>
                         </div>
                     </div>
@@ -330,7 +330,7 @@ export default function AppointmentModal({
                         <div className="space-y-1">
                             <label className="text-xs text-slate-400 font-medium ml-1">{t('status')}</label>
                             <select {...register('status')}
-                                className="w-full bg-black/20 border border-white/10 rounded-xl py-2 px-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
+                                className="w-full bg-black/20 border border-slate-200 rounded-xl py-2 px-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
                             >
                                 <option value="confirmed">{t('statusConfirmed')}</option>
                                 <option value="pending">{t('statusPending')}</option>
@@ -345,14 +345,14 @@ export default function AppointmentModal({
                     <div className="space-y-1">
                         <label className="text-xs text-slate-400 font-medium ml-1">{t('notes')}</label>
                         <textarea {...register('notes')} rows={3}
-                            className="w-full bg-black/20 border border-white/10 rounded-xl py-2 px-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50 resize-none"
+                            className="w-full bg-black/20 border border-slate-200 rounded-xl py-2 px-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50 resize-none"
                             placeholder={t('notesPlaceholder')} />
                     </div>
                 </form>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-white/10 flex justify-end gap-3">
-                    <button onClick={onClose} className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors">
+                <div className="p-6 border-t border-slate-200 flex justify-end gap-3">
+                    <button onClick={onClose} className="px-4 py-2 text-sm text-slate-400 hover:text-slate-800 transition-colors">
                         {t('cancel')}
                     </button>
                     <button

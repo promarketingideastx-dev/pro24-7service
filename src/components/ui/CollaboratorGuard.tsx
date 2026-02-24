@@ -33,7 +33,7 @@ export default function CollaboratorGuard({
 
     if (planStatus === 'paused') {
         return (
-            <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center p-6">
+            <div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center p-6">
                 <div className="max-w-md w-full text-center">
                     {/* Icon */}
                     <div className="flex justify-center mb-6">
@@ -61,7 +61,7 @@ export default function CollaboratorGuard({
 
     if (planStatus === 'inactive' || planStatus === 'cancelled') {
         return (
-            <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center p-6">
+            <div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center p-6">
                 <div className="max-w-md w-full text-center">
                     <div className="flex justify-center mb-6">
                         <div className="w-20 h-20 rounded-full bg-red-500/15 border border-red-500/30 flex items-center justify-center">

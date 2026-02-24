@@ -25,7 +25,7 @@ function KPICard({ icon, label, value, sub, color, trend }: {
     sub?: string; color: string; trend?: 'up' | 'down' | 'neutral';
 }) {
     return (
-        <div className="bg-[#0a1128] border border-white/5 rounded-2xl p-5 flex flex-col gap-3 hover:border-white/10 transition-colors">
+        <div className="bg-[#0a1128] border border-slate-200 rounded-2xl p-5 flex flex-col gap-3 hover:border-slate-200 transition-colors">
             <div className="flex items-center justify-between">
                 <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center`}>
                     {icon}
@@ -40,7 +40,7 @@ function KPICard({ icon, label, value, sub, color, trend }: {
                 <p className="text-3xl font-bold text-white">{value}</p>
                 <p className="text-xs text-slate-500 mt-0.5">{label}</p>
             </div>
-            {sub && <p className="text-xs text-slate-600 border-t border-white/5 pt-2">{sub}</p>}
+            {sub && <p className="text-xs text-slate-600 border-t border-slate-200 pt-2">{sub}</p>}
         </div>
     );
 }
@@ -50,7 +50,7 @@ function MiniBar({ label, value, max, color }: { label: string; value: number; m
     return (
         <div className="flex items-center gap-3">
             <span className="text-xs text-slate-400 w-20 shrink-0">{label}</span>
-            <div className="flex-1 bg-white/5 rounded-full h-1.5">
+            <div className="flex-1 bg-slate-50 rounded-full h-1.5">
                 <div className={`h-1.5 rounded-full ${color} transition-all duration-700`} style={{ width: `${pct}%` }} />
             </div>
             <span className="text-xs text-slate-400 w-6 text-right">{value}</span>
@@ -110,7 +110,7 @@ export default function AdminDashboardPage() {
                     </p>
                 </div>
                 <button onClick={load} disabled={loading}
-                    className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm text-slate-300 transition-colors">
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-300 transition-colors">
                     <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> {tc('refresh')}
                 </button>
             </div>
@@ -155,7 +155,7 @@ export default function AdminDashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
                 {/* Plan Distribution */}
-                <div className="bg-[#0a1128] border border-white/5 rounded-2xl p-5 col-span-1">
+                <div className="bg-[#0a1128] border border-slate-200 rounded-2xl p-5 col-span-1">
                     <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
                         <TrendingUp size={16} className="text-brand-neon-cyan" /> {t('planDistribution')}
                     </h3>
@@ -167,7 +167,7 @@ export default function AdminDashboardPage() {
                     </div>
 
                     {/* Plan donut summary */}
-                    <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-white/5">
+                    <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-200">
                         {[
                             { label: 'Free', val: s.planCounts.free ?? 0, color: 'text-slate-400' },
                             { label: 'Premium', val: s.planCounts.premium ?? 0, color: 'text-blue-400' },
@@ -183,7 +183,7 @@ export default function AdminDashboardPage() {
                 </div>
 
                 {/* Top Countries */}
-                <div className="bg-[#0a1128] border border-white/5 rounded-2xl p-5 col-span-1">
+                <div className="bg-[#0a1128] border border-slate-200 rounded-2xl p-5 col-span-1">
                     <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
                         🌍 {t('byCountry')}
                     </h3>
@@ -205,7 +205,7 @@ export default function AdminDashboardPage() {
                 </div>
 
                 {/* Recent Businesses */}
-                <div className="bg-[#0a1128] border border-white/5 rounded-2xl p-5 col-span-1">
+                <div className="bg-[#0a1128] border border-slate-200 rounded-2xl p-5 col-span-1">
                     <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
                         <UserCheck size={16} className="text-brand-neon-cyan" /> {t('recentBusinesses')}
                     </h3>
@@ -218,7 +218,7 @@ export default function AdminDashboardPage() {
                                 return (
                                     <div key={b.id} className="flex items-center gap-2.5">
                                         {b.coverImage ? (
-                                            <img src={b.coverImage} alt="" className="w-7 h-7 rounded-lg object-cover border border-white/10 shrink-0" />
+                                            <img src={b.coverImage} alt="" className="w-7 h-7 rounded-lg object-cover border border-slate-200 shrink-0" />
                                         ) : (
                                             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-neon-cyan/20 to-brand-neon-purple/20 flex items-center justify-center text-white font-bold text-[10px] shrink-0">
                                                 {b.name?.charAt(0) ?? '?'}
@@ -245,7 +245,7 @@ export default function AdminDashboardPage() {
                     { label: t('newLast7d'), value: s.newLast7d, icon: <ArrowUpRight size={14} />, color: 'text-green-400' },
                     { label: t('freePlan'), value: s.planCounts.free ?? 0, icon: <Zap size={14} />, color: 'text-slate-400' },
                 ].map(item => (
-                    <div key={item.label} className="bg-white/3 border border-white/5 rounded-xl px-4 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors">
+                    <div key={item.label} className="bg-white/3 border border-slate-200 rounded-xl px-4 py-3 flex items-center gap-3 hover:bg-slate-50 transition-colors">
                         <span className={item.color}>{item.icon}</span>
                         <div>
                             <p className="text-lg font-bold text-white leading-none">{item.value}</p>

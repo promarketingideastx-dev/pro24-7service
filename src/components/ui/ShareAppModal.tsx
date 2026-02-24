@@ -67,7 +67,7 @@ export default function ShareAppModal({ isOpen, onClose }: ShareAppModalProps) {
             />
 
             {/* Modal */}
-            <div className="relative w-full max-w-md bg-[#0f172a] border border-white/10 rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="relative w-full max-w-md bg-[#F8FAFC] border border-slate-200 rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
 
                 {/* Glow accent */}
                 <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent" />
@@ -83,7 +83,7 @@ export default function ShareAppModal({ isOpen, onClose }: ShareAppModalProps) {
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                        className="p-2 rounded-full text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
                     >
                         <X size={18} />
                     </button>
@@ -103,7 +103,7 @@ export default function ShareAppModal({ isOpen, onClose }: ShareAppModalProps) {
                                 flex-1 flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl text-xs font-semibold transition-all duration-200
                                 ${activeTab === key
                                     ? 'bg-cyan-500/20 border border-cyan-400/40 text-cyan-300'
-                                    : 'bg-white/5 border border-white/5 text-slate-400 hover:text-slate-200 hover:bg-white/10'
+                                    : 'bg-slate-50 border border-slate-200 text-slate-400 hover:text-slate-200 hover:bg-slate-100'
                                 }
                             `}
                         >
@@ -134,7 +134,7 @@ export default function ShareAppModal({ isOpen, onClose }: ShareAppModalProps) {
                                 <p className="text-slate-500 text-xs mt-1 font-mono">{shareUrl}</p>
                             </div>
                             {/* Download QR hint */}
-                            <div className="w-full bg-white/5 rounded-2xl p-3 flex items-center gap-3 border border-white/5">
+                            <div className="w-full bg-slate-50 rounded-2xl p-3 flex items-center gap-3 border border-slate-200">
                                 <Download size={16} className="text-cyan-400 shrink-0" />
                                 <div>
                                     <p className="text-white text-xs font-semibold">{t('downloadTitle')}</p>
@@ -147,7 +147,7 @@ export default function ShareAppModal({ isOpen, onClose }: ShareAppModalProps) {
                     {/* Share Link Tab */}
                     {activeTab === 'share' && (
                         <div className="flex flex-col gap-4">
-                            <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
+                            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200">
                                 <p className="text-slate-400 text-xs mb-2">{t('linkHint')}</p>
                                 <p className="text-cyan-300 text-sm font-mono break-all">{shareUrl}</p>
                             </div>
@@ -164,7 +164,7 @@ export default function ShareAppModal({ isOpen, onClose }: ShareAppModalProps) {
                     {/* Copy Tab */}
                     {activeTab === 'copy' && (
                         <div className="flex flex-col gap-4">
-                            <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
+                            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200">
                                 <p className="text-slate-400 text-xs mb-2">{t('copyLabel')}</p>
                                 <p className="text-cyan-300 text-sm font-mono break-all">{shareUrl}</p>
                             </div>

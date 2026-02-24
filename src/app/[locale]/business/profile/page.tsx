@@ -135,7 +135,7 @@ export default function BusinessProfilePage() {
     return (
         <div className="space-y-6 max-w-4xl mx-auto">
             <div className="flex items-center gap-4 mb-6">
-                <button onClick={() => router.back()} className="p-2 hover:bg-white/5 rounded-full text-slate-400 hover:text-white transition-colors">
+                <button onClick={() => router.back()} className="p-2 hover:bg-slate-50 rounded-full text-slate-400 hover:text-slate-800 transition-colors">
                     <ArrowLeft size={24} />
                 </button>
                 <div>
@@ -159,7 +159,7 @@ export default function BusinessProfilePage() {
                             {/* Cover Image */}
                             <div>
                                 <label className="block text-slate-400 text-xs uppercase mb-2">{t('coverImage')}</label>
-                                <div className="relative w-full h-48 bg-black/40 rounded-xl overflow-hidden border border-white/10 group">
+                                <div className="relative w-full h-48 bg-black/40 rounded-xl overflow-hidden border border-slate-200 group">
                                     {formData.coverImage ? (
                                         <img src={formData.coverImage} alt="Cover" className="w-full h-full object-cover" />
                                     ) : (
@@ -169,8 +169,8 @@ export default function BusinessProfilePage() {
                                     )}
 
                                     {/* Overlay Actions */}
-                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                        <label className="cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg flex items-center gap-2 backdrop-blur-sm transition-colors">
+                                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                        <label className="cursor-pointer px-4 py-2 bg-slate-100 hover:bg-slate-100 text-white rounded-lg flex items-center gap-2 backdrop-blur-sm transition-colors">
                                             {uploadingImage === 'cover' ? <Loader2 className="animate-spin w-5 h-5" /> : <Upload size={18} />}
                                             <span className="text-sm font-medium">{t('changeCover')}</span>
                                             <input
@@ -190,7 +190,7 @@ export default function BusinessProfilePage() {
                             <div>
                                 <label className="block text-slate-400 text-xs uppercase mb-2">{t('logoImage')}</label>
                                 <div className="flex items-center gap-4">
-                                    <div className="relative w-24 h-24 rounded-full bg-black/40 border-2 border-white/10 overflow-hidden group shrink-0">
+                                    <div className="relative w-24 h-24 rounded-full bg-black/40 border-2 border-slate-200 overflow-hidden group shrink-0">
                                         {formData.logoUrl ? (
                                             <img src={formData.logoUrl} alt="Logo" className="w-full h-full object-cover" />
                                         ) : (
@@ -200,8 +200,8 @@ export default function BusinessProfilePage() {
                                         )}
 
                                         {/* Overlay Actions */}
-                                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <label className="cursor-pointer p-2 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-sm transition-colors">
+                                        <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <label className="cursor-pointer p-2 bg-slate-100 hover:bg-slate-100 text-white rounded-full backdrop-blur-sm transition-colors">
                                                 {uploadingImage === 'logo' ? <Loader2 className="animate-spin w-5 h-5" /> : <Upload size={18} />}
                                                 <input
                                                     type="file"
@@ -217,7 +217,7 @@ export default function BusinessProfilePage() {
                                         <div className="text-sm text-slate-300 mb-1">
                                             {t('logoHint')}
                                         </div>
-                                        <label className="inline-flex cursor-pointer px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 rounded-lg items-center gap-2 transition-colors">
+                                        <label className="inline-flex cursor-pointer px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-300 hover:text-slate-800 border border-slate-200 rounded-lg items-center gap-2 transition-colors">
                                             {uploadingImage === 'logo' ? <Loader2 className="animate-spin w-4 h-4" /> : <Upload size={16} />}
                                             <span className="text-sm">{t('uploadLogo')}</span>
                                             <input
@@ -247,7 +247,7 @@ export default function BusinessProfilePage() {
                                     type="text"
                                     value={formData.businessName || ''}
                                     onChange={e => setFormData({ ...formData, businessName: e.target.value })}
-                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
                                 />
                             </div>
                             <div>
@@ -255,7 +255,7 @@ export default function BusinessProfilePage() {
                                 <textarea
                                     value={formData.description || ''}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none h-24 resize-none"
+                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none h-24 resize-none"
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
@@ -265,7 +265,7 @@ export default function BusinessProfilePage() {
                                         type="tel"
                                         value={formData.phone || ''}
                                         onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
                                     />
                                 </div>
                                 <div>
@@ -274,19 +274,19 @@ export default function BusinessProfilePage() {
                                         type="url"
                                         value={formData.website || ''}
                                         onChange={e => setFormData({ ...formData, website: e.target.value })}
-                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
                                     />
                                 </div>
                             </div>
 
                             {/* Redes Sociales */}
-                            <div className="pt-2 border-t border-white/5">
+                            <div className="pt-2 border-t border-slate-200">
                                 <label className="block text-slate-400 text-xs uppercase mb-3 flex items-center gap-2">
                                     <Share2 size={14} /> {t('socialMedia')}
                                 </label>
                                 <div className="space-y-2">
                                     {/* Instagram */}
-                                    <div className="flex items-center gap-3 bg-[#0d1120] border border-white/8 rounded-xl px-3 h-12 focus-within:border-pink-500/60 focus-within:bg-pink-500/5 transition-all">
+                                    <div className="flex items-center gap-3 bg-[#0d1120] border border-slate-200 rounded-xl px-3 h-12 focus-within:border-pink-500/60 focus-within:bg-pink-500/5 transition-all">
                                         <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shrink-0">
                                             <Instagram size={14} className="text-white" />
                                         </div>
@@ -300,7 +300,7 @@ export default function BusinessProfilePage() {
                                         />
                                     </div>
                                     {/* Facebook */}
-                                    <div className="flex items-center gap-3 bg-[#0d1120] border border-white/8 rounded-xl px-3 h-12 focus-within:border-blue-500/60 focus-within:bg-blue-500/5 transition-all">
+                                    <div className="flex items-center gap-3 bg-[#0d1120] border border-slate-200 rounded-xl px-3 h-12 focus-within:border-blue-500/60 focus-within:bg-blue-500/5 transition-all">
                                         <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
                                             <Facebook size={14} className="text-white" />
                                         </div>
@@ -314,8 +314,8 @@ export default function BusinessProfilePage() {
                                         />
                                     </div>
                                     {/* TikTok */}
-                                    <div className="flex items-center gap-3 bg-[#0d1120] border border-white/8 rounded-xl px-3 h-12 focus-within:border-slate-400/60 focus-within:bg-white/5 transition-all">
-                                        <div className="w-7 h-7 rounded-lg bg-[#111] border border-white/10 flex items-center justify-center shrink-0">
+                                    <div className="flex items-center gap-3 bg-[#0d1120] border border-slate-200 rounded-xl px-3 h-12 focus-within:border-slate-400/60 focus-within:bg-slate-50 transition-all">
+                                        <div className="w-7 h-7 rounded-lg bg-[#111] border border-slate-200 flex items-center justify-center shrink-0">
                                             <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-white"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.17 8.17 0 0 0 4.78 1.53V6.79a4.85 4.85 0 0 1-1.01-.1z" /></svg>
                                         </div>
                                         <span className="text-slate-500 text-sm shrink-0">@</span>
@@ -355,7 +355,7 @@ export default function BusinessProfilePage() {
                         <p className="text-slate-400 text-sm mb-4">
                             {t('openingHoursDesc')}
                         </p>
-                        <div className="flex items-center justify-between bg-[#0B0F19] p-4 rounded-lg border border-white/5">
+                        <div className="flex items-center justify-between bg-[#F4F6F8] p-4 rounded-lg border border-slate-200">
                             <div>
                                 <span className="block text-white font-medium mb-1">
                                     {formData.openingHours ? t('scheduleSet') : t('scheduleNotSet')}
@@ -384,7 +384,7 @@ export default function BusinessProfilePage() {
                                 <div>
                                     <label className="block text-slate-400 text-xs uppercase mb-1">{t('country')}</label>
                                     {/* Country is locked — determined by the CountryContext selection at app start */}
-                                    <div className="w-full bg-[#0B0F19] border border-white/5 rounded-lg px-4 py-2 text-white flex items-center gap-2 opacity-70 select-none cursor-not-allowed" title="El país no puede cambiarse desde aquí">
+                                    <div className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white flex items-center gap-2 opacity-70 select-none cursor-not-allowed" title="El país no puede cambiarse desde aquí">
                                         <span>{selectedCountry?.flag || '🌍'}</span>
                                         <span className="flex-1 font-medium">{selectedCountry?.name || formData.country}</span>
                                         <svg className="w-3.5 h-3.5 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
@@ -398,7 +398,7 @@ export default function BusinessProfilePage() {
                                         <select
                                             value={formData.department || ''}
                                             onChange={e => setFormData({ ...formData, department: e.target.value })}
-                                            className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
                                         >
                                             <option value="">-- Seleccionar departamento --</option>
                                             <option>Atlántida</option>
@@ -426,7 +426,7 @@ export default function BusinessProfilePage() {
                                             value={formData.department || ''}
                                             onChange={e => setFormData({ ...formData, department: e.target.value })}
                                             placeholder="Estado / Provincia"
-                                            className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
                                         />
                                     )}
                                 </div>
@@ -439,7 +439,7 @@ export default function BusinessProfilePage() {
                                         value={formData.city || ''}
                                         onChange={e => setFormData({ ...formData, city: e.target.value })}
                                         placeholder="Ej: San Pedro Sula"
-                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
                                     />
                                 </div>
                                 <div>
@@ -449,7 +449,7 @@ export default function BusinessProfilePage() {
                                         value={formData.address || ''}
                                         onChange={e => setFormData({ ...formData, address: e.target.value })}
                                         placeholder="Ej: Col. Trejo, Blvd. Morazán"
-                                        className="w-full bg-[#0B0F19] border border-white/10 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
                                     />
                                 </div>
                             </div>
@@ -479,7 +479,7 @@ export default function BusinessProfilePage() {
                             </div>
                             <button
                                 onClick={() => setShowMultiArea(!showMultiArea)}
-                                className={`text-xs px-2 py-1 rounded border transition-colors ${showMultiArea ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan text-brand-neon-cyan' : 'border-white/10 text-slate-500'}`}
+                                className={`text-xs px-2 py-1 rounded border transition-colors ${showMultiArea ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan text-brand-neon-cyan' : 'border-slate-200 text-slate-500'}`}
                             >
                                 {showMultiArea ? t('simpleMode') : t('additionalAreas')}
                             </button>
@@ -539,7 +539,7 @@ export default function BusinessProfilePage() {
                                                         ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan text-white'
                                                         : isAdditional
                                                             ? 'bg-brand-neon-cyan/5 border-brand-neon-cyan/50 text-slate-200'
-                                                            : 'bg-[#0B0F19] border-white/5 text-slate-400 hover:border-white/20'
+                                                            : 'bg-[#F4F6F8] border-slate-200 text-slate-400 hover:border-slate-300'
                                                     }
                                                 `}
                                             >
@@ -547,7 +547,7 @@ export default function BusinessProfilePage() {
                                                 <div className="flex-1">
                                                     <span className="text-sm font-medium">{cat.label[localeKey as keyof typeof cat.label]}</span>
                                                     {isPrimary && <span className="ml-2 text-[10px] bg-brand-neon-cyan text-black px-1.5 rounded font-bold">{t('badgePrimary')}</span>}
-                                                    {isAdditional && <span className="ml-2 text-[10px] bg-white/10 text-slate-300 px-1.5 rounded">{t('badgeAdditional')}</span>}
+                                                    {isAdditional && <span className="ml-2 text-[10px] bg-slate-100 text-slate-300 px-1.5 rounded">{t('badgeAdditional')}</span>}
                                                 </div>
                                             </button>
                                         );
@@ -592,7 +592,7 @@ export default function BusinessProfilePage() {
                                                         flex items-center gap-2 p-2 rounded border text-left transition-all
                                                         ${isSelected
                                                             ? 'bg-brand-neon-cyan/20 border-brand-neon-cyan text-white'
-                                                            : 'bg-[#0B0F19] border-white/5 text-slate-400 hover:border-white/20'
+                                                            : 'bg-[#F4F6F8] border-slate-200 text-slate-400 hover:border-slate-300'
                                                         }
                                                     `}
                                                 >
@@ -641,7 +641,7 @@ export default function BusinessProfilePage() {
                                                             text-xs px-2.5 py-1 rounded-full border transition-all flex items-center gap-1
                                                             ${isSelected
                                                                 ? 'bg-brand-neon-cyan/10 border-brand-neon-cyan text-brand-neon-cyan'
-                                                                : 'bg-transparent border-white/10 text-slate-400 hover:border-white/30'
+                                                                : 'bg-transparent border-slate-200 text-slate-400 hover:border-slate-300'
                                                             }
                                                         `}
                                                     >

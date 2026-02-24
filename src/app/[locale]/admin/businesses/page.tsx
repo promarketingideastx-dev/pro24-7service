@@ -95,14 +95,14 @@ function PlanDropdown({ business, planLabels, planOptions, onChanged }: {
             {open && (
                 <div
                     style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999 }}
-                    className="bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl w-40 overflow-hidden"
+                    className="bg-[#0f1a2e] border border-slate-200 rounded-xl shadow-2xl w-40 overflow-hidden"
                     onClick={e => e.stopPropagation()}
                 >
                     {planOptions.map(opt => (
                         <button
                             key={opt.value}
                             onClick={() => handleSet(opt.value)}
-                            className={`w-full text-left px-3 py-2.5 text-xs flex items-center gap-2 hover:bg-white/5 transition-colors ${opt.color} ${currentPlan === opt.value ? 'bg-white/5 font-bold' : ''}`}
+                            className={`w-full text-left px-3 py-2.5 text-xs flex items-center gap-2 hover:bg-slate-50 transition-colors ${opt.color} ${currentPlan === opt.value ? 'bg-slate-50 font-bold' : ''}`}
                         >
                             {PLAN_ICONS[opt.value]}
                             {opt.label}
@@ -215,7 +215,7 @@ export default function AdminBusinessesPage() {
                         </p>
                     </div>
                     <button onClick={load} disabled={loading}
-                        className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm text-slate-300 transition-colors">
+                        className="flex items-center gap-2 px-4 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-300 transition-colors">
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                         {tc('refresh')}
                     </button>
@@ -227,7 +227,7 @@ export default function AdminBusinessesPage() {
                         <button
                             key={opt.value}
                             onClick={() => setPlanFilter(planFilter === opt.value ? 'all' : opt.value)}
-                            className={`p-4 rounded-xl border transition-all text-left ${planFilter === opt.value ? `${PLAN_BADGE[opt.value]} border-current` : 'bg-white/3 border-white/8 hover:border-white/15'}`}
+                            className={`p-4 rounded-xl border transition-all text-left ${planFilter === opt.value ? `${PLAN_BADGE[opt.value]} border-current` : 'bg-white/3 border-slate-200 hover:border-slate-300'}`}
                         >
                             <div className="flex items-center gap-2 mb-1">
                                 {PLAN_ICONS[opt.value]}
@@ -246,7 +246,7 @@ export default function AdminBusinessesPage() {
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             placeholder={t('searchPlaceholder')}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-neon-cyan/50"
                         />
                     </div>
                 </div>
@@ -259,11 +259,11 @@ export default function AdminBusinessesPage() {
                 ) : filtered.length === 0 ? (
                     <div className="text-center py-16 text-slate-500">{t('notFound')}</div>
                 ) : (
-                    <div className="bg-[#0a1128] border border-white/5 rounded-2xl">
+                    <div className="bg-[#0a1128] border border-slate-200 rounded-2xl">
                         <div className="overflow-x-auto rounded-2xl">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="border-b border-white/5 text-xs text-slate-500 uppercase">
+                                    <tr className="border-b border-slate-200 text-xs text-slate-500 uppercase">
                                         <th className="text-left px-4 py-3">{t('name')}</th>
                                         <th className="text-left px-4 py-3">{t('countryCity')}</th>
                                         <th className="text-left px-4 py-3">{t('category')}</th>
@@ -284,15 +284,15 @@ export default function AdminBusinessesPage() {
                                         return (
                                             <tr
                                                 key={b.id}
-                                                className={`hover:bg-white/5 transition-colors cursor-pointer ${isSuspended ? 'opacity-50' : ''} ${selectedBusinessId === b.id ? 'ring-1 ring-inset ring-brand-neon-cyan/30 bg-white/5' : ''}`}
+                                                className={`hover:bg-slate-50 transition-colors cursor-pointer ${isSuspended ? 'opacity-50' : ''} ${selectedBusinessId === b.id ? 'ring-1 ring-inset ring-brand-neon-cyan/30 bg-slate-50' : ''}`}
                                                 onClick={() => setSelectedBusinessId(b.id)}
                                             >
                                                 <td className="px-4 py-3">
                                                     <div className="flex items-center gap-3">
                                                         {b.logoUrl || b.coverImage ? (
-                                                            <img src={b.logoUrl || b.coverImage} alt="" className="w-8 h-8 rounded-lg object-cover border border-white/10" />
+                                                            <img src={b.logoUrl || b.coverImage} alt="" className="w-8 h-8 rounded-lg object-cover border border-slate-200" />
                                                         ) : (
-                                                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-neon-cyan/20 to-brand-neon-purple/20 flex items-center justify-center text-white font-bold text-xs border border-white/10">
+                                                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-neon-cyan/20 to-brand-neon-purple/20 flex items-center justify-center text-white font-bold text-xs border border-slate-200">
                                                                 {b.name?.charAt(0) ?? '?'}
                                                             </div>
                                                         )}

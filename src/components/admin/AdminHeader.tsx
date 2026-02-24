@@ -152,8 +152,8 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
     };
 
     return (
-        <header className="h-14 bg-[#0a1128] border-b border-white/5 flex items-center px-4 gap-3 sticky top-0 z-[2000]">
-            <button onClick={onMenuToggle} className="text-slate-400 hover:text-white transition-colors lg:hidden">
+        <header className="h-14 bg-[#0a1128] border-b border-slate-200 flex items-center px-4 gap-3 sticky top-0 z-[2000]">
+            <button onClick={onMenuToggle} className="text-slate-400 hover:text-slate-800 transition-colors lg:hidden">
                 <Menu size={18} />
             </button>
 
@@ -163,19 +163,19 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
             <div className="relative">
                 <button
                     onClick={() => { setCountryOpen(p => !p); }}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/[0.08] hover:border-white/20 text-sm text-white transition-colors"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-white/[0.08] hover:border-slate-300 text-sm text-white transition-colors"
                 >
                     <Globe size={14} className="text-brand-neon-cyan" />
                     <span>{currentFlag} {selectedCountry}</span>
                     <ChevronDown size={12} className="text-slate-400" />
                 </button>
                 {countryOpen && (
-                    <div className="absolute right-0 top-full mt-1 bg-[#0f1a2e] border border-white/10 rounded-xl shadow-2xl w-52 z-[2100] overflow-y-auto max-h-80">
+                    <div className="absolute right-0 top-full mt-1 bg-[#0f1a2e] border border-slate-200 rounded-xl shadow-2xl w-52 z-[2100] overflow-y-auto max-h-80">
                         {COUNTRY_CODES.map(code => (
                             <button
                                 key={code}
                                 onClick={() => { setSelectedCountry(code); setCountryOpen(false); }}
-                                className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 hover:bg-white/5 transition-colors ${selectedCountry === code ? 'text-brand-neon-cyan' : 'text-slate-300'}`}
+                                className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 hover:bg-slate-50 transition-colors ${selectedCountry === code ? 'text-brand-neon-cyan' : 'text-slate-300'}`}
                             >
                                 <span>{COUNTRY_FLAGS[code]}</span>
                                 <span className="flex-1">{getCountryLabel(code)}</span>
@@ -193,7 +193,7 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
             <div ref={bellRef} className="relative">
                 <button
                     onClick={() => setBellOpen(p => !p)}
-                    className={`relative p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-white/5 ${bellShake ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}
+                    className={`relative p-2 text-slate-400 hover:text-slate-800 transition-colors rounded-lg hover:bg-slate-50 ${bellShake ? 'animate-[shake_0.4s_ease-in-out]' : ''}`}
                     style={bellShake ? { animation: 'bellShake 0.5s ease-in-out' } : {}}
                 >
                     <Bell
@@ -218,7 +218,7 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
                 <button
                     onClick={() => setSoundMuted(p => !p)}
                     title={soundMuted ? 'Activar sonido de notificaciones' : 'Silenciar notificaciones'}
-                    className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#0a1128] border border-white/10 flex items-center justify-center text-[8px] hover:border-white/30 transition-colors"
+                    className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#0a1128] border border-slate-200 flex items-center justify-center text-[8px] hover:border-slate-300 transition-colors"
                 >
                     {soundMuted
                         ? <VolumeX size={8} className="text-slate-500" />
@@ -240,9 +240,9 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
 
                 {/* Mini-dropdown */}
                 {bellOpen && (
-                    <div className="absolute right-0 top-full mt-1 w-80 bg-[#0f1a2e] border border-white/10 rounded-2xl shadow-2xl z-[2200] overflow-hidden">
+                    <div className="absolute right-0 top-full mt-1 w-80 bg-[#0f1a2e] border border-slate-200 rounded-2xl shadow-2xl z-[2200] overflow-hidden">
                         {/* Header */}
-                        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
                             <div className="flex items-center gap-2">
                                 <span className="text-sm font-semibold text-white">Notificaciones</span>
                                 <button
@@ -297,7 +297,7 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
                                         <div
                                             key={n.id}
                                             onClick={handleClick}
-                                            className={`px-4 py-3 transition-colors cursor-pointer select-none ${n.read ? 'opacity-50' : 'hover:bg-white/5'
+                                            className={`px-4 py-3 transition-colors cursor-pointer select-none ${n.read ? 'opacity-50' : 'hover:bg-slate-50'
                                                 }`}
                                             title="Click: ver detalle · Doble click: ir a Notificaciones"
                                         >
@@ -317,7 +317,7 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
                                             </div>
                                             {/* Inline expanded detail */}
                                             {isExpanded && (
-                                                <div className="mt-2 ml-11 text-[11px] text-slate-400 space-y-0.5 border-t border-white/5 pt-2">
+                                                <div className="mt-2 ml-11 text-[11px] text-slate-400 space-y-0.5 border-t border-slate-200 pt-2">
                                                     {n.relatedName && <p><span className="text-slate-600">Negocio: </span>{n.relatedName}</p>}
                                                     {n.country && <p><span className="text-slate-600">País: </span>{n.country}</p>}
                                                     <p className="text-slate-600 text-[10px] italic">Doble click para ver en la página completa</p>
@@ -330,7 +330,7 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
                         </div>
 
                         {/* Footer */}
-                        <div className="px-4 py-2.5 border-t border-white/5">
+                        <div className="px-4 py-2.5 border-t border-slate-200">
                             <Link
                                 href={`/${locale}/admin/notifications`}
                                 onClick={() => setBellOpen(false)}
@@ -344,7 +344,7 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
             </div>
 
             {/* Admin user + logout */}
-            <div className="flex items-center gap-2 pl-3 border-l border-white/5">
+            <div className="flex items-center gap-2 pl-3 border-l border-slate-200">
                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-neon-cyan to-brand-neon-purple flex items-center justify-center text-black text-xs font-bold">
                     {user?.email?.charAt(0).toUpperCase() ?? 'A'}
                 </div>

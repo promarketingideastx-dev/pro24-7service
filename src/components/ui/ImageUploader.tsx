@@ -59,7 +59,7 @@ export default function ImageUploader({ images, onImagesChange, maxImages = 5, d
             {images.length > 0 && (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {images.map((url, idx) => (
-                        <div key={idx} className="relative group aspect-square rounded-xl overflow-hidden border border-white/10 bg-black/20">
+                        <div key={idx} className="relative group aspect-square rounded-xl overflow-hidden border border-slate-200 bg-black/20">
                             <img src={url} alt={`Imagen ${idx + 1}`} className="w-full h-full object-cover" />
                             {!disabled && (
                                 <button
@@ -70,7 +70,7 @@ export default function ImageUploader({ images, onImagesChange, maxImages = 5, d
                                 </button>
                             )}
                             {idx === 0 && (
-                                <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-xs text-center py-1 text-white">
+                                <div className="absolute bottom-0 left-0 right-0 bg-slate-900/40 text-xs text-center py-1 text-white">
                                     Portada
                                 </div>
                             )}
@@ -84,10 +84,10 @@ export default function ImageUploader({ images, onImagesChange, maxImages = 5, d
                 <div
                     onClick={() => !disabled && !uploading && fileInputRef.current?.click()}
                     className={`
-                        border-2 border-dashed border-white/10 rounded-xl p-8
+                        border-2 border-dashed border-slate-200 rounded-xl p-8
                         flex flex-col items-center justify-center gap-2
                         transition-all cursor-pointer
-                        ${uploading ? 'bg-white/5 opacity-50 cursor-wait' : 'hover:bg-white/5 hover:border-brand-neon-cyan/50'}
+                        ${uploading ? 'bg-slate-50 opacity-50 cursor-wait' : 'hover:bg-slate-50 hover:border-brand-neon-cyan/50'}
                     `}
                 >
                     <input

@@ -5,12 +5,12 @@ export const metadata: Metadata = { title: 'DMCA & Copyright | PRO24/7' };
 
 export default function DmcaPage() {
     return (
-        <div className="min-h-screen bg-[#060d1f] py-16 px-4">
+        <div className="min-h-screen bg-[#F0F2F5] py-16 px-4">
             <div className="max-w-3xl mx-auto">
                 <h1 className="text-2xl font-bold text-white mb-1">DMCA & Propiedad Intelectual</h1>
                 <p className="text-slate-400 text-sm mb-8">PRO24/7 · Última actualización: {new Date().getFullYear()}</p>
 
-                <div className="bg-[#0a1128] border border-white/5 rounded-2xl p-8 space-y-6 text-sm text-slate-300 leading-relaxed">
+                <div className="bg-[#0a1128] border border-slate-200 rounded-2xl p-8 space-y-6 text-sm text-slate-300 leading-relaxed">
                     <section>
                         <h2 className="text-white font-bold text-base mb-2">Política de Derechos de Autor</h2>
                         <p>PRO24/7 respeta los derechos de propiedad intelectual. Respondemos a notificaciones de infracción de derechos de autor de conformidad con el Digital Millennium Copyright Act (DMCA), 17 U.S.C. § 512, y las leyes de propiedad intelectual aplicables en cada país.</p>

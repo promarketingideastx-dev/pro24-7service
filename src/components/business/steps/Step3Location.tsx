@@ -113,7 +113,7 @@ export function Step3Location({ data, update }: any) {
                         onClick={() => update('modality', option.id)}
                         className={`cursor-pointer p-6 rounded-xl border text-center transition-all ${data.modality === option.id
                             ? 'bg-blue-600/20 border-blue-500 ring-1 ring-blue-500'
-                            : 'bg-slate-800 border-white/5 hover:bg-slate-700/50'
+                            : 'bg-slate-800 border-slate-200 hover:bg-slate-700/50'
                             }`}>
                         <div className="text-4xl mb-4">{option.icon}</div>
                         <h3 className={`font-bold text-lg mb-1 ${data.modality === option.id ? 'text-white' : 'text-slate-200'}`}>{option.label}</h3>
@@ -124,7 +124,7 @@ export function Step3Location({ data, update }: any) {
 
             {/* 2. Address Search */}
             {data.modality && (
-                <div className="animate-in fade-in slide-in-from-top-4 duration-400 bg-slate-800/50 p-6 rounded-xl border border-white/5 space-y-5">
+                <div className="animate-in fade-in slide-in-from-top-4 duration-400 bg-slate-800/50 p-6 rounded-xl border border-slate-200 space-y-5">
                     <h3 className="text-lg font-semibold text-white mb-1 flex items-center gap-2">
                         <MapPin size={18} className="text-blue-400" />
                         {showAddressFields ? `📍 ${t('shopAddress')}` : `🗺️ ${t('coverageZonesTitle')}`}
@@ -147,16 +147,16 @@ export function Step3Location({ data, update }: any) {
                                 onChange={e => { setSearchQuery(e.target.value); setShowResults(true); setGeocoded(false); }}
                                 onFocus={() => setShowResults(true)}
                                 placeholder={t('searchPlaceholder')}
-                                className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 pl-9 py-3 text-white outline-none focus:border-blue-500 transition-colors"
+                                className="w-full bg-slate-900 border border-slate-200 rounded-lg px-4 pl-9 py-3 text-white outline-none focus:border-blue-500 transition-colors"
                             />
                         </div>
 
                         {showResults && results.length > 0 && (
-                            <ul className="absolute top-full left-0 right-0 mt-1 bg-[#1a2035] border border-white/10 rounded-xl overflow-hidden z-[500] shadow-2xl">
+                            <ul className="absolute top-full left-0 right-0 mt-1 bg-[#1a2035] border border-slate-200 rounded-xl overflow-hidden z-[500] shadow-2xl">
                                 {results.map(r => (
                                     <li key={r.place_id}
                                         onMouseDown={() => handleSelect(r)}
-                                        className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-white/5 border-b border-white/5 last:border-b-0 transition-colors">
+                                        className="flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-slate-50 border-b border-slate-200 last:border-b-0 transition-colors">
                                         <MapPin size={14} className="text-blue-400 shrink-0 mt-0.5" />
                                         <div>
                                             <p className="text-white text-sm leading-snug">{r.display_name.split(',')[0]}</p>
@@ -182,7 +182,7 @@ export function Step3Location({ data, update }: any) {
                             <select
                                 value={data.country || 'HN'}
                                 onChange={e => update('country', e.target.value)}
-                                className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500">
+                                className="w-full bg-slate-900 border border-slate-200 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500">
                                 <option value="HN">Honduras 🇭🇳</option>
                                 <option value="SV">El Salvador 🇸🇻</option>
                                 <option value="GT">Guatemala 🇬🇹</option>
@@ -195,7 +195,7 @@ export function Step3Location({ data, update }: any) {
                             {(data.country === 'HN' || !data.country) ? (
                                 <select value={data.department || ''}
                                     onChange={e => update('department', e.target.value)}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500">
+                                    className="w-full bg-slate-900 border border-slate-200 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500">
                                     <option value="">-- Seleccionar departamento --</option>
                                     <option>Atlántida</option>
                                     <option>Choluteca</option>
@@ -220,7 +220,7 @@ export function Step3Location({ data, update }: any) {
                                 <input type="text" value={data.department || ''}
                                     onChange={e => update('department', e.target.value)}
                                     placeholder={t('departmentPlaceholder')}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500" />
+                                    className="w-full bg-slate-900 border border-slate-200 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500" />
                             )}
                         </div>
                         <div>
@@ -228,7 +228,7 @@ export function Step3Location({ data, update }: any) {
                             <input type="text" value={data.city || ''}
                                 onChange={e => update('city', e.target.value)}
                                 placeholder={t('cityPlaceholder')}
-                                className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500" />
+                                className="w-full bg-slate-900 border border-slate-200 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500" />
                         </div>
                         {showAddressFields && (
                             <div>
@@ -236,7 +236,7 @@ export function Step3Location({ data, update }: any) {
                                 <input type="text" value={data.address || ''}
                                     onChange={e => update('address', e.target.value)}
                                     placeholder={t('exactAddressPlaceholder')}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500" />
+                                    className="w-full bg-slate-900 border border-slate-200 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500" />
                             </div>
                         )}
                     </div>
@@ -248,7 +248,7 @@ export function Step3Location({ data, update }: any) {
                                 value={data.coverageZones || ''}
                                 onChange={e => update('coverageZones', e.target.value)}
                                 placeholder={t('coverageZonesPlaceholder')}
-                                className="w-full bg-slate-900 border border-white/10 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500" />
+                                className="w-full bg-slate-900 border border-slate-200 rounded-lg px-4 py-3 text-white outline-none focus:border-blue-500" />
                         </div>
                     )}
                 </div>

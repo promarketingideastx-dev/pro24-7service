@@ -182,19 +182,19 @@ export default function Home() {
     const selectedTaxonomy = selectedCategory ? TAXONOMY[selectedCategory as keyof typeof TAXONOMY] : null;
 
     // Show Loader or Country Selector
-    if (isCountryLoading) return <div className="h-screen bg-[#0B0F19] flex items-center justify-center text-white">Cargando...</div>;
+    if (isCountryLoading) return <div className="h-screen bg-[#F4F6F8] flex items-center justify-center text-slate-700">Cargando...</div>;
     if (!selectedCountry) return <CountrySelector />;
 
     return (
         <>
-            <main className="h-screen bg-[#0B0F19] text-white overflow-hidden font-sans flex flex-col">
+            <main className="h-screen bg-[#F4F6F8] text-slate-900 overflow-hidden font-sans flex flex-col">
                 {/* ── Header ── */}
-                <header className="shrink-0 px-4 py-3 flex items-center justify-between z-50 bg-[#0B0F19] border-b border-white/5">
+                <header className="shrink-0 px-4 py-3 flex items-center justify-between z-50 bg-[#F4F6F8] border-b border-slate-200">
 
                     {/* Left: country picker pill */}
                     <button
                         onClick={clearCountry}
-                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/8 hover:border-white/15 transition-all group"
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 transition-all group"
                     >
                         <div className="w-5 h-3.5 rounded-sm overflow-hidden shadow-sm ring-1 ring-white/10">
                             <img
@@ -203,7 +203,7 @@ export default function Home() {
                                 className="w-full h-full object-cover"
                             />
                         </div>
-                        <span className="font-semibold text-sm text-white group-hover:text-brand-neon-cyan transition-colors">
+                        <span className="font-semibold text-sm text-slate-700 group-hover:text-brand-neon-cyan transition-colors">
                             {selectedCountry.name}
                         </span>
                         <MapPin className="w-3 h-3 text-slate-500 group-hover:text-brand-neon-cyan transition-colors" />
@@ -215,7 +215,7 @@ export default function Home() {
                         <button
                             onClick={() => setShowShare(true)}
                             title={t('share')}
-                            className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-brand-neon-cyan/10 border border-white/8 hover:border-brand-neon-cyan/30 text-slate-400 hover:text-brand-neon-cyan transition-all"
+                            className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-50 hover:bg-brand-neon-cyan/10 border border-slate-200 hover:border-brand-neon-cyan/30 text-slate-400 hover:text-brand-neon-cyan transition-all"
                         >
                             <Share2 size={15} />
                         </button>
@@ -234,7 +234,7 @@ export default function Home() {
 
                                 {/* User Info (Desktop/Tablet) */}
                                 <div className="hidden sm:flex flex-col items-end">
-                                    <span className="text-xs font-bold text-white leading-none">{user.displayName || 'Usuario'}</span>
+                                    <span className="text-xs font-bold text-slate-900 leading-none">{user.displayName || 'Usuario'}</span>
                                     <span className="text-[10px] text-slate-400">{t('viewProfile')}</span>
                                 </div>
 
@@ -252,16 +252,16 @@ export default function Home() {
                                 </button>
 
                                 {/* Simple Dropdown for Logout */}
-                                <div className="absolute top-12 right-0 w-48 bg-[#151b2e] border border-white/10 rounded-xl shadow-2xl p-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all z-50">
-                                    <div className="px-3 py-2 border-b border-white/5 mb-1">
+                                <div className="absolute top-12 right-0 w-48 bg-white border border-slate-200 rounded-xl shadow-2xl p-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all z-50">
+                                    <div className="px-3 py-2 border-b border-slate-200 mb-1">
                                         <p className="text-xs text-slate-400">{t('loggedInAs')}</p>
-                                        <p className="text-sm text-white font-medium truncate">{user.email}</p>
+                                        <p className="text-sm text-slate-800 font-medium truncate">{user.email}</p>
                                     </div>
 
                                     {userProfile?.roles?.provider && (
                                         <button
                                             onClick={() => router.push(lp('/business/dashboard'))}
-                                            className="w-full text-left px-3 py-2 rounded-lg text-brand-neon-cyan hover:bg-white/5 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
+                                            className="w-full text-left px-3 py-2 rounded-lg text-brand-neon-cyan hover:bg-slate-50 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
                                         >
                                             <Store size={14} />
                                             {t('manageBusiness')}
@@ -270,7 +270,7 @@ export default function Home() {
 
                                     <button
                                         onClick={() => router.push(lp('/user/profile'))}
-                                        className="w-full text-left px-3 py-2 rounded-lg text-slate-300 hover:bg-white/5 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
+                                        className="w-full text-left px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-50 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
                                     >
                                         <User size={14} />
                                         {t('viewProfile')}
@@ -284,7 +284,7 @@ export default function Home() {
                                                 });
                                             });
                                         }}
-                                        className="w-full text-left px-3 py-2 rounded-lg text-slate-300 hover:bg-white/5 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
+                                        className="w-full text-left px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-50 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
                                     >
                                         <span className="w-2 h-2 rounded-full bg-slate-500"></span>
                                         {t('logout')}
@@ -296,17 +296,17 @@ export default function Home() {
                                 {/* Business CTA - Direct register as business, no intermediate screen */}
                                 <button
                                     onClick={() => router.push(lp('/auth/register?intent=business'))}
-                                    className="hidden md:block text-xs font-bold text-slate-400 hover:text-white transition-colors"
+                                    className="hidden md:block text-xs font-bold text-slate-400 hover:text-slate-800 transition-colors"
                                 >
                                     {t('isProfessional')} <span className="text-brand-neon-cyan">{t('registerCTA')}</span>
                                 </button>
 
-                                <div className="h-4 w-px bg-white/10 hidden md:block"></div>
+                                <div className="h-4 w-px bg-slate-100 hidden md:block"></div>
 
                                 {/* Entrar → onboarding with mode=login so user picks intent before logging in */}
                                 <button
                                     onClick={() => router.push(lp('/onboarding?mode=login'))}
-                                    className="text-sm font-medium text-slate-300 hover:text-white transition-colors px-4 py-2 rounded-full border border-white/20 hover:border-white/40"
+                                    className="text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors px-4 py-2 rounded-full border border-slate-300 hover:border-slate-400"
                                 >
                                     {t('login')}
                                 </button>
@@ -322,17 +322,17 @@ export default function Home() {
                     <div className="shrink-0 px-6 pb-4 z-40">
                         <div className="relative group">
                             <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-purple-600 opacity-20 rounded-2xl blur-md group-hover:opacity-40 transition duration-500"></div>
-                            <div className="relative flex items-center bg-[#151b2e] border border-white/10 rounded-2xl px-5 py-3 shadow-2xl">
+                            <div className="relative flex items-center bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-2xl">
                                 <Search className="w-6 h-6 text-slate-400 mr-3" />
                                 <input
                                     type="text"
                                     placeholder={t('searchPlaceholder')}
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="bg-transparent w-full outline-none text-white placeholder-slate-500 text-base font-medium"
+                                    className="bg-transparent w-full outline-none text-slate-900 placeholder-slate-400 text-base font-medium"
                                 />
                                 {searchTerm && (
-                                    <button onClick={() => setSearchTerm('')} className="p-1 rounded-full hover:bg-white/10 transition-colors">
+                                    <button onClick={() => setSearchTerm('')} className="p-1 rounded-full hover:bg-slate-100 transition-colors">
                                         <X className="w-5 h-5 text-slate-400" />
                                     </button>
                                 )}
@@ -350,8 +350,8 @@ export default function Home() {
                                     key={f}
                                     onClick={() => setStatusFilter(f)}
                                     className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${active
-                                            ? 'bg-brand-neon-cyan text-black border-brand-neon-cyan shadow-lg shadow-cyan-500/20'
-                                            : 'bg-white/5 text-slate-400 border-white/10 hover:border-white/20 hover:text-white'
+                                        ? 'bg-brand-neon-cyan text-black border-brand-neon-cyan shadow-lg shadow-cyan-500/20'
+                                        : 'bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-300 hover:text-slate-800'
                                         }`}
                                 >
                                     {labels[f]}
@@ -377,14 +377,14 @@ export default function Home() {
                    `}>
                                         <span className="filter drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]">{cat.icon}</span>
                                     </div>
-                                    <span className="text-xs sm:text-sm font-semibold text-slate-300 group-hover:text-white transition-colors text-center leading-tight">{cat.name}</span>
+                                    <span className="text-xs sm:text-sm font-semibold text-slate-300 group-hover:text-slate-900 transition-colors text-center leading-tight">{cat.name}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
 
                     {/* Map Widget (Responsive Height) */}
-                    <div className="shrink-0 mx-6 mb-4 rounded-3xl overflow-hidden border border-white/10 shadow-2xl group cursor-pointer isolate relative transition-all duration-300 h-[35vh] min-h-[250px] max-h-[400px] md:h-[400px]">
+                    <div className="shrink-0 mx-6 mb-4 rounded-3xl overflow-hidden border border-slate-200 shadow-2xl group cursor-pointer isolate relative transition-all duration-300 h-[35vh] min-h-[250px] max-h-[400px] md:h-[400px]">
                         <DynamicMap
                             businesses={filteredBusinesses}
                             selectedBusiness={selectedBusiness}
@@ -397,7 +397,7 @@ export default function Home() {
 
                         {/* Map Label (Overlay) */}
                         <div className="absolute bottom-4 left-4 z-[1000] pointer-events-none">
-                            <div className="bg-[#0B0F19]/80 backdrop-blur px-3 py-1.5 rounded-lg border border-white/10 flex items-center gap-2">
+                            <div className="bg-slate-800/90 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
                                 <MapPin className="w-3 h-3 text-cyan-400" />
                                 <span className="text-xs font-bold text-white">{selectedCountry?.mainCity || 'San Pedro Sula'} (En Vivo)</span>
                                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
@@ -411,12 +411,12 @@ export default function Home() {
                             <div
                                 key={biz.id}
                                 onClick={() => handleBusinessClick(biz)}
-                                className={`flex items-center p-3 bg-[#151b2e] border rounded-2xl transition-all cursor-pointer group
-                                ${selectedBusiness?.id === biz.id ? 'border-brand-neon-cyan shadow-[0_0_15px_rgba(0,240,255,0.2)]' : 'border-white/5 hover:border-white/10'}
+                                className={`flex items-center p-3 bg-white border rounded-2xl transition-all cursor-pointer group
+                                ${selectedBusiness?.id === biz.id ? 'border-brand-neon-cyan shadow-[0_0_15px_rgba(0,240,255,0.2)]' : 'border-slate-200 hover:border-slate-200'}
                             `}
                             >
-                                <div className="w-12 h-12 rounded-xl bg-slate-700 mr-3 shrink-0 flex items-center justify-center text-xl relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0" />
+                                <div className="w-12 h-12 rounded-xl bg-slate-100 mr-3 shrink-0 flex items-center justify-center text-xl relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-slate-200/50 to-transparent" />
                                     {(biz as any).logoUrl ? (
                                         <img
                                             src={(biz as any).logoUrl}
@@ -425,11 +425,11 @@ export default function Home() {
                                             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                                         />
                                     ) : (
-                                        typeof biz.icon === 'string' ? biz.icon : <Zap className="w-5 h-5 text-white" />
+                                        typeof biz.icon === 'string' ? biz.icon : <Zap className="w-5 h-5 text-slate-600" />
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="font-bold text-white text-sm truncate">{biz.name}</h3>
+                                    <h3 className="font-bold text-slate-900 text-sm truncate">{biz.name}</h3>
                                     <p className="text-[10px] text-brand-neon-cyan font-medium mb-0.5 truncate">
                                         {(() => {
                                             for (const group of Object.values(TAXONOMY)) {
@@ -446,7 +446,7 @@ export default function Home() {
                                     </div>
                                 </div>
                                 {/* Action hint for logged out users */}
-                                <div className="hidden group-hover:flex items-center px-2 py-1 bg-white/10 rounded-full text-[10px] text-white font-medium whitespace-nowrap">
+                                <div className="hidden group-hover:flex items-center px-2 py-1 bg-slate-100 rounded-full text-[10px] text-slate-700 font-medium whitespace-nowrap">
                                     {t('viewBtn')}
                                 </div>
                             </div>
@@ -481,13 +481,13 @@ export default function Home() {
 
                     {/* Categories Detail Modal */}
                     {selectedCategory && selectedTaxonomy && (
-                        <div className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                            <div className="bg-[#151b2e] w-full max-w-lg rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom duration-300">
+                        <div className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                            <div className="bg-white w-full max-w-lg rounded-3xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom duration-300">
 
                                 {/* Header */}
-                                <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#0f172a]">
+                                <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-[#F8FAFC]">
                                     <div>
-                                        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                        <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                                             {categories.find(c => c.id === selectedCategory)?.icon}
                                             {selectedTaxonomy.label[localeKey as keyof typeof selectedTaxonomy.label]}
                                         </h2>
@@ -495,7 +495,7 @@ export default function Home() {
                                     </div>
                                     <button
                                         onClick={() => setSelectedCategory(null)}
-                                        className="p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                                        className="p-2 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition-colors"
                                     >
                                         <X className="w-5 h-5" />
                                     </button>
@@ -504,7 +504,7 @@ export default function Home() {
                                 {/* Scrollable Content */}
                                 <div className="overflow-y-auto p-4 space-y-4 custom-scrollbar">
                                     {selectedTaxonomy.subcategories.map((sub) => (
-                                        <div key={sub.id} className="bg-slate-900/50 rounded-2xl p-4 border border-white/5 hover:border-white/10 transition-colors">
+                                        <div key={sub.id} className="bg-[#F8FAFC] rounded-2xl p-4 border border-slate-200 hover:border-slate-300 transition-colors">
                                             <h3 className="font-bold text-brand-neon-cyan mb-3 flex items-center gap-2">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-brand-neon-cyan"></span>
                                                 {sub.label[localeKey as keyof typeof sub.label]}
@@ -518,7 +518,7 @@ export default function Home() {
                                                             setSearchTerm((spec as any).es);
                                                             setSelectedCategory(null);
                                                         }}
-                                                        className="flex items-center gap-2 text-sm text-slate-300 bg-white/5 px-3 py-2 rounded-lg hover:bg-white/10 cursor-pointer transition-colors group/item"
+                                                        className="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 px-3 py-2 rounded-lg hover:bg-slate-100 cursor-pointer transition-colors group/item"
                                                     >
                                                         <ChevronRight className="w-3 h-3 text-slate-600 group-hover/item:text-brand-neon-cyan" />
                                                         {(spec as any)[localeKey] ?? (spec as any).es}
@@ -530,7 +530,7 @@ export default function Home() {
                                 </div>
 
                                 {/* Footer */}
-                                <div className="p-4 border-t border-white/5 bg-[#0f172a]">
+                                <div className="p-4 border-t border-slate-200 bg-[#F8FAFC]">
                                     <button
                                         onClick={() => setSelectedCategory(null)}
                                         className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold text-sm hover:opacity-90 transition-opacity"

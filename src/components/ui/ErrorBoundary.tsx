@@ -39,7 +39,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
         if (this.props.fallback) return this.props.fallback;
 
         return (
-            <div className="min-h-[50vh] flex flex-col items-center justify-center p-8 text-center gap-6 bg-[#0B0F19]">
+            <div className="min-h-[50vh] flex flex-col items-center justify-center p-8 text-center gap-6 bg-[#F4F6F8]">
                 {/* Icon */}
                 <div className="w-20 h-20 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
                     <AlertTriangle className="w-10 h-10 text-red-400" />
@@ -62,7 +62,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                 <div className="flex gap-3">
                     <button
                         onClick={this.handleReset}
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white text-sm font-medium transition-all hover:scale-105 active:scale-95"
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-100 border border-slate-200 text-white text-sm font-medium transition-all hover:scale-105 active:scale-95"
                     >
                         <RefreshCw className="w-4 h-4" />
                         Reintentar

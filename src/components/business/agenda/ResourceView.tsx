@@ -53,15 +53,15 @@ export default function ResourceView({ date, appointments, onAppointmentClick, o
     return (
         <div className="flex flex-col h-full bg-[#0F131F]">
             {/* Header Row */}
-            <div className="flex border-b border-white/10 bg-[#151b2e]">
-                <div className="w-16 flex-shrink-0 border-r border-white/10" />
+            <div className="flex border-b border-slate-200 bg-white">
+                <div className="w-16 flex-shrink-0 border-r border-slate-200" />
                 {/* Unassigned Column */}
-                <div className="flex-1 flex flex-col items-center justify-center py-3 border-r border-white/10 min-w-[150px] bg-red-500/5">
+                <div className="flex-1 flex flex-col items-center justify-center py-3 border-r border-slate-200 min-w-[150px] bg-red-500/5">
                     <div className="text-sm font-bold text-red-400 truncate px-2">{t('unassigned')}</div>
                     <div className="text-[10px] text-red-400/60 truncate px-2">{t('pending')}</div>
                 </div>
                 {employees.map((emp) => (
-                    <div key={emp.id} className="flex-1 flex flex-col items-center justify-center py-3 border-r border-white/10 last:border-r-0 min-w-[150px]">
+                    <div key={emp.id} className="flex-1 flex flex-col items-center justify-center py-3 border-r border-slate-200 last:border-r-0 min-w-[150px]">
                         <div className="text-sm font-bold text-white truncate px-2">{emp.name}</div>
                         <div className="text-[10px] text-slate-400 truncate px-2">{emp.role || t('staffDefault')}</div>
                     </div>
@@ -71,11 +71,11 @@ export default function ResourceView({ date, appointments, onAppointmentClick, o
             {/* Grid Body */}
             <div className="flex-1 overflow-y-auto overflow-x-auto custom-scrollbar relative flex">
                 {/* Time Labels Column */}
-                <div className="w-16 flex-shrink-0 border-r border-white/10 bg-[#151b2e] sticky left-0 z-10">
+                <div className="w-16 flex-shrink-0 border-r border-slate-200 bg-white sticky left-0 z-10">
                     {timeSlots.map((time, i) => (
                         <div
                             key={time}
-                            className="border-b border-white/5 text-xs text-slate-500 flex items-start justify-end pr-2 pt-1"
+                            className="border-b border-slate-200 text-xs text-slate-500 flex items-start justify-end pr-2 pt-1"
                             style={{ height: SLOT_HEIGHT }}
                         >
                             {i % 2 === 0 ? time : ''}
@@ -85,14 +85,14 @@ export default function ResourceView({ date, appointments, onAppointmentClick, o
 
                 {/* Unassigned Column Body */}
                 <div
-                    className="flex-1 relative border-r border-white/5 min-w-[150px] bg-red-500/5"
+                    className="flex-1 relative border-r border-slate-200 min-w-[150px] bg-red-500/5"
                     style={{ minHeight: TOTAL_HEIGHT }}
                 >
                     {/* Slots */}
                     {timeSlots.map((time) => (
                         <div
                             key={time}
-                            className="border-b border-white/5 absolute w-full hover:bg-white/5 transition-colors cursor-pointer"
+                            className="border-b border-slate-200 absolute w-full hover:bg-slate-50 transition-colors cursor-pointer"
                             style={{ top: getTopOffset(time), height: SLOT_HEIGHT }}
                             onClick={() => {
                                 // Logic to create unassigned appointment if needed, or disable
@@ -131,14 +131,14 @@ export default function ResourceView({ date, appointments, onAppointmentClick, o
                     return (
                         <div
                             key={emp.id}
-                            className="flex-1 relative border-r border-white/5 last:border-r-0 min-w-[150px]"
+                            className="flex-1 relative border-r border-slate-200 last:border-r-0 min-w-[150px]"
                             style={{ minHeight: TOTAL_HEIGHT }}
                         >
                             {/* Slots */}
                             {timeSlots.map((time) => (
                                 <div
                                     key={time}
-                                    className="border-b border-white/5 absolute w-full hover:bg-white/5 transition-colors cursor-pointer"
+                                    className="border-b border-slate-200 absolute w-full hover:bg-slate-50 transition-colors cursor-pointer"
                                     style={{ top: getTopOffset(time), height: SLOT_HEIGHT }}
                                     onClick={() => {
                                         if (onSlotClick) {

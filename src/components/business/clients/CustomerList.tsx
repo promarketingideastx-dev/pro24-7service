@@ -79,24 +79,24 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
                     placeholder={t('search')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full bg-[#151b2e] border border-white/5 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-500 focus:outline-none focus:border-white/10 focus:ring-1 focus:ring-white/10 transition-all"
+                    className="w-full bg-white border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-500 focus:outline-none focus:border-slate-200 focus:ring-1 focus:ring-white/10 transition-all"
                 />
             </div>
 
             {/* Stats Summary */}
             {customers.length > 0 && (
                 <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-[#151b2e] border border-white/5 rounded-xl p-3 text-center">
+                    <div className="bg-white border border-slate-200 rounded-xl p-3 text-center">
                         <p className="text-2xl font-bold text-white">{customers.length}</p>
                         <p className="text-xs text-slate-500 mt-0.5">{t('title')}</p>
                     </div>
-                    <div className="bg-[#151b2e] border border-white/5 rounded-xl p-3 text-center">
+                    <div className="bg-white border border-slate-200 rounded-xl p-3 text-center">
                         <p className="text-2xl font-bold text-brand-neon-cyan">
                             L {Object.values(appointmentStats).reduce((sum, s) => sum + s.ltv, 0).toLocaleString()}
                         </p>
                         <p className="text-xs text-slate-500 mt-0.5">{t('ltvTotal')}</p>
                     </div>
-                    <div className="bg-[#151b2e] border border-white/5 rounded-xl p-3 text-center">
+                    <div className="bg-white border border-slate-200 rounded-xl p-3 text-center">
                         <p className="text-2xl font-bold text-green-400">
                             {Object.values(appointmentStats).reduce((sum, s) => sum + s.appointmentCount, 0)}
                         </p>
@@ -118,7 +118,7 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
             {/* List */}
             <div className="space-y-2">
                 {filteredCustomers.length === 0 ? (
-                    <div className="text-center py-12 text-slate-500 bg-[#151b2e]/50 rounded-xl border border-white/5 border-dashed">
+                    <div className="text-center py-12 text-slate-500 bg-slate-500 rounded-xl border border-slate-200 border-dashed">
                         {searchTerm ? t('noSearchResults') : t('empty')}
                     </div>
                 ) : (
@@ -127,7 +127,7 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
                         return (
                             <div
                                 key={customer.id}
-                                className="group bg-[#151b2e] hover:bg-[#1a2138] border border-white/5 rounded-xl p-4 transition-all hover:shadow-lg hover:border-white/10 cursor-pointer"
+                                className="group bg-white hover:bg-[#1a2138] border border-slate-200 rounded-xl p-4 transition-all hover:shadow-lg hover:border-slate-200 cursor-pointer"
                                 onClick={() => router.push(lp(`/business/clients/${customer.id}`))}
                             >
                                 <div className="flex flex-col md:grid md:grid-cols-12 gap-3 items-center">
@@ -135,7 +135,7 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
                                     {/* Client Info */}
                                     <div className="w-full md:col-span-3 flex items-center gap-3">
                                         <div className="relative shrink-0">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center border border-white/10 shadow-inner">
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center border border-slate-200 shadow-inner">
                                                 <span className="font-bold text-white text-sm">
                                                     {customer.fullName.charAt(0).toUpperCase()}
                                                 </span>
@@ -205,14 +205,14 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
                                     <div className="w-full md:col-span-1 flex justify-end gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
                                             onClick={(e) => { e.stopPropagation(); onEdit(customer); }}
-                                            className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                                            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition-colors"
                                             title="Editar"
                                         >
                                             <Edit2 className="w-3.5 h-3.5" />
                                         </button>
                                         <button
                                             onClick={(e) => { e.stopPropagation(); onDelete(customer); }}
-                                            className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-red-500 transition-colors"
+                                            className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors"
                                             title="Eliminar"
                                         >
                                             <Trash2 className="w-3.5 h-3.5" />

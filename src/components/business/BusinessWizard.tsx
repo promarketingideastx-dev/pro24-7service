@@ -160,7 +160,7 @@ export default function BusinessWizard() {
     return (
         <div className="min-h-screen bg-slate-900 text-white flex flex-col md:flex-row">
             {/* Sidebar / Progress (Desktop) */}
-            <div className="hidden md:flex w-1/3 bg-slate-800/50 p-12 flex-col justify-between border-r border-white/5">
+            <div className="hidden md:flex w-1/3 bg-slate-800/50 p-12 flex-col justify-between border-r border-slate-200">
                 <div>
                     <div className="mb-12">
                         <h1 className="text-2xl font-bold text-blue-400">PRO24/7 Business</h1>
@@ -184,7 +184,7 @@ export default function BusinessWizard() {
             {/* Main Content */}
             <div className="flex-1 flex flex-col relative">
                 {/* Mobile Header */}
-                <div className="md:hidden p-6 border-b border-white/5 flex justify-between items-center bg-slate-800/80 backdrop-blur-md sticky top-0 z-50">
+                <div className="md:hidden p-6 border-b border-slate-200 flex justify-between items-center bg-slate-800/80 backdrop-blur-md sticky top-0 z-50">
                     <span className="font-bold text-blue-400">Paso {currentStep} de {totalSteps}</span>
                     <div className="h-2 w-24 bg-slate-700 rounded-full overflow-hidden">
                         <div
@@ -242,11 +242,11 @@ export default function BusinessWizard() {
                 </div>
 
                 {/* Footer Actions */}
-                <div className="p-6 border-t border-white/5 bg-slate-900/80 backdrop-blur-md flex justify-between items-center max-w-5xl mx-auto w-full z-10">
+                <div className="p-6 border-t border-slate-200 bg-slate-900/80 backdrop-blur-md flex justify-between items-center max-w-5xl mx-auto w-full z-10">
                     <button
                         onClick={prevStep}
                         disabled={currentStep === 1}
-                        className={`flex items-center px-6 py-3 rounded-xl font-medium transition-colors ${currentStep === 1 ? 'opacity-0 pointer-events-none' : 'text-slate-400 hover:text-white hover:bg-white/5'
+                        className={`flex items-center px-6 py-3 rounded-xl font-medium transition-colors ${currentStep === 1 ? 'opacity-0 pointer-events-none' : 'text-slate-400 hover:text-slate-800 hover:bg-slate-50'
                             }`}
                     >
                         <ChevronLeft className="w-5 h-5 mr-2" />

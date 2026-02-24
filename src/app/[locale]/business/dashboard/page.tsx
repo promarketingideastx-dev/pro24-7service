@@ -224,7 +224,7 @@ export default function DashboardPage() {
                     </div>
                     <button
                         onClick={fetchStats}
-                        className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm text-white transition-colors border border-white/10 flex items-center gap-2"
+                        className="px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg text-sm text-white transition-colors border border-slate-200 flex items-center gap-2"
                     >
                         <RefreshCw size={14} />
                         {t('refresh')}
@@ -355,7 +355,7 @@ export default function DashboardPage() {
                                                     <span className="text-slate-300 truncate max-w-[80%]">{svc.name}</span>
                                                     <span className="text-slate-500 shrink-0">{svc.count} {t('appts')}</span>
                                                 </div>
-                                                <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                                <div className="h-1.5 bg-slate-50 rounded-full overflow-hidden">
                                                     <div
                                                         className="h-full bg-gradient-to-r from-brand-neon-cyan to-blue-500 rounded-full transition-all duration-700"
                                                         style={{ width: `${pct}%` }}
@@ -372,10 +372,10 @@ export default function DashboardPage() {
                         <GlassPanel className="p-5">
                             <h3 className="text-sm font-bold text-white mb-3">{t('quickActions')}</h3>
                             <div className="space-y-2">
-                                <a href={`/${locale}/business/clients`} className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg text-left text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-3">
+                                <a href={`/${locale}/business/clients`} className="w-full p-3 bg-slate-50 hover:bg-slate-100 rounded-lg text-left text-sm text-slate-300 hover:text-slate-800 transition-colors flex items-center gap-3">
                                     <Users size={15} className="text-purple-400" /> {t('viewClients')}
                                 </a>
-                                <a href={`/${locale}/business/agenda`} className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg text-left text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-3">
+                                <a href={`/${locale}/business/agenda`} className="w-full p-3 bg-slate-50 hover:bg-slate-100 rounded-lg text-left text-sm text-slate-300 hover:text-slate-800 transition-colors flex items-center gap-3">
                                     <CalendarCheck size={15} className="text-cyan-400" /> {t('goToAgenda')}
                                 </a>
                             </div>
