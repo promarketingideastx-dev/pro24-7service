@@ -24,6 +24,10 @@
 .DS_Store
 *.pem
 
+# Firebase secrets — NEVER commit these
+serviceAccountKey.json
+serviceAccountKey.json.json
+
 # debug
 npm-debug.log*
 yarn-debug.log*
