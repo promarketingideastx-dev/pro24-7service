@@ -2,6 +2,7 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getFirestore, enableMultiTabIndexedDbPersistence } from "firebase/firestore";
+import { getMessaging, isSupported } from "firebase/messaging";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -32,3 +33,11 @@ if (typeof window !== 'undefined') {
 }
 
 export default app;
+
+// Lazy-init messaging (browser-only, async because isSupported() is async)
+export async function getFirebaseMessaging() {
+    if (typeof window === 'undefined') return null;
+    const supported = await isSupported();
+    if (!supported) return null;
+    return getMessaging(app);
+}

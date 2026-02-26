@@ -111,6 +111,15 @@ export default function AppointmentInbox({
         }).catch(() => { });
     };
 
+    const sendPushToClient = (customerUid: string | undefined, title: string, body: string) => {
+        if (!customerUid) return;
+        fetch('/api/push-client', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ customerUid, title, body, url: '/es/user/profile' }),
+        }).catch(() => { });
+    };
+
     // ── Accept ────────────────────────────────────────────────────────────────
     const handleAccept = async (apt: Appointment) => {
         if (!apt.id) return;
@@ -142,6 +151,13 @@ export default function AppointmentInbox({
                     businessPhone,
                 });
             }
+
+            // Push notification to client (if they have FCM token)
+            sendPushToClient(
+                apt.customerUid,
+                '✅ Cita confirmada',
+                `Tu cita de ${apt.serviceName} con ${businessName || 'el negocio'} fue confirmada.`
+            );
         } catch (error) {
             console.error('Error accepting:', error);
             toast.error(t('updateError'));
@@ -172,6 +188,13 @@ export default function AppointmentInbox({
                     businessPhone,
                 });
             }
+
+            // Push notification to client
+            sendPushToClient(
+                rejectTarget.customerUid,
+                '📋 Actualización de cita',
+                `Tu solicitud de ${rejectTarget.serviceName} con ${businessName || 'el negocio'} no pudo ser confirmada.`
+            );
 
             setRejectTarget(null);
             setRejectReason(DEFAULT_REJECTION_TEXT);
@@ -257,10 +280,10 @@ export default function AppointmentInbox({
                                     {/* Status icon */}
                                     <div className="flex items-start gap-4">
                                         <div className={`p-2.5 rounded-xl shrink-0 ${apt.status === 'confirmed' ? 'bg-[rgba(20,184,166,0.10)] text-[#14B8A6]' :
-                                                apt.status === 'pending' ? 'bg-amber-50 text-amber-500' :
-                                                    apt.status === 'completed' ? 'bg-green-50 text-green-500' :
-                                                        apt.status === 'cancelled' ? 'bg-red-50 text-red-500' :
-                                                            'bg-slate-100 text-slate-400'
+                                            apt.status === 'pending' ? 'bg-amber-50 text-amber-500' :
+                                                apt.status === 'completed' ? 'bg-green-50 text-green-500' :
+                                                    apt.status === 'cancelled' ? 'bg-red-50 text-red-500' :
+                                                        'bg-slate-100 text-slate-400'
                                             }`}>
                                             <User size={18} />
                                         </div>
