@@ -54,14 +54,30 @@ export default function UserProfilePage() {
                 .catch(() => { })
                 .finally(() => setFavLoading(false));
 
-            if (user.email) {
-                AppointmentService.getByClientEmail(user.email)
-                    .then((apts) => setAppointments(apts.slice(0, 10)))
-                    .catch(() => { })
-                    .finally(() => setAptsLoading(false));
-            } else {
-                setAptsLoading(false);
-            }
+            // Fetch by UID (new bookings) + email (legacy bookings), deduplicate
+            const fetchAppointments = async () => {
+                try {
+                    const [byUid, byEmail] = await Promise.all([
+                        AppointmentService.getByClientUid(user.uid),
+                        user.email ? AppointmentService.getByClientEmail(user.email) : Promise.resolve([]),
+                    ]);
+                    // Merge and deduplicate by appointment id
+                    const seen = new Set<string>();
+                    const merged = [...byUid, ...byEmail].filter(apt => {
+                        if (!apt.id || seen.has(apt.id)) return false;
+                        seen.add(apt.id);
+                        return true;
+                    });
+                    // Sort newest first, keep max 10
+                    merged.sort((a, b) => (b.date?.toMillis?.() ?? 0) - (a.date?.toMillis?.() ?? 0));
+                    setAppointments(merged.slice(0, 10));
+                } catch {
+                    // Silent — empty state shown
+                } finally {
+                    setAptsLoading(false);
+                }
+            };
+            fetchAppointments();
         } else {
             setFavLoading(false);
             setAptsLoading(false);

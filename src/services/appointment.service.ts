@@ -23,6 +23,7 @@ export interface Appointment {
     serviceDuration: number;
     servicePrice?: number;
     customerId?: string;
+    customerUid?: string;      // Firebase Auth UID del cliente (si estaba logueado al reservar)
     customerName: string;
     customerEmail?: string;
     customerPhone?: string;
@@ -220,6 +221,26 @@ export const AppointmentService = {
             });
         } catch (error) {
             console.error("Error fetching client appointments:", error);
+            throw error;
+        }
+    },
+
+    // Get all appointments for a client by Firebase Auth UID — preferred over email
+    async getByClientUid(uid: string): Promise<Appointment[]> {
+        try {
+            const q = query(
+                collection(db, COLLECTION_NAME),
+                where('customerUid', '==', uid)
+            );
+            const snapshot = await getDocs(q);
+            const appointments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
+            return appointments.sort((a, b) => {
+                const aTime = a.date?.toMillis?.() ?? 0;
+                const bTime = b.date?.toMillis?.() ?? 0;
+                return bTime - aTime;
+            });
+        } catch (error) {
+            console.error("Error fetching client appointments by UID:", error);
             throw error;
         }
     },

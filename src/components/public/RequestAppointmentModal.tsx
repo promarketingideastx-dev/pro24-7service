@@ -9,6 +9,7 @@ import { Timestamp } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { es, enUS, ptBR } from 'date-fns/locale';
 import { useLocale, useTranslations } from 'next-intl';
+import { useAuth } from '@/context/AuthContext';
 
 import { WeeklySchedule } from '@/services/employee.service';
 import { PaymentSettings } from '@/types/firestore-schema';
@@ -208,6 +209,7 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
 
 
 export default function RequestAppointmentModal({ isOpen, onClose, businessId, businessName, openingHours, paymentSettings }: RequestAppointmentModalProps) {
+    const { user } = useAuth();
     const t = useTranslations('booking');
     const locale = useLocale();
     const localeKey = locale === 'en' ? 'en' : locale === 'pt-BR' ? 'pt' : 'es';
@@ -348,6 +350,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
             await AppointmentService.createAppointment({
                 businessId,
                 customerId: customerId,
+                customerUid: user?.uid || undefined,
                 customerName: data.name,
                 customerPhone: data.phone,
                 customerEmail: data.email,
