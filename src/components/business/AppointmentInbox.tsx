@@ -116,7 +116,7 @@ export default function AppointmentInbox({
         fetch('/api/push-client', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ customerUid, title, body, url: '/es/user/profile' }),
+            body: JSON.stringify({ customerUid, title, body, url: `/${locale}/user/profile` }),
         }).catch(() => { });
     };
 

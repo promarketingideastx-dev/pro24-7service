@@ -4,6 +4,7 @@ import { Providers } from '../providers';
 import { Toaster } from 'sonner';
 import CookieConsent from '@/components/ui/CookieConsent';
 import FCMRegistrar from '@/components/ui/FCMRegistrar';
+import SWRegistrar from '@/components/ui/SWRegistrar';
 
 const LOCALES = ['es', 'en', 'pt-BR'];
 
@@ -31,6 +32,7 @@ export default async function LocaleLayout({
             <Providers>
                 {children}
                 <FCMRegistrar />
+                <SWRegistrar />
                 <Toaster position="top-right" theme="dark" richColors />
                 <CookieConsent />
             </Providers>
