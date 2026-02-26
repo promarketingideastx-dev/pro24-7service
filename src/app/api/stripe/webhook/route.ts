@@ -5,8 +5,8 @@ import { StripeService } from '@/services/stripe.service';
 const STRIPE_CONFIGURED = process.env.STRIPE_SECRET_KEY &&
     !process.env.STRIPE_SECRET_KEY.includes('placeholder');
 
-// Required for raw body parsing (Stripe webhook signature verification)
-export const config = { api: { bodyParser: false } };
+// Required: disable Next.js body parsing so Stripe can verify the raw body signature
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
     if (!STRIPE_CONFIGURED) {
