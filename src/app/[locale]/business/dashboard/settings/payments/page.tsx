@@ -8,12 +8,15 @@ import { Loader2, Save, BadgeDollarSign, Building2, CreditCard, Wallet } from 'l
 import { toast } from 'sonner';
 import GlassPanel from '@/components/ui/GlassPanel';
 import { useTranslations } from 'next-intl';
+import SubscriptionPanel from '@/components/business/SubscriptionPanel';
+import { StripeService } from '@/services/stripe.service';
 
 export default function PaymentSettingsPage() {
     const { user } = useAuth();
     const t = useTranslations('business.payments');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [currentPlan, setCurrentPlan] = useState('premium');
 
     // Default Settings
     const [settings, setSettings] = useState<PaymentSettings>({
@@ -36,9 +39,15 @@ export default function PaymentSettingsPage() {
 
     const loadSettings = async () => {
         try {
-            const profile = await BusinessProfileService.getProfile(user!.uid);
+            const [profile, subStatus] = await Promise.all([
+                BusinessProfileService.getProfile(user!.uid),
+                StripeService.getSubscriptionStatus(user!.uid),
+            ]);
             if (profile?.paymentSettings) {
                 setSettings({ ...settings, ...profile.paymentSettings });
+            }
+            if (subStatus?.plan) {
+                setCurrentPlan(subStatus.plan);
             }
         } catch (error) {
             console.error(error);
@@ -86,6 +95,18 @@ export default function PaymentSettingsPage() {
                     {saving ? t('saving') : t('saveChanges')}
                 </button>
             </div>
+
+            {/* ── Subscription Panel (PRO24/7 plan) ── */}
+            {user?.uid && (
+                <div className="mb-8">
+                    <GlassPanel className="p-6">
+                        <SubscriptionPanel
+                            currentPlan={currentPlan}
+                            businessId={user.uid}
+                        />
+                    </GlassPanel>
+                </div>
+            )}
 
             {/* Methods Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

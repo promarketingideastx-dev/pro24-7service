@@ -343,7 +343,8 @@
       "clientMode": "Explorar como Cliente",
       "adminPanel": "Panel Admin",
       "logout": "Cerrar Sesión",
-      "notifications": "Notificaciones"
+      "notifications": "Notificaciones",
+      "messages": "Mensajes"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -558,7 +559,15 @@
       "followUs": "Síguenos",
       "instagram": "Instagram",
       "facebook": "Facebook",
-      "tiktok": "TikTok"
+      "tiktok": "TikTok",
+      "chat": "Mensaje",
+      "paymentMethods": "Métodos de pago",
+      "paymentCash": "Efectivo",
+      "paymentBank": "Transferencia Bancaria",
+      "paymentWallet": "Billetera Digital",
+      "bankDetails": "Datos bancarios",
+      "walletDetails": "Datos de billetera",
+      "requiresDeposit": "Requiere anticipo"
     },
     "profile": {
       "title": "Editar Perfil de Negocio",
@@ -952,6 +961,12 @@
     "aptStatus_completed": "Completada",
     "aptStatus_cancelled": "Cancelada",
     "aptStatus_no-show": "No asistí",
+    "aptCancelBtn": "Cancelar cita",
+    "aptCancelConfirm": "¿Cancelar?",
+    "aptCancelYes": "Sí, cancelar",
+    "aptCancelNo": "No",
+    "aptCancelled": "Cita cancelada correctamente",
+    "aptCancelError": "Error al cancelar la cita",
     "dangerZone": "Zona de Peligro",
     "dangerDesc": "Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, asegúrate de querer hacer esto.",
     "deleteBtn": "Eliminar mi cuenta permanentemente",
@@ -1011,5 +1026,47 @@
     "inactiveTitle": "Cuenta Desactivada",
     "inactiveBody": "Tu cuenta ha sido desactivada. Contacta al administrador para más información.",
     "contactAdmin": "Si crees que esto es un error, contacta a soporte@pro247ya.com"
+  },
+  "chat": {
+    "loginRequired": "Inicia sesión para chatear",
+    "loginRequiredDesc": "Necesitas una cuenta para enviar mensajes a este negocio.",
+    "close": "Cerrar",
+    "online": "En línea",
+    "startConversation": "Sé el primero en escribir un mensaje",
+    "placeholder": "Escribe un mensaje...",
+    "send": "Enviar"
+  },
+  "subscription": {
+    "title": "Plan de Suscripción PRO24/7",
+    "subtitle": "Gestiona tu suscripción de negocio",
+    "currentPlan": "Plan Actual",
+    "currentPlanBtn": "Plan Actual",
+    "manageSub": "Gestionar suscripción",
+    "popular": "Popular",
+    "upgradeBtn": "Actualizar a",
+    "redirecting": "Redireccionando...",
+    "free": "Gratis",
+    "freeTier": "Plan gratuito",
+    "planFree": "Gratis",
+    "planPremium": "Premium",
+    "planPlusTeam": "Plus Equipo",
+    "featureFreeProfile": "Perfil público del negocio",
+    "featureFreeBooking": "Reservas básicas de citas",
+    "featureFreeBasic": "Hasta 5 servicios",
+    "featurePremiumAll": "Todo en Gratis",
+    "featurePremiumGallery": "Fotos de galeria ilimitadas",
+    "featurePremiumAnalytics": "Analytics y dashboard",
+    "featurePremiumNotifications": "Notificaciones en tiempo real",
+    "featurePlusAll": "Todo en Premium",
+    "featurePlusTeam5": "Hasta 5 miembros de equipo",
+    "featurePlusAssign": "Asignar citas al equipo",
+    "featurePlusCalendar": "Vista de calendario de equipo",
+    "testModeTitle": "Modo de Prueba Stripe",
+    "testModeDesc": "Agrega tus llaves de prueba de Stripe en .env.local para activar los pagos.",
+    "stripeNotConfigured": "Stripe no configurado aún",
+    "stripeNotConfiguredDesc": "Agrega STRIPE_SECRET_KEY en .env.local para activar suscripciones.",
+    "checkoutError": "No se pudo abrir el checkout. Inténtalo de nuevo.",
+    "portalError": "No se pudo abrir el portal de suscripción.",
+    "legalNote": "Las suscripciones se procesan de forma segura vía Stripe en la web. PRO24/7 no procesa pagos entre clientes y negocios — esos se coordinan directamente."
   }
 }

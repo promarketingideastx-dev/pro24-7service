@@ -39,6 +39,13 @@ export default function Home() {
     /* State for Selected Business (Map Focus) */
     const [selectedBusiness, setSelectedBusiness] = useState<BusinessMock | null>(null);
 
+    /* Advanced Filters */
+    const [showFilters, setShowFilters] = useState(false);
+    const [filterCategory, setFilterCategory] = useState<string | null>(null);
+    const [filterRating, setFilterRating] = useState<number>(0);
+    const [filterHasSchedule, setFilterHasSchedule] = useState(false);
+    const activeFilterCount = (filterCategory ? 1 : 0) + (filterRating > 0 ? 1 : 0) + (filterHasSchedule ? 1 : 0);
+
     /* Country Context */
     const { selectedCountry, isLoading: isCountryLoading, clearCountry } = useCountry();
 
@@ -130,7 +137,6 @@ export default function Home() {
     const filteredBusinesses = businesses.filter(b => {
         // 0. Filter by Country Code (Strict)
         if (selectedCountry) {
-            // countryCode is normalized by getPublicBusinesses (country → countryCode)
             const bizCountry = b.countryCode || 'HN';
             if (bizCountry !== selectedCountry.code) return false;
         }
@@ -138,7 +144,6 @@ export default function Home() {
         const term = searchTerm.trim();
         if (!term) return true;
 
-        // 1. Prepare Searchable Text (Name, Category, Subcategory, Tags, Desc)
         const searchableText = `
             ${b.name} 
             ${b.category} 
@@ -147,11 +152,9 @@ export default function Home() {
             ${b.description || ''}
         `;
 
-        // 2. Use Advanced Token Matching
         return matchesSearch(searchableText, term);
     }).filter(b => {
         if (statusFilter === 'new') {
-            // Prefer createdAt, fall back to updatedAt for legacy businesses
             const rawDate = (b as any).createdAt ?? (b as any).updatedAt;
             const created = rawDate?.toDate?.() ?? (rawDate ? new Date(rawDate) : null);
             if (!created) return false;
@@ -162,6 +165,12 @@ export default function Home() {
         if (statusFilter === 'withSchedule') {
             return !!(b as any).openingHours || !!(b as any).hasSchedule;
         }
+        return true;
+    }).filter(b => {
+        // Advanced filters
+        if (filterCategory && b.category !== filterCategory) return false;
+        if (filterRating > 0 && ((b as any).rating ?? 5.0) < filterRating) return false;
+        if (filterHasSchedule && !((b as any).openingHours || (b as any).hasSchedule)) return false;
         return true;
     });
 
@@ -288,8 +297,8 @@ export default function Home() {
                     </div>
 
                     {/* Row 2: Search bar — white card floating on teal */}
-                    <div className="flex items-center bg-white rounded-2xl px-5 py-3.5 shadow-md">
-                        <Search className="w-5 h-5 text-slate-400 mr-3 shrink-0" />
+                    <div className="flex items-center bg-white rounded-2xl px-5 py-3.5 shadow-md gap-2">
+                        <Search className="w-5 h-5 text-slate-400 shrink-0" />
                         <input
                             type="text"
                             placeholder={t('searchPlaceholder')}
@@ -298,10 +307,25 @@ export default function Home() {
                             className="bg-transparent w-full outline-none text-slate-900 placeholder-slate-400 text-base font-medium"
                         />
                         {searchTerm && (
-                            <button onClick={() => setSearchTerm('')} className="p-1 rounded-full hover:bg-slate-100 transition-colors">
+                            <button onClick={() => setSearchTerm('')} className="p-1 rounded-full hover:bg-slate-100 transition-colors shrink-0">
                                 <X className="w-5 h-5 text-slate-400" />
                             </button>
                         )}
+                        {/* Filter Button */}
+                        <button
+                            onClick={() => setShowFilters(true)}
+                            className={`relative shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold border transition-all ${activeFilterCount > 0
+                                    ? 'bg-[#14B8A6] text-white border-[#14B8A6] shadow-md shadow-teal-500/20'
+                                    : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-[#14B8A6]/50'
+                                }`}
+                        >
+                            <Filter className="w-4 h-4" />
+                            {activeFilterCount > 0 && (
+                                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                                    {activeFilterCount}
+                                </span>
+                            )}
+                        </button>
                     </div>
                 </header>
 
@@ -511,6 +535,102 @@ export default function Home() {
                     )}
 
                 </div>
+
+                {/* ── Advanced Filters Bottom Sheet ── */}
+                {showFilters && (
+                    <div className="fixed inset-0 z-[2000] flex items-end justify-center" onClick={() => setShowFilters(false)}>
+                        {/* Backdrop */}
+                        <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" />
+                        {/* Sheet */}
+                        <div
+                            className="relative w-full max-w-lg bg-white rounded-t-3xl shadow-2xl p-6 pb-10 animate-in slide-in-from-bottom duration-300"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Handle */}
+                            <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5" />
+
+                            {/* Header */}
+                            <div className="flex items-center justify-between mb-5">
+                                <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                    <Filter className="w-5 h-5 text-[#14B8A6]" />
+                                    Filtros
+                                </h3>
+                                {activeFilterCount > 0 && (
+                                    <button
+                                        onClick={() => { setFilterCategory(null); setFilterRating(0); setFilterHasSchedule(false); }}
+                                        className="text-xs text-red-500 font-semibold hover:text-red-600 transition-colors"
+                                    >
+                                        Limpiar filtros
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Section: Categoría */}
+                            <div className="mb-5">
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Categoría</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {[{ id: null, label: 'Todas' }, { id: 'general_services', label: '🛠️ Servicios' }, { id: 'beauty_wellness', label: '💇 Belleza' }, { id: 'art_design', label: '🎨 Arte' }].map(opt => (
+                                        <button
+                                            key={opt.label}
+                                            onClick={() => setFilterCategory(opt.id)}
+                                            className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${filterCategory === opt.id
+                                                    ? 'bg-[#14B8A6] text-white border-[#14B8A6]'
+                                                    : 'bg-white text-slate-700 border-slate-200 hover:border-[#14B8A6]/50'
+                                                }`}
+                                        >
+                                            {opt.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Section: Rating */}
+                            <div className="mb-5">
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rating mínimo</p>
+                                <div className="flex gap-2">
+                                    {[{ val: 0, label: 'Cualquiera' }, { val: 4, label: '4+ ⭐' }, { val: 5, label: '5.0 ⭐' }].map(opt => (
+                                        <button
+                                            key={opt.val}
+                                            onClick={() => setFilterRating(opt.val)}
+                                            className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${filterRating === opt.val
+                                                    ? 'bg-[#14B8A6] text-white border-[#14B8A6]'
+                                                    : 'bg-white text-slate-700 border-slate-200 hover:border-[#14B8A6]/50'
+                                                }`}
+                                        >
+                                            {opt.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Section: Con Agenda */}
+                            <div className="mb-6">
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Opciones</p>
+                                <button
+                                    onClick={() => setFilterHasSchedule(v => !v)}
+                                    className={`flex items-center gap-3 w-full px-4 py-3 rounded-2xl border text-sm font-semibold transition-all ${filterHasSchedule
+                                            ? 'bg-[#14B8A6]/10 text-[#0F766E] border-[#14B8A6]/40'
+                                            : 'bg-white text-slate-700 border-slate-200 hover:border-[#14B8A6]/30'
+                                        }`}
+                                >
+                                    <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${filterHasSchedule ? 'bg-[#14B8A6] border-[#14B8A6]' : 'border-slate-300'
+                                        }`}>
+                                        {filterHasSchedule && <span className="w-2 h-2 bg-white rounded-full" />}
+                                    </span>
+                                    📅 Solo con agenda disponible
+                                </button>
+                            </div>
+
+                            {/* Apply Button */}
+                            <button
+                                onClick={() => setShowFilters(false)}
+                                className="w-full py-3.5 rounded-2xl bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold text-sm shadow-[0_4px_14px_rgba(20,184,166,0.30)] transition-all"
+                            >
+                                {activeFilterCount > 0 ? `Aplicar ${activeFilterCount} filtro${activeFilterCount > 1 ? 's' : ''}` : 'Cerrar'}
+                            </button>
+                        </div>
+                    </div>
+                )}
             </main>
 
             {/* Share App Modal */}

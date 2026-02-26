@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Store, Calendar, Settings, LogOut, Menu, X, Users, CreditCard, Shield, Bell } from 'lucide-react';
+import { LayoutDashboard, Store, Calendar, Settings, LogOut, Menu, X, Users, CreditCard, Shield, Bell, MessageCircle } from 'lucide-react';
 import GlassPanel from '@/components/ui/GlassPanel';
 import BusinessGuard from '@/components/auth/BusinessGuard';
 import BusinessNotifBell from '@/components/business/BusinessNotifBell';
@@ -43,6 +43,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
         { name: t('services'), href: lp('/business/services'), icon: <Store size={20} /> },
         { name: t('team'), href: lp('/business/team'), icon: <Users size={20} /> },
         { name: t('payments'), href: lp('/business/dashboard/settings/payments'), icon: <CreditCard size={20} /> },
+        { name: t('messages'), href: lp('/business/messages'), icon: <MessageCircle size={20} /> },
         { name: t('notifications'), href: lp('/business/notifications'), icon: <Bell size={20} /> },
         { name: t('settings'), href: lp('/business/profile'), icon: <Settings size={20} /> },
     ];

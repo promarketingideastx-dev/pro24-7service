@@ -8,6 +8,9 @@ import { toast } from 'sonner';
 import { FavoritesService } from '@/services/favorites.service';
 import { useTranslations, useLocale } from 'next-intl';
 import { TAXONOMY } from '@/lib/taxonomy';
+import dynamic from 'next/dynamic';
+
+const ChatModal = dynamic(() => import('@/components/ui/ChatModal'), { ssr: false });
 
 interface ProfileLayoutProps {
     business: any;
@@ -29,6 +32,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     const [heartAnim, setHeartAnim] = useState(false);
     const [favProcessing, setFavProcessing] = useState(false);
     const [contentScrolled, setContentScrolled] = useState(false);
+    const [showChat, setShowChat] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
 
     // ─── Favorites: load from Firestore (if logged in) or localStorage ────
@@ -190,13 +194,22 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                     <div className="flex gap-3">
                         {/* Desktop Booking CTA */}
                         {!isOwner && (
-                            <button
-                                onClick={onBookClick}
-                                className="hidden md:flex bg-[#14B8A6] hover:bg-[#0F9488] text-white px-4 py-2 rounded-full text-sm font-bold backdrop-blur-md transition-all shadow-lg shadow-teal-500/20 items-center gap-2"
-                            >
-                                <Calendar className="w-4 h-4" />
-                                {t('bookAppointment')}
-                            </button>
+                            <>
+                                <button
+                                    onClick={() => setShowChat(true)}
+                                    className="hidden md:flex bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-sm font-bold backdrop-blur-md transition-all items-center gap-2 border border-white/30"
+                                >
+                                    <MessageCircle className="w-4 h-4" />
+                                    {t('chat')}
+                                </button>
+                                <button
+                                    onClick={onBookClick}
+                                    className="hidden md:flex bg-[#14B8A6] hover:bg-[#0F9488] text-white px-4 py-2 rounded-full text-sm font-bold backdrop-blur-md transition-all shadow-lg shadow-teal-500/20 items-center gap-2"
+                                >
+                                    <Calendar className="w-4 h-4" />
+                                    {t('bookAppointment')}
+                                </button>
+                            </>
                         )}
 
                         {/* Owner Actions */}
@@ -305,7 +318,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
             </div>
 
             {/* --- 4. MOBILE STICKY ACTION BAR (hidden when modal is open) --- */}
-            {!isOwner && !isModalOpen && (
+            {!isOwner && !isModalOpen && !showChat && (
                 <div className="fixed bottom-0 left-0 right-0 bg-[#F4F6F8]/90 backdrop-blur-lg border-t border-slate-200 p-4 md:hidden z-50 flex gap-3 animate-in slide-in-from-bottom-full duration-500">
                     {/* WhatsApp Button */}
                     <button
@@ -315,12 +328,21 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                         <MessageCircle className="w-6 h-6" />
                     </button>
 
-                    {/* Call Button (Optional, can be hidden if no phone) */}
+                    {/* Call Button */}
                     <button
                         onClick={handleCall}
                         className="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 active:scale-95 transition-all"
                     >
                         <Phone className="w-5 h-5" />
+                    </button>
+
+                    {/* Chat Button */}
+                    <button
+                        onClick={() => setShowChat(true)}
+                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-[#14B8A6]/10 text-[#0F766E] border border-[#14B8A6]/30 hover:bg-[#14B8A6]/20 active:scale-95 transition-all"
+                        title={t('chat')}
+                    >
+                        <MessageCircle className="w-5 h-5" />
                     </button>
 
                     {/* Book Action - Main */}
@@ -333,6 +355,14 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                     </button>
                 </div>
             )}
+
+            {/* Chat Modal */}
+            <ChatModal
+                isOpen={showChat}
+                onClose={() => setShowChat(false)}
+                businessId={business.id}
+                businessName={business.name}
+            />
         </main>
     );
 }

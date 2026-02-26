@@ -343,7 +343,8 @@
       "clientMode": "Explorar como Cliente",
       "adminPanel": "Painel Admin",
       "logout": "Sair",
-      "notifications": "Notificações"
+      "notifications": "Notificações",
+      "messages": "Mensagens"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -558,7 +559,15 @@
       "followUs": "Siga-nos",
       "instagram": "Instagram",
       "facebook": "Facebook",
-      "tiktok": "TikTok"
+      "tiktok": "TikTok",
+      "chat": "Mensagem",
+      "paymentMethods": "Métodos de Pagamento",
+      "paymentCash": "Dinheiro",
+      "paymentBank": "Transferência Bancária",
+      "paymentWallet": "Carteira Digital",
+      "bankDetails": "Dados Bancários",
+      "walletDetails": "Dados da Carteira",
+      "requiresDeposit": "Exige adiantamento"
     },
     "profile": {
       "title": "Editar Perfil do Negócio",
@@ -952,6 +961,12 @@
     "aptStatus_completed": "Concluído",
     "aptStatus_cancelled": "Cancelado",
     "aptStatus_no-show": "Não compareceu",
+    "aptCancelBtn": "Cancelar consulta",
+    "aptCancelConfirm": "Cancelar?",
+    "aptCancelYes": "Sim, cancelar",
+    "aptCancelNo": "Não",
+    "aptCancelled": "Consulta cancelada com sucesso",
+    "aptCancelError": "Erro ao cancelar a consulta",
     "dangerZone": "Zona de Perigo",
     "dangerDesc": "Uma vez que você exclua sua conta, não há como voltar atrás. Por favor, certifique-se de querer fazer isso.",
     "deleteBtn": "Excluir minha conta permanentemente",
@@ -1011,5 +1026,47 @@
     "inactiveTitle": "Conta Desativada",
     "inactiveBody": "Sua conta foi desativada. Entre em contato com o administrador para mais informações.",
     "contactAdmin": "Se acredita que é um erro, contate suporte@pro247ya.com"
+  },
+  "chat": {
+    "loginRequired": "Faça login para conversar",
+    "loginRequiredDesc": "Você precisa de uma conta para enviar mensagens para este negócio.",
+    "close": "Fechar",
+    "online": "Online",
+    "startConversation": "Seja o primeiro a enviar uma mensagem",
+    "placeholder": "Digite uma mensagem...",
+    "send": "Enviar"
+  },
+  "subscription": {
+    "title": "Plano de Assinatura PRO24/7",
+    "subtitle": "Gerencie a assinatura do seu negócio",
+    "currentPlan": "Plano Atual",
+    "currentPlanBtn": "Plano Atual",
+    "manageSub": "Gerenciar assinatura",
+    "popular": "Popular",
+    "upgradeBtn": "Atualizar para",
+    "redirecting": "Redirecionando...",
+    "free": "Grátis",
+    "freeTier": "Plano gratuito",
+    "planFree": "Grátis",
+    "planPremium": "Premium",
+    "planPlusTeam": "Plus Equipe",
+    "featureFreeProfile": "Perfil público do negócio",
+    "featureFreeBooking": "Agendamentos básicos",
+    "featureFreeBasic": "Até 5 serviços",
+    "featurePremiumAll": "Tudo no Grátis",
+    "featurePremiumGallery": "Fotos de galeria ilimitadas",
+    "featurePremiumAnalytics": "Analytics e dashboard",
+    "featurePremiumNotifications": "Notificações em tempo real",
+    "featurePlusAll": "Tudo no Premium",
+    "featurePlusTeam5": "Até 5 membros de equipe",
+    "featurePlusAssign": "Atribuir consultas à equipe",
+    "featurePlusCalendar": "Visualização de calendário da equipe",
+    "testModeTitle": "Modo de Teste Stripe",
+    "testModeDesc": "Adicione suas chaves de teste Stripe em .env.local para ativar os pagamentos.",
+    "stripeNotConfigured": "Stripe não configurado ainda",
+    "stripeNotConfiguredDesc": "Adicione STRIPE_SECRET_KEY em .env.local para ativar as assinaturas.",
+    "checkoutError": "Não foi possível abrir o checkout. Tente novamente.",
+    "portalError": "Não foi possível abrir o portal de assinatura.",
+    "legalNote": "As assinaturas são processadas com segurança via Stripe na web. PRO24/7 não processa pagamentos entre clientes e negócios — esses são coordenados diretamente."
   }
 }

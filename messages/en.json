@@ -343,7 +343,8 @@
       "clientMode": "Browse as Client",
       "adminPanel": "Admin Panel",
       "logout": "Log Out",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "messages": "Messages"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -558,7 +559,15 @@
       "followUs": "Follow us",
       "instagram": "Instagram",
       "facebook": "Facebook",
-      "tiktok": "TikTok"
+      "tiktok": "TikTok",
+      "chat": "Message",
+      "paymentMethods": "Payment Methods",
+      "paymentCash": "Cash",
+      "paymentBank": "Bank Transfer",
+      "paymentWallet": "Digital Wallet",
+      "bankDetails": "Bank Details",
+      "walletDetails": "Wallet Details",
+      "requiresDeposit": "Requires deposit"
     },
     "profile": {
       "title": "Edit Business Profile",
@@ -952,6 +961,12 @@
     "aptStatus_completed": "Completed",
     "aptStatus_cancelled": "Cancelled",
     "aptStatus_no-show": "No Show",
+    "aptCancelBtn": "Cancel appointment",
+    "aptCancelConfirm": "Cancel?",
+    "aptCancelYes": "Yes, cancel",
+    "aptCancelNo": "No",
+    "aptCancelled": "Appointment cancelled",
+    "aptCancelError": "Error cancelling appointment",
     "dangerZone": "Danger Zone",
     "dangerDesc": "Once you delete your account, there is no going back. Please make sure you want to do this.",
     "deleteBtn": "Permanently delete my account",
@@ -1011,5 +1026,47 @@
     "inactiveTitle": "Account Deactivated",
     "inactiveBody": "Your account has been deactivated. Contact the administrator for more information.",
     "contactAdmin": "If you believe this is an error, contact support@pro247ya.com"
+  },
+  "chat": {
+    "loginRequired": "Log in to chat",
+    "loginRequiredDesc": "You need an account to send messages to this business.",
+    "close": "Close",
+    "online": "Online",
+    "startConversation": "Be the first to send a message",
+    "placeholder": "Type a message...",
+    "send": "Send"
+  },
+  "subscription": {
+    "title": "PRO24/7 Subscription Plan",
+    "subtitle": "Manage your business subscription",
+    "currentPlan": "Current Plan",
+    "currentPlanBtn": "Current Plan",
+    "manageSub": "Manage subscription",
+    "popular": "Popular",
+    "upgradeBtn": "Upgrade to",
+    "redirecting": "Redirecting...",
+    "free": "Free",
+    "freeTier": "Free tier",
+    "planFree": "Free",
+    "planPremium": "Premium",
+    "planPlusTeam": "Plus Team",
+    "featureFreeProfile": "Public business profile",
+    "featureFreeBooking": "Basic appointment booking",
+    "featureFreeBasic": "Up to 5 services",
+    "featurePremiumAll": "Everything in Free",
+    "featurePremiumGallery": "Unlimited gallery photos",
+    "featurePremiumAnalytics": "Analytics & dashboard",
+    "featurePremiumNotifications": "Real-time notifications",
+    "featurePlusAll": "Everything in Premium",
+    "featurePlusTeam5": "Up to 5 team members",
+    "featurePlusAssign": "Assign appointments to team",
+    "featurePlusCalendar": "Team calendar view",
+    "testModeTitle": "Stripe Test Mode",
+    "testModeDesc": "Add your Stripe test keys to .env.local to activate payments.",
+    "stripeNotConfigured": "Stripe not configured yet",
+    "stripeNotConfiguredDesc": "Add STRIPE_SECRET_KEY to .env.local to activate subscriptions.",
+    "checkoutError": "Could not open checkout. Try again.",
+    "portalError": "Could not open subscription portal.",
+    "legalNote": "Subscriptions are processed securely via Stripe on the web. PRO24/7 does not process payments between clients and businesses — those are coordinated directly."
   }
 }

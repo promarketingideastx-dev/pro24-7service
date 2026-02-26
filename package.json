@@ -9,6 +9,7 @@
         "lint": "next lint"
     },
     "dependencies": {
+        "@stripe/stripe-js": "^8.8.0",
         "@types/leaflet": "^1.9.21",
         "clsx": "^2.1.0",
         "date-fns": "^4.1.0",
@@ -25,6 +26,7 @@
         "react-leaflet": "^4.2.1",
         "resend": "^6.9.2",
         "sonner": "^2.0.7",
+        "stripe": "^20.4.0",
         "tailwind-merge": "^2.2.1"
     },
     "devDependencies": {

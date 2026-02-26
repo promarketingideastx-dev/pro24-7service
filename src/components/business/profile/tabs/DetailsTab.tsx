@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin, Phone, Globe, Clock, MessageCircle } from 'lucide-react';
+import { MapPin, Phone, Globe, Clock, MessageCircle, Banknote, Building2, Wallet } from 'lucide-react';
 import WeeklyScheduleView from '@/components/business/public/WeeklyScheduleView';
 import OpeningHoursStatus from '@/components/business/public/OpeningHoursStatus';
 import dynamic from 'next/dynamic';
@@ -190,6 +190,64 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                     )}
                 </div>
             </div>
+
+            {/* Payment Methods */}
+            {(() => {
+                const pm = business.paymentSettings;
+                const hasCash = pm?.acceptsCash;
+                const hasBank = pm?.acceptsBankTransfer;
+                const hasWallet = pm?.acceptsDigitalWallet;
+                const hasAny = hasCash || hasBank || hasWallet;
+                if (!hasAny) return null;
+                return (
+                    <div className="bg-white rounded-3xl p-6 border border-slate-200">
+                        <h3 className="font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
+                            <Banknote className="w-5 h-5 text-[#14B8A6]" />
+                            {t('paymentMethods')}
+                        </h3>
+                        <div className="flex flex-wrap gap-3">
+                            {hasCash && (
+                                <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm font-medium">
+                                    <Banknote className="w-4 h-4" />
+                                    {t('paymentCash')}
+                                </div>
+                            )}
+                            {hasBank && (
+                                <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 text-sm font-medium">
+                                    <Building2 className="w-4 h-4" />
+                                    {t('paymentBank')}
+                                </div>
+                            )}
+                            {hasWallet && (
+                                <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 text-sm font-medium">
+                                    <Wallet className="w-4 h-4" />
+                                    {t('paymentWallet')}
+                                </div>
+                            )}
+                        </div>
+                        {hasBank && pm?.bankTransferDetails && (
+                            <div className="mt-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
+                                <p className="text-xs text-blue-700 font-semibold mb-1">{t('bankDetails')}</p>
+                                <p className="text-xs text-blue-600 whitespace-pre-line">{pm.bankTransferDetails}</p>
+                            </div>
+                        )}
+                        {hasWallet && pm?.digitalWalletDetails && (
+                            <div className="mt-3 p-3 bg-purple-50 rounded-xl border border-purple-100">
+                                <p className="text-xs text-purple-700 font-semibold mb-1">{t('walletDetails')}</p>
+                                <p className="text-xs text-purple-600 whitespace-pre-line">{pm.digitalWalletDetails}</p>
+                            </div>
+                        )}
+                        {pm?.requiresDeposit && (
+                            <div className="mt-3 p-3 bg-amber-50 rounded-xl border border-amber-100">
+                                <p className="text-xs text-amber-700 font-semibold">
+                                    {t('requiresDeposit')}: {pm.depositType === 'percent' ? `${pm.depositValue}%` : `$${pm.depositValue}`}
+                                </p>
+                                {pm.depositNotes && <p className="text-xs text-amber-600 mt-0.5">{pm.depositNotes}</p>}
+                            </div>
+                        )}
+                    </div>
+                );
+            })()}
 
             {/* Hours */}
             <div className="bg-white rounded-3xl p-6 border border-slate-200">

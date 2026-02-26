@@ -38,6 +38,8 @@ export default function UserProfilePage() {
     const [favLoading, setFavLoading] = useState(true);
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [aptsLoading, setAptsLoading] = useState(true);
+    const [cancellingId, setCancellingId] = useState<string | null>(null); // id being cancelled
+    const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null); // id waiting inline confirm
 
     // Load initial data + favorites + appointments
     useEffect(() => {
@@ -83,6 +85,21 @@ export default function UserProfilePage() {
             setAptsLoading(false);
         }
     }, [user, userProfile]);
+
+    const handleCancelAppointment = async (aptId: string) => {
+        if (!aptId) return;
+        setCancellingId(aptId);
+        try {
+            await AppointmentService.updateStatus(aptId, 'cancelled');
+            setAppointments(prev => prev.map(a => a.id === aptId ? { ...a, status: 'cancelled' } : a));
+            toast.success(t('aptCancelled'), { icon: '📅' });
+        } catch {
+            toast.error(t('aptCancelError'));
+        } finally {
+            setCancellingId(null);
+            setConfirmCancelId(null);
+        }
+    };
 
 
 
@@ -202,7 +219,7 @@ export default function UserProfilePage() {
                 <Link href="/" className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
                     PRO24/7
                 </Link>
-                <button type="button" onClick={() => router.back()} className="text-sm text-slate-400 hover:text-slate-800">
+                <button type="button" onClick={() => router.push(`/${locale}`)} className="text-sm text-slate-400 hover:text-slate-800">
                     {t('back')}
                 </button>
             </div>
@@ -411,10 +428,13 @@ export default function UserProfilePage() {
                                     'no-show': 'bg-slate-100 text-slate-500 border-slate-200',
                                 };
                                 const color = statusColors[apt.status] ?? statusColors.pending;
+                                const canCancel = apt.status === 'pending' || apt.status === 'confirmed';
+                                const isConfirmingCancel = confirmCancelId === apt.id;
+                                const isCancelling = cancellingId === apt.id;
                                 return (
                                     <div
                                         key={apt.id}
-                                        className="flex items-center gap-4 p-4 bg-slate-50 border border-slate-200 rounded-2xl"
+                                        className="flex items-center gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl transition-all"
                                     >
                                         {/* Date block */}
                                         <div className="shrink-0 text-center w-12">
@@ -433,10 +453,44 @@ export default function UserProfilePage() {
                                                 <span>{aptDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                             </div>
                                         </div>
-                                        {/* Status badge */}
-                                        <span className={`shrink-0 text-[10px] font-bold px-2 py-1 rounded-full border ${color}`}>
-                                            {t(statusKey)}
-                                        </span>
+                                        {/* Right: status + cancel */}
+                                        <div className="shrink-0 flex items-center gap-2">
+                                            {isConfirmingCancel ? (
+                                                // Inline confirmation
+                                                <div className="flex items-center gap-1.5 animate-in fade-in duration-150">
+                                                    <span className="text-[10px] text-slate-500 font-medium">{t('aptCancelConfirm')}</span>
+                                                    <button
+                                                        onClick={() => handleCancelAppointment(apt.id!)}
+                                                        disabled={isCancelling}
+                                                        className="px-2.5 py-1 bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold rounded-full transition-all disabled:opacity-60"
+                                                    >
+                                                        {isCancelling ? '...' : t('aptCancelYes')}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setConfirmCancelId(null)}
+                                                        disabled={isCancelling}
+                                                        className="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-bold rounded-full transition-all"
+                                                    >
+                                                        {t('aptCancelNo')}
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${color}`}>
+                                                        {t(statusKey)}
+                                                    </span>
+                                                    {canCancel && (
+                                                        <button
+                                                            onClick={() => setConfirmCancelId(apt.id!)}
+                                                            title={t('aptCancelBtn')}
+                                                            className="p-1 rounded-full text-slate-400 hover:text-red-400 hover:bg-red-50 transition-all"
+                                                        >
+                                                            <X className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
                                 );
                             })}
