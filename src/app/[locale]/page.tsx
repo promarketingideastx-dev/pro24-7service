@@ -151,12 +151,13 @@ export default function Home() {
         return matchesSearch(searchableText, term);
     }).filter(b => {
         if (statusFilter === 'new') {
-            // Show businesses created in last 30 days
-            const created = (b as any).createdAt?.toDate?.() || (b as any).createdAt;
+            // Prefer createdAt, fall back to updatedAt for legacy businesses
+            const rawDate = (b as any).createdAt ?? (b as any).updatedAt;
+            const created = rawDate?.toDate?.() ?? (rawDate ? new Date(rawDate) : null);
             if (!created) return false;
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            return new Date(created) >= thirtyDaysAgo;
+            return created >= thirtyDaysAgo;
         }
         if (statusFilter === 'withSchedule') {
             return !!(b as any).openingHours || !!(b as any).hasSchedule;
