@@ -144,10 +144,15 @@ export default function Home() {
         const term = searchTerm.trim();
         if (!term) return true;
 
+        // tags[] is always kept in sync with all specific services across all subcategories
+        const allTags = (b as any).tags || [];
+        const allSubcategories = (b as any).subcategories || (b.subcategory ? [b.subcategory] : []);
+
         const searchableText = `
             ${b.name} 
             ${b.category} 
-            ${b.subcategory} 
+            ${allSubcategories.join(' ')}
+            ${allTags.join(' ')} 
             ${(b.tags || []).join(' ')} 
             ${b.description || ''}
         `;
@@ -168,7 +173,13 @@ export default function Home() {
         return true;
     }).filter(b => {
         // Advanced filters
-        if (filterCategory && b.category !== filterCategory) return false;
+        if (filterCategory) {
+            // Check main category OR subcategories[] OR legacy subcategory field
+            const subcats = (b as any).subcategories || (b.subcategory ? [b.subcategory] : []);
+            const matchesMainCat = b.category === filterCategory;
+            const matchesSubCat = subcats.includes(filterCategory);
+            if (!matchesMainCat && !matchesSubCat) return false;
+        }
         if (filterRating > 0 && ((b as any).rating ?? 5.0) < filterRating) return false;
         if (filterHasSchedule && !((b as any).openingHours || (b as any).hasSchedule)) return false;
         return true;
@@ -315,8 +326,8 @@ export default function Home() {
                         <button
                             onClick={() => setShowFilters(true)}
                             className={`relative shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold border transition-all ${activeFilterCount > 0
-                                    ? 'bg-[#14B8A6] text-white border-[#14B8A6] shadow-md shadow-teal-500/20'
-                                    : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-[#14B8A6]/50'
+                                ? 'bg-[#14B8A6] text-white border-[#14B8A6] shadow-md shadow-teal-500/20'
+                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-[#14B8A6]/50'
                                 }`}
                         >
                             <Filter className="w-4 h-4" />
@@ -574,8 +585,8 @@ export default function Home() {
                                             key={opt.label}
                                             onClick={() => setFilterCategory(opt.id)}
                                             className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${filterCategory === opt.id
-                                                    ? 'bg-[#14B8A6] text-white border-[#14B8A6]'
-                                                    : 'bg-white text-slate-700 border-slate-200 hover:border-[#14B8A6]/50'
+                                                ? 'bg-[#14B8A6] text-white border-[#14B8A6]'
+                                                : 'bg-white text-slate-700 border-slate-200 hover:border-[#14B8A6]/50'
                                                 }`}
                                         >
                                             {opt.label}
@@ -593,8 +604,8 @@ export default function Home() {
                                             key={opt.val}
                                             onClick={() => setFilterRating(opt.val)}
                                             className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${filterRating === opt.val
-                                                    ? 'bg-[#14B8A6] text-white border-[#14B8A6]'
-                                                    : 'bg-white text-slate-700 border-slate-200 hover:border-[#14B8A6]/50'
+                                                ? 'bg-[#14B8A6] text-white border-[#14B8A6]'
+                                                : 'bg-white text-slate-700 border-slate-200 hover:border-[#14B8A6]/50'
                                                 }`}
                                         >
                                             {opt.label}
@@ -609,8 +620,8 @@ export default function Home() {
                                 <button
                                     onClick={() => setFilterHasSchedule(v => !v)}
                                     className={`flex items-center gap-3 w-full px-4 py-3 rounded-2xl border text-sm font-semibold transition-all ${filterHasSchedule
-                                            ? 'bg-[#14B8A6]/10 text-[#0F766E] border-[#14B8A6]/40'
-                                            : 'bg-white text-slate-700 border-slate-200 hover:border-[#14B8A6]/30'
+                                        ? 'bg-[#14B8A6]/10 text-[#0F766E] border-[#14B8A6]/40'
+                                        : 'bg-white text-slate-700 border-slate-200 hover:border-[#14B8A6]/30'
                                         }`}
                                 >
                                     <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${filterHasSchedule ? 'bg-[#14B8A6] border-[#14B8A6]' : 'border-slate-300'

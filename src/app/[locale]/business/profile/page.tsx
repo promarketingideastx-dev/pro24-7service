@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import PortfolioManager from '@/components/business/profile/PortfolioManager';
 import { useTranslations, useLocale } from 'next-intl';
+import SpecialtyPicker from '@/components/business/SpecialtyPicker';
 import { useCountry } from '@/context/CountryContext';
 
 export default function BusinessProfilePage() {
@@ -473,22 +474,12 @@ export default function BusinessProfilePage() {
 
                     <GlassPanel className="p-5">
                         {/* Title */}
-                        <div className="flex items-center gap-2 text-[#14B8A6] mb-3">
+                        <div className="flex items-center gap-2 text-[#14B8A6] mb-4">
                             <Tag size={18} />
                             <h3 className="font-bold text-slate-900 text-sm">{t('categoryTitle')}</h3>
                         </div>
-                        {/* Toggle — full-width row so title never wraps */}
-                        <button
-                            onClick={() => setShowMultiArea(!showMultiArea)}
-                            className={`w-full text-xs px-3 py-2 rounded-lg border font-semibold transition-colors mb-5 ${showMultiArea
-                                ? 'bg-[rgba(20,184,166,0.10)] border-[#14B8A6]/50 text-[#0F766E]'
-                                : 'bg-[#F8FAFC] border-[#E6E8EC] text-slate-500 hover:text-slate-700 hover:border-slate-300'
-                                }`}
-                        >
-                            {showMultiArea ? t('simpleMode') : t('additionalAreas')}
-                        </button>
 
-                        <div className="space-y-6">
+                        <div className="space-y-5">
                             {/* 1. Category Selection */}
                             <div>
                                 <label className="block text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-2">{t('mainArea')}</label>
@@ -498,163 +489,65 @@ export default function BusinessProfilePage() {
                                         if (cat.id === 'art_design') Icon = Palette;
                                         if (cat.id === 'general_services') Icon = Wrench;
                                         if (cat.id === 'beauty_wellness') Icon = Sparkles;
-
                                         const isPrimary = formData.category === cat.id;
-                                        const isAdditional = formData.additionalCategories?.includes(cat.id);
-                                        const isSelected = isPrimary || isAdditional;
 
                                         return (
                                             <button
                                                 key={cat.id}
                                                 onClick={() => {
-                                                    if (showMultiArea) {
-                                                        if (isPrimary) return;
-                                                        const currentAdditional = formData.additionalCategories || [];
-                                                        if (isAdditional) {
-                                                            setFormData({
-                                                                ...formData,
-                                                                additionalCategories: currentAdditional.filter(id => id !== cat.id)
-                                                            });
-                                                        } else {
-                                                            if (currentAdditional.length < 2) {
-                                                                setFormData({
-                                                                    ...formData,
-                                                                    additionalCategories: [...currentAdditional, cat.id]
-                                                                });
-                                                            } else {
-                                                                toast.error(t('maxAreas'));
-                                                            }
-                                                        }
-                                                    } else {
-                                                        setFormData({
-                                                            ...formData,
-                                                            category: cat.id,
-                                                            subcategory: '',
-                                                            specialties: [],
-                                                            additionalCategories: [],
-                                                            additionalSpecialties: []
-                                                        });
-                                                    }
+                                                    if (isPrimary) return;
+                                                    setFormData({
+                                                        ...formData,
+                                                        category: cat.id,
+                                                        subcategory: '',
+                                                        subcategories: [],
+                                                        specialties: [],
+                                                        specialtiesBySubcategory: {},
+                                                    } as any);
                                                 }}
                                                 className={`
                                                     flex items-center gap-3 p-3 rounded-lg border text-left transition-all
                                                     ${isPrimary
                                                         ? 'bg-[rgba(20,184,166,0.10)] border-[#14B8A6] text-[#0F766E]'
-                                                        : isAdditional
-                                                            ? 'bg-[rgba(20,184,166,0.06)] border-[#14B8A6]/40 text-slate-700'
-                                                            : 'bg-[#F8FAFC] border-[#E6E8EC] text-slate-600 hover:border-slate-300'
+                                                        : 'bg-[#F8FAFC] border-[#E6E8EC] text-slate-600 hover:border-slate-300'
                                                     }
                                                 `}
                                             >
-                                                <Icon size={18} className={isSelected ? 'text-[#14B8A6] shrink-0' : 'text-slate-400 shrink-0'} />
-                                                <div className="flex-1 min-w-0 flex items-center flex-wrap gap-x-1.5">
-                                                    <span className="text-sm font-semibold text-inherit truncate">{cat.label[localeKey as keyof typeof cat.label]}</span>
-                                                    {isPrimary && <span className="text-[10px] bg-[#14B8A6] text-white px-1.5 py-0.5 rounded font-bold whitespace-nowrap">{t('badgePrimary')}</span>}
-                                                    {isAdditional && <span className="text-[10px] bg-[rgba(20,184,166,0.12)] text-[#0F766E] border border-[#14B8A6]/30 px-1.5 py-0.5 rounded whitespace-nowrap">{t('badgeAdditional')}</span>}
-                                                </div>
+                                                <Icon size={18} className={isPrimary ? 'text-[#14B8A6] shrink-0' : 'text-slate-400 shrink-0'} />
+                                                <span className="text-sm font-semibold text-inherit truncate">
+                                                    {cat.label[localeKey as keyof typeof cat.label]}
+                                                </span>
+                                                {isPrimary && (
+                                                    <span className="ml-auto text-[10px] bg-[#14B8A6] text-white px-1.5 py-0.5 rounded font-bold whitespace-nowrap">
+                                                        {t('badgePrimary')}
+                                                    </span>
+                                                )}
                                             </button>
                                         );
                                     })}
                                 </div>
                             </div>
 
-                            {/* 2. Subcategory Selection */}
+                            {/* 2. Specialty Picker — subcategories + specific services */}
                             {formData.category && (
                                 <div className="animate-in fade-in slide-in-from-top-2">
-                                    <label className="block text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-2">{t('mainSpecialty')}</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {Object.values(TAXONOMY).find(c => c.id === formData.category)?.subcategories.map(sub => {
-                                            const isSelected = formData.subcategory === sub.id;
-
-                                            // Icon Logic
-                                            let SubIcon = Tag;
-                                            if (['photography', 'camera'].some(k => sub.id.includes(k))) SubIcon = Camera;
-                                            if (sub.id === 'videography') SubIcon = MonitorPlay;
-                                            if (sub.id === 'music') SubIcon = Music;
-                                            if (sub.id === 'hair') SubIcon = Scissors;
-                                            if (sub.id === 'self_defense') SubIcon = Shield;
-                                            if (['electrical', 'electric'].some(k => sub.id.includes(k))) SubIcon = Zap;
-                                            if (['plumbing', 'water'].some(k => sub.id.includes(k))) SubIcon = Droplets;
-                                            if (sub.id === 'painting') SubIcon = PaintBucket;
-                                            if (sub.id === 'moving') SubIcon = Truck;
-                                            if (sub.id === 'locksmith') SubIcon = Key;
-                                            if (sub.id.includes('mechanic')) SubIcon = Car;
-                                            if (sub.id === 'moto_mechanic') SubIcon = Bike;
-                                            if (sub.id === 'gardening') SubIcon = Leaf;
-                                            if (['nails', 'massage', 'skincare'].some(k => sub.id.includes(k))) SubIcon = Sparkles;
-
-                                            return (
-                                                <button
-                                                    key={sub.id}
-                                                    onClick={() => setFormData({
-                                                        ...formData,
-                                                        subcategory: sub.id,
-                                                        specialties: []
-                                                    })}
-                                                    className={`
-                                                        flex items-start gap-2 p-2.5 min-h-[44px] rounded-lg border text-left transition-all
-                                                        ${isSelected
-                                                            ? 'bg-[rgba(20,184,166,0.10)] border-[#14B8A6] text-[#0F766E]'
-                                                            : 'bg-[#F4F6F8] border-[#E6E8EC] text-slate-500 hover:border-slate-300 hover:text-slate-700'
-                                                        }
-                                                    `}
-                                                >
-                                                    <SubIcon size={14} className={`mt-0.5 shrink-0 ${isSelected ? 'text-[#14B8A6]' : 'text-slate-400'}`} />
-                                                    <span className="text-xs font-semibold leading-tight break-words">{sub.label[localeKey as keyof typeof sub.label]}</span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* 3. Specialties Selection */}
-                            {formData.subcategory && (
-                                <div className="animate-in fade-in slide-in-from-top-2">
-                                    <label className="block text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-2">{t('specificServices')}</label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {(() => {
-                                            const categoryData = Object.values(TAXONOMY).find(c => c.id === formData.category);
-                                            const subData = categoryData?.subcategories.find(s => s.id === formData.subcategory);
-                                            const rawSpecialties = subData?.specialties || [];
-                                            const availableSpecialties = rawSpecialties.map(s =>
-                                                typeof s === 'string' ? { es: s, en: s, pt: s } : s as any
-                                            );
-
-                                            if (availableSpecialties.length === 0) return <p className="text-xs text-slate-500 italic">{t('noOptions')}</p>;
-
-                                            return availableSpecialties.map(spec => {
-                                                const specKey = spec.es;
-                                                const specLabel = spec[localeKey as keyof typeof spec] ?? spec.es;
-                                                const isSelected = formData.specialties?.includes(specKey);
-                                                return (
-                                                    <button
-                                                        key={specKey}
-                                                        onClick={() => {
-                                                            const current = formData.specialties || [];
-                                                            if (isSelected) {
-                                                                setFormData({ ...formData, specialties: current.filter(t => t !== specKey) });
-                                                            } else {
-                                                                if (current.length < 6) {
-                                                                    setFormData({ ...formData, specialties: [...current, specKey] });
-                                                                }
-                                                            }
-                                                        }}
-                                                        className={`
-                                                            text-xs px-2.5 py-1 rounded-full border transition-all flex items-center gap-1
-                                                            ${isSelected
-                                                                ? 'bg-[rgba(20,184,166,0.10)] border-[#14B8A6] text-[#0F766E] font-semibold'
-                                                                : 'bg-transparent border-[#E6E8EC] text-slate-500 hover:border-slate-300 hover:text-slate-700'
-                                                            }
-                                                        `}
-                                                    >
-                                                        {isSelected && <Check size={10} />}
-                                                        {specLabel}
-                                                    </button>
-                                                );
-                                            });
-                                        })()}
-                                    </div>
+                                    <label className="block text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-1">{t('mainSpecialty')}</label>
+                                    <p className="text-[11px] text-slate-400 mb-3">Selecciona hasta 3 especialidades</p>
+                                    <SpecialtyPicker
+                                        categoryId={formData.category}
+                                        selectedSubcategories={(formData as any).subcategories || (formData.subcategory ? [formData.subcategory] : [])}
+                                        specialtiesBySubcategory={(formData as any).specialtiesBySubcategory || {}}
+                                        onChange={(newSubs, newSpecMap) => {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                subcategories: newSubs,
+                                                subcategory: newSubs[0] || '',
+                                                specialtiesBySubcategory: newSpecMap,
+                                                specialties: Object.values(newSpecMap).flat(),
+                                            } as any));
+                                        }}
+                                        maxSubcategories={3}
+                                    />
                                 </div>
                             )}
                         </div>

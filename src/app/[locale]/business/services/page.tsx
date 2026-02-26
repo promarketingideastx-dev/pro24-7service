@@ -61,6 +61,9 @@ export default function ServicesPage() {
 
     // Business specialties — loaded once
     const [businessSpecialties, setBusinessSpecialties] = useState<string[]>([]);
+    // NEW: map of subcategoryId → specific services for grouped display
+    const [specialtiesBySubcategory, setSpecialtiesBySubcategory] = useState<Record<string, string[]>>({});
+    const [businessCategory, setBusinessCategory] = useState<string>('');
 
     const defaultForm = (): ServiceData => ({
         name: '',
@@ -93,8 +96,17 @@ export default function ServicesPage() {
         fetchServices();
         // Load business specialties for suggestions
         BusinessProfileService.getProfile(user.uid).then(profile => {
-            if (profile?.specialties?.length) {
-                setBusinessSpecialties(profile.specialties);
+            if (profile) {
+                setBusinessCategory(profile.category || '');
+                const specMap = (profile as any).specialtiesBySubcategory as Record<string, string[]> | undefined;
+                if (specMap && Object.keys(specMap).length > 0) {
+                    setSpecialtiesBySubcategory(specMap);
+                    // Also populate flat list for legacy code
+                    setBusinessSpecialties(Object.values(specMap).flat());
+                } else if (profile.specialties?.length) {
+                    // Fallback to flat specialties if no map exists
+                    setBusinessSpecialties(profile.specialties);
+                }
             }
         }).catch(() => { });
     }, [user]);
@@ -374,58 +386,105 @@ export default function ServicesPage() {
                                 />
                             </div>
 
-                            {/* Specialty Suggestions */}
-                            {businessSpecialties.length > 0 && !editingId && (
-                                <div>
-                                    <label className="block text-xs font-semibold text-slate-400 uppercase mb-2 flex items-center gap-1.5">
-                                        <Sparkles size={12} /> {t('yourSpecialties')}
-                                    </label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {businessSpecialties.map(spec => (
-                                            <button
-                                                key={spec}
-                                                type="button"
-                                                onClick={() => setFormData(prev => {
-                                                    // Auto-fill all 3 names from taxonomy
-                                                    const nameEs = spec;
-                                                    const nameEn = (() => {
-                                                        for (const cat of Object.values(TAXONOMY)) {
-                                                            for (const sub of cat.subcategories) {
-                                                                const found = sub.specialties.find(s => s.es === spec);
-                                                                if (found) return found.en;
-                                                            }
-                                                        }
-                                                        return spec;
-                                                    })();
-                                                    const namePt = (() => {
-                                                        for (const cat of Object.values(TAXONOMY)) {
-                                                            for (const sub of cat.subcategories) {
-                                                                const found = sub.specialties.find(s => s.es === spec);
-                                                                if (found) return found.pt;
-                                                            }
-                                                        }
-                                                        return spec;
-                                                    })();
-                                                    return {
-                                                        ...prev,
-                                                        name: nameEs,
-                                                        nameI18n: { es: nameEs, en: nameEn, pt: namePt },
-                                                        category: spec,
-                                                    };
-                                                })}
-                                                className={`text-xs px-3 py-1.5 rounded-full border transition-all
-                                                    ${formData.category === spec
-                                                        ? 'bg-[rgba(20,184,166,0.12)] border-[#14B8A6] text-[#0F766E]'
-                                                        : 'border-[#E6E8EC] text-slate-600 hover:border-slate-300 hover:text-slate-800'
-                                                    }`}
-                                            >
-                                                {formData.category === spec && <Check size={10} className="inline mr-1" />}
-                                                {getSpecLabel(spec)}
-                                            </button>
-                                        ))}
+                            {/* Specialty Suggestions — grouped by subcategory if available */}
+                            {!editingId && (
+                                Object.keys(specialtiesBySubcategory).length > 0 ? (
+                                    <div>
+                                        <label className="block text-xs font-semibold text-slate-400 uppercase mb-2 flex items-center gap-1.5">
+                                            <Sparkles size={12} /> {t('yourSpecialties')}
+                                        </label>
+                                        <div className="space-y-3">
+                                            {Object.entries(specialtiesBySubcategory).map(([subId, specs]) => {
+                                                if (!specs.length) return null;
+                                                // Find subcategory label from taxonomy
+                                                let subLabel = subId;
+                                                for (const cat of Object.values(TAXONOMY)) {
+                                                    const found = cat.subcategories.find(s => s.id === subId);
+                                                    if (found) { subLabel = found.label[localeKey as keyof typeof found.label] as string || subId; break; }
+                                                }
+                                                return (
+                                                    <div key={subId}>
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-1.5">{subLabel}</p>
+                                                        <div className="flex flex-wrap gap-1.5">
+                                                            {specs.map(spec => (
+                                                                <button
+                                                                    key={spec}
+                                                                    type="button"
+                                                                    onClick={() => setFormData(prev => {
+                                                                        const nameEs = spec;
+                                                                        let nameEn = spec, namePt = spec;
+                                                                        for (const cat of Object.values(TAXONOMY)) {
+                                                                            for (const sub of cat.subcategories) {
+                                                                                const found = sub.specialties.find(s => s.es === spec);
+                                                                                if (found) { nameEn = found.en; namePt = found.pt; break; }
+                                                                            }
+                                                                        }
+                                                                        return { ...prev, name: nameEs, nameI18n: { es: nameEs, en: nameEn, pt: namePt }, category: spec };
+                                                                    })}
+                                                                    className={`text-xs px-2.5 py-1.5 rounded-full border transition-all
+                                                                        ${formData.category === spec
+                                                                            ? 'bg-[rgba(20,184,166,0.12)] border-[#14B8A6] text-[#0F766E]'
+                                                                            : 'border-[#E6E8EC] text-slate-600 hover:border-slate-300 hover:text-slate-800'
+                                                                        }`}
+                                                                >
+                                                                    {formData.category === spec && <Check size={10} className="inline mr-1" />}
+                                                                    {getSpecLabel(spec)}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                        <p className="text-xs text-slate-600 mt-1.5">{t('tapToUseName')}</p>
                                     </div>
-                                    <p className="text-xs text-slate-600 mt-1.5">{t('tapToUseName')}</p>
-                                </div>
+                                ) : businessSpecialties.length > 0 ? (
+                                    // Fallback: flat list (legacy)
+                                    <div>
+                                        <label className="block text-xs font-semibold text-slate-400 uppercase mb-2 flex items-center gap-1.5">
+                                            <Sparkles size={12} /> {t('yourSpecialties')}
+                                        </label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {businessSpecialties.map(spec => (
+                                                <button
+                                                    key={spec}
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => {
+                                                        const nameEs = spec;
+                                                        const nameEn = (() => {
+                                                            for (const cat of Object.values(TAXONOMY)) {
+                                                                for (const sub of cat.subcategories) {
+                                                                    const found = sub.specialties.find(s => s.es === spec);
+                                                                    if (found) return found.en;
+                                                                }
+                                                            }
+                                                            return spec;
+                                                        })();
+                                                        const namePt = (() => {
+                                                            for (const cat of Object.values(TAXONOMY)) {
+                                                                for (const sub of cat.subcategories) {
+                                                                    const found = sub.specialties.find(s => s.es === spec);
+                                                                    if (found) return found.pt;
+                                                                }
+                                                            }
+                                                            return spec;
+                                                        })();
+                                                        return { ...prev, name: nameEs, nameI18n: { es: nameEs, en: nameEn, pt: namePt }, category: spec };
+                                                    })}
+                                                    className={`text-xs px-3 py-1.5 rounded-full border transition-all
+                                                        ${formData.category === spec
+                                                            ? 'bg-[rgba(20,184,166,0.12)] border-[#14B8A6] text-[#0F766E]'
+                                                            : 'border-[#E6E8EC] text-slate-600 hover:border-slate-300 hover:text-slate-800'
+                                                        }`}
+                                                >
+                                                    {formData.category === spec && <Check size={10} className="inline mr-1" />}
+                                                    {getSpecLabel(spec)}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <p className="text-xs text-slate-600 mt-1.5">{t('tapToUseName')}</p>
+                                    </div>
+                                ) : null
                             )}
 
                             {/* Name — 3 language inputs */}

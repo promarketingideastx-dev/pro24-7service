@@ -97,18 +97,24 @@ export interface BusinessProfileData {
     businessName: string;
     description: string;
     category: string;
+    // Legacy: single subcategory (kept for backward-compat with existing DB docs)
     subcategory: string;
+    // Legacy: flat specialties array (kept for backward-compat)
     specialties: string[];
-    additionalCategories?: string[]; // New: Multi-select areas
-    additionalSpecialties?: string[]; // New: Multi-select specialties
+    // NEW: up to 3 subcategories within the main category
+    subcategories?: string[];
+    // NEW: map of subcategoryId → array of selected specific service names (es)
+    specialtiesBySubcategory?: Record<string, string[]>;
+    additionalCategories?: string[];
+    additionalSpecialties?: string[];
     modality: 'home' | 'local' | 'both';
     address?: string;
     city?: string;
-    department: string; // Added Department
+    department: string;
     country?: string;
     images: string[];
-    coverImage?: string; // New: Header image
-    logoUrl?: string; // New: Avatar/Logo
+    coverImage?: string;
+    logoUrl?: string;
     userId: string;
     email: string;
     phone?: string;
@@ -408,29 +414,36 @@ export const BusinessProfileService = {
         const batch = writeBatch(db);
 
         try {
+            // Build a flat tags array from all specialties across all subcategories
+            const allTags = data.subcategories && data.specialtiesBySubcategory
+                ? Object.values(data.specialtiesBySubcategory).flat()
+                : (data.specialties || []);
+
             // 2. Prepare Public Payload (Safe for everyone)
             const publicPayload = {
                 id: userId,
                 name: data.businessName,
-                category: data.category, // Primary
-                subcategory: data.subcategory, // Primary
-                additionalCategories: data.additionalCategories || [], // New
-                additionalSpecialties: data.additionalSpecialties || [], // New
+                category: data.category,
+                subcategory: data.subcategory || (data.subcategories?.[0] ?? ''),
+                subcategories: data.subcategories || (data.subcategory ? [data.subcategory] : []),
+                specialtiesBySubcategory: data.specialtiesBySubcategory || {},
+                additionalCategories: data.additionalCategories || [],
+                additionalSpecialties: data.additionalSpecialties || [],
                 city: data.city || '',
                 department: data.department || '',
                 country: data.country || 'HN',
-                tags: data.specialties || [], // Primary Specialties
-                rating: 5.0, // Initial boost
+                tags: allTags,
+                rating: 5.0,
                 reviewCount: 0,
-                coverImage: data.images[0] || null, // First image as cover
+                coverImage: data.images[0] || null,
                 shortDescription: data.description.substring(0, 150),
-                website: data.website || '', // Added website
-                phone: data.phone || '', // Public phone for contact
+                website: data.website || '',
+                phone: data.phone || '',
                 socialMedia: data.socialMedia || { instagram: '', facebook: '', tiktok: '' },
                 location: await geocodeAddress(data.city, data.department, data.country, data.address),
                 modality: data.modality,
                 status: 'active',
-                openingHours: data.openingHours || null, // Shared
+                openingHours: data.openingHours || null,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp()
             };
@@ -604,7 +617,9 @@ export const BusinessProfileService = {
                 userId,
                 businessName: publicData.name,
                 category: publicData.category,
-                subcategory: publicData.subcategory,
+                subcategory: publicData.subcategory || (publicData.subcategories?.[0] ?? ''),
+                subcategories: publicData.subcategories || (publicData.subcategory ? [publicData.subcategory] : []),
+                specialtiesBySubcategory: publicData.specialtiesBySubcategory || {},
                 additionalCategories: publicData.additionalCategories || [],
                 additionalSpecialties: publicData.additionalSpecialties || [],
                 specialties: publicData.tags || [],
@@ -612,7 +627,7 @@ export const BusinessProfileService = {
                 department: publicData.department,
                 country: publicData.country,
                 modality: publicData.modality,
-                description: privateData.fullDescription || publicData.shortDescription, // Prefer full
+                description: privateData.fullDescription || publicData.shortDescription,
                 phone: privateData.phone || '',
                 email: privateData.email || '',
                 address: privateData.address || '',
@@ -644,10 +659,23 @@ export const BusinessProfileService = {
 
         if (data.businessName) publicUpdate.name = data.businessName;
         if (data.category) publicUpdate.category = data.category;
-        if (data.subcategory) publicUpdate.subcategory = data.subcategory;
+        if (data.subcategories !== undefined) {
+            publicUpdate.subcategories = data.subcategories;
+            // Keep legacy field in sync with first subcategory
+            publicUpdate.subcategory = data.subcategories[0] || '';
+        } else if (data.subcategory) {
+            publicUpdate.subcategory = data.subcategory;
+            publicUpdate.subcategories = [data.subcategory];
+        }
+        if (data.specialtiesBySubcategory !== undefined) {
+            publicUpdate.specialtiesBySubcategory = data.specialtiesBySubcategory;
+            // Rebuild flat tags from all subcategory specialties
+            publicUpdate.tags = Object.values(data.specialtiesBySubcategory).flat();
+        } else if (data.specialties) {
+            publicUpdate.tags = data.specialties;
+        }
         if (data.additionalCategories) publicUpdate.additionalCategories = data.additionalCategories;
         if (data.additionalSpecialties) publicUpdate.additionalSpecialties = data.additionalSpecialties;
-        if (data.specialties) publicUpdate.tags = data.specialties;
         if (data.city) publicUpdate.city = data.city;
         if (data.department) publicUpdate.department = data.department;
         if (data.country) publicUpdate.country = data.country;
