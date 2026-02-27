@@ -361,8 +361,8 @@ export default function MapWidget({
     const countryFromRegistry = countryCode ? COUNTRIES[countryCode as CountryCode] : null;
     const resolvedCoords = countryCoordinates ?? countryFromRegistry?.coordinates;
 
-    // Initial zoom: use country zoom directly (not derived), so the country is fully visible
-    const startZoom = resolvedCoords?.zoom ?? 6;
+    // Initial zoom: -1 vs country value so more area is visible at a glance
+    const startZoom = Math.max(3, (resolvedCoords?.zoom ?? 6) - 1);
     const defaultPosition: [number, number] = resolvedCoords
         ? [resolvedCoords.lat, resolvedCoords.lng]
         : [14.0818, -87.2068]; // Only absolute last resort: HN center (not capital)
