@@ -417,7 +417,7 @@ export default function BusinessProfilePage() {
                                         <select
                                             value={formData.department || ''}
                                             onChange={e => setFormData({ ...formData, department: e.target.value })}
-                                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-slate-900 focus:border-brand-neon-cyan focus:outline-none"
                                         >
                                             <option value="">-- Seleccionar departamento --</option>
                                             <option>Atlántida</option>
@@ -445,7 +445,7 @@ export default function BusinessProfilePage() {
                                             value={formData.department || ''}
                                             onChange={e => setFormData({ ...formData, department: e.target.value })}
                                             placeholder="Estado / Provincia"
-                                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-slate-900 focus:border-brand-neon-cyan focus:outline-none"
                                         />
                                     )}
                                 </div>
@@ -458,7 +458,7 @@ export default function BusinessProfilePage() {
                                         value={formData.city || ''}
                                         onChange={e => setFormData({ ...formData, city: e.target.value })}
                                         placeholder="Ej: San Pedro Sula"
-                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-slate-900 focus:border-brand-neon-cyan focus:outline-none"
                                     />
                                 </div>
                             </div>
