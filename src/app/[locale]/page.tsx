@@ -8,25 +8,14 @@ import { TAXONOMY } from '@/lib/taxonomy';
 import { matchesSearch, findSuggestion } from '@/lib/searchUtils';
 import { useCountry } from '@/context/CountryContext';
 import CountrySelector from '@/components/ui/CountrySelector';
-import dynamic from 'next/dynamic';
+import HeroCarousel from '@/components/ui/HeroCarousel';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-// import AuthGateModal from '@/components/ui/AuthGateModal'; // Kept for reference but unused
 import PublicBusinessPreviewModal from '@/components/ui/PublicBusinessPreviewModal';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import ShareAppModal from '@/components/ui/ShareAppModal';
 import SearchAutocomplete from '@/components/ui/SearchAutocomplete';
-
-const MapLoader = () => {
-    const t = useTranslations('home');
-    return <div className="h-full w-full bg-slate-900 animate-pulse rounded-3xl flex items-center justify-center text-slate-500">{t('loadingMap')}</div>;
-};
-
-const DynamicMap = dynamic(() => import('@/components/ui/MapWidget'), {
-    ssr: false,
-    loading: () => <MapLoader />,
-});
 
 export default function Home() {
     const [showShare, setShowShare] = useState(false);
@@ -426,56 +415,40 @@ export default function Home() {
                         </div>
                     </div>
 
-                    {/* Map Widget — locked on mobile/collapsed, interactive on desktop/expanded */}
-                    <div
-                        className="shrink-0 mx-6 mb-2 rounded-3xl overflow-hidden border border-slate-200 shadow-2xl isolate relative transition-all duration-500 ease-in-out"
-                        style={{ height: mapExpanded ? 'min(38vh, 420px)' : '130px' }}
-                    >
-                        <DynamicMap
-                            businesses={filteredBusinesses}
-                            selectedBusiness={mapExpanded ? selectedBusiness : null}
-                            onBusinessSelect={handleBusinessClick}
-                            onNavigate={handleNavigate}
-                            isAuthenticated={!!user}
-                            countryCoordinates={selectedCountry?.coordinates}
-                            countryCode={selectedCountry?.code}
-                            expanded={mapExpanded}
-                            locked={!mapExpanded}
+                    {/* Hero Carousel — replaces map */}
+                    <div className="shrink-0 mx-6 mb-3 rounded-3xl overflow-hidden border border-slate-200 shadow-xl" style={{ height: '200px' }}>
+                        <HeroCarousel
+                            slides={[
+                                {
+                                    image: '/carousel/servicios.png',
+                                    category: t('cat_generalServices'),
+                                    title: 'Tu problema resuelto hoy',
+                                    subtitle: 'Plomeros, electricistas y más — disponibles ahora',
+                                    ctaLabel: 'Ver Servicios',
+                                    categoryId: 'general_services',
+                                    color: '#2563EB',
+                                },
+                                {
+                                    image: '/carousel/belleza.png',
+                                    category: t('cat_beautyWellness'),
+                                    title: 'Date el cuidado que mereces',
+                                    subtitle: 'Estilistas, spas y más — para ti',
+                                    ctaLabel: 'Ver Belleza',
+                                    categoryId: 'beauty_wellness',
+                                    color: '#DB2777',
+                                },
+                                {
+                                    image: '/carousel/arte.png',
+                                    category: t('cat_artDesign'),
+                                    title: 'Crea algo memorable',
+                                    subtitle: 'Fotógrafos, videógrafos y creativos — aquí',
+                                    ctaLabel: 'Ver Arte',
+                                    categoryId: 'art_design',
+                                    color: '#7C3AED',
+                                },
+                            ]}
+                            onCategoryClick={(catId) => setSelectedCategory(catId)}
                         />
-
-                        {/* Mini business card — tap pin → shows card; tap card → hides it */}
-                        {!mapExpanded && selectedBusiness && (
-                            <div
-                                className="absolute bottom-11 left-3 right-3 z-[1002] flex items-center gap-3 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200 p-3 animate-in slide-in-from-bottom-2 duration-200"
-                                onClick={() => setSelectedBusiness(null)}
-                            >
-                                {(selectedBusiness as any).logoUrl ? (
-                                    <img src={(selectedBusiness as any).logoUrl} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0 border border-slate-100" />
-                                ) : (
-                                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-lg shrink-0">
-                                        {selectedBusiness.icon}
-                                    </div>
-                                )}
-                                <div className="flex-1 min-w-0">
-                                    <p className="font-bold text-sm text-slate-900 truncate leading-tight">{selectedBusiness.name}</p>
-                                    <p className="text-xs text-slate-400 truncate">{selectedBusiness.subcategory}</p>
-                                </div>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); handleNavigate(selectedBusiness); }}
-                                    className="shrink-0 bg-slate-900 hover:bg-slate-700 text-white text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
-                                >
-                                    Ver →
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Expand button — desktop only (md:) — mobile sees locked static map */}
-                        <button
-                            onClick={() => { setMapExpanded(v => !v); }}
-                            className="absolute bottom-3 right-3 z-[1003] hidden md:flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg border border-slate-200 text-xs font-bold text-slate-700 hover:bg-white transition-all"
-                        >
-                            {mapExpanded ? <><span>↑</span> Minimizar</> : <><span>↓</span> Expandir</>}
-                        </button>
                     </div>
 
                     {/* Featured Pros List (Scrollable Fill) */}
