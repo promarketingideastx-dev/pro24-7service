@@ -403,7 +403,7 @@ export default function Home() {
                                     className="flex flex-col items-center gap-1 sm:gap-2 cursor-pointer group"
                                 >
                                     <div className={`
-                     w-11 h-11 sm:w-[66px] sm:h-[66px] md:w-[80px] md:h-[80px] rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-3xl md:text-4xl
+                     w-9 h-9 sm:w-[52px] sm:h-[52px] md:w-[64px] md:h-[64px] rounded-xl sm:rounded-2xl flex items-center justify-center text-lg sm:text-2xl md:text-3xl
                      ${cat.bg} border ${cat.border}
                      shadow-sm
                      group-hover:scale-110 group-active:scale-95 transition-transform duration-200
@@ -790,7 +790,7 @@ export default function Home() {
                                 >
                                     {/* Colored left accent bar */}
                                     <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl" style={{ backgroundColor: catColor.border }} />
-                                    <div className="w-12 h-12 rounded-xl mr-3 ml-2 shrink-0 flex items-center justify-center text-xl relative overflow-hidden" style={{ backgroundColor: catColor.avatar }}>
+                                    <div className="w-16 h-16 rounded-xl mr-3 ml-2 shrink-0 flex items-center justify-center text-2xl relative overflow-hidden" style={{ backgroundColor: catColor.avatar }}>
                                         <div className="absolute inset-0 bg-gradient-to-br from-slate-200/50 to-transparent" />
                                         {(biz as any).logoUrl ? (
                                             <img
@@ -825,7 +825,7 @@ export default function Home() {
                                             {t('viewBtn')}
                                         </div>
                                         {/* Double-tap hint: always visible on mobile */}
-                                        <div className="flex md:hidden items-center gap-0.5 text-[9px] font-bold whitespace-nowrap" style={{ color: catColor.text }}>
+                                        <div className="flex md:hidden items-center gap-1 text-base font-bold whitespace-nowrap" style={{ color: catColor.text }}>
                                             <span>👆👆</span>
                                             <span>ver perfil</span>
                                         </div>
