@@ -116,7 +116,24 @@ export const TAXONOMY = {
                     { es: 'Yoga', en: 'Yoga', pt: 'Yoga' },
                     { es: 'Defensa personal para mujeres', en: 'Self Defense for Women', pt: 'Defesa pessoal para mulheres' },
                 ]
+            },
+            {
+                id: 'digital_marketing',
+                label: { es: 'Marketing Digital', en: 'Digital Marketing', pt: 'Marketing Digital' },
+                specialties: [
+                    { es: 'Desarrollo de apps móviles', en: 'Mobile App Development', pt: 'Desenvolvimento de apps móveis' },
+                    { es: 'Desarrollo de sitios web', en: 'Website Development', pt: 'Desenvolvimento de sites' },
+                    { es: 'Gestión de redes sociales', en: 'Social Media Management', pt: 'Gestão de redes sociais' },
+                    { es: 'Publicidad pagada (Meta Ads / Google Ads)', en: 'Paid Advertising (Meta Ads / Google Ads)', pt: 'Publicidade paga (Meta Ads / Google Ads)' },
+                    { es: 'SEO / Posicionamiento web', en: 'SEO / Search Engine Optimization', pt: 'SEO / Posicionamento na web' },
+                    { es: 'Email marketing y automatizaciones', en: 'Email Marketing & Automations', pt: 'E-mail marketing e automações' },
+                    { es: 'Estrategia de contenido', en: 'Content Strategy', pt: 'Estratégia de conteúdo' },
+                    { es: 'Análisis y métricas (reportes digitales)', en: 'Analytics & Metrics (digital reports)', pt: 'Análise e métricas (relatórios digitais)' },
+                    { es: 'Diseño y optimización de landing pages', en: 'Landing Page Design & Optimization', pt: 'Design e otimização de landing pages' },
+                    { es: 'Branding digital / identidad de marca online', en: 'Digital Branding / Online Brand Identity', pt: 'Branding digital / identidade de marca online' },
+                ]
             }
+
         ]
     },
 
