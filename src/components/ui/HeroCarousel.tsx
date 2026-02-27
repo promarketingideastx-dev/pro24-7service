@@ -88,31 +88,15 @@ export default function HeroCarousel({ slides, onCategoryClick, autoplayMs = 400
                 </div>
             ))}
 
-            {/* Content overlay */}
+            {/* Content overlay — only category badge */}
             <div className="absolute inset-0 z-10 flex flex-col justify-end pb-4 pl-5 pr-4">
                 {/* Category badge */}
                 <span
-                    className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full mb-1.5 self-start"
+                    className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full self-start"
                     style={{ background: slide.color, color: '#fff', opacity: 0.92 }}
                 >
                     {slide.category}
                 </span>
-
-                {/* Title */}
-                <h2 className="text-white font-black text-base sm:text-lg leading-tight drop-shadow mb-0.5">
-                    {slide.title}
-                </h2>
-                <p className="text-white/70 text-xs mb-3 leading-tight">
-                    {slide.subtitle}
-                </p>
-
-                {/* CTA */}
-                <button
-                    onClick={() => onCategoryClick?.(slide.categoryId)}
-                    className="self-start text-xs font-bold text-white bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 px-4 py-1.5 rounded-full transition-all"
-                >
-                    {slide.ctaLabel} →
-                </button>
             </div>
 
             {/* Dot indicators — bottom-right */}
