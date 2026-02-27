@@ -433,7 +433,6 @@ export default function Home() {
                     >
                         {/* key forces fresh mount (country-level zoom) when toggling */}
                         <DynamicMap
-                            key={mapExpanded ? 'expanded' : 'collapsed'}
                             businesses={filteredBusinesses}
                             selectedBusiness={mapExpanded ? selectedBusiness : null}
                             onBusinessSelect={handleBusinessClick}
@@ -441,6 +440,7 @@ export default function Home() {
                             isAuthenticated={!!user}
                             countryCoordinates={selectedCountry?.coordinates}
                             countryCode={selectedCountry?.code}
+                            expanded={mapExpanded}
                         />
 
                         {/* Gesture Lock Overlay (mobile only) */}

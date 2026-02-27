@@ -47,6 +47,18 @@ interface MapWidgetProps {
     isAuthenticated?: boolean;
     countryCoordinates?: { lat: number; lng: number; zoom: number };
     countryCode?: string;
+    expanded?: boolean; // triggers invalidateSize after CSS transition
+}
+
+// ── MapResizer: calls invalidateSize after container CSS transition ends ──────
+function MapResizer({ expanded }: { expanded?: boolean }) {
+    const map = useMap();
+    useEffect(() => {
+        // 560ms > 500ms transition — ensures tiles fill the new container
+        const timer = setTimeout(() => map.invalidateSize(), 560);
+        return () => clearTimeout(timer);
+    }, [expanded, map]);
+    return null;
 }
 
 function MapUpdater({ businesses, selectedBusiness, countryCoordinates, countryCode }: {
@@ -330,7 +342,8 @@ export default function MapWidget({
     onNavigate,
     isAuthenticated = false,
     countryCoordinates,
-    countryCode
+    countryCode,
+    expanded,
 }: MapWidgetProps) {
     const [isMounted, setIsMounted] = useState(false);
     const t = useTranslations('map');
@@ -369,6 +382,7 @@ export default function MapWidget({
             {/* Country borders overlay */}
             <CountryBordersLayer />
             <TapToZoom />
+            <MapResizer expanded={expanded} />
             <MapUpdater businesses={businesses} selectedBusiness={selectedBusiness} countryCoordinates={countryCoordinates} countryCode={countryCode} />
 
             <ClusterLayer
