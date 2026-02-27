@@ -215,7 +215,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                         {/* Owner Actions */}
                         {isOwner && (
                             <button
-                                onClick={() => router.push('/business/dashboard')}
+                                onClick={() => router.push(`/${locale}/business/dashboard`)}
                                 className="px-3 py-1.5 rounded-full bg-[rgba(20,184,166,0.15)] border border-[#14B8A6]/50 text-[#0F766E] text-xs font-bold backdrop-blur-md hover:bg-[rgba(20,184,166,0.25)]"
                             >
                                 Editar Perfil
