@@ -643,56 +643,67 @@ export default function Home() {
 
                     {/* Featured Pros List (Scrollable Fill) */}
                     <div className="flex-1 overflow-y-auto px-6 pb-24 space-y-3 custom-scrollbar">
-                        {filteredBusinesses.map((biz) => (
-                            <div
-                                key={biz.id}
-                                onClick={() => handleBusinessClick(biz)}
-                                className={`flex items-center p-3 bg-white border rounded-2xl transition-all cursor-pointer group
-                                ${selectedBusiness?.id === biz.id ? 'border-[#14B8A6] shadow-[0_0_0_2px_rgba(20,184,166,0.15)]' : 'border-[#E6E8EC] hover:border-[#14B8A6]/40 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]'}
+                        {filteredBusinesses.map((biz) => {
+                            // Category theme color
+                            const catColor =
+                                biz.category === 'beauty_wellness' ? { border: '#DB2777', bg: '#FDF2F8', avatar: '#FCE7F3', text: '#9D174D' } :
+                                    biz.category === 'art_design' ? { border: '#7C3AED', bg: '#F5F3FF', avatar: '#EDE9FE', text: '#5B21B6' } :
+                                        biz.category === 'general_services' ? { border: '#2563EB', bg: '#EFF6FF', avatar: '#DBEAFE', text: '#1E40AF' } :
+                                            { border: '#14B8A6', bg: '#F0FDFA', avatar: '#CCFBF1', text: '#0F766E' };
+                            return (
+                                <div
+                                    key={biz.id}
+                                    onClick={() => handleBusinessClick(biz)}
+                                    style={{ borderColor: selectedBusiness?.id === biz.id ? catColor.border : undefined, backgroundColor: catColor.bg }}
+                                    className={`flex items-center p-3 border rounded-2xl transition-all cursor-pointer group overflow-hidden relative
+                                ${selectedBusiness?.id === biz.id ? 'shadow-[0_0_0_2px_rgba(20,184,166,0.15)]' : 'border-[#E6E8EC] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]'}
                             `}
-                            >
-                                <div className="w-12 h-12 rounded-xl bg-slate-100 mr-3 shrink-0 flex items-center justify-center text-xl relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-slate-200/50 to-transparent" />
-                                    {(biz as any).logoUrl ? (
-                                        <img
-                                            src={(biz as any).logoUrl}
-                                            alt={biz.name}
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                                        />
-                                    ) : (
-                                        typeof biz.icon === 'string' ? biz.icon : <Zap className="w-5 h-5 text-slate-600" />
-                                    )}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="font-bold text-slate-900 text-sm truncate">{biz.name}</h3>
-                                    <p className="text-[10px] text-[#2563EB] font-semibold mb-0.5 truncate">
-                                        {(() => {
-                                            for (const group of Object.values(TAXONOMY)) {
-                                                const sub = group.subcategories.find(s => s.id === biz.subcategory);
-                                                if (sub) return sub.label[localeKey as keyof typeof sub.label] ?? sub.label.es;
-                                            }
-                                            return biz.subcategory;
-                                        })()}
-                                    </p>
-                                    <div className="flex items-center gap-1">
-                                        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                                        <span className="text-yellow-400 font-bold text-[10px]">5.0</span>
-                                        <span className="text-slate-500 text-[10px] truncate">(San Pedro Sula)</span>
+                                >
+                                    {/* Colored left accent bar */}
+                                    <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl" style={{ backgroundColor: catColor.border }} />
+                                    <div className="w-12 h-12 rounded-xl mr-3 ml-2 shrink-0 flex items-center justify-center text-xl relative overflow-hidden" style={{ backgroundColor: catColor.avatar }}>
+                                        <div className="absolute inset-0 bg-gradient-to-br from-slate-200/50 to-transparent" />
+                                        {(biz as any).logoUrl ? (
+                                            <img
+                                                src={(biz as any).logoUrl}
+                                                alt={biz.name}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                            />
+                                        ) : (
+                                            typeof biz.icon === 'string' ? biz.icon : <Zap className="w-5 h-5 text-slate-600" />
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="font-bold text-slate-900 text-sm truncate">{biz.name}</h3>
+                                        <p className="text-[10px] text-[#2563EB] font-semibold mb-0.5 truncate">
+                                            {(() => {
+                                                for (const group of Object.values(TAXONOMY)) {
+                                                    const sub = group.subcategories.find(s => s.id === biz.subcategory);
+                                                    if (sub) return sub.label[localeKey as keyof typeof sub.label] ?? sub.label.es;
+                                                }
+                                                return biz.subcategory;
+                                            })()}
+                                        </p>
+                                        <div className="flex items-center gap-1">
+                                            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                                            <span className="text-yellow-400 font-bold text-[10px]">5.0</span>
+                                            <span className="text-slate-500 text-[10px] truncate">(San Pedro Sula)</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-1.5 ml-2 shrink-0">
+                                        <div className="hidden group-hover:flex items-center px-2 py-1 bg-[rgba(20,184,166,0.10)] rounded-full text-[10px] text-[#0F766E] font-semibold whitespace-nowrap border border-[#14B8A6]/20">
+                                            {t('viewBtn')}
+                                        </div>
+                                        {/* Double-tap hint: always visible on mobile */}
+                                        <div className="flex md:hidden items-center gap-0.5 text-[9px] font-bold whitespace-nowrap" style={{ color: catColor.text }}>
+                                            <span>👆👆</span>
+                                            <span>ver perfil</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="flex flex-col items-end gap-1.5 ml-2 shrink-0">
-                                    <div className="hidden group-hover:flex items-center px-2 py-1 bg-[rgba(20,184,166,0.10)] rounded-full text-[10px] text-[#0F766E] font-semibold whitespace-nowrap border border-[#14B8A6]/20">
-                                        {t('viewBtn')}
-                                    </div>
-                                    {/* Double-tap hint: always visible on mobile */}
-                                    <div className="flex md:hidden items-center gap-0.5 text-[9px] text-slate-400 font-medium whitespace-nowrap">
-                                        <span>👆👆</span>
-                                        <span>ver perfil</span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                         {filteredBusinesses.length === 0 && searchTerm && (
                             <div className="flex flex-col items-center justify-center py-10 text-slate-500 text-sm animate-in fade-in zoom-in duration-300">
                                 <p>{t('noResultsFor', { term: searchTerm })}</p>
@@ -746,9 +757,9 @@ export default function Home() {
                                 {/* Scrollable Content */}
                                 <div className="overflow-y-auto p-4 space-y-4 custom-scrollbar">
                                     {selectedTaxonomy.subcategories.map((sub) => (
-                                        <div key={sub.id} className="bg-[#F8FAFC] rounded-2xl p-4 border border-slate-200 hover:border-slate-300 transition-colors">
-                                            <h3 className="text-base font-bold text-[#2563EB] mb-3 flex items-center gap-2">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]"></span>
+                                        <div key={sub.id} className="bg-white rounded-2xl p-4 border-2 border-slate-100 hover:border-slate-200 transition-colors shadow-sm">
+                                            <h3 className="text-base font-black text-[#1E3A8A] mb-3 flex items-center gap-2">
+                                                <span className="w-2 h-2 rounded-full bg-[#2563EB]"></span>
                                                 {sub.label[localeKey as keyof typeof sub.label]}
                                             </h3>
                                             <div className="flex flex-wrap gap-2">
@@ -759,10 +770,10 @@ export default function Home() {
                                                             setSearchTerm((spec as any).es);
                                                             setSelectedCategory(null);
                                                         }}
-                                                        className="flex items-center gap-1.5 bg-white border border-slate-200 shadow-sm rounded-xl px-3 py-2 text-[14px] text-slate-700 hover:bg-[rgba(20,184,166,0.06)] hover:border-[#14B8A6]/50 hover:text-[#0F766E] cursor-pointer transition-all group/item active:scale-95"
+                                                        className="flex items-center gap-1.5 bg-slate-50 border-2 border-slate-200 shadow-sm rounded-xl px-3 py-2 text-[13px] font-bold text-slate-800 hover:bg-[rgba(20,184,166,0.08)] hover:border-[#14B8A6]/60 hover:text-[#0F766E] cursor-pointer transition-all group/item active:scale-95"
                                                     >
                                                         <ChevronRight className="w-3 h-3 text-slate-400 group-hover/item:text-[#14B8A6] shrink-0 transition-colors" />
-                                                        <span>{(spec as any)[localeKey] ?? (spec as any).es}</span>
+                                                        <span className="font-bold">{(spec as any)[localeKey] ?? (spec as any).es}</span>
                                                     </button>
                                                 ))}
                                             </div>
