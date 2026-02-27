@@ -2,7 +2,7 @@
 // Handles: offline cache, app shell, static assets
 // FCM push messages are handled by /firebase-messaging-sw.js (separate SW)
 
-const CACHE_VERSION = 'pro247ya-v1';
+const CACHE_VERSION = 'pro247ya-v3';
 const ASSETS_TO_CACHE = [
     '/',
     '/es',

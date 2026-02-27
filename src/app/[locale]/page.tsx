@@ -42,10 +42,26 @@ export default function Home() {
     const [mapExpanded, setMapExpanded] = useState(false);
     const [mapActive, setMapActive] = useState(false);
     const mapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const catScrollRef = useRef<HTMLDivElement>(null);
     const activateMap = useCallback(() => {
         setMapActive(true);
         if (mapTimerRef.current) clearTimeout(mapTimerRef.current);
         mapTimerRef.current = setTimeout(() => setMapActive(false), 4000);
+    }, []);
+
+    // Auto-scroll categories carousel on mobile
+    useEffect(() => {
+        const container = catScrollRef.current;
+        if (!container) return;
+        // Only auto-scroll when container is scrollable (mobile)
+        if (container.scrollWidth <= container.clientWidth + 4) return;
+        let idx = 0;
+        const itemW = container.scrollWidth / 4; // 4 categories
+        const timer = setInterval(() => {
+            idx = (idx + 1) % 4;
+            container.scrollTo({ left: itemW * idx, behavior: 'smooth' });
+        }, 2500);
+        return () => clearInterval(timer);
     }, []);
 
     /* Country Context */
@@ -393,24 +409,49 @@ export default function Home() {
                         })}
                     </div>
 
-                    {/* Categories Row */}
+                    {/* Categories Row — carousel on mobile, grid on sm+ */}
                     <div className="shrink-0 px-3 sm:px-6 pb-0">
-                        <div className="grid grid-cols-4 gap-1 sm:gap-2 py-1">
+                        {/* Mobile: horizontal scroll carousel showing 3 at a time */}
+                        <div
+                            ref={catScrollRef}
+                            className="flex sm:hidden overflow-x-auto snap-x snap-mandatory no-scrollbar gap-2 py-1"
+                        >
                             {categories.map((cat, idx) => (
                                 <div
                                     key={idx}
                                     onClick={() => handleCategoryClick(cat.id)}
-                                    className="flex flex-col items-center gap-1 sm:gap-2 cursor-pointer group"
+                                    className="flex flex-col items-center gap-1 cursor-pointer group shrink-0 snap-start"
+                                    style={{ width: 'calc(33.33% - 6px)' }}
                                 >
                                     <div className={`
-                     w-16 h-16 sm:w-[72px] sm:h-[72px] md:w-[88px] md:h-[88px] rounded-2xl sm:rounded-3xl flex items-center justify-center text-3xl sm:text-4xl md:text-5xl
+                     w-16 h-16 rounded-2xl flex items-center justify-center text-3xl
                      ${cat.bg} border-2 ${cat.border}
                      shadow-md
                      group-hover:scale-110 group-active:scale-95 transition-transform duration-200
                    `}>
                                         <span>{cat.icon}</span>
                                     </div>
-                                    <span className="text-base sm:text-sm md:text-base font-semibold text-slate-800 group-hover:text-slate-900 transition-colors text-center leading-tight w-full">{cat.name}</span>
+                                    <span className="text-base font-semibold text-slate-800 text-center leading-tight w-full">{cat.name}</span>
+                                </div>
+                            ))}
+                        </div>
+                        {/* sm+: classic 4-column grid */}
+                        <div className="hidden sm:grid sm:grid-cols-4 gap-2 py-1">
+                            {categories.map((cat, idx) => (
+                                <div
+                                    key={idx}
+                                    onClick={() => handleCategoryClick(cat.id)}
+                                    className="flex flex-col items-center gap-2 cursor-pointer group"
+                                >
+                                    <div className={`
+                     sm:w-[72px] sm:h-[72px] md:w-[88px] md:h-[88px] rounded-2xl sm:rounded-3xl flex items-center justify-center sm:text-4xl md:text-5xl
+                     ${cat.bg} border-2 ${cat.border}
+                     shadow-md
+                     group-hover:scale-110 group-active:scale-95 transition-transform duration-200
+                   `}>
+                                        <span>{cat.icon}</span>
+                                    </div>
+                                    <span className="text-sm md:text-base font-semibold text-slate-800 text-center leading-tight w-full">{cat.name}</span>
                                 </div>
                             ))}
                         </div>
