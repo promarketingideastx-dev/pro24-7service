@@ -1,14 +1,16 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { AuthService } from '@/services/auth.service';
 import { UserService } from '@/services/user.service';
+import { useAuth } from '@/context/AuthContext';
 import { Mail, Lock, UserPlus, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 function RegisterForm() {
+    const { user, loading: authLoading } = useAuth();
     const router = useRouter();
     const locale = useLocale();
     const t = useTranslations('auth');
@@ -23,6 +25,20 @@ function RegisterForm() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Auto-redirect when user is already authenticated (e.g., after signInWithRedirect returns)
+    useEffect(() => {
+        if (!authLoading && user) {
+            const stored = sessionStorage.getItem('auth_redirect_to');
+            if (stored) {
+                sessionStorage.removeItem('auth_redirect_to');
+                router.replace(stored);
+            } else {
+                // New user via Google: go to onboarding to pick a role
+                router.replace(lp('/onboarding'));
+            }
+        }
+    }, [user, authLoading]);
 
 
     const [emailCheckStatus, setEmailCheckStatus] = useState<'idle' | 'checking' | 'exists' | 'available'>('idle');
@@ -140,9 +156,11 @@ function RegisterForm() {
         setLoading(true);
         setError(null);
         try {
-            const user = await AuthService.loginWithGoogle();
-            // Check existing role to redirect correctly
-            const profile = await UserService.getUserProfile(user.uid);
+            const loggedUser = await AuthService.loginWithGoogle(lp('/onboarding'));
+            if (!loggedUser) return; // Mobile: redirect in progress, page navigates away
+
+            // Desktop popup: check existing role to redirect correctly
+            const profile = await UserService.getUserProfile(loggedUser.uid);
             const role = profile?.role;
             const isAdmin = profile?.roles?.admin === true;
 
@@ -158,7 +176,11 @@ function RegisterForm() {
             }
         } catch (err: any) {
             console.error(err);
-            setError(t('errorGoogle'));
+            if ((err as any).code === 'auth/unauthorized-domain') {
+                setError('Dominio no autorizado. Contacta al administrador.');
+            } else if ((err as any).code !== 'auth/popup-closed-by-user') {
+                setError(t('errorGoogle'));
+            }
         } finally {
             setLoading(false);
         }
@@ -168,8 +190,10 @@ function RegisterForm() {
         setLoading(true);
         setError(null);
         try {
-            const user = await AuthService.loginWithApple();
-            const profile = await UserService.getUserProfile(user.uid);
+            const loggedUser = await AuthService.loginWithApple(lp('/onboarding'));
+            if (!loggedUser) return; // Mobile: redirect in progress
+
+            const profile = await UserService.getUserProfile(loggedUser.uid);
             const role = profile?.role;
             const isAdmin = profile?.roles?.admin === true;
             if (isAdmin) {
@@ -183,7 +207,9 @@ function RegisterForm() {
             }
         } catch (err: any) {
             console.error(err);
-            setError(t('errorGoogle'));
+            if ((err as any).code !== 'auth/popup-closed-by-user') {
+                setError(t('errorGoogle'));
+            }
         } finally {
             setLoading(false);
         }
