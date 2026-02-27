@@ -79,7 +79,7 @@ export default function Home() {
     // Categories (after t() is declared)
     const categories = [
         { id: 'general_services', name: t('cat_generalServices'), icon: '🛠️', color: 'text-blue-400', border: 'border-blue-500/30', bg: 'bg-blue-500/10' },
-        { id: 'beauty_wellness', name: t('cat_beautyWellness'), icon: '💇‍♀️', color: 'text-pink-400', border: 'border-pink-500/30', bg: 'bg-pink-500/10' },
+        { id: 'beauty_wellness', name: t('cat_beautyWellness'), icon: '🫶', color: 'text-pink-400', border: 'border-pink-500/30', bg: 'bg-pink-500/10' },
         { id: 'art_design', name: t('cat_artDesign'), icon: '🎥', color: 'text-purple-400', border: 'border-purple-500/30', bg: 'bg-purple-500/10' },
     ];
 
