@@ -62,7 +62,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                     {/* Mobile Header */}
                     <div className="md:hidden flex items-center justify-between p-4 bg-white/90 backdrop-blur-md border-b border-slate-200 z-50 sticky top-0">
                         <div className="flex items-center">
-                            <img src="/logo-header.png" alt="Pro24/7" className="h-8 w-auto object-contain" style={{ maxWidth: '120px' }} />
+                            <img src="/logo-header.png" alt="Pro24/7" className="h-20 w-auto object-contain" style={{ maxWidth: '200px' }} />
                         </div>
                         <div className="flex items-center gap-2">
                             <LanguageSwitcher variant="icon" />
@@ -84,7 +84,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                             <div className="hidden md:flex flex-col gap-4 mb-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center">
-                                        <img src="/logo-header.png" alt="Pro24/7" className="h-10 w-auto object-contain" style={{ maxWidth: '140px' }} />
+                                        <img src="/logo-header.png" alt="Pro24/7" className="h-36 w-auto object-contain" style={{ maxWidth: '200px' }} />
                                     </div>
                                     <LanguageSwitcher variant="icon" />
                                 </div>

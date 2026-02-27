@@ -216,8 +216,8 @@ export default function UserProfilePage() {
         <div className="min-h-screen bg-[#F4F6F8] text-slate-900 pb-20">
             {/* Header / Nav Back */}
             <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
-                <Link href="/" className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
-                    PRO24/7
+                <Link href="/">
+                    <img src="/logo-header.png" alt="Pro24/7" className="h-20 w-auto object-contain" style={{ maxWidth: '200px' }} />
                 </Link>
                 <button type="button" onClick={() => router.push(`/${locale}`)} className="text-sm text-slate-400 hover:text-slate-800">
                     {t('back')}
