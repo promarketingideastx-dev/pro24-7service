@@ -65,9 +65,9 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
             <div className="flex items-center gap-3 px-4 py-5 border-b border-slate-200">
                 <div className="shrink-0 flex items-center justify-center">
                     <Image
-                        src="/logo.png"
+                        src={isOpen ? "/logo-header.png" : "/icon-192.png"}
                         alt="Pro24/7YA"
-                        width={isOpen ? 120 : 36}
+                        width={isOpen ? 130 : 36}
                         height={isOpen ? 36 : 36}
                         className="object-contain"
                         priority
