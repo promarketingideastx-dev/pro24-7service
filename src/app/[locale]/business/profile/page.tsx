@@ -21,6 +21,7 @@ import PortfolioManager from '@/components/business/profile/PortfolioManager';
 import { useTranslations, useLocale } from 'next-intl';
 import SpecialtyPicker from '@/components/business/SpecialtyPicker';
 import { useCountry } from '@/context/CountryContext';
+import PlacesLocationPicker, { LocationResult } from '@/components/business/setup/PlacesLocationPicker';
 
 export default function BusinessProfilePage() {
     const { user, userProfile } = useAuth();
@@ -443,16 +444,36 @@ export default function BusinessProfilePage() {
                                         className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-slate-400 text-xs uppercase mb-1">{t('address')}</label>
-                                    <input
-                                        type="text"
-                                        value={formData.address || ''}
-                                        onChange={e => setFormData({ ...formData, address: e.target.value })}
-                                        placeholder="Ej: Col. Trejo, Blvd. Morazán"
-                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-white focus:border-brand-neon-cyan focus:outline-none"
-                                    />
-                                </div>
+                            </div>
+
+                            {/* Google Places Picker */}
+                            <div>
+                                <label className="block text-slate-400 text-xs uppercase mb-2">
+                                    {t('address')}
+                                    {(formData as any).lat && (
+                                        <span className="ml-2 text-xs text-green-500 font-medium normal-case">✓ Ubicación exacta guardada</span>
+                                    )}
+                                </label>
+                                <PlacesLocationPicker
+                                    onLocationSelect={(result: LocationResult) => {
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            address: result.formattedAddress,
+                                            lat: result.lat,
+                                            lng: result.lng,
+                                            placeId: result.placeId,
+                                            googleMapsUrl: result.googleMapsUrl,
+                                            city: result.city || prev.city,
+                                            department: result.department || prev.department,
+                                        }));
+                                    }}
+                                    initialAddress={formData.address}
+                                    initialLat={(formData as any).lat}
+                                    initialLng={(formData as any).lng}
+                                />
+                                <p className="text-xs text-slate-400 mt-2">
+                                    Busca tu dirección para actualizar el pin en el mapa y el botón "Cómo llegar" de tu perfil público.
+                                </p>
                             </div>
                         </div>
                     </GlassPanel>
