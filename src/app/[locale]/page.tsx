@@ -410,7 +410,7 @@ export default function Home() {
                    `}>
                                         <span>{cat.icon}</span>
                                     </div>
-                                    <span className="text-[8px] sm:text-xs md:text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors text-center leading-tight w-full">{cat.name}</span>
+                                    <span className="text-[11px] sm:text-sm md:text-base font-semibold text-slate-800 group-hover:text-slate-900 transition-colors text-center leading-tight w-full">{cat.name}</span>
                                 </div>
                             ))}
                         </div>
