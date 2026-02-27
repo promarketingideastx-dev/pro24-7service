@@ -348,8 +348,107 @@ export const TAXONOMY = {
                 ]
             }
         ]
+    },
+
+    // =========================================
+    // PILAR 4: SALUD & MEDICINA
+    // =========================================
+    'health_medicine': {
+        id: 'health_medicine',
+        label: { es: 'Salud & Medicina', en: 'Health & Medicine', pt: 'Saúde & Medicina' },
+        subcategories: [
+            {
+                id: 'dentistry',
+                label: { es: 'Odontología', en: 'Dentistry', pt: 'Odontologia' },
+                specialties: [
+                    { es: 'Caries y obturaciones', en: 'Cavities & Fillings', pt: 'Cáries e restaurações' },
+                    { es: 'Brackets y ortodoncia', en: 'Braces & Orthodontics', pt: 'Aparelhos e ortodontia' },
+                    { es: 'Blanqueamiento dental', en: 'Teeth Whitening', pt: 'Clareamento dental' },
+                    { es: 'Implantes dentales', en: 'Dental Implants', pt: 'Implantes dentários' },
+                    { es: 'Tratamiento de conductos / endodoncia', en: 'Root Canal / Endodontics', pt: 'Tratamento de canal / endodontia' },
+                ]
+            },
+            {
+                id: 'general_medicine',
+                label: { es: 'Medicina General', en: 'General Medicine', pt: 'Medicina Geral' },
+                specialties: [
+                    { es: 'Consulta médica general', en: 'General Medical Consultation', pt: 'Consulta médica geral' },
+                    { es: 'Control de presión y diabetes', en: 'Blood Pressure & Diabetes Control', pt: 'Controle de pressão e diabetes' },
+                    { es: 'Certificados médicos y reconocimientos', en: 'Medical Certificates & Checkups', pt: 'Atestados médicos e exames' },
+                    { es: 'Medicina familiar y preventiva', en: 'Family & Preventive Medicine', pt: 'Medicina familiar e preventiva' },
+                    { es: 'Atención de urgencias menores', en: 'Minor Emergency Care', pt: 'Atendimento de emergências menores' },
+                ]
+            },
+            {
+                id: 'ophthalmology',
+                label: { es: 'Oftalmología & Optometría', en: 'Ophthalmology & Optometry', pt: 'Oftalmologia & Optometria' },
+                specialties: [
+                    { es: 'Revisión y examen de la vista', en: 'Eye Exam', pt: 'Exame de visão' },
+                    { es: 'Adaptación de lentes de contacto', en: 'Contact Lens Fitting', pt: 'Adaptação de lentes de contato' },
+                    { es: 'Cirugía láser (LASIK)', en: 'Laser Surgery (LASIK)', pt: 'Cirurgia a laser (LASIK)' },
+                    { es: 'Tratamiento de cataratas y glaucoma', en: 'Cataract & Glaucoma Treatment', pt: 'Tratamento de catarata e glaucoma' },
+                    { es: 'Fondo de ojo y retina', en: 'Eye Fundus & Retina', pt: 'Fundo de olho e retina' },
+                ]
+            },
+            {
+                id: 'physiotherapy',
+                label: { es: 'Fisioterapia & Rehabilitación', en: 'Physiotherapy & Rehabilitation', pt: 'Fisioterapia & Reabilitação' },
+                specialties: [
+                    { es: 'Rehabilitación post-cirugía o accidente', en: 'Post-surgery / Accident Rehab', pt: 'Reabilitação pós-cirurgia ou acidente' },
+                    { es: 'Fisioterapia para dolor de espalda y cuello', en: 'Back & Neck Pain Physiotherapy', pt: 'Fisioterapia para dor nas costas e pescoço' },
+                    { es: 'Fisioterapia deportiva', en: 'Sports Physiotherapy', pt: 'Fisioterapia esportiva' },
+                    { es: 'Quiropraxia y ajuste vertebral', en: 'Chiropractic & Spinal Adjustment', pt: 'Quiropraxia e ajuste vertebral' },
+                    { es: 'Electroterapia y ultrasonido terapéutico', en: 'Electrotherapy & Therapeutic Ultrasound', pt: 'Eletroterapia e ultrassom terapêutico' },
+                ]
+            },
+            {
+                id: 'mental_health',
+                label: { es: 'Salud Mental', en: 'Mental Health', pt: 'Saúde Mental' },
+                specialties: [
+                    { es: 'Consulta psicológica', en: 'Psychological Consultation', pt: 'Consulta psicológica' },
+                    { es: 'Terapia para ansiedad y depresión', en: 'Anxiety & Depression Therapy', pt: 'Terapia para ansiedade e depressão' },
+                    { es: 'Terapia de pareja y familiar', en: 'Couples & Family Therapy', pt: 'Terapia de casal e familiar' },
+                    { es: 'Psicología infantil y adolescente', en: 'Child & Teen Psychology', pt: 'Psicologia infantil e adolescente' },
+                    { es: 'Consulta psiquiátrica', en: 'Psychiatric Consultation', pt: 'Consulta psiquiátrica' },
+                ]
+            },
+            {
+                id: 'gynecology',
+                label: { es: 'Ginecología & Obstetricia', en: 'Gynecology & Obstetrics', pt: 'Ginecologia & Obstetrícia' },
+                specialties: [
+                    { es: 'Consulta ginecológica de rutina', en: 'Routine Gynecological Consultation', pt: 'Consulta ginecológica de rotina' },
+                    { es: 'Control prenatal y ultrasonido', en: 'Prenatal Care & Ultrasound', pt: 'Pré-natal e ultrassom' },
+                    { es: 'Papanicolau y colposcopía', en: 'Pap Smear & Colposcopy', pt: 'Papanicolau e colposcopia' },
+                    { es: 'Planificación familiar y anticoncepción', en: 'Family Planning & Contraception', pt: 'Planejamento familiar e contracepção' },
+                    { es: 'Colocación de dispositivo DIU / implante', en: 'IUD / Implant Placement', pt: 'Colocação de DIU / implante' },
+                ]
+            },
+            {
+                id: 'nutrition',
+                label: { es: 'Nutrición & Dietética', en: 'Nutrition & Dietetics', pt: 'Nutrição & Dietética' },
+                specialties: [
+                    { es: 'Consulta nutricional y evaluación', en: 'Nutritional Consultation & Assessment', pt: 'Consulta nutricional e avaliação' },
+                    { es: 'Plan alimenticio personalizado', en: 'Personalized Meal Plan', pt: 'Plano alimentar personalizado' },
+                    { es: 'Nutrición para pérdida de peso', en: 'Weight Loss Nutrition', pt: 'Nutrição para perda de peso' },
+                    { es: 'Nutrición deportiva', en: 'Sports Nutrition', pt: 'Nutrição esportiva' },
+                    { es: 'Nutrición para diabetes y enfermedades crónicas', en: 'Nutrition for Diabetes & Chronic Conditions', pt: 'Nutrição para diabetes e doenças crônicas' },
+                ]
+            },
+            {
+                id: 'pediatrics',
+                label: { es: 'Pediatría', en: 'Pediatrics', pt: 'Pediatria' },
+                specialties: [
+                    { es: 'Control del niño sano (crecimiento)', en: 'Well-child Visit (growth)', pt: 'Consulta de puericultura (crescimento)' },
+                    { es: 'Vacunación y calendario de vacunas', en: 'Vaccination & Vaccine Schedule', pt: 'Vacinação e calendário de vacinas' },
+                    { es: 'Tratamiento de enfermedades respiratorias', en: 'Respiratory Illness Treatment', pt: 'Tratamento de doenças respiratórias' },
+                    { es: 'Urgencias pediátricas (fiebre, dolores)', en: 'Pediatric Emergencies (fever, pain)', pt: 'Urgências pediátricas (febre, dores)' },
+                    { es: 'Consulta de adolescentes', en: 'Adolescent Consultation', pt: 'Consulta de adolescentes' },
+                ]
+            },
+        ]
     }
 };
+
 
 // ==========================================
 // TYPE for specialty

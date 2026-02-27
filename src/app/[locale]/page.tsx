@@ -70,6 +70,7 @@ export default function Home() {
         { id: 'general_services', name: t('cat_generalServices'), icon: '🛠️', color: 'text-blue-400', border: 'border-blue-500/30', bg: 'bg-blue-500/10' },
         { id: 'beauty_wellness', name: t('cat_beautyWellness'), icon: '🫶', color: 'text-pink-400', border: 'border-pink-500/30', bg: 'bg-pink-500/10' },
         { id: 'art_design', name: t('cat_artDesign'), icon: '🎥', color: 'text-purple-400', border: 'border-purple-500/30', bg: 'bg-purple-500/10' },
+        { id: 'health_medicine', name: t('cat_healthMedicine'), icon: '🩺', color: 'text-emerald-400', border: 'border-emerald-500/30', bg: 'bg-emerald-500/10' },
     ];
 
     const [showAuthModal, setShowAuthModal] = useState(false);
@@ -649,7 +650,8 @@ export default function Home() {
                                 biz.category === 'beauty_wellness' ? { border: '#DB2777', bg: '#FDF2F8', avatar: '#FCE7F3', text: '#9D174D' } :
                                     biz.category === 'art_design' ? { border: '#7C3AED', bg: '#F5F3FF', avatar: '#EDE9FE', text: '#5B21B6' } :
                                         biz.category === 'general_services' ? { border: '#2563EB', bg: '#EFF6FF', avatar: '#DBEAFE', text: '#1E40AF' } :
-                                            { border: '#14B8A6', bg: '#F0FDFA', avatar: '#CCFBF1', text: '#0F766E' };
+                                            biz.category === 'health_medicine' ? { border: '#059669', bg: '#ECFDF5', avatar: '#D1FAE5', text: '#065F46' } :
+                                                { border: '#14B8A6', bg: '#F0FDFA', avatar: '#CCFBF1', text: '#0F766E' };
                             return (
                                 <div
                                     key={biz.id}
