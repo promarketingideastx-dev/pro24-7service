@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { BusinessProfileService, BusinessProfileData } from '@/services/businessProfile.service';
 import { StorageService } from '@/services/storage.service';
@@ -22,6 +22,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import SpecialtyPicker from '@/components/business/SpecialtyPicker';
 import { useCountry } from '@/context/CountryContext';
 import PlacesLocationPicker, { LocationResult } from '@/components/business/setup/PlacesLocationPicker';
+import ImageCropModal from '@/components/ui/ImageCropModal';
 
 export default function BusinessProfilePage() {
     const { user, userProfile } = useAuth();
@@ -36,6 +37,7 @@ export default function BusinessProfilePage() {
 
     const [formData, setFormData] = useState<Partial<BusinessProfileData>>({});
     const [showMultiArea, setShowMultiArea] = useState(false);
+    const [cropModal, setCropModal] = useState<{ src: string; file: File } | null>(null);
 
     // Schedule API
     const [scheduleOpen, setScheduleOpen] = useState(false);
@@ -104,33 +106,48 @@ export default function BusinessProfilePage() {
     const handleImageUpload = async (type: 'cover' | 'logo', e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file || !user) return;
+        // Reset input so same file can be selected again
+        e.target.value = '';
 
-        setUploadingImage(type);
+        if (type === 'cover') {
+            // For cover: open crop modal instead of uploading directly
+            const objectUrl = URL.createObjectURL(file);
+            setCropModal({ src: objectUrl, file });
+            return;
+        }
+
+        // Logo: upload directly (no crop needed)
+        setUploadingImage('logo');
         try {
             const url = await StorageService.uploadBusinessImage(user.uid, file);
-
-            // Update local state
-            if (type === 'cover') {
-                setFormData(prev => ({ ...prev, coverImage: url }));
-            } else {
-                setFormData(prev => ({ ...prev, logoUrl: url }));
-            }
-
-            // Optional: Auto-save immediately for images? 
-            // Often better UX for large files to save reference immediately, 
-            // but sticking to "Save" button for consistency is safer.
-            // HOWEVER, since we upload to storage, the file is already "live". 
-            // It might be confusing if they leave without saving.
-            // Let's just update state and let them hit Save.
+            setFormData(prev => ({ ...prev, logoUrl: url }));
             toast.success(t('imageUploaded'));
-
         } catch (error) {
-            console.error("Error uploading:", error);
+            console.error('Error uploading:', error);
             toast.error(t('imageError'));
         } finally {
             setUploadingImage(null);
         }
     };
+
+    const handleCropComplete = useCallback(async (croppedBlob: Blob) => {
+        if (!user || !cropModal) return;
+        setCropModal(null);
+        setUploadingImage('cover');
+        try {
+            const croppedFile = new File([croppedBlob], cropModal.file.name, { type: 'image/jpeg' });
+            const url = await StorageService.uploadBusinessImage(user.uid, croppedFile);
+            setFormData(prev => ({ ...prev, coverImage: url }));
+            URL.revokeObjectURL(cropModal.src);
+            toast.success(t('imageUploaded'));
+        } catch (error) {
+            console.error('Error uploading cropped image:', error);
+            toast.error(t('imageError'));
+        } finally {
+            setUploadingImage(null);
+        }
+    }, [user, cropModal, t]);
+
 
     if (loading) return <div className="p-12 text-center text-slate-500">{t('loadingProfile')}</div>;
 
@@ -585,6 +602,19 @@ export default function BusinessProfilePage() {
                 subtitle={t('scheduleSubtitle')}
                 saveLabel={t('confirmSchedule')}
             />
+
+            {/* Cover image crop modal */}
+            {cropModal && (
+                <ImageCropModal
+                    imageSrc={cropModal.src}
+                    aspectRatio={16 / 9}
+                    onComplete={handleCropComplete}
+                    onClose={() => {
+                        URL.revokeObjectURL(cropModal.src);
+                        setCropModal(null);
+                    }}
+                />
+            )}
         </div>
     );
 }
