@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import { Search, MapPin, Star, Bell, Filter, Grid, Zap, User, X, ChevronRight, Store, Share2, Wrench, Sparkles, Palette, LucideIcon } from 'lucide-react';
+import { Search, MapPin, Star, Bell, Filter, Grid, Zap, User, X, ChevronRight, Store, Share2 } from 'lucide-react';
 import { DEMO_BUSINESSES, BusinessMock } from '@/data/mockBusinesses';
 import { TAXONOMY } from '@/lib/taxonomy';
 import { matchesSearch, findSuggestion } from '@/lib/searchUtils';
@@ -77,11 +77,12 @@ export default function Home() {
     // Helper: prefixes any path with the current locale
     const lp = (path: string) => `/${locale}${path}`;
     // Categories (after t() is declared)
-    const categories: { id: string; name: string; icon: LucideIcon; color: string; border: string; bg: string; iconColor: string }[] = [
-        { id: 'general_services', name: t('cat_generalServices'), icon: Wrench, color: 'text-blue-400', border: 'border-blue-500/30', bg: 'bg-blue-500/8', iconColor: '#3B82F6' },
-        { id: 'beauty_wellness', name: t('cat_beautyWellness'), icon: Sparkles, color: 'text-pink-400', border: 'border-pink-500/30', bg: 'bg-pink-500/8', iconColor: '#EC4899' },
-        { id: 'art_design', name: t('cat_artDesign'), icon: Palette, color: 'text-purple-400', border: 'border-purple-500/30', bg: 'bg-purple-500/8', iconColor: '#A855F7' },
+    const categories = [
+        { id: 'general_services', name: t('cat_generalServices'), icon: '🛠️', color: 'text-blue-400', border: 'border-blue-500/30', bg: 'bg-blue-500/10' },
+        { id: 'beauty_wellness', name: t('cat_beautyWellness'), icon: '💇‍♀️', color: 'text-pink-400', border: 'border-pink-500/30', bg: 'bg-pink-500/10' },
+        { id: 'art_design', name: t('cat_artDesign'), icon: '🎨', color: 'text-purple-400', border: 'border-purple-500/30', bg: 'bg-purple-500/10' },
     ];
+
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [pendingBusiness, setPendingBusiness] = useState<BusinessMock | null>(null);
 
@@ -417,7 +418,7 @@ export default function Home() {
                      shadow-sm
                      group-hover:scale-110 group-active:scale-95 transition-transform duration-200
                    `}>
-                                        <cat.icon size={26} color={cat.iconColor} strokeWidth={1.75} />
+                                        <span>{cat.icon}</span>
                                     </div>
                                     <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors text-center leading-tight">{cat.name}</span>
                                 </div>
@@ -560,7 +561,7 @@ export default function Home() {
                                 <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-[#F8FAFC]">
                                     <div>
                                         <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                                            {(() => { const CatIcon = categories.find(c => c.id === selectedCategory)?.icon; return CatIcon ? <CatIcon size={22} color={categories.find(c => c.id === selectedCategory)?.iconColor} /> : null; })()}
+                                            {categories.find(c => c.id === selectedCategory)?.icon}
                                             {selectedTaxonomy.label[localeKey as keyof typeof selectedTaxonomy.label]}
                                         </h2>
                                         <p className="text-xs text-slate-400 mt-1">{t('exploreServices')}</p>
