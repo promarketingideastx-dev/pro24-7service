@@ -48,6 +48,7 @@ interface MapWidgetProps {
     countryCoordinates?: { lat: number; lng: number; zoom: number };
     countryCode?: string;
     expanded?: boolean; // triggers invalidateSize after CSS transition
+    locked?: boolean;  // disables pan/zoom (mobile static view)
 }
 
 // ── MapResizer: calls invalidateSize after container CSS transition ends ──────
@@ -238,6 +239,7 @@ function ClusterLayer({
     onNavigate,
     isAuthenticated,
     countryBounds,
+    locked,
     t,
 }: {
     businesses: BusinessMock[];
@@ -245,6 +247,7 @@ function ClusterLayer({
     onNavigate?: (b: BusinessMock) => void;
     isAuthenticated: boolean;
     countryBounds?: [number, number, number, number];
+    locked?: boolean;
     t: (key: string) => string;
 }) {
     const map = useMap();
@@ -278,6 +281,7 @@ function ClusterLayer({
         <>
             {items.map((item, idx) => {
                 if (item.type === 'cluster') {
+                    // In locked mode clusters don't zoom in (map is static)
                     return (
                         <Marker
                             key={`cluster-${idx}`}
@@ -285,9 +289,11 @@ function ClusterLayer({
                             icon={createClusterIcon(item.count)}
                             eventHandlers={{
                                 click: () => {
-                                    map.flyTo(item.center, Math.min(map.getZoom() + 2, 18), {
-                                        animate: true, duration: 0.8
-                                    });
+                                    if (!locked && map) {
+                                        map.flyTo(item.center, Math.min(map.getZoom() + 2, 18), {
+                                            animate: true, duration: 0.8
+                                        });
+                                    }
                                 }
                             }}
                         />
@@ -295,6 +301,20 @@ function ClusterLayer({
                 }
 
                 const biz = item.business;
+                // In locked mode: no Leaflet Popup — page-level mini card handles display
+                if (locked) {
+                    return (
+                        <Marker
+                            key={biz.id}
+                            position={item.position}
+                            icon={createCustomIcon(biz.icon, biz.color, (biz as any).logoUrl)}
+                            eventHandlers={{
+                                click: () => { if (onBusinessSelect) onBusinessSelect(biz); }
+                            }}
+                        />
+                    );
+                }
+
                 return (
                     <Marker
                         key={biz.id}
@@ -344,6 +364,7 @@ export default function MapWidget({
     countryCoordinates,
     countryCode,
     expanded,
+    locked = false,
 }: MapWidgetProps) {
     const [isMounted, setIsMounted] = useState(false);
     const t = useTranslations('map');
@@ -372,6 +393,11 @@ export default function MapWidget({
             center={defaultPosition}
             zoom={startZoom}
             scrollWheelZoom={false}
+            dragging={!locked}
+            zoomControl={!locked}
+            touchZoom={!locked}
+            doubleClickZoom={!locked}
+            keyboard={!locked}
             className="h-full w-full rounded-3xl z-0"
             style={{ height: '100%', width: '100%', filter: 'saturate(2.6) hue-rotate(5deg) brightness(0.97) contrast(1.05)' }}
         >
@@ -381,7 +407,7 @@ export default function MapWidget({
             />
             {/* Country borders overlay */}
             <CountryBordersLayer />
-            <TapToZoom />
+            {!locked && <TapToZoom />}
             <MapResizer expanded={expanded} />
             <MapUpdater businesses={businesses} selectedBusiness={selectedBusiness} countryCoordinates={countryCoordinates} countryCode={countryCode} />
 
@@ -391,6 +417,7 @@ export default function MapWidget({
                 onNavigate={onNavigate}
                 isAuthenticated={isAuthenticated}
                 countryBounds={countryBounds}
+                locked={locked}
                 t={t}
             />
         </MapContainer>

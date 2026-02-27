@@ -426,12 +426,11 @@ export default function Home() {
                         </div>
                     </div>
 
-                    {/* Map Widget — collapsible with gesture lock overlay */}
+                    {/* Map Widget — locked on mobile/collapsed, interactive on desktop/expanded */}
                     <div
                         className="shrink-0 mx-6 mb-2 rounded-3xl overflow-hidden border border-slate-200 shadow-2xl isolate relative transition-all duration-500 ease-in-out"
                         style={{ height: mapExpanded ? 'min(38vh, 420px)' : '130px' }}
                     >
-                        {/* key forces fresh mount (country-level zoom) when toggling */}
                         <DynamicMap
                             businesses={filteredBusinesses}
                             selectedBusiness={mapExpanded ? selectedBusiness : null}
@@ -441,38 +440,39 @@ export default function Home() {
                             countryCoordinates={selectedCountry?.coordinates}
                             countryCode={selectedCountry?.code}
                             expanded={mapExpanded}
+                            locked={!mapExpanded}
                         />
 
-                        {/* Gesture Lock Overlay (mobile only) */}
-                        {!mapActive && (
+                        {/* Mini business card — tap pin → shows card; tap card → hides it */}
+                        {!mapExpanded && selectedBusiness && (
                             <div
-                                className="absolute inset-0 z-[1001] flex items-center justify-center md:hidden"
-                                onTouchStart={activateMap}
-                                onClick={activateMap}
-                                style={{ cursor: 'pointer' }}
+                                className="absolute bottom-11 left-3 right-3 z-[1002] flex items-center gap-3 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200 p-3 animate-in slide-in-from-bottom-2 duration-200"
+                                onClick={() => setSelectedBusiness(null)}
                             >
-                                <div className="bg-slate-900/60 backdrop-blur-sm rounded-2xl px-4 py-2.5 flex items-center gap-2 shadow-xl border border-white/10">
-                                    <span className="text-base">👆</span>
-                                    <span className="text-sm font-semibold text-white">Toca para interactuar</span>
+                                {(selectedBusiness as any).logoUrl ? (
+                                    <img src={(selectedBusiness as any).logoUrl} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0 border border-slate-100" />
+                                ) : (
+                                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-lg shrink-0">
+                                        {selectedBusiness.icon}
+                                    </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-bold text-sm text-slate-900 truncate leading-tight">{selectedBusiness.name}</p>
+                                    <p className="text-xs text-slate-400 truncate">{selectedBusiness.subcategory}</p>
                                 </div>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); handleNavigate(selectedBusiness); }}
+                                    className="shrink-0 bg-slate-900 hover:bg-slate-700 text-white text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
+                                >
+                                    Ver →
+                                </button>
                             </div>
                         )}
 
-                        {/* Live badge — only when collapsed (saves space when expanded) */}
-                        {!mapExpanded && (
-                            <div className="absolute bottom-3 left-3 z-[1000] pointer-events-none">
-                                <div className="bg-slate-800/90 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
-                                    <MapPin className="w-3 h-3 text-cyan-400" />
-                                    <span className="text-xs font-bold text-white">{selectedCountry?.mainCity || 'San Pedro Sula'}</span>
-                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Toggle button — Expand when collapsed, Minimize when expanded */}
+                        {/* Expand button — desktop only (md:) — mobile sees locked static map */}
                         <button
-                            onClick={() => { setMapExpanded(v => !v); setMapActive(false); }}
-                            className="absolute bottom-3 right-3 z-[1002] flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg border border-slate-200 text-xs font-bold text-slate-700 hover:bg-white transition-all"
+                            onClick={() => { setMapExpanded(v => !v); }}
+                            className="absolute bottom-3 right-3 z-[1003] hidden md:flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg border border-slate-200 text-xs font-bold text-slate-700 hover:bg-white transition-all"
                         >
                             {mapExpanded ? <><span>↑</span> Minimizar</> : <><span>↓</span> Expandir</>}
                         </button>
