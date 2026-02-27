@@ -420,7 +420,7 @@ export default function Home() {
                         <HeroCarousel
                             slides={[
                                 {
-                                    image: '/carousel/servicios.png',
+                                    image: '/carousel/s1_servicios.png',
                                     category: t('cat_generalServices'),
                                     title: 'Tu problema resuelto hoy',
                                     subtitle: 'Plomeros, electricistas y más — disponibles ahora',
@@ -429,7 +429,7 @@ export default function Home() {
                                     color: '#2563EB',
                                 },
                                 {
-                                    image: '/carousel/belleza.png',
+                                    image: '/carousel/s2_belleza.png',
                                     category: t('cat_beautyWellness'),
                                     title: 'Date el cuidado que mereces',
                                     subtitle: 'Estilistas, spas y más — para ti',
@@ -438,10 +438,37 @@ export default function Home() {
                                     color: '#DB2777',
                                 },
                                 {
-                                    image: '/carousel/arte.png',
+                                    image: '/carousel/s3_arte.png',
                                     category: t('cat_artDesign'),
                                     title: 'Crea algo memorable',
                                     subtitle: 'Fotógrafos, videógrafos y creativos — aquí',
+                                    ctaLabel: 'Ver Arte',
+                                    categoryId: 'art_design',
+                                    color: '#7C3AED',
+                                },
+                                {
+                                    image: '/carousel/s4_servicios_accion.png',
+                                    category: t('cat_generalServices'),
+                                    title: 'Profesionales en acción',
+                                    subtitle: 'Expertos listos para ayudarte hoy mismo',
+                                    ctaLabel: 'Ver Servicios',
+                                    categoryId: 'general_services',
+                                    color: '#2563EB',
+                                },
+                                {
+                                    image: '/carousel/s5_belleza_accion.png',
+                                    category: t('cat_beautyWellness'),
+                                    title: 'Manos expertas, resultados reales',
+                                    subtitle: 'Tu próxima cita te está esperando',
+                                    ctaLabel: 'Ver Belleza',
+                                    categoryId: 'beauty_wellness',
+                                    color: '#DB2777',
+                                },
+                                {
+                                    image: '/carousel/s6_arte_accion.png',
+                                    category: t('cat_artDesign'),
+                                    title: 'Tu historia, bien contada',
+                                    subtitle: 'Videógrafos y creativos al servicio de tu marca',
                                     ctaLabel: 'Ver Arte',
                                     categoryId: 'art_design',
                                     color: '#7C3AED',
