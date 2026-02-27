@@ -719,9 +719,17 @@ export const BusinessProfileService = {
         if (data.socialMedia !== undefined) privateUpdate.socialMedia = data.socialMedia;
         if (data.department) privateUpdate.department = data.department;
 
-        // ── Re-geocode if location fields changed ──────────────────────────
-        // Use the most specific address possible: address > city > department > country
-        if (data.city || data.department || data.address || data.country) {
+        // ── Location update ──────────────────────────────────────────────────
+        // Priority 1: Exact GPS coords from Google Places (lat/lng provided directly)
+        if (data.lat && data.lng) {
+            publicUpdate.location = { lat: data.lat, lng: data.lng };
+            publicUpdate.lat = data.lat;
+            publicUpdate.lng = data.lng;
+            if (data.placeId !== undefined) publicUpdate.placeId = data.placeId;
+            if (data.googleMapsUrl !== undefined) publicUpdate.googleMapsUrl = data.googleMapsUrl;
+        }
+        // Priority 2: Re-geocode with Nominatim only if no exact coords provided
+        else if (data.city || data.department || data.address || data.country) {
             try {
                 // Read current public data to fill missing location fields
                 const currentSnap = await getDoc(publicRef);
