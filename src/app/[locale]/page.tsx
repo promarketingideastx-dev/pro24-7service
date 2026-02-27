@@ -395,12 +395,12 @@ export default function Home() {
 
                     {/* Categories Row */}
                     <div className="shrink-0 px-3 sm:px-6 pb-0">
-                        <div className="flex justify-between items-start gap-1 sm:gap-2 overflow-x-auto no-scrollbar py-1">
+                        <div className="grid grid-cols-4 gap-1 sm:gap-2 py-1">
                             {categories.map((cat, idx) => (
                                 <div
                                     key={idx}
                                     onClick={() => handleCategoryClick(cat.id)}
-                                    className="flex flex-col items-center gap-1 sm:gap-2 min-w-[60px] sm:min-w-[72px] flex-1 cursor-pointer group"
+                                    className="flex flex-col items-center gap-1 sm:gap-2 cursor-pointer group"
                                 >
                                     <div className={`
                      w-9 h-9 sm:w-[58px] sm:h-[58px] md:w-[72px] md:h-[72px] rounded-xl sm:rounded-2xl flex items-center justify-center text-lg sm:text-2xl md:text-3xl
@@ -410,7 +410,7 @@ export default function Home() {
                    `}>
                                         <span>{cat.icon}</span>
                                     </div>
-                                    <span className="text-[9px] sm:text-xs md:text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors text-center leading-tight">{cat.name}</span>
+                                    <span className="text-[8px] sm:text-xs md:text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors text-center leading-tight w-full">{cat.name}</span>
                                 </div>
                             ))}
                         </div>
