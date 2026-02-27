@@ -403,7 +403,7 @@ export default function Home() {
                                     className="flex flex-col items-center gap-1 sm:gap-2 cursor-pointer group"
                                 >
                                     <div className={`
-                     w-9 h-9 sm:w-[58px] sm:h-[58px] md:w-[72px] md:h-[72px] rounded-xl sm:rounded-2xl flex items-center justify-center text-lg sm:text-2xl md:text-3xl
+                     w-11 h-11 sm:w-[66px] sm:h-[66px] md:w-[80px] md:h-[80px] rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-3xl md:text-4xl
                      ${cat.bg} border ${cat.border}
                      shadow-sm
                      group-hover:scale-110 group-active:scale-95 transition-transform duration-200
@@ -417,7 +417,7 @@ export default function Home() {
                     </div>
 
                     {/* Hero Carousel — replaces map */}
-                    <div className="shrink-0 mx-3 mb-2 sm:mx-6 sm:mb-3 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl" style={{ height: 'clamp(120px, 23vh, 260px)' }}>
+                    <div className="shrink-0 mx-3 mb-4 sm:mx-6 sm:mb-5 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl" style={{ height: 'clamp(120px, 23vh, 260px)' }}>
                         <HeroCarousel
                             slides={[
                                 {
