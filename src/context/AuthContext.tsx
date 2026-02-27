@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { onAuthStateChanged, User, getRedirectResult } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { UserDocument } from '@/types/firestore-schema';
@@ -39,6 +39,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         let unsubscribeFirestore: (() => void) | null = null;
+
+        // Handle return from signInWithRedirect (Google/Apple on mobile/PWA)
+        getRedirectResult(auth)
+            .then(async (result) => {
+                if (result?.user) {
+                    // Profile creation is handled below by onAuthStateChanged
+                    // but ensure it exists here as well (belt-and-suspenders)
+                    await UserService.createUserProfile(result.user.uid, result.user.email || '')
+                        .catch(() => { /* profile may already exist */ });
+                }
+            })
+            .catch((err) => console.error('Redirect sign-in error:', err));
 
         const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
             setUser(currentUser);

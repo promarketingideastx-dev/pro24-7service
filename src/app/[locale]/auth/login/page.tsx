@@ -1,15 +1,17 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 import { AuthService } from '@/services/auth.service';
 import { Mail, Lock, LogIn, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 const LOCALE_PREFIXES = ['/es', '/en', '/pt-BR'];
 
 function LoginForm() {
+    const { user, loading: authLoading } = useAuth();
     const router = useRouter();
     const locale = useLocale();
     const t = useTranslations('auth');
@@ -22,6 +24,21 @@ function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Auto-redirect when user is already authenticated (e.g., after signInWithRedirect returns)
+    useEffect(() => {
+        if (!authLoading && user) {
+            const stored = sessionStorage.getItem('auth_redirect_to');
+            if (stored) {
+                sessionStorage.removeItem('auth_redirect_to');
+                router.replace(stored);
+            } else {
+                const hasLocalePrefix = LOCALE_PREFIXES.some(p => returnTo.startsWith(p));
+                const target = returnTo && returnTo !== '/' && !hasLocalePrefix ? lp(returnTo) : returnTo || lp('/');
+                router.replace(target);
+            }
+        }
+    }, [user, authLoading]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -53,15 +70,21 @@ function LoginForm() {
         setLoading(true);
         setError(null);
         try {
-            await AuthService.loginWithGoogle();
             const hasLocalePrefix = LOCALE_PREFIXES.some(p => returnTo.startsWith(p));
-            const target = returnTo && returnTo !== '/' && !hasLocalePrefix
-                ? lp(returnTo)
-                : returnTo || lp('/');
-            router.replace(target);
+            const target = returnTo && returnTo !== '/' && !hasLocalePrefix ? lp(returnTo) : returnTo || lp('/');
+            const loggedUser = await AuthService.loginWithGoogle(target);
+            if (loggedUser) {
+                // Desktop popup success — redirect immediately
+                router.replace(target);
+            }
+            // Mobile redirect: page navigates away, no further action
         } catch (err: any) {
             console.error(err);
-            setError(t('errorGoogle'));
+            if ((err as any).code === 'auth/unauthorized-domain') {
+                setError('Dominio no autorizado. Contacta al administrador.');
+            } else if ((err as any).code !== 'auth/popup-closed-by-user' && (err as any).code !== 'auth/cancelled-popup-request') {
+                setError(t('errorGoogle'));
+            }
         } finally {
             setLoading(false);
         }
@@ -71,15 +94,17 @@ function LoginForm() {
         setLoading(true);
         setError(null);
         try {
-            await AuthService.loginWithApple();
             const hasLocalePrefix = LOCALE_PREFIXES.some(p => returnTo.startsWith(p));
-            const target = returnTo && returnTo !== '/' && !hasLocalePrefix
-                ? lp(returnTo)
-                : returnTo || lp('/');
-            router.replace(target);
+            const target = returnTo && returnTo !== '/' && !hasLocalePrefix ? lp(returnTo) : returnTo || lp('/');
+            const loggedUser = await AuthService.loginWithApple(target);
+            if (loggedUser) {
+                router.replace(target);
+            }
         } catch (err: any) {
             console.error(err);
-            setError(t('errorGoogle'));
+            if ((err as any).code !== 'auth/popup-closed-by-user') {
+                setError(t('errorGoogle'));
+            }
         } finally {
             setLoading(false);
         }

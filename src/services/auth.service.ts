@@ -3,6 +3,8 @@ import {
     GoogleAuthProvider,
     OAuthProvider,
     signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
     signOut,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
@@ -27,38 +29,51 @@ export const AuthService = {
         }
     },
 
-    // ... existing login methods ...
-    loginWithGoogle: async () => {
-        const provider = new GoogleAuthProvider();
-        try {
-            const result = await signInWithPopup(auth, provider);
-            // Check if profile exists, if not create it
-            const profile = await UserService.getUserProfile(result.user.uid);
-            if (!profile) {
-                await UserService.createUserProfile(result.user.uid, result.user.email || '');
-            }
-            return result.user;
-        } catch (error) {
-            console.error('Error logging in with Google:', error);
-            throw error;
-        }
+    // Detect mobile browser or PWA standalone mode (popups are blocked in these contexts)
+    _isMobileOrPWA: (): boolean => {
+        if (typeof window === 'undefined') return false;
+        return (
+            window.matchMedia('(display-mode: standalone)').matches ||
+            window.matchMedia('(display-mode: fullscreen)').matches ||
+            /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+        );
     },
 
-    loginWithApple: async () => {
+    // Get pending redirect result (call on app mount to capture Google/Apple redirect)
+    getRedirectResult: () => getRedirectResult(auth),
+
+    loginWithGoogle: async (returnTo?: string) => {
+        const provider = new GoogleAuthProvider();
+        if (AuthService._isMobileOrPWA()) {
+            // Mobile/PWA: store returnTo and use redirect (popup is blocked)
+            if (returnTo) sessionStorage.setItem('auth_redirect_to', returnTo);
+            await signInWithRedirect(auth, provider);
+            return null; // page navigates away — caller should not expect a return value
+        }
+        // Desktop: use popup
+        const result = await signInWithPopup(auth, provider);
+        const profile = await UserService.getUserProfile(result.user.uid);
+        if (!profile) {
+            await UserService.createUserProfile(result.user.uid, result.user.email || '');
+        }
+        return result.user;
+    },
+
+    loginWithApple: async (returnTo?: string) => {
         const provider = new OAuthProvider('apple.com');
         provider.addScope('email');
         provider.addScope('name');
-        try {
-            const result = await signInWithPopup(auth, provider);
-            const profile = await UserService.getUserProfile(result.user.uid);
-            if (!profile) {
-                await UserService.createUserProfile(result.user.uid, result.user.email || '');
-            }
-            return result.user;
-        } catch (error) {
-            console.error('Error logging in with Apple:', error);
-            throw error;
+        if (AuthService._isMobileOrPWA()) {
+            if (returnTo) sessionStorage.setItem('auth_redirect_to', returnTo);
+            await signInWithRedirect(auth, provider);
+            return null;
         }
+        const result = await signInWithPopup(auth, provider);
+        const profile = await UserService.getUserProfile(result.user.uid);
+        if (!profile) {
+            await UserService.createUserProfile(result.user.uid, result.user.email || '');
+        }
+        return result.user;
     },
 
     loginWithEmail: async (email: string, pass: string) => {
