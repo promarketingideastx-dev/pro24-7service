@@ -527,11 +527,24 @@ export const BusinessProfileService = {
                     return {
                         id: doc.id,
                         ...data,
-                        // Normalize country field
-                        countryCode: data.countryCode || data.country || 'HN',
+                        // Normalize country field: handles full names ('Honduras') and codes ('HN')
+                        countryCode: (() => {
+                            const COUNTRY_MAP: Record<string, string> = {
+                                'Honduras': 'HN', 'México': 'MX', 'Mexico': 'MX',
+                                'Guatemala': 'GT', 'El Salvador': 'SV', 'Nicaragua': 'NI',
+                                'Costa Rica': 'CR', 'Panamá': 'PA', 'Panama': 'PA',
+                                'Colombia': 'CO', 'Venezuela': 'VE', 'Perú': 'PE', 'Peru': 'PE',
+                                'Brasil': 'BR', 'Brazil': 'BR', 'Argentina': 'AR', 'Chile': 'CL',
+                                'España': 'ES', 'Spain': 'ES',
+                            };
+                            const raw = data.countryCode || data.country || 'HN';
+                            return raw.length === 2 ? raw.toUpperCase() : (COUNTRY_MAP[raw] || raw);
+                        })(),
                         // Use stored location if valid, otherwise fall back to department/country coords
-                        lat: (data.location?.lat && data.location.lat !== 0) ? data.location.lat : fb.lat,
-                        lng: (data.location?.lng && data.location.lng !== 0) ? data.location.lng : fb.lng,
+                        lat: (data.location?.lat && data.location.lat !== 0) ? data.location.lat
+                            : (data.lat && data.lat !== 0) ? data.lat : fb.lat,
+                        lng: (data.location?.lng && data.location.lng !== 0) ? data.location.lng
+                            : (data.lng && data.lng !== 0) ? data.lng : fb.lng,
                         // Keep emoji icon as fallback; real logo is in logoUrl
                         icon: '💼',
                         logoUrl: data.logoUrl || null, // Real business photo from Firebase Storage
