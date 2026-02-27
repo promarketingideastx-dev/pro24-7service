@@ -403,9 +403,9 @@ export default function Home() {
                                     className="flex flex-col items-center gap-1 sm:gap-2 cursor-pointer group"
                                 >
                                     <div className={`
-                     w-9 h-9 sm:w-[52px] sm:h-[52px] md:w-[64px] md:h-[64px] rounded-xl sm:rounded-2xl flex items-center justify-center text-lg sm:text-2xl md:text-3xl
-                     ${cat.bg} border ${cat.border}
-                     shadow-sm
+                     w-16 h-16 sm:w-[72px] sm:h-[72px] md:w-[88px] md:h-[88px] rounded-2xl sm:rounded-3xl flex items-center justify-center text-3xl sm:text-4xl md:text-5xl
+                     ${cat.bg} border-2 ${cat.border}
+                     shadow-md
                      group-hover:scale-110 group-active:scale-95 transition-transform duration-200
                    `}>
                                         <span>{cat.icon}</span>
@@ -790,7 +790,7 @@ export default function Home() {
                                 >
                                     {/* Colored left accent bar */}
                                     <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl" style={{ backgroundColor: catColor.border }} />
-                                    <div className="w-16 h-16 rounded-xl mr-3 ml-2 shrink-0 flex items-center justify-center text-2xl relative overflow-hidden" style={{ backgroundColor: catColor.avatar }}>
+                                    <div className="w-10 h-10 rounded-xl mr-3 ml-2 shrink-0 flex items-center justify-center text-lg relative overflow-hidden" style={{ backgroundColor: catColor.avatar }}>
                                         <div className="absolute inset-0 bg-gradient-to-br from-slate-200/50 to-transparent" />
                                         {(biz as any).logoUrl ? (
                                             <img
