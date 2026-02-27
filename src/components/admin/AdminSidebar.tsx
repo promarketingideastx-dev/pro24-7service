@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import {
     LayoutDashboard, Building2, Users, FileImage,
     Bell, CreditCard, Settings, Scale, BookOpen,
-    ChevronLeft, ChevronRight, Map, BarChart2, Crown
+    ChevronLeft, ChevronRight, Map, BarChart2, Crown, Store, ArrowLeft
 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { AdminNotificationService } from '@/services/adminNotification.service';
@@ -29,7 +29,6 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
     useEffect(() => {
         const unsubN = AdminNotificationService.onUnreadCount(setUnreadNotifs);
         const unsubD = DisputeService.onUnreadCount(setOpenDisputes);
-        // Pending collaborators = new accounts without activatedBy
         const { onSnapshot, query, collection, where } = require('firebase/firestore');
         const q = query(
             collection(require('@/lib/firebase').db, 'businesses_public'),
@@ -126,12 +125,24 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
                 })}
             </nav>
 
-            {/* Footer */}
-            {isOpen && (
-                <div className="p-4 border-t border-slate-200">
+            {/* Footer — Back to Business + version */}
+            <div className="p-3 border-t border-slate-200 space-y-2">
+                <Link
+                    href={lp('/business/dashboard')}
+                    title="Volver a mi Negocio"
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-xl transition-all w-full
+                        bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-900 border border-emerald-200"
+                >
+                    <ArrowLeft size={15} className="shrink-0" />
+                    <Store size={16} className="shrink-0" />
+                    {isOpen && (
+                        <span className="text-sm font-semibold whitespace-nowrap">Volver a mi Negocio</span>
+                    )}
+                </Link>
+                {isOpen && (
                     <p className="text-[10px] text-slate-600 text-center">PRO24/7 Admin v1.0</p>
-                </div>
-            )}
+                )}
+            </div>
         </aside>
     );
 }
