@@ -218,12 +218,12 @@ export default function Home() {
 
     return (
         <>
-            <main className="h-screen bg-[#F4F6F8] text-slate-900 overflow-hidden font-sans flex flex-col">
+            <main className="h-dvh bg-[#F4F6F8] text-slate-900 overflow-hidden font-sans flex flex-col" style={{ height: '100dvh' }}>
                 {/* ── Header ── */}
-                <header className="shrink-0 bg-gradient-to-br from-slate-800 to-slate-900 px-5 pt-5 pb-5 z-50">
+                <header className="shrink-0 bg-gradient-to-br from-slate-800 to-slate-900 px-4 pt-3 pb-3 sm:px-5 sm:pt-5 sm:pb-5 z-50">
 
                     {/* Row 1: Country + Actions */}
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-2 sm:mb-4">
 
                         {/* Left: Country Selector */}
                         <button onClick={clearCountry} className="flex items-center gap-2.5 group">
@@ -234,10 +234,10 @@ export default function Home() {
                                     className="w-full h-full object-cover"
                                 />
                             </div>
-                            <span className="text-white font-bold text-xl leading-none group-hover:text-white/80 transition-colors">
+                            <span className="text-white font-bold text-sm sm:text-xl leading-none group-hover:text-white/80 transition-colors">
                                 {selectedCountry.name}
                             </span>
-                            <MapPin className="w-4 h-4 text-white/70 group-hover:text-white transition-colors" />
+                            <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-white/70 group-hover:text-white transition-colors" />
                         </button>
 
                         {/* Right: Share + Login/Avatar */}
@@ -245,10 +245,10 @@ export default function Home() {
                             <button
                                 onClick={() => setShowShare(true)}
                                 title={t('share')}
-                                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#14B8A6] hover:bg-[#0F9488] text-white text-sm font-semibold shadow-[0_4px_12px_rgba(20,184,166,0.35)] transition-all"
+                                className="flex items-center gap-1.5 px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-[#14B8A6] hover:bg-[#0F9488] text-white text-sm font-semibold shadow-[0_4px_12px_rgba(20,184,166,0.35)] transition-all"
                             >
                                 <Share2 size={16} />
-                                <span>{t('share')}</span>
+                                <span className="hidden sm:inline">{t('share')}</span>
                             </button>
 
                             {user ? (
@@ -319,7 +319,7 @@ export default function Home() {
 
                     {/* Row 2: Search bar — with autocomplete */}
                     <div className="relative">
-                        <div className="flex items-center bg-white rounded-2xl px-5 py-3.5 shadow-md gap-2">
+                        <div className="flex items-center bg-white rounded-2xl px-4 py-2.5 sm:px-5 sm:py-3.5 shadow-md gap-2">
                             <Search className="w-5 h-5 text-slate-400 shrink-0" />
                             <input
                                 ref={searchInputRef}
@@ -373,7 +373,7 @@ export default function Home() {
 
 
                     {/* Status Filter Chips */}
-                    <div className="shrink-0 px-6 pt-3 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
+                    <div className="shrink-0 px-4 pt-2 pb-1 sm:px-6 sm:pt-3 sm:pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
                         {(['all', 'new', 'withSchedule'] as const).map((f) => {
                             const labels: Record<string, string> = { all: t('allServices'), new: '🆕 Nuevos', withSchedule: '📅 Con Agenda' };
                             const active = statusFilter === f;
@@ -381,7 +381,7 @@ export default function Home() {
                                 <button
                                     key={f}
                                     onClick={() => setStatusFilter(f)}
-                                    className={`shrink-0 px-4 py-2 rounded-full text-sm font-semibold border transition-all ${active
+                                    className={`shrink-0 px-3 py-1 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold border transition-all ${active
                                         ? 'bg-[#14B8A6] text-white border-[#14B8A6] shadow-md shadow-teal-500/20'
                                         : 'bg-white text-slate-700 border-slate-300 hover:border-[#14B8A6]/50 hover:text-[#0F766E]'
                                         }`}
@@ -393,30 +393,30 @@ export default function Home() {
                     </div>
 
                     {/* Categories Row */}
-                    <div className="shrink-0 px-6 pb-0">
-                        <div className="flex justify-between items-start gap-2 overflow-x-auto no-scrollbar py-1">
+                    <div className="shrink-0 px-3 sm:px-6 pb-0">
+                        <div className="flex justify-between items-start gap-1 sm:gap-2 overflow-x-auto no-scrollbar py-1">
                             {categories.map((cat, idx) => (
                                 <div
                                     key={idx}
                                     onClick={() => handleCategoryClick(cat.id)}
-                                    className="flex flex-col items-center gap-2 min-w-[72px] flex-1 cursor-pointer group"
+                                    className="flex flex-col items-center gap-1 sm:gap-2 min-w-[60px] sm:min-w-[72px] flex-1 cursor-pointer group"
                                 >
                                     <div className={`
-                     w-[58px] h-[58px] sm:w-[72px] sm:h-[72px] rounded-2xl flex items-center justify-center text-2xl sm:text-3xl
+                     w-9 h-9 sm:w-[58px] sm:h-[58px] md:w-[72px] md:h-[72px] rounded-xl sm:rounded-2xl flex items-center justify-center text-lg sm:text-2xl md:text-3xl
                      ${cat.bg} border ${cat.border}
                      shadow-sm
                      group-hover:scale-110 group-active:scale-95 transition-transform duration-200
                    `}>
                                         <span>{cat.icon}</span>
                                     </div>
-                                    <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors text-center leading-tight">{cat.name}</span>
+                                    <span className="text-[9px] sm:text-xs md:text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors text-center leading-tight">{cat.name}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
 
                     {/* Hero Carousel — replaces map */}
-                    <div className="shrink-0 mx-6 mb-3 rounded-3xl overflow-hidden border border-slate-200 shadow-xl" style={{ height: '260px' }}>
+                    <div className="shrink-0 mx-3 mb-2 sm:mx-6 sm:mb-3 rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 shadow-xl" style={{ height: 'clamp(120px, 23vh, 260px)' }}>
                         <HeroCarousel
                             slides={[
                                 {
@@ -642,7 +642,7 @@ export default function Home() {
                     </div>
 
                     {/* Featured Pros List (Scrollable Fill) */}
-                    <div className="flex-1 overflow-y-auto px-6 pb-24 space-y-3 custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto px-3 sm:px-6 pb-24 space-y-3 custom-scrollbar">
                         {filteredBusinesses.map((biz) => {
                             // Category theme color
                             const catColor =
