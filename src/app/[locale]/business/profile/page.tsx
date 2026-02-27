@@ -23,6 +23,7 @@ import SpecialtyPicker from '@/components/business/SpecialtyPicker';
 import { useCountry } from '@/context/CountryContext';
 import PlacesLocationPicker, { LocationResult } from '@/components/business/setup/PlacesLocationPicker';
 import ImageCropModal from '@/components/ui/ImageCropModal';
+import SmartAddressInput from '@/components/ui/SmartAddressInput';
 
 export default function BusinessProfilePage() {
     const { user, userProfile } = useAuth();
@@ -466,12 +467,10 @@ export default function BusinessProfilePage() {
                             {/* Physical address — editable text, independent of GPS picker */}
                             <div>
                                 <label className="block text-slate-400 text-xs uppercase mb-1">{t('address')}</label>
-                                <input
-                                    type="text"
+                                <SmartAddressInput
                                     value={formData.address || ''}
-                                    onChange={e => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                                    onChange={(addr) => setFormData(prev => ({ ...prev, address: addr }))}
                                     placeholder="Ej: Pasaje Valle Local #50, Edificio Central"
-                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-slate-900 focus:border-brand-neon-cyan focus:outline-none"
                                 />
                                 <p className="text-xs text-slate-400 mt-1">Dirección física que verán tus clientes.</p>
                             </div>
