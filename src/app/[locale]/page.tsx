@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { Search, MapPin, Star, Bell, Filter, Grid, Zap, User, X, ChevronRight, Store, Share2 } from 'lucide-react';
 import { DEMO_BUSINESSES, BusinessMock } from '@/data/mockBusinesses';
@@ -16,6 +16,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import PublicBusinessPreviewModal from '@/components/ui/PublicBusinessPreviewModal';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import ShareAppModal from '@/components/ui/ShareAppModal';
+import SearchAutocomplete from '@/components/ui/SearchAutocomplete';
 
 const MapLoader = () => {
     const t = useTranslations('home');
@@ -33,6 +34,8 @@ export default function Home() {
 
     /* State for simple filtering */
     const [searchTerm, setSearchTerm] = useState('');
+    const [showAutocomplete, setShowAutocomplete] = useState(false);
+    const searchInputRef = useRef<HTMLInputElement>(null);
     const [statusFilter, setStatusFilter] = useState<'all' | 'new' | 'withSchedule'>('all');
     /* State for Category Modal */
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -144,18 +147,25 @@ export default function Home() {
         const term = searchTerm.trim();
         if (!term) return true;
 
-        // tags[] is always kept in sync with all specific services across all subcategories
+        // Helper: extract text from a tag that may be a string or {es, en, pt} object
+        const tagText = (tag: any) => typeof tag === 'string' ? tag : Object.values(tag || {}).join(' ');
         const allTags = (b as any).tags || [];
         const allSubcategories = (b as any).subcategories || (b.subcategory ? [b.subcategory] : []);
+        // specialtiesBySubcategory: { subcatId: [{es,en,pt},...] } — extract all labels
+        const specialtiesBySubcat = (b as any).specialtiesBySubcategory || {};
+        const allSpecialtyTexts = Object.values(specialtiesBySubcat)
+            .flat()
+            .map(tagText)
+            .join(' ');
 
-        const searchableText = `
-            ${b.name} 
-            ${b.category} 
-            ${allSubcategories.join(' ')}
-            ${allTags.join(' ')} 
-            ${(b.tags || []).join(' ')} 
-            ${b.description || ''}
-        `;
+        const searchableText = [
+            b.name,
+            b.category,
+            allSubcategories.join(' '),
+            allTags.map(tagText).join(' '),
+            allSpecialtyTexts,
+            b.description || '',
+        ].join(' ');
 
         return matchesSearch(searchableText, term);
     }).filter(b => {
@@ -307,36 +317,53 @@ export default function Home() {
                         </div>
                     </div>
 
-                    {/* Row 2: Search bar — white card floating on teal */}
-                    <div className="flex items-center bg-white rounded-2xl px-5 py-3.5 shadow-md gap-2">
-                        <Search className="w-5 h-5 text-slate-400 shrink-0" />
-                        <input
-                            type="text"
-                            placeholder={t('searchPlaceholder')}
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="bg-transparent w-full outline-none text-slate-900 placeholder-slate-400 text-base font-medium"
-                        />
-                        {searchTerm && (
-                            <button onClick={() => setSearchTerm('')} className="p-1 rounded-full hover:bg-slate-100 transition-colors shrink-0">
-                                <X className="w-5 h-5 text-slate-400" />
-                            </button>
-                        )}
-                        {/* Filter Button */}
-                        <button
-                            onClick={() => setShowFilters(true)}
-                            className={`relative shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold border transition-all ${activeFilterCount > 0
-                                ? 'bg-[#14B8A6] text-white border-[#14B8A6] shadow-md shadow-teal-500/20'
-                                : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-[#14B8A6]/50'
-                                }`}
-                        >
-                            <Filter className="w-4 h-4" />
-                            {activeFilterCount > 0 && (
-                                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                                    {activeFilterCount}
-                                </span>
+                    {/* Row 2: Search bar — with autocomplete */}
+                    <div className="relative">
+                        <div className="flex items-center bg-white rounded-2xl px-5 py-3.5 shadow-md gap-2">
+                            <Search className="w-5 h-5 text-slate-400 shrink-0" />
+                            <input
+                                ref={searchInputRef}
+                                type="text"
+                                placeholder={t('searchPlaceholder')}
+                                value={searchTerm}
+                                onChange={(e) => { setSearchTerm(e.target.value); setShowAutocomplete(true); }}
+                                onFocus={() => setShowAutocomplete(true)}
+                                onBlur={() => setTimeout(() => setShowAutocomplete(false), 150)}
+                                onKeyDown={(e) => { if (e.key === 'Escape' || e.key === 'Enter') setShowAutocomplete(false); }}
+                                className="bg-transparent w-full outline-none text-slate-900 placeholder-slate-400 text-base font-medium"
+                            />
+                            {searchTerm && (
+                                <button onClick={() => { setSearchTerm(''); setShowAutocomplete(false); }} className="p-1 rounded-full hover:bg-slate-100 transition-colors shrink-0">
+                                    <X className="w-5 h-5 text-slate-400" />
+                                </button>
                             )}
-                        </button>
+                            {/* Filter Button */}
+                            <button
+                                onClick={() => setShowFilters(true)}
+                                className={`relative shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold border transition-all ${activeFilterCount > 0
+                                    ? 'bg-[#14B8A6] text-white border-[#14B8A6] shadow-md shadow-teal-500/20'
+                                    : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-[#14B8A6]/50'
+                                    }`}
+                            >
+                                <Filter className="w-4 h-4" />
+                                {activeFilterCount > 0 && (
+                                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                                        {activeFilterCount}
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+
+                        {/* Autocomplete Dropdown */}
+                        {showAutocomplete && searchTerm.trim().length >= 2 && (
+                            <SearchAutocomplete
+                                query={searchTerm}
+                                businesses={businesses}
+                                locale={localeKey as 'es' | 'en' | 'pt'}
+                                onSelect={(value) => { setSearchTerm(value); setShowAutocomplete(false); }}
+                                onClose={() => setShowAutocomplete(false)}
+                            />
+                        )}
                     </div>
                 </header>
 
