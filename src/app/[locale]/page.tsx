@@ -49,6 +49,16 @@ export default function Home() {
     const [filterHasSchedule, setFilterHasSchedule] = useState(false);
     const activeFilterCount = (filterCategory ? 1 : 0) + (filterRating > 0 ? 1 : 0) + (filterHasSchedule ? 1 : 0);
 
+    /* Map state: collapsed by default on mobile, gesture lock */
+    const [mapExpanded, setMapExpanded] = useState(false);
+    const [mapActive, setMapActive] = useState(false);
+    const mapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const activateMap = useCallback(() => {
+        setMapActive(true);
+        if (mapTimerRef.current) clearTimeout(mapTimerRef.current);
+        mapTimerRef.current = setTimeout(() => setMapActive(false), 4000);
+    }, []);
+
     /* Country Context */
     const { selectedCountry, isLoading: isCountryLoading, clearCountry } = useCountry();
 
@@ -415,8 +425,11 @@ export default function Home() {
                         </div>
                     </div>
 
-                    {/* Map Widget (Responsive Height) */}
-                    <div className="shrink-0 mx-6 mb-4 rounded-3xl overflow-hidden border border-slate-200 shadow-2xl group cursor-pointer isolate relative transition-all duration-300 h-[35vh] min-h-[250px] max-h-[400px] md:h-[400px]">
+                    {/* Map Widget — collapsible with gesture lock overlay */}
+                    <div
+                        className="shrink-0 mx-6 mb-2 rounded-3xl overflow-hidden border border-slate-200 shadow-2xl isolate relative transition-all duration-500 ease-in-out"
+                        style={{ height: mapExpanded ? 'min(35vh, 400px)' : '130px' }}
+                    >
                         <DynamicMap
                             businesses={filteredBusinesses}
                             selectedBusiness={selectedBusiness}
@@ -427,14 +440,42 @@ export default function Home() {
                             countryCode={selectedCountry?.code}
                         />
 
-                        {/* Map Label (Overlay) */}
-                        <div className="absolute bottom-4 left-4 z-[1000] pointer-events-none">
+                        {/* Gesture Lock Overlay (mobile) — blocks accidental map pan */}
+                        {!mapActive && (
+                            <div
+                                className="absolute inset-0 z-[1001] flex items-center justify-center md:hidden"
+                                onTouchStart={activateMap}
+                                onClick={activateMap}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                {/* Semi-transparent center badge */}
+                                <div className="bg-slate-900/60 backdrop-blur-sm rounded-2xl px-4 py-2.5 flex items-center gap-2 shadow-xl border border-white/10">
+                                    <span className="text-base">👆</span>
+                                    <span className="text-sm font-semibold text-white">Toca para interactuar</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Live badge bottom-left */}
+                        <div className="absolute bottom-3 left-3 z-[1000] pointer-events-none">
                             <div className="bg-slate-800/90 backdrop-blur px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-2">
                                 <MapPin className="w-3 h-3 text-cyan-400" />
                                 <span className="text-xs font-bold text-white">{selectedCountry?.mainCity || 'San Pedro Sula'} (En Vivo)</span>
-                                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                             </div>
                         </div>
+
+                        {/* Expand / Collapse toggle — bottom-right */}
+                        <button
+                            onClick={() => { setMapExpanded(v => !v); setMapActive(false); }}
+                            className="absolute bottom-3 right-3 z-[1002] flex items-center gap-1.5 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg border border-slate-200 text-xs font-bold text-slate-700 hover:bg-white transition-all"
+                        >
+                            {mapExpanded ? (
+                                <><span>↑</span> Minimizar</>
+                            ) : (
+                                <><span>↓</span> Expandir mapa</>
+                            )}
+                        </button>
                     </div>
 
                     {/* Featured Pros List (Scrollable Fill) */}
