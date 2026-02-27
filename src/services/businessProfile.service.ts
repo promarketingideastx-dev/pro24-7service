@@ -112,6 +112,11 @@ export interface BusinessProfileData {
     city?: string;
     department: string;
     country?: string;
+    // Exact GPS coordinates from Google Places (optional — falls back to Nominatim geocoding)
+    lat?: number;
+    lng?: number;
+    placeId?: string;           // Google Place ID for navigation link
+    googleMapsUrl?: string;      // Direct "Cómo llegar" URL
     images: string[];
     coverImage?: string;
     logoUrl?: string;
@@ -419,7 +424,15 @@ export const BusinessProfileService = {
                 ? Object.values(data.specialtiesBySubcategory).flat()
                 : (data.specialties || []);
 
-            // 2. Prepare Public Payload (Safe for everyone)
+            // 2. Prepare location: use exact Google Places coords if available, else geocode
+            let location: { lat: number; lng: number };
+            if (data.lat && data.lng) {
+                location = { lat: data.lat, lng: data.lng };
+            } else {
+                location = await geocodeAddress(data.city, data.department, data.country, data.address);
+            }
+
+            // 3. Prepare Public Payload (Safe for everyone)
             const publicPayload = {
                 id: userId,
                 name: data.businessName,
@@ -440,7 +453,9 @@ export const BusinessProfileService = {
                 website: data.website || '',
                 phone: data.phone || '',
                 socialMedia: data.socialMedia || { instagram: '', facebook: '', tiktok: '' },
-                location: await geocodeAddress(data.city, data.department, data.country, data.address),
+                location,
+                placeId: data.placeId || null,
+                googleMapsUrl: data.googleMapsUrl || null,
                 modality: data.modality,
                 status: 'active',
                 openingHours: data.openingHours || null,

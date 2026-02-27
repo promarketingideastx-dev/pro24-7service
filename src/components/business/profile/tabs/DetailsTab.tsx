@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin, Phone, Globe, Clock, MessageCircle, Banknote, Building2, Wallet } from 'lucide-react';
+import { MapPin, Phone, Globe, Clock, MessageCircle, Banknote, Building2, Wallet, Navigation } from 'lucide-react';
 import WeeklyScheduleView from '@/components/business/public/WeeklyScheduleView';
 import OpeningHoursStatus from '@/components/business/public/OpeningHoursStatus';
 import dynamic from 'next/dynamic';
@@ -85,13 +85,45 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                 tags: business.tags || [],
                                 lat: business.lat || business.location?.lat || 15.50417,
                                 lng: business.lng || business.location?.lng || -88.02500,
-                                icon: '📍',
+                                icon: '\uD83D\uDCCD',
                                 color: 'bg-brand-neon-cyan',
                                 description: business.description || '',
                                 countryCode: business.country || 'HN'
                             }]}
                         />
                     </div>
+
+                    {/* Cómo llegar button */}
+                    {(() => {
+                        const lat = business.location?.lat || business.lat;
+                        const lng = business.location?.lng || business.lng;
+                        const placeId = business.placeId;
+                        const name = business.name;
+                        const city = business.city || business.department || '';
+
+                        let mapsUrl: string | null = null;
+                        if (placeId) {
+                            mapsUrl = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
+                        } else if (lat && lng) {
+                            mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
+                        } else if (name && city) {
+                            mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(`${name} ${city}`)}`;
+                        }
+
+                        if (!mapsUrl) return null;
+
+                        return (
+                            <a
+                                href={mapsUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-3 flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white font-semibold text-sm transition-all active:scale-95 shadow-md shadow-blue-500/30"
+                            >
+                                <Navigation className="w-4 h-4" />
+                                Cómo llegar
+                            </a>
+                        );
+                    })()}
 
                     {business.phone && (() => {
                         const cleanPhone = business.phone.replace(/\D/g, '');

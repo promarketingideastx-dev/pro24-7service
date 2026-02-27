@@ -19,6 +19,8 @@ import { useCountry } from '@/context/CountryContext';
 import { getCountryConfig } from '@/lib/locations';
 import { ActiveCountry } from '@/lib/activeCountry';
 import { toast } from 'sonner';
+import PlacesLocationPicker, { LocationResult } from '@/components/business/setup/PlacesLocationPicker';
+
 
 const STEPS = [
     { id: 1, title: 'Información', icon: Building },
@@ -52,6 +54,10 @@ export default function BusinessSetupPage() {
         city: '',
         department: '',
         address: '',
+        lat: undefined,
+        lng: undefined,
+        placeId: undefined,
+        googleMapsUrl: undefined,
         category: '',
         subcategory: '',
         specialties: [],
@@ -123,6 +129,11 @@ export default function BusinessSetupPage() {
                 city: formData.city,
                 department: formData.department!, // Pass department
                 country: formData.country,
+                // Exact GPS coordinates from Google Places picker
+                lat: formData.lat,
+                lng: formData.lng,
+                placeId: formData.placeId,
+                googleMapsUrl: formData.googleMapsUrl,
                 images: formData.images || [],
                 userId: user.uid,
                 email: formData.email!,
@@ -318,16 +329,34 @@ export default function BusinessSetupPage() {
                             </p>
                         </div>
 
+                        {/* Google Places Location Picker */}
                         <div>
-                            <label className="block text-slate-400 text-sm mb-1">Dirección Exacta (Barrio/Colonia)</label>
-                            <input
-                                type="text"
-                                value={formData.address}
-                                onChange={e => setFormData({ ...formData, address: e.target.value })}
-                                className="w-full h-12 bg-white border border-slate-200 rounded-lg px-4 text-white focus:outline-none focus:border-brand-neon-cyan"
-                                placeholder="Colonia, Calle, # de Casa/Local"
+                            <label className="block text-slate-400 text-sm mb-2">
+                                Dirección Exacta
+                                {formData.lat && (
+                                    <span className="ml-2 text-xs text-green-400 font-medium">✓ Ubicación guardada</span>
+                                )}
+                            </label>
+                            <PlacesLocationPicker
+                                onLocationSelect={(result: LocationResult) => {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        address: result.formattedAddress,
+                                        lat: result.lat,
+                                        lng: result.lng,
+                                        placeId: result.placeId,
+                                        googleMapsUrl: result.googleMapsUrl,
+                                        // Auto-fill city/department if not already set
+                                        city: prev.city || result.city || prev.city,
+                                        department: prev.department || result.department || prev.department,
+                                    }));
+                                }}
+                                initialAddress={formData.address}
+                                initialLat={formData.lat}
+                                initialLng={formData.lng}
                             />
                         </div>
+
                         <div>
                             <label className="block text-slate-400 text-sm mb-1">Modalidad</label>
                             <div className="grid grid-cols-3 gap-2">
