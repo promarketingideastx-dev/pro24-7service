@@ -42,6 +42,12 @@ export default function Home() {
     const [mapExpanded, setMapExpanded] = useState(false);
     const [mapActive, setMapActive] = useState(false);
     const mapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    // Pull-to-refresh (iOS doesn't support native PTR on inner overflow divs)
+    const listRef = useRef<HTMLDivElement>(null);
+    const ptrStartY = useRef<number | null>(null);
+    const [ptrDistance, setPtrDistance] = useState(0);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const PTR_THRESHOLD = 65;
     const activateMap = useCallback(() => {
         setMapActive(true);
         if (mapTimerRef.current) clearTimeout(mapTimerRef.current);
@@ -769,7 +775,41 @@ export default function Home() {
                     </div>
 
                     {/* Featured Pros List (Scrollable Fill) */}
-                    <div className="flex-1 overflow-y-auto px-3 sm:px-6 pb-24 space-y-3 custom-scrollbar">
+                    <div
+                        ref={listRef}
+                        className="flex-1 overflow-y-auto px-3 sm:px-6 pb-24 space-y-3 custom-scrollbar"
+                        style={{ overscrollBehaviorY: 'contain' }}
+                        onTouchStart={(e) => {
+                            if (listRef.current?.scrollTop === 0 && !isRefreshing) {
+                                ptrStartY.current = e.touches[0].clientY;
+                            }
+                        }}
+                        onTouchMove={(e) => {
+                            if (ptrStartY.current === null) return;
+                            const dy = e.touches[0].clientY - ptrStartY.current;
+                            if (dy > 0) setPtrDistance(Math.min(dy * 0.45, PTR_THRESHOLD + 25));
+                        }}
+                        onTouchEnd={() => {
+                            if (ptrDistance >= PTR_THRESHOLD && !isRefreshing) {
+                                setIsRefreshing(true);
+                                setPtrDistance(0);
+                                ptrStartY.current = null;
+                                setTimeout(() => window.location.reload(), 600);
+                            } else {
+                                setPtrDistance(0);
+                                ptrStartY.current = null;
+                            }
+                        }}
+                    >
+                        {/* Pull-to-refresh indicator */}
+                        {(ptrDistance > 5 || isRefreshing) && (
+                            <div
+                                className="flex items-center justify-center overflow-hidden transition-all duration-150"
+                                style={{ height: isRefreshing ? 48 : ptrDistance }}
+                            >
+                                <div className={`w-7 h-7 rounded-full border-[3px] border-[#14B8A6] border-t-transparent ${(ptrDistance >= PTR_THRESHOLD || isRefreshing) ? 'animate-spin' : ''}`} />
+                            </div>
+                        )}
                         {filteredBusinesses.map((biz) => {
                             // Category theme color
                             const catColor =
