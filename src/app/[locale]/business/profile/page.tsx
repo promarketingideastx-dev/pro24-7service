@@ -463,10 +463,23 @@ export default function BusinessProfilePage() {
                                 </div>
                             </div>
 
-                            {/* Google Places Picker */}
+                            {/* Physical address — editable text, independent of GPS picker */}
+                            <div>
+                                <label className="block text-slate-400 text-xs uppercase mb-1">{t('address')}</label>
+                                <input
+                                    type="text"
+                                    value={formData.address || ''}
+                                    onChange={e => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                                    placeholder="Ej: Pasaje Valle Local #50, Edificio Central"
+                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-slate-900 focus:border-brand-neon-cyan focus:outline-none"
+                                />
+                                <p className="text-xs text-slate-400 mt-1">Dirección física que verán tus clientes.</p>
+                            </div>
+
+                            {/* Google Places Picker — only updates GPS pin */}
                             <div>
                                 <label className="block text-slate-400 text-xs uppercase mb-2">
-                                    {t('address')}
+                                    📍 Pin en el mapa (GPS)
                                     {(formData as any).lat && (
                                         <span className="ml-2 text-xs text-green-500 font-medium normal-case">✓ Ubicación exacta guardada</span>
                                     )}
@@ -475,21 +488,23 @@ export default function BusinessProfilePage() {
                                     onLocationSelect={(result: LocationResult) => {
                                         setFormData(prev => ({
                                             ...prev,
-                                            address: result.formattedAddress,
+                                            // Only update GPS fields — do NOT overwrite the user's manual address
                                             lat: result.lat,
                                             lng: result.lng,
                                             placeId: result.placeId,
                                             googleMapsUrl: result.googleMapsUrl,
                                             city: result.city || prev.city,
                                             department: result.department || prev.department,
+                                            // Auto-fill address ONLY if it's currently empty
+                                            address: prev.address || result.formattedAddress,
                                         }));
                                     }}
-                                    initialAddress={formData.address}
+                                    initialAddress={(formData as any).googleMapsUrl ? formData.address : ''}
                                     initialLat={(formData as any).lat}
                                     initialLng={(formData as any).lng}
                                 />
                                 <p className="text-xs text-slate-400 mt-2">
-                                    Busca tu dirección para actualizar el pin en el mapa y el botón "Cómo llegar" de tu perfil público.
+                                    Busca tu negocio para actualizar el pin en el mapa y el botón &quot;Cómo llegar&quot; de tu perfil público.
                                 </p>
                             </div>
                         </div>
