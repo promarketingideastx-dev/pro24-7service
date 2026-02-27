@@ -681,8 +681,15 @@ export default function Home() {
                                         <span className="text-slate-500 text-[10px] truncate">(San Pedro Sula)</span>
                                     </div>
                                 </div>
-                                <div className="hidden group-hover:flex items-center px-2 py-1 bg-[rgba(20,184,166,0.10)] rounded-full text-[10px] text-[#0F766E] font-semibold whitespace-nowrap border border-[#14B8A6]/20">
-                                    {t('viewBtn')}
+                                <div className="flex flex-col items-end gap-1.5 ml-2 shrink-0">
+                                    <div className="hidden group-hover:flex items-center px-2 py-1 bg-[rgba(20,184,166,0.10)] rounded-full text-[10px] text-[#0F766E] font-semibold whitespace-nowrap border border-[#14B8A6]/20">
+                                        {t('viewBtn')}
+                                    </div>
+                                    {/* Double-tap hint: always visible on mobile */}
+                                    <div className="flex md:hidden items-center gap-0.5 text-[9px] text-slate-400 font-medium whitespace-nowrap">
+                                        <span>👆👆</span>
+                                        <span>ver perfil</span>
+                                    </div>
                                 </div>
                             </div>
                         ))}

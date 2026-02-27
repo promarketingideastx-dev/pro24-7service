@@ -72,7 +72,8 @@ export default function HeroCarousel({ slides, onCategoryClick, autoplayMs = 400
                         src={s.image}
                         alt={s.title}
                         fill
-                        className="object-cover object-top"
+                        className="object-cover"
+                        style={{ objectPosition: 'center 15%' }}
                         priority={i === 0}
                         sizes="(max-width: 768px) 100vw, 800px"
                     />
