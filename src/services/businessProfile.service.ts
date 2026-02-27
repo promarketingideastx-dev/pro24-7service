@@ -665,7 +665,12 @@ export const BusinessProfileService = {
                 coverImage: publicData.coverImage,
                 logoUrl: publicData.logoUrl,
                 openingHours: publicData.openingHours || undefined,
-                paymentSettings: privateData.paymentSettings || undefined
+                paymentSettings: privateData.paymentSettings || undefined,
+                // Exact coordinates from Google Places (or stored location object as fallback)
+                lat: publicData.lat ?? publicData.location?.lat,
+                lng: publicData.lng ?? publicData.location?.lng,
+                placeId: publicData.placeId || undefined,
+                googleMapsUrl: publicData.googleMapsUrl || undefined,
             };
         } catch (error) {
             console.error("Error getting profile:", error);
