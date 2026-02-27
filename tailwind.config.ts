@@ -68,5 +68,13 @@ const config: Config = {
         },
     },
     plugins: [],
+    safelist: [
+        // Category icon colors — used dynamically via JS object in page.tsx categories array
+        // JIT won't detect them without an explicit safelist entry
+        'bg-blue-500/10', 'border-blue-500/30', 'text-blue-400',
+        'bg-pink-500/10', 'border-pink-500/30', 'text-pink-400',
+        'bg-purple-500/10', 'border-purple-500/30', 'text-purple-400',
+        'bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-400',
+    ],
 };
 export default config;
