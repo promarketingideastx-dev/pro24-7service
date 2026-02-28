@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Bell } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { unlockAudio, playNotificationSound } from '@/lib/audioUtils';
 import {
     BusinessNotificationService,
@@ -18,6 +19,9 @@ interface BusinessNotifBellProps {
 
 export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps) {
     const t = useTranslations('business.notifications');
+    const locale = useLocale();
+    const router = useRouter();
+    const lp = (path: string) => `/${locale}${path}`;
     const [unread, setUnread] = useState(0);
     const [open, setOpen] = useState(false);
     const [items, setItems] = useState<BusinessNotification[]>([]);
@@ -112,12 +116,22 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
                         <div className="divide-y divide-white/4">
                             {items.map(item => {
                                 const meta = BUSINESS_NOTIF_META[item.type];
+                                const isMessage = item.type === 'new_message' && item.relatedId;
                                 return (
-                                    <div key={item.id} className={`px-4 py-3 flex gap-3 ${item.read ? 'opacity-60' : ''}`}>
+                                    <div
+                                        key={item.id}
+                                        onClick={() => {
+                                            if (isMessage) {
+                                                setOpen(false);
+                                                router.push(lp(`/business/messages?chatId=${item.relatedId}`));
+                                            }
+                                        }}
+                                        className={`px-4 py-3 flex gap-3 ${item.read ? 'opacity-60' : ''} ${isMessage ? 'cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors' : ''}`}
+                                    >
                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-base ${meta.bg}`}>
                                             {meta.emoji}
                                         </div>
-                                        <div className="min-w-0">
+                                        <div className="min-w-0 flex-1">
                                             <p className="text-white text-sm font-semibold leading-tight truncate">{item.title}</p>
                                             <p className="text-slate-400 text-xs mt-0.5 line-clamp-2">{item.body}</p>
                                             {item.createdAt?.toDate && (
@@ -126,6 +140,9 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
                                                 </p>
                                             )}
                                         </div>
+                                        {isMessage && (
+                                            <span className="text-cyan-400 text-[10px] self-center shrink-0">Ver →</span>
+                                        )}
                                     </div>
                                 );
                             })}

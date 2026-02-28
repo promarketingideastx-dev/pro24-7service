@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { MessageCircle, Send, ArrowLeft, Paperclip, Trash2, Trash, FileText, Loader2, X } from 'lucide-react';
 import { ChatService, Chat, ChatMessage } from '@/services/chat.service';
 import { useAuth } from '@/context/AuthContext';
@@ -11,8 +12,10 @@ import { es } from 'date-fns/locale';
 
 const MAX_FILE_MB = 8;
 
-export default function BusinessMessagesPage() {
+function BusinessMessagesContent() {
     const { user } = useAuth();
+    const searchParams = useSearchParams();
+    const autoSelectChatId = searchParams.get('chatId');
     const [businessName, setBusinessName] = useState('Negocio');
 
     useEffect(() => {
@@ -38,16 +41,21 @@ export default function BusinessMessagesPage() {
     const inputRef = useRef<HTMLInputElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Subscribe to business chats
+    // Subscribe to business chats, then auto-select if chatId is in URL
     useEffect(() => {
         if (!user?.uid) return;
         setLoading(true);
         const unsub = ChatService.subscribeToBusinessChats(user.uid, (c) => {
             setChats(c);
             setLoading(false);
+            // Auto-select chat from URL param
+            if (autoSelectChatId) {
+                const target = c.find(ch => ch.id === autoSelectChatId);
+                if (target) setActiveChat(target);
+            }
         });
         return unsub;
-    }, [user?.uid]);
+    }, [user?.uid, autoSelectChatId]);
 
     // Subscribe to messages + filter soft-deleted
     useEffect(() => {
@@ -316,5 +324,13 @@ export default function BusinessMessagesPage() {
                 </div>
             )}
         </div>
+    );
+}
+
+export default function BusinessMessagesPage() {
+    return (
+        <Suspense fallback={null}>
+            <BusinessMessagesContent />
+        </Suspense>
     );
 }
