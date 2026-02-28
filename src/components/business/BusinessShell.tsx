@@ -52,6 +52,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
     ];
 
     const isActive = (path: string) => pathname === path;
+    const isMessagesPage = pathname?.includes('/business/messages');
 
     return (
         <BusinessGuard>
@@ -164,11 +165,18 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                     )}
 
                     {/* Main Content Area */}
-                    <main className="flex-1 overflow-y-auto h-[calc(100vh-64px)] md:h-screen p-4 md:p-8 relative z-10 custom-scrollbar">
-                        <div className="max-w-6xl mx-auto">
+                    {isMessagesPage ? (
+                        // Messages page: full height, no padding, no scroll on main
+                        <main className="flex-1 overflow-hidden flex flex-col relative z-10">
                             {children}
-                        </div>
-                    </main>
+                        </main>
+                    ) : (
+                        <main className="flex-1 overflow-y-auto h-[calc(100vh-64px)] md:h-screen p-4 md:p-8 relative z-10 custom-scrollbar">
+                            <div className="max-w-6xl mx-auto">
+                                {children}
+                            </div>
+                        </main>
+                    )}
                 </div>
             </AppointmentRefreshProvider>
         </BusinessGuard>

@@ -171,7 +171,7 @@ function BusinessMessagesContent() {
     };
 
     return (
-        <div className="-m-4 md:-m-8 h-[calc(100vh-64px)] md:h-screen flex bg-white overflow-hidden border border-slate-200 shadow-sm">
+        <div className="flex-1 min-h-0 flex bg-white overflow-hidden border-x border-slate-200 md:border md:shadow-sm">
 
             {/* ── Left: Chat List ── */}
             <div className={`${activeChat ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-slate-200 bg-[#F8FAFC]`}>
