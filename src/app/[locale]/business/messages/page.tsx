@@ -171,7 +171,7 @@ function BusinessMessagesContent() {
     };
 
     return (
-        <div className="flex-1 min-h-0 flex bg-white overflow-hidden border-x border-slate-200 md:border md:shadow-sm">
+        <div className="flex-1 min-h-0 h-screen flex bg-white overflow-hidden border-x border-slate-200 md:border md:shadow-sm">
 
             {/* ── Left: Chat List ── */}
             <div className={`${activeChat ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-slate-200 bg-[#F8FAFC]`}>
@@ -224,8 +224,8 @@ function BusinessMessagesContent() {
             {/* ── Right: Chat Window ── */}
             {activeChat ? (
                 <div className="flex-1 flex flex-col min-w-0">
-                    {/* Chat header */}
-                    <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-200 bg-white shrink-0">
+                    {/* Chat header — sticky so it never scrolls off */}
+                    <div className="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 border-b border-slate-200 bg-white shrink-0">
                         <button onClick={() => { setActiveChat(null); cancelSelection(); }} className="md:hidden p-1 text-slate-400">
                             <ArrowLeft size={18} />
                         </button>
