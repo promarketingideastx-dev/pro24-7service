@@ -306,6 +306,9 @@ export default function Home() {
                                 <span className="hidden sm:inline">{t('share')}</span>
                             </button>
 
+                            {/* Language Switcher */}
+                            <LanguageSwitcher variant="icon" />
+
                             {user ? (
                                 <div className="flex items-center gap-2 group relative">
                                     {userProfile?.roles?.provider && (
@@ -1123,8 +1126,8 @@ export default function Home() {
                                             disabled={!userCoords && opt.val > 0}
                                             onClick={() => setFilterMaxKm(opt.val)}
                                             className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all disabled:opacity-40 disabled:cursor-not-allowed ${filterMaxKm === opt.val
-                                                    ? 'bg-[#14B8A6] text-white border-[#14B8A6]'
-                                                    : 'bg-white text-slate-700 border-slate-200 hover:border-[#14B8A6]/50'
+                                                ? 'bg-[#14B8A6] text-white border-[#14B8A6]'
+                                                : 'bg-white text-slate-700 border-slate-200 hover:border-[#14B8A6]/50'
                                                 }`}
                                         >
                                             {opt.label}
