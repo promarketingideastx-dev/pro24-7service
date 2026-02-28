@@ -15,7 +15,12 @@ function OnboardingContent() {
     const router = useRouter();
     const locale = useLocale();
     const t = useTranslations('onboarding');
-    const lp = (path: string) => `/${locale}${path}`;
+    const LOCALES = ['es', 'en', 'pt-BR'];
+    const lp = (path: string) => {
+        // Avoid double-prefixing when path already starts with a locale
+        const alreadyPrefixed = LOCALES.some(l => path.startsWith(`/${l}/`) || path === `/${l}`);
+        return alreadyPrefixed ? path : `/${locale}${path}`;
+    };
     const searchParams = useSearchParams();
     const [loading, setLoading] = useState(false);
 
