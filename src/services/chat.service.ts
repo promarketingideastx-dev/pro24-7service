@@ -94,6 +94,18 @@ export const ChatService = {
                 relatedName: senderName,
             }).catch(() => { /* silent */ });
         }
+
+        // 🔔 Notify the client when the business replies
+        if (senderRole === 'business' && chatData?.clientUid) {
+            const { ClientNotificationService } = await import('@/services/clientNotification.service');
+            ClientNotificationService.create(chatData.clientUid, {
+                type: 'new_message',
+                title: `Nuevo mensaje de ${chatData.businessName || senderName}`,
+                body: text.trim().substring(0, 80),
+                relatedId: chatDocId,
+                relatedName: chatData.businessName || senderName,
+            }).catch(() => { /* silent */ });
+        }
     },
 
     // Subscribe to messages in real time

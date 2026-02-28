@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Bell } from 'lucide-react';
+import { Bell, MessageCircle } from 'lucide-react';
 import {
     ClientNotificationService,
     ClientNotification,
@@ -9,12 +9,16 @@ import {
 } from '@/services/clientNotification.service';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useLocale } from 'next-intl';
+import Link from 'next/link';
 
 interface ClientNotifBellProps {
     clientUid: string;
 }
 
 export default function ClientNotifBell({ clientUid }: ClientNotifBellProps) {
+    const locale = useLocale();
+    const lp = (path: string) => `/${locale}${path}`;
     const [unread, setUnread] = useState(0);
     const [open, setOpen] = useState(false);
     const [items, setItems] = useState<ClientNotification[]>([]);
@@ -123,6 +127,18 @@ export default function ClientNotifBell({ clientUid }: ClientNotifBellProps) {
                             })}
                         </div>
                     )}
+
+                    {/* Footer: go to messages page */}
+                    <div className="px-4 py-2.5 border-t border-white/10">
+                        <Link
+                            href={lp('/user/messages')}
+                            onClick={() => setOpen(false)}
+                            className="flex items-center justify-center gap-1.5 text-xs text-[#14B8A6] hover:text-teal-300 font-semibold transition-colors"
+                        >
+                            <MessageCircle size={12} />
+                            Ver todos mis mensajes
+                        </Link>
+                    </div>
                 </div>
             )}
         </div>
