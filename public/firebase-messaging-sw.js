@@ -23,8 +23,8 @@ messaging.onBackgroundMessage((payload) => {
 
     self.registration.showNotification(title ?? 'PRO24/7', {
         body: body ?? '',
-        icon: icon ?? '/icons/icon-192.png',
-        badge: '/icons/icon-192.png',
+        icon: icon ?? '/icon-192.png',
+        badge: '/icon-192.png',
         data: payload.data ?? {},
         // Vibrate pattern for mobile
         vibrate: [200, 100, 200],

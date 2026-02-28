@@ -22,6 +22,9 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: 'black-translucent',
     title: 'Pro24/7YA',
+    startupImage: [
+      { url: '/icon-1024.png' },
+    ],
   },
   formatDetection: {
     telephone: true,
@@ -37,6 +40,7 @@ export const metadata: Metadata = {
     apple: [
       { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
       { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+      { url: '/icon-1024.png', sizes: '1024x1024', type: 'image/png' },
     ],
     shortcut: '/favicon.png',
   },
