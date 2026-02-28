@@ -54,6 +54,14 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
     const isActive = (path: string) => pathname === path;
     const isMessagesPage = pathname?.includes('/business/messages');
 
+    // Prevent body scroll when on messages page (fixes root scrollTop bug)
+    useEffect(() => {
+        if (isMessagesPage) {
+            document.body.style.overflow = 'hidden';
+            return () => { document.body.style.overflow = ''; };
+        }
+    }, [isMessagesPage]);
+
     return (
         <BusinessGuard>
             <AppointmentRefreshProvider>
@@ -64,9 +72,9 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                     <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-500/05 rounded-full blur-[100px] pointer-events-none"></div>
 
                     {/* Mobile Header */}
-                    <div className="md:hidden flex items-center justify-between p-4 bg-white/90 backdrop-blur-md border-b border-slate-200 z-50 sticky top-0">
+                    <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white/90 backdrop-blur-md border-b border-slate-200 z-50 sticky top-0">
                         <div className="flex items-center">
-                            <img src="/logo-header.png" alt="Pro24/7" className="h-20 w-auto object-contain" style={{ maxWidth: '200px' }} />
+                            <img src="/logo-header.png" alt="Pro24/7" className="h-10 w-auto object-contain" style={{ maxWidth: '140px' }} />
                         </div>
                         <div className="flex items-center gap-2">
                             <LanguageSwitcher variant="icon" />
