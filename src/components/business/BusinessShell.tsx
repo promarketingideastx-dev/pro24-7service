@@ -22,7 +22,10 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
     const pathname = usePathname();
     const locale = useLocale();
     const t = useTranslations('business.nav');
-    const lp = (path: string) => `/${locale}${path}`;
+    const lp = (path: string) => {
+        if (path.startsWith(`/${locale}/`) || path === `/${locale}`) return path;
+        return `/${locale}${path}`;
+    };
 
     useEffect(() => {
         if (!user) return;

@@ -14,7 +14,11 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
     // Extract locale from pathname (e.g. /en/business/dashboard -> 'en')
     const localeMatch = pathname.match(/^\/([a-z]{2}(?:-[A-Z]{2})?)(?:\/|$)/);
     const locale = localeMatch ? localeMatch[1] : 'es';
-    const lp = (path: string) => `/${locale}${path}`;
+    // Guard: never double-add locale prefix
+    const lp = (path: string) => {
+        if (path.startsWith(`/${locale}/`) || path === `/${locale}`) return path;
+        return `/${locale}${path}`;
+    };
 
     useEffect(() => {
         if (loading) return;
@@ -47,8 +51,8 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
 
         // 4. Check Business Profile Existence
         const hasBusiness = !!userProfile.businessProfileId;
-        const isSetupPage = pathname.startsWith('/business/setup');
-        const isBusinessRoute = pathname.startsWith('/business');
+        const isSetupPage = pathname.includes('/business/setup');
+        const isBusinessRoute = pathname.includes('/business');
 
         if (hasBusiness) {
             // Provider WITH business
