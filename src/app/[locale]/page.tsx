@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import { Search, MapPin, Star, Bell, Filter, Grid, Zap, User, X, ChevronRight, Store, Share2 } from 'lucide-react';
+import { Search, MapPin, Star, Bell, Filter, Grid, Zap, User, X, ChevronRight, Store, Share2, Navigation } from 'lucide-react';
+import { haversineKm, formatDistance } from '@/lib/geoUtils';
 import { DEMO_BUSINESSES, BusinessMock } from '@/data/mockBusinesses';
 import { TAXONOMY } from '@/lib/taxonomy';
 import { matchesSearch, findSuggestion } from '@/lib/searchUtils';
@@ -36,7 +37,35 @@ export default function Home() {
     const [filterCategory, setFilterCategory] = useState<string | null>(null);
     const [filterRating, setFilterRating] = useState<number>(0);
     const [filterHasSchedule, setFilterHasSchedule] = useState(false);
-    const activeFilterCount = (filterCategory ? 1 : 0) + (filterRating > 0 ? 1 : 0) + (filterHasSchedule ? 1 : 0);
+
+    /* Geolocation */
+    const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
+    const [geoLoading, setGeoLoading] = useState(false);
+    const [geoError, setGeoError] = useState<string | null>(null);
+    const [filterMaxKm, setFilterMaxKm] = useState<number>(0); // 0 = sin límite
+
+    const activeFilterCount = (filterCategory ? 1 : 0) + (filterRating > 0 ? 1 : 0) + (filterHasSchedule ? 1 : 0) + (filterMaxKm > 0 ? 1 : 0);
+
+    const requestLocation = () => {
+        setGeoLoading(true);
+        setGeoError(null);
+        if (!navigator.geolocation) {
+            setGeoError('Tu navegador no soporta geolocalización');
+            setGeoLoading(false);
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+                setGeoLoading(false);
+            },
+            () => {
+                setGeoError('No se pudo obtener tu ubicación. Verifica los permisos.');
+                setGeoLoading(false);
+            },
+            { timeout: 10000 }
+        );
+    };
 
     /* Map state: collapsed by default on mobile, gesture lock */
     const [mapExpanded, setMapExpanded] = useState(false);
@@ -200,6 +229,25 @@ export default function Home() {
         if (filterRating > 0 && ((b as any).rating ?? 5.0) < filterRating) return false;
         if (filterHasSchedule && !((b as any).openingHours || (b as any).hasSchedule)) return false;
         return true;
+    }).filter(b => {
+        // Distance filter
+        if (!userCoords || filterMaxKm === 0) return true;
+        const bizLat = (b as any).location?.lat ?? b.lat;
+        const bizLng = (b as any).location?.lng ?? b.lng;
+        if (bizLat == null || bizLng == null) return true; // no coords → include
+        const dist = haversineKm(userCoords.lat, userCoords.lng, bizLat, bizLng);
+        return dist <= filterMaxKm;
+    }).sort((a, b) => {
+        // Sort by distance when user location is known
+        if (!userCoords) return 0;
+        const aLat = (a as any).location?.lat ?? a.lat;
+        const aLng = (a as any).location?.lng ?? a.lng;
+        const bLat = (b as any).location?.lat ?? b.lat;
+        const bLng = (b as any).location?.lng ?? b.lng;
+        if (aLat == null || bLat == null) return 0;
+        const distA = haversineKm(userCoords.lat, userCoords.lng, aLat, aLng);
+        const distB = haversineKm(userCoords.lat, userCoords.lng, bLat, bLng);
+        return distA - distB;
     });
 
     // Effect: Suggestions mechanism (Run when results are empty)
@@ -853,10 +901,22 @@ export default function Home() {
                                                 return biz.subcategory;
                                             })()}
                                         </p>
-                                        <div className="flex items-center gap-1">
+                                        <div className="flex items-center gap-1.5">
                                             <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                                            <span className="text-yellow-400 font-bold text-[10px]">5.0</span>
-                                            <span className="text-slate-500 text-[10px] truncate">(San Pedro Sula)</span>
+                                            <span className="text-yellow-400 font-bold text-[10px]">{((biz as any).rating ?? 5.0).toFixed(1)}</span>
+                                            {userCoords && (() => {
+                                                const bizLat = (biz as any).location?.lat ?? biz.lat;
+                                                const bizLng = (biz as any).location?.lng ?? biz.lng;
+                                                if (bizLat == null) return null;
+                                                const dist = haversineKm(userCoords.lat, userCoords.lng, bizLat, bizLng);
+                                                return (
+                                                    <span className="flex items-center gap-0.5 text-[10px] text-teal-600 font-semibold">
+                                                        <Navigation className="w-2.5 h-2.5" />
+                                                        {formatDistance(dist)}
+                                                    </span>
+                                                );
+                                            })()}
+                                            {!userCoords && <span className="text-slate-500 text-[10px] truncate">({(biz as any).city || (biz as any).location?.city || 'Pro24/7'})</span>}
                                         </div>
                                     </div>
                                     <div className="flex flex-col items-end gap-1.5 ml-2 shrink-0">
@@ -985,7 +1045,7 @@ export default function Home() {
                                 </h3>
                                 {activeFilterCount > 0 && (
                                     <button
-                                        onClick={() => { setFilterCategory(null); setFilterRating(0); setFilterHasSchedule(false); }}
+                                        onClick={() => { setFilterCategory(null); setFilterRating(0); setFilterHasSchedule(false); setFilterMaxKm(0); }}
                                         className="text-xs text-red-500 font-semibold hover:text-red-600 transition-colors"
                                     >
                                         Limpiar filtros
@@ -1023,6 +1083,48 @@ export default function Home() {
                                             className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${filterRating === opt.val
                                                 ? 'bg-[#14B8A6] text-white border-[#14B8A6]'
                                                 : 'bg-white text-slate-700 border-slate-200 hover:border-[#14B8A6]/50'
+                                                }`}
+                                        >
+                                            {opt.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Section: Distancia */}
+                            <div className="mb-5">
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Distancia</p>
+
+                                {/* Request location button */}
+                                {!userCoords ? (
+                                    <button
+                                        onClick={requestLocation}
+                                        disabled={geoLoading}
+                                        className="flex items-center gap-2 w-full px-4 py-3 rounded-2xl border border-dashed border-teal-400 bg-teal-50 text-teal-700 text-sm font-semibold hover:bg-teal-100 transition-all disabled:opacity-60 mb-2"
+                                    >
+                                        <Navigation className="w-4 h-4 shrink-0" />
+                                        {geoLoading ? 'Obteniendo ubicación...' : '📍 Usar mi ubicación'}
+                                    </button>
+                                ) : (
+                                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-teal-50 border border-teal-200 text-teal-700 text-xs font-semibold mb-2">
+                                        <Navigation className="w-3.5 h-3.5" />
+                                        Ubicación activa ✅
+                                        <button onClick={() => { setUserCoords(null); setFilterMaxKm(0); }} className="ml-auto text-red-400 hover:text-red-600 text-xs">Quitar</button>
+                                    </div>
+                                )}
+
+                                {geoError && <p className="text-xs text-red-500 mb-2">{geoError}</p>}
+
+                                {/* Distance options */}
+                                <div className="flex flex-wrap gap-2">
+                                    {[{ val: 0, label: 'Sin límite' }, { val: 5, label: '5 km' }, { val: 10, label: '10 km' }, { val: 25, label: '25 km' }, { val: 50, label: '50 km' }].map(opt => (
+                                        <button
+                                            key={opt.val}
+                                            disabled={!userCoords && opt.val > 0}
+                                            onClick={() => setFilterMaxKm(opt.val)}
+                                            className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all disabled:opacity-40 disabled:cursor-not-allowed ${filterMaxKm === opt.val
+                                                    ? 'bg-[#14B8A6] text-white border-[#14B8A6]'
+                                                    : 'bg-white text-slate-700 border-slate-200 hover:border-[#14B8A6]/50'
                                                 }`}
                                         >
                                             {opt.label}
