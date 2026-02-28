@@ -17,6 +17,7 @@ import PublicBusinessPreviewModal from '@/components/ui/PublicBusinessPreviewMod
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import ShareAppModal from '@/components/ui/ShareAppModal';
 import SearchAutocomplete from '@/components/ui/SearchAutocomplete';
+import ClientNotifBell from '@/components/ui/ClientNotifBell';
 
 export default function Home() {
     const [showShare, setShowShare] = useState(false);
@@ -308,6 +309,9 @@ export default function Home() {
 
                             {/* Language Switcher */}
                             <LanguageSwitcher variant="icon" />
+
+                            {/* Client Notification Bell — only for logged-in users */}
+                            {user && <ClientNotifBell clientUid={user.uid} />}
 
                             {user ? (
                                 <div className="flex items-center gap-2 group relative">

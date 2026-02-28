@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Appointment, AppointmentService, AppointmentStatus } from '@/services/appointment.service';
 import { BusinessNotificationService } from '@/services/businessNotification.service';
+import { ClientNotificationService } from '@/services/clientNotification.service';
 import { format } from 'date-fns';
 import { es, enUS, ptBR } from 'date-fns/locale';
 import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, User, MessageCircle } from 'lucide-react';
@@ -158,6 +159,17 @@ export default function AppointmentInbox({
                 '✅ Cita confirmada',
                 `Tu cita de ${apt.serviceName} con ${businessName || 'el negocio'} fue confirmada.`
             );
+
+            // In-app bell notification for the client
+            if (apt.customerUid) {
+                ClientNotificationService.create(apt.customerUid, {
+                    type: 'appointment_confirmed',
+                    title: '✅ Cita confirmada',
+                    body: `Tu cita de ${apt.serviceName} con ${businessName || 'el negocio'} fue confirmada.`,
+                    relatedId: apt.id,
+                    relatedName: businessName,
+                }).catch(() => { });
+            }
         } catch (error) {
             console.error('Error accepting:', error);
             toast.error(t('updateError'));
@@ -195,6 +207,17 @@ export default function AppointmentInbox({
                 '📋 Actualización de cita',
                 `Tu solicitud de ${rejectTarget.serviceName} con ${businessName || 'el negocio'} no pudo ser confirmada.`
             );
+
+            // In-app bell notification for the client
+            if (rejectTarget.customerUid) {
+                ClientNotificationService.create(rejectTarget.customerUid, {
+                    type: 'appointment_rejected',
+                    title: '❌ Cita no confirmada',
+                    body: `Tu cita de ${rejectTarget.serviceName} con ${businessName || 'el negocio'} no pudo confirmarse.`,
+                    relatedId: rejectTarget.id,
+                    relatedName: businessName,
+                }).catch(() => { });
+            }
 
             setRejectTarget(null);
             setRejectReason(DEFAULT_REJECTION_TEXT);
