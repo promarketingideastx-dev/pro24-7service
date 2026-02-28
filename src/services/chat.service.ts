@@ -3,6 +3,7 @@ import {
     collection, doc, getDoc, setDoc, addDoc, updateDoc,
     query, orderBy, limit, onSnapshot, serverTimestamp, increment
 } from 'firebase/firestore';
+import { BusinessNotificationService } from '@/services/businessNotification.service';
 
 export interface ChatMessage {
     id?: string;
@@ -74,12 +75,25 @@ export const ChatService = {
 
         // Update chat metadata
         const chatRef = doc(db, 'chats', chatDocId);
+        const chatSnap = await getDoc(chatRef);
+        const chatData = chatSnap.data();
         const unreadField = senderRole === 'client' ? 'unreadBusiness' : 'unreadClient';
         await updateDoc(chatRef, {
             lastMessage: text.trim(),
             lastMessageAt: serverTimestamp(),
             [unreadField]: increment(1),
         });
+
+        // 🔔 Notify the business when a client sends a message
+        if (senderRole === 'client' && chatData?.businessId) {
+            BusinessNotificationService.create(chatData.businessId, {
+                type: 'new_message',
+                title: `Nuevo mensaje de ${senderName}`,
+                body: text.trim().substring(0, 80),
+                relatedId: chatDocId,
+                relatedName: senderName,
+            }).catch(() => { /* silent */ });
+        }
     },
 
     // Subscribe to messages in real time

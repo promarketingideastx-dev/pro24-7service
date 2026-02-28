@@ -89,7 +89,10 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                                     <div className="flex items-center">
                                         <img src="/logo-header.png" alt="Pro24/7" className="h-36 w-auto object-contain" style={{ maxWidth: '200px' }} />
                                     </div>
-                                    <LanguageSwitcher variant="icon" />
+                                    <div className="flex items-center gap-2">
+                                        {user?.uid && <BusinessNotifBell businessId={user.uid} />}
+                                        <LanguageSwitcher variant="icon" />
+                                    </div>
                                 </div>
 
                                 {/* SWITCH TO CLIENT MODE */}

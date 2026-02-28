@@ -10,7 +10,8 @@ export type BusinessNotifType =
     | 'new_appointment'          // Client booked
     | 'appointment_confirmed'    // Business confirmed → notify client
     | 'appointment_rejected'     // Business rejected  → notify client
-    | 'payment_received';        // Payment processed
+    | 'payment_received'         // Payment processed
+    | 'new_message';             // Client sent a chat message
 
 export interface BusinessNotification {
     id: string;
@@ -100,4 +101,5 @@ export const BUSINESS_NOTIF_META: Record<BusinessNotifType, { emoji: string; col
     appointment_confirmed: { emoji: '✅', color: '#10b981', bg: 'bg-emerald-500/10' },
     appointment_rejected: { emoji: '❌', color: '#ef4444', bg: 'bg-red-500/10' },
     payment_received: { emoji: '💳', color: '#a78bfa', bg: 'bg-purple-500/10' },
+    new_message: { emoji: '💬', color: '#14b8a6', bg: 'bg-teal-500/10' },
 };
