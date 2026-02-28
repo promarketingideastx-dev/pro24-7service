@@ -11,6 +11,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useLocale } from 'next-intl';
 import Link from 'next/link';
+import { unlockAudio, playNotificationSound } from '@/lib/audioUtils';
 
 interface ClientNotifBellProps {
     clientUid: string;
@@ -22,14 +23,18 @@ export default function ClientNotifBell({ clientUid }: ClientNotifBellProps) {
     const [unread, setUnread] = useState(0);
     const [open, setOpen] = useState(false);
     const [items, setItems] = useState<ClientNotification[]>([]);
-    const prevUnread = useRef(0);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const prevUnread = useRef(-1);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // Load audio
+    // Unlock iOS audio on first user touch/click
     useEffect(() => {
-        audioRef.current = new Audio('/sounds/notification.mp3');
-        audioRef.current.volume = 0.6;
+        const unlock = () => unlockAudio();
+        document.addEventListener('touchstart', unlock, { once: true });
+        document.addEventListener('click', unlock, { once: true });
+        return () => {
+            document.removeEventListener('touchstart', unlock);
+            document.removeEventListener('click', unlock);
+        };
     }, []);
 
     // Unread badge + sound
@@ -38,7 +43,7 @@ export default function ClientNotifBell({ clientUid }: ClientNotifBellProps) {
         prevUnread.current = -1;
         const unsub = ClientNotificationService.onUnreadCount(clientUid, (count) => {
             if (count > prevUnread.current && prevUnread.current !== -1) {
-                try { audioRef.current?.play(); } catch { /* silent */ }
+                playNotificationSound();
             }
             prevUnread.current = count;
             setUnread(count);

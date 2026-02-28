@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Bell } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { unlockAudio, playNotificationSound } from '@/lib/audioUtils';
 import {
     BusinessNotificationService,
     BusinessNotification,
@@ -20,14 +21,18 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
     const [unread, setUnread] = useState(0);
     const [open, setOpen] = useState(false);
     const [items, setItems] = useState<BusinessNotification[]>([]);
-    const prevUnread = useRef(0);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const prevUnread = useRef(-1);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // Load audio
+    // Unlock iOS audio on first user touch/click
     useEffect(() => {
-        audioRef.current = new Audio('/sounds/notification.mp3');
-        audioRef.current.volume = 0.6;
+        const unlock = () => unlockAudio();
+        document.addEventListener('touchstart', unlock, { once: true });
+        document.addEventListener('click', unlock, { once: true });
+        return () => {
+            document.removeEventListener('touchstart', unlock);
+            document.removeEventListener('click', unlock);
+        };
     }, []);
 
     // Unread badge + sound on new notif
@@ -35,7 +40,7 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
         if (!businessId) return;
         const unsub = BusinessNotificationService.onUnreadCount(businessId, (count) => {
             if (count > prevUnread.current && prevUnread.current !== -1) {
-                try { audioRef.current?.play(); } catch { /* silent */ }
+                playNotificationSound();
             }
             prevUnread.current = count;
             setUnread(count);

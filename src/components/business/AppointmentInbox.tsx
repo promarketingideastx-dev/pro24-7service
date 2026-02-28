@@ -10,6 +10,7 @@ import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, User, MessageCircle
 import { toast } from 'sonner';
 import { useAppointmentRefresh } from '@/context/AppointmentRefreshContext';
 import { useTranslations, useLocale } from 'next-intl';
+import { unlockAudio, playNotificationSound } from '@/lib/audioUtils';
 
 interface AppointmentInboxProps {
     businessId: string;
@@ -49,15 +50,17 @@ export default function AppointmentInbox({
     const MAX_CHARS = 250;
 
     // ── Sound ─────────────────────────────────────────────────────────────────
-    const audioRef = useRef<HTMLAudioElement | null>(null);
     useEffect(() => {
-        audioRef.current = new Audio('/sounds/notification.mp3');
-        audioRef.current.volume = 0.6;
+        const unlock = () => unlockAudio();
+        document.addEventListener('touchstart', unlock, { once: true });
+        document.addEventListener('click', unlock, { once: true });
+        return () => {
+            document.removeEventListener('touchstart', unlock);
+            document.removeEventListener('click', unlock);
+        };
     }, []);
 
-    const playSound = () => {
-        try { audioRef.current?.play(); } catch { /* silent */ }
-    };
+    const playSound = () => playNotificationSound();
 
     // ── Fetch ─────────────────────────────────────────────────────────────────
     const fetchAppointments = async () => {
