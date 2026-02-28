@@ -15,7 +15,7 @@ try {
 
     firebase.initializeApp({
         apiKey: 'AIzaSyB5ZOlW9HiOya4g0nKPHW202CRUzTlf4fo',
-        authDomain: 'service-marketplace-mvp-28884.firebaseapp.com',
+        authDomain: 'pro247ya.com',
         projectId: 'service-marketplace-mvp-28884',
         storageBucket: 'service-marketplace-mvp-28884.firebasestorage.app',
         messagingSenderId: '914462693945',
