@@ -244,17 +244,20 @@ export default function ClientMessagesPage() {
                                 <div className="flex items-center gap-1.5">
                                     <span className="text-xs text-slate-500">{selectedMsgs.size} sel.</span>
                                     <button onClick={handleDeleteSelected} disabled={selectedMsgs.size === 0}
-                                        className="p-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 disabled:opacity-40 transition-colors">
-                                        <Trash2 size={15} />
+                                        className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-red-500 text-white text-xs font-semibold hover:bg-red-600 disabled:opacity-40 transition-colors">
+                                        <Trash2 size={13} />
+                                        Borrar
                                     </button>
                                     <button onClick={cancelSelection} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
                                         <X size={15} />
                                     </button>
                                 </div>
                             ) : (
-                                <button onClick={handleDeleteAllRead} title="Borrar mensajes leídos"
-                                    className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors">
-                                    <Trash size={15} />
+                                <button onClick={handleDeleteAllRead}
+                                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors text-xs font-medium shrink-0"
+                                    title="Borrar mensajes leídos">
+                                    <Trash size={14} />
+                                    <span className="hidden sm:inline">Borrar leídos</span>
                                 </button>
                             )}
                         </div>

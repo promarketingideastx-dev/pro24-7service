@@ -183,8 +183,9 @@ export default function ChatModal({ businessId, businessName, onClose }: ChatMod
                                 <>
                                     <span className="text-xs text-slate-400 mr-1">{selectedMsgs.size} sel.</span>
                                     <button onClick={handleDeleteSelected} disabled={selectedMsgs.size === 0}
-                                        className="p-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 disabled:opacity-40 transition-colors">
-                                        <Trash2 size={16} />
+                                        className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-red-500 text-white text-xs font-semibold hover:bg-red-600 disabled:opacity-40 transition-colors">
+                                        <Trash2 size={13} />
+                                        Borrar
                                     </button>
                                     <button onClick={cancelSelection} className="p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors">
                                         <X size={16} />
@@ -192,9 +193,11 @@ export default function ChatModal({ businessId, businessName, onClose }: ChatMod
                                 </>
                             ) : (
                                 <>
-                                    <button onClick={handleDeleteAllRead} title="Borrar mensajes leídos"
-                                        className="p-2 rounded-lg bg-white/10 text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors">
-                                        <Trash size={16} />
+                                    <button onClick={handleDeleteAllRead}
+                                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors text-xs font-medium"
+                                        title="Borrar mensajes leídos">
+                                        <Trash size={13} />
+                                        Borrar
                                     </button>
                                     <button onClick={onClose} className="p-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors">
                                         <X size={16} />
