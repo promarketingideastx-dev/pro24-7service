@@ -186,12 +186,21 @@ export const ChatService = {
         chatDocId: string,
         file: File
     ): Promise<{ fileUrl: string; fileType: 'image' | 'pdf' | 'file'; fileName: string }> {
-        const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
-        const fileType: 'image' | 'pdf' | 'file' =
-            ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic'].includes(ext) ? 'image'
-                : ext === 'pdf' ? 'pdf'
-                    : 'file';
-        const path = `chats/${chatDocId}/${Date.now()}_${file.name}`;
+        // Detect by MIME type first (handles iOS HEIC / blobs with no ext)
+        let fileType: 'image' | 'pdf' | 'file' = 'file';
+        if (file.type.startsWith('image/')) {
+            fileType = 'image';
+        } else if (file.type === 'application/pdf') {
+            fileType = 'pdf';
+        } else {
+            // Fallback: check extension
+            const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif'].includes(ext)) fileType = 'image';
+            else if (ext === 'pdf') fileType = 'pdf';
+        }
+        // Sanitize filename (remove spaces/special chars)
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_') || `file_${Date.now()}`;
+        const path = `chats/${chatDocId}/${Date.now()}_${safeName}`;
         const storageRef = ref(storage, path);
         await uploadBytes(storageRef, file);
         const fileUrl = await getDownloadURL(storageRef);

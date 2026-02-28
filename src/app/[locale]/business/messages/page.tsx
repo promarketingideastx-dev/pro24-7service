@@ -163,7 +163,7 @@ export default function BusinessMessagesPage() {
     };
 
     return (
-        <div className="h-[calc(100vh-60px)] flex bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+        <div className="-m-4 md:-m-8 h-[calc(100vh-64px)] md:h-screen flex bg-white overflow-hidden border border-slate-200 shadow-sm">
 
             {/* ── Left: Chat List ── */}
             <div className={`${activeChat ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-slate-200 bg-[#F8FAFC]`}>
