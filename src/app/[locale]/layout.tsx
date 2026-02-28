@@ -3,7 +3,7 @@ import { getMessages, setRequestLocale } from 'next-intl/server';
 import { Providers } from '../providers';
 import { Toaster } from 'sonner';
 import CookieConsent from '@/components/ui/CookieConsent';
-import FCMRegistrar from '@/components/ui/FCMRegistrar';
+import NotificationBanner from '@/components/ui/NotificationBanner';
 import SWRegistrar from '@/components/ui/SWRegistrar';
 
 const LOCALES = ['es', 'en', 'pt-BR'];
@@ -31,7 +31,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider locale={validLocale} messages={messages}>
             <Providers>
                 {children}
-                <FCMRegistrar />
+                <NotificationBanner />
                 <SWRegistrar />
                 <Toaster position="top-right" theme="dark" richColors />
                 <CookieConsent />
