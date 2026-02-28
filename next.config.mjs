@@ -21,6 +21,20 @@ const nextConfig = {
         }
         return config;
     },
+    // Proxy Firebase Auth handler so pro247ya.com works as authDomain
+    // Without this, /__/auth/handler returns 404 breaking Google/Apple login
+    async rewrites() {
+        return [
+            {
+                source: '/__/auth/:path*',
+                destination: 'https://service-marketplace-mvp-28884.firebaseapp.com/__/auth/:path*',
+            },
+            {
+                source: '/__/firebase/:path*',
+                destination: 'https://service-marketplace-mvp-28884.firebaseapp.com/__/firebase/:path*',
+            },
+        ];
+    },
     // FORCE BUILD SUCCESS: Ignore strict type/lint checks on Vercel
     typescript: {
         ignoreBuildErrors: true,
