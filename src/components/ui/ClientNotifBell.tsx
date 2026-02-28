@@ -19,7 +19,7 @@ interface ClientNotifBellProps {
 
 export default function ClientNotifBell({ clientUid }: ClientNotifBellProps) {
     const locale = useLocale();
-    const lp = (path: string) => `/${locale}${path}`;
+    const messagesPath = `/${locale}/user/messages`;
     const [unread, setUnread] = useState(0);
     const [open, setOpen] = useState(false);
     const [items, setItems] = useState<ClientNotification[]>([]);
@@ -136,7 +136,7 @@ export default function ClientNotifBell({ clientUid }: ClientNotifBellProps) {
                     {/* Footer: go to messages page */}
                     <div className="px-4 py-2.5 border-t border-white/10">
                         <Link
-                            href={lp('/user/messages')}
+                            href={messagesPath}
                             onClick={() => setOpen(false)}
                             className="flex items-center justify-center gap-1.5 text-xs text-[#14B8A6] hover:text-teal-300 font-semibold transition-colors"
                         >

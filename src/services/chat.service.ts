@@ -1,6 +1,6 @@
 import { db, storage } from '@/lib/firebase';
 import {
-    collection, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc,
+    collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc,
     query, orderBy, limit, onSnapshot, serverTimestamp, increment, writeBatch
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -279,35 +279,38 @@ export const ChatService = {
         }
     },
 
-    /** Hard-delete all messages marked as read (unread counts are 0) from both sides */
+    /** Soft-delete (for caller only) or hard-delete (everyone) all messages in a chat. */
     async deleteAllRead(
         chatDocId: string,
         callerUid: string,
         callerRole: 'client' | 'business'
     ) {
+        // Fetch chat meta to decide soft vs hard
+        const chatSnap = await getDoc(doc(db, 'chats', chatDocId));
+        const chatData = chatSnap.data();
+        const unreadBusiness = chatData?.unreadBusiness ?? 0;
+        const unreadClient = chatData?.unreadClient ?? 0;
+        const bothRead = unreadBusiness === 0 && unreadClient === 0;
+
+        // Fetch all messages
         const q = query(
             collection(db, 'chats', chatDocId, 'messages'),
             orderBy('createdAt', 'asc'),
             limit(200)
         );
-        const snap = await getDoc(doc(db, 'chats', chatDocId));
-        const chatData = snap.data();
-        const unreadBusiness = chatData?.unreadBusiness ?? 0;
-        const unreadClient = chatData?.unreadClient ?? 0;
-        const bothRead = unreadBusiness === 0 && unreadClient === 0;
+        const msgSnap = await getDocs(q);
+        if (msgSnap.empty) return;
 
-        const msgSnap = await import('firebase/firestore').then(fb =>
-            fb.getDocs(q)
-        );
         const batch = writeBatch(db);
         msgSnap.docs.forEach(d => {
             if (bothRead) {
-                // Soft-delete for caller
+                // Soft-delete: hide only for this user
                 const existing: string[] = d.data().deletedFor ?? [];
                 if (!existing.includes(callerUid)) {
                     batch.update(d.ref, { deletedFor: [...existing, callerUid] });
                 }
             } else {
+                // Hard-delete: remove for everyone
                 batch.delete(d.ref);
             }
         });
