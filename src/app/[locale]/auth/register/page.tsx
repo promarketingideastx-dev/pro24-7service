@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense, useEffect } from 'react';
+import { useState, Suspense, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -17,6 +17,8 @@ function RegisterForm() {
     const lp = (path: string) => `/${locale}${path}`;
     const searchParams = useSearchParams();
     const returnTo = searchParams.get('returnTo') || lp('/');
+    // Prevents the useEffect redirect from firing when handleRegister/handleGoogle already redirected
+    const redirectingRef = useRef(false);
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -26,15 +28,15 @@ function RegisterForm() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Auto-redirect when user is already authenticated (e.g., after signInWithRedirect returns)
+    // Fallback redirect: only fires if no explicit redirect was already triggered
+    // (e.g. after mobile Google signInWithRedirect returns)
     useEffect(() => {
-        if (!authLoading && user) {
+        if (!authLoading && user && !redirectingRef.current) {
             const stored = sessionStorage.getItem('auth_redirect_to');
             if (stored) {
                 sessionStorage.removeItem('auth_redirect_to');
                 router.replace(stored);
             } else {
-                // New user via Google: go to onboarding to pick a role
                 router.replace(lp('/onboarding'));
             }
         }
@@ -116,10 +118,12 @@ function RegisterForm() {
                 }),
             }).catch(() => { /* silently ignore email errors */ });
 
+            // Mark that we are handling the redirect ourselves
+            redirectingRef.current = true;
+
             if (intent === 'client' || intent === 'business') {
                 await UserService.setUserRole(user.uid, role);
 
-                // UX: Persist in local storage just in case
                 if (typeof window !== 'undefined') {
                     localStorage.setItem('pro247_user_mode', intent);
                 }
@@ -130,7 +134,8 @@ function RegisterForm() {
                     router.replace(lp('/'));
                 }
             } else {
-                router.replace(lp('/onboarding'));
+                // No intent → go to home (already has profile from Firebase Auth)
+                router.replace(lp('/'));
             }
 
         } catch (err: any) {
@@ -156,10 +161,19 @@ function RegisterForm() {
         setLoading(true);
         setError(null);
         try {
-            const loggedUser = await AuthService.loginWithGoogle(lp('/onboarding'));
-            if (!loggedUser) return; // Mobile: redirect in progress, page navigates away
+            const intent = searchParams.get('intent');
+            // Store redirect target in session so the mobile redirect flow picks it up
+            const redirectAfterLogin = intent === 'business'
+                ? lp('/business/setup')
+                : intent === 'client'
+                    ? lp('/')
+                    : lp('/onboarding');
+
+            const loggedUser = await AuthService.loginWithGoogle(redirectAfterLogin);
+            if (!loggedUser) return; // Mobile redirect flow — page navigates away
 
             // Desktop popup: check existing role to redirect correctly
+            redirectingRef.current = true;
             const profile = await UserService.getUserProfile(loggedUser.uid);
             const role = profile?.role;
             const isAdmin = profile?.roles?.admin === true;
@@ -170,9 +184,14 @@ function RegisterForm() {
                 router.replace(lp('/business/dashboard'));
             } else if (role === 'client') {
                 router.replace(lp('/'));
+            } else if (intent === 'business') {
+                // New user via Google with business intent
+                await UserService.setUserRole(loggedUser.uid, 'provider');
+                router.replace(lp('/business/setup'));
             } else {
-                // New user — needs to select role
-                router.replace(lp('/onboarding'));
+                // New user via Google — go home (client by default)
+                await UserService.setUserRole(loggedUser.uid, 'client');
+                router.replace(lp('/'));
             }
         } catch (err: any) {
             console.error(err);
