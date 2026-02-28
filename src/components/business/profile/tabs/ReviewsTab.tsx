@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Star, MessageSquare, User, Loader2, PenTool } from 'lucide-react';
 import { ReviewsService, Review } from '@/services/businessProfile.service';
+import { db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import WriteReviewModal from '../../public/WriteReviewModal';
 import { formatDistanceToNow } from 'date-fns';
 import { es, enUS, ptBR } from 'date-fns/locale';
@@ -12,9 +14,10 @@ import { toast } from 'sonner';
 
 interface ReviewsTabProps {
     business: any;
+    onRatingUpdate?: (rating: number, count: number) => void;
 }
 
-export default function ReviewsTab({ business }: ReviewsTabProps) {
+export default function ReviewsTab({ business, onRatingUpdate }: ReviewsTabProps) {
     const { user } = useAuth();
     const t = useTranslations('business.publicProfile');
     const locale = useLocale();
@@ -54,10 +57,20 @@ export default function ReviewsTab({ business }: ReviewsTabProps) {
         setIsModalOpen(true);
     };
 
-    const handleReviewSuccess = () => {
+    const handleReviewSuccess = async () => {
         loadReviews();
         setCount((prev: number) => prev + 1);
         toast.success(t('reviewPublished'));
+        // Refresh rating from Firestore so header updates reactively
+        if (onRatingUpdate && business.id) {
+            try {
+                const snap = await getDoc(doc(db, 'businesses_public', business.id));
+                if (snap.exists()) {
+                    const data = snap.data();
+                    onRatingUpdate(data.rating ?? 0, data.reviewCount ?? 0);
+                }
+            } catch { /* silent */ }
+        }
     };
 
     return (

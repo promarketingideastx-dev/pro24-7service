@@ -151,7 +151,12 @@ export default function BusinessProfilePage() {
             )}
 
             {activeTab === 'reviews' && (
-                <ReviewsTab business={displayData} />
+                <ReviewsTab
+                    business={displayData}
+                    onRatingUpdate={(rating, count) => {
+                        setPublicData((prev: any) => prev ? { ...prev, rating, reviewCount: count } : prev);
+                    }}
+                />
             )}
 
             {activeTab === 'details' && (

@@ -272,7 +272,10 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-400">
                                     <span className="flex items-center text-[#0F766E] font-medium bg-[rgba(20,184,166,0.1)] px-2 py-0.5 rounded">
                                         <Award className="w-4 h-4 mr-1" />
-                                        {business.rating || '5.0'}
+                                        {business.reviewCount > 0
+                                            ? (business.rating ? business.rating.toFixed(1) : '—')
+                                            : <span className="text-xs">Nuevo</span>
+                                        }
                                     </span>
                                     <span>•</span>
                                     <span className="flex items-center">

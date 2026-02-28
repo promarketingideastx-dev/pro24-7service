@@ -79,7 +79,7 @@ export default function WriteReviewModal({ isOpen, onClose, onSuccess, businessI
 
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-slate-200">
-                    <h3 className="text-xl font-bold text-white">{t('rateTitle', { name: businessName })}</h3>
+                    <h3 className="text-xl font-bold text-slate-900">{t('rateTitle', { name: businessName })}</h3>
                     <button
                         onClick={onClose}
                         className="p-2 text-slate-400 hover:text-slate-800 rounded-full hover:bg-slate-50 transition-colors"
@@ -123,14 +123,14 @@ export default function WriteReviewModal({ isOpen, onClose, onSuccess, businessI
 
                     {/* Comment */}
                     <div className="space-y-2">
-                        <label className="text-sm text-slate-300 font-medium">
+                        <label className="text-sm text-slate-600 font-medium">
                             {t('tellUsYourExperience')}
                         </label>
                         <textarea
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
                             placeholder={t('placeholder')}
-                            className="w-full bg-slate-900/50 border border-slate-200 rounded-xl p-4 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-neon-cyan/50 resize-none h-32"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-neon-cyan/50 resize-none h-32"
                         />
                         <div className="flex justify-end">
                             <span className={`text-xs ${comment.length > 0 && comment.length < 10 ? 'text-red-400' : 'text-slate-500'}`}>
@@ -145,7 +145,7 @@ export default function WriteReviewModal({ isOpen, onClose, onSuccess, businessI
                 <div className="p-6 border-t border-slate-200 bg-black/20 flex gap-3 justify-end">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 text-slate-300 hover:text-slate-800 font-medium transition-colors"
+                        className="px-4 py-2 text-slate-500 hover:text-slate-800 font-medium transition-colors"
                     >
                         {t('cancel')}
                     </button>

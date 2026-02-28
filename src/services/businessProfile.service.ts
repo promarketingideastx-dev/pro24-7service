@@ -446,7 +446,7 @@ export const BusinessProfileService = {
                 department: data.department || '',
                 country: data.country || 'HN',
                 tags: allTags,
-                rating: 5.0,
+                rating: 0,
                 reviewCount: 0,
                 coverImage: data.images[0] || null,
                 shortDescription: data.description.substring(0, 150),
