@@ -39,6 +39,11 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
         return <>{children}</>;
     }
 
+    // The messages page has its own full-screen layout — skip the shell
+    if (pathname?.includes('/business/messages')) {
+        return <>{children}</>;
+    }
+
     const menuItems = [
         { name: t('dashboard'), href: lp('/business/dashboard'), icon: <LayoutDashboard size={20} /> },
         { name: t('agenda'), href: lp('/business/agenda'), icon: <Calendar size={20} /> },
@@ -52,15 +57,6 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
     ];
 
     const isActive = (path: string) => pathname === path;
-    const isMessagesPage = pathname?.includes('/business/messages');
-
-    // Prevent body scroll when on messages page (fixes root scrollTop bug)
-    useEffect(() => {
-        if (isMessagesPage) {
-            document.body.style.overflow = 'hidden';
-            return () => { document.body.style.overflow = ''; };
-        }
-    }, [isMessagesPage]);
 
     return (
         <BusinessGuard>
@@ -173,18 +169,11 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                     )}
 
                     {/* Main Content Area */}
-                    {isMessagesPage ? (
-                        // Messages page: full height, no padding, no scroll on main
-                        <main className="flex-1 overflow-hidden flex flex-col relative z-10">
+                    <main className="flex-1 overflow-y-auto h-[calc(100vh-64px)] md:h-screen p-4 md:p-8 relative z-10 custom-scrollbar">
+                        <div className="max-w-6xl mx-auto">
                             {children}
-                        </main>
-                    ) : (
-                        <main className="flex-1 overflow-y-auto h-[calc(100vh-64px)] md:h-screen p-4 md:p-8 relative z-10 custom-scrollbar">
-                            <div className="max-w-6xl mx-auto">
-                                {children}
-                            </div>
-                        </main>
-                    )}
+                        </div>
+                    </main>
                 </div>
             </AppointmentRefreshProvider>
         </BusinessGuard>
