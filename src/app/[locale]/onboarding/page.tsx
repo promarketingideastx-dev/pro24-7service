@@ -88,7 +88,7 @@ function OnboardingContent() {
                 </h1>
                 <p className="text-slate-400 mb-10 text-center text-sm md:text-base">
                     {isLoginMode
-                        ? 'Selecciona tu perfil para continuar con el inicio de sesión.'
+                        ? t('subtitleLogin')
                         : t('subtitle')
                     }
                 </p>
@@ -108,7 +108,7 @@ function OnboardingContent() {
                             {t('clientDesc')}
                         </p>
                         <div className="mt-6 px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs font-bold">
-                            {isLoginMode ? 'Iniciar sesión como cliente →' : 'Crear cuenta gratis →'}
+                            {isLoginMode ? t('loginAsClient') : t('registerFree')}
                         </div>
                     </button>
 
@@ -126,7 +126,7 @@ function OnboardingContent() {
                             {t('providerDesc')}
                         </p>
                         <div className="mt-6 px-4 py-2 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-xs font-bold">
-                            {isLoginMode ? 'Iniciar sesión como negocio →' : 'Registrar mi negocio →'}
+                            {isLoginMode ? t('loginAsBusiness') : t('registerBusiness')}
                         </div>
                     </button>
                 </div>

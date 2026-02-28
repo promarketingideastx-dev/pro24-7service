@@ -31,12 +31,19 @@ const STEPS = [
 ];
 
 export default function BusinessSetupPage() {
-    const { user, userProfile } = useAuth();
+    const { user, userProfile, loading: authLoading } = useAuth();
     // const { selectedCountry } = useCountry(); // Remove direct context usage if we want strict ActiveCountry
     const router = useRouter();
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showMultiArea, setShowMultiArea] = useState(false); // Toggle for additional areas
+
+    // Auth guard — redirect unauthenticated users to onboarding
+    useEffect(() => {
+        if (!authLoading && !user) {
+            router.replace('/onboarding');
+        }
+    }, [user, authLoading]);
 
     // Active Country Logic
     // const activeCountryCode = ActiveCountry.get(); // Moved to State initialization to avoid hydration mismatch? 
