@@ -15,6 +15,7 @@ import ReviewsTab from '@/components/business/profile/tabs/ReviewsTab';
 import DetailsTab from '@/components/business/profile/tabs/DetailsTab';
 import TeamTab from '@/components/business/profile/tabs/TeamTab';
 import AppInstallBanner from '@/components/ui/AppInstallBanner';
+import ChatModal from '@/components/ui/ChatModal';
 import { PlanService } from '@/services/plan.service';
 import { AnalyticsService } from '@/services/analytics.service';
 
@@ -33,6 +34,7 @@ export default function BusinessProfilePage() {
 
     // UI State (Moved up to prevent conditional hook error)
     const [activeTab, setActiveTab] = useState('services');
+    const [isChatOpen, setIsChatOpen] = useState(false);
 
     // Combine data logic (Moved up)
     const isOwner = user?.uid === id;
@@ -171,6 +173,25 @@ export default function BusinessProfilePage() {
 
             {/* App Install Banner — shows to mobile visitors who don't have the app */}
             {!isOwner && <AppInstallBanner businessName={displayData.name} />}
+
+            {/* Floating Chat Button — visible to logged-in clients (not the owner) */}
+            {user && !isOwner && (
+                <button
+                    onClick={() => setIsChatOpen(true)}
+                    className="fixed bottom-24 right-5 z-[200] w-14 h-14 rounded-full bg-[#14B8A6] hover:bg-[#0F9488] shadow-[0_4px_20px_rgba(20,184,166,0.45)] flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95"
+                    title="Chatear con el negocio"
+                >
+                    <MessageSquare className="w-6 h-6" />
+                </button>
+            )}
+
+            {/* Chat Modal */}
+            <ChatModal
+                isOpen={isChatOpen}
+                onClose={() => setIsChatOpen(false)}
+                businessId={id}
+                businessName={displayData?.name || 'Negocio'}
+            />
         </BusinessProfileLayout>
     );
 }
