@@ -888,11 +888,8 @@ export default function Home() {
                                 <div
                                     key={biz.id}
                                     onClick={() => {
-                                        if (!isRevealed) {
-                                            setRevealedCardId(biz.id);
-                                        } else {
-                                            handleBusinessClick(biz);
-                                        }
+                                        setRevealedCardId(biz.id);
+                                        handleBusinessClick(biz);
                                     }}
                                     style={{ borderColor: selectedBusiness?.id === biz.id ? catColor.border : undefined, backgroundColor: catColor.bg }}
                                     className={`flex items-center p-3 border rounded-2xl transition-all cursor-pointer group overflow-hidden relative
