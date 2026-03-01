@@ -315,7 +315,7 @@ export default function Home() {
 
                             {user ? (
                                 <div className="flex items-center gap-2 group relative">
-                                    {userProfile?.roles?.provider && (
+                                    {(userProfile?.roles?.provider || userProfile?.role === 'provider' || userProfile?.isAdmin) && (
                                         <button
                                             onClick={() => router.push(lp('/business/dashboard'))}
                                             className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition-all"
@@ -339,7 +339,7 @@ export default function Home() {
                                             <p className="text-xs text-slate-400">{t('loggedInAs')}</p>
                                             <p className="text-sm text-slate-800 font-medium truncate">{user.email}</p>
                                         </div>
-                                        {userProfile?.roles?.provider && (
+                                        {(userProfile?.roles?.provider || userProfile?.role === 'provider' || userProfile?.isAdmin) && (
                                             <button
                                                 onClick={() => router.push(lp('/business/dashboard'))}
                                                 className="w-full text-left px-3 py-2 rounded-lg text-[#14B8A6] hover:bg-slate-50 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
