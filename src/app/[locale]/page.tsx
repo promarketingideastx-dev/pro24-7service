@@ -118,14 +118,16 @@ export default function Home() {
             try {
                 // Dynamically import service to avoid server-side issues if any
                 const { BusinessProfileService } = await import('@/services/businessProfile.service');
-                const realBiz = await BusinessProfileService.getPublicBusinesses();
+                const realBiz = await BusinessProfileService.getPublicBusinesses(selectedCountry?.code);
 
                 let combined = realBiz || [];
 
                 // Strict Mock Logic: Only add demos if flag is explicitly true
                 if (process.env.NEXT_PUBLIC_USE_MOCKS === 'true') {
                     const { DEMO_BUSINESSES } = await import('@/data/mockBusinesses');
-                    combined = [...DEMO_BUSINESSES, ...combined];
+                    // In a real app we might filter mocks by country too, but for now we just append them all or filter simple
+                    const countryMocks = selectedCountry ? DEMO_BUSINESSES.filter(b => b.countryCode === selectedCountry.code || b.countryCode === 'Global' || !b.countryCode) : DEMO_BUSINESSES;
+                    combined = [...countryMocks, ...combined];
                 }
 
                 if (combined.length > 0) {
@@ -139,8 +141,11 @@ export default function Home() {
                 console.error("Failed to load real businesses:", error);
             }
         };
-        loadData();
-    }, []);
+
+        if (!isCountryLoading) {
+            loadData();
+        }
+    }, [selectedCountry?.code, isCountryLoading]);
 
     const handleNavigate = (biz: BusinessMock) => {
         if (!user) {
@@ -232,22 +237,24 @@ export default function Home() {
         return true;
     }).filter(b => {
         // Distance filter
-        if (!userCoords || filterMaxKm === 0) return true;
+        const referenceCoords = userCoords || (selectedCountry ? { lat: selectedCountry.coordinates.lat, lng: selectedCountry.coordinates.lng } : null);
+        if (!referenceCoords || filterMaxKm === 0) return true;
         const bizLat = (b as any).location?.lat ?? b.lat;
         const bizLng = (b as any).location?.lng ?? b.lng;
         if (bizLat == null || bizLng == null) return true; // no coords → include
-        const dist = haversineKm(userCoords.lat, userCoords.lng, bizLat, bizLng);
+        const dist = haversineKm(referenceCoords.lat, referenceCoords.lng, bizLat, bizLng);
         return dist <= filterMaxKm;
     }).sort((a, b) => {
-        // Sort by distance when user location is known
-        if (!userCoords) return 0;
+        // Sort by distance when user location OR country location is known
+        const referenceCoords = userCoords || (selectedCountry ? { lat: selectedCountry.coordinates.lat, lng: selectedCountry.coordinates.lng } : null);
+        if (!referenceCoords) return 0;
         const aLat = (a as any).location?.lat ?? a.lat;
         const aLng = (a as any).location?.lng ?? a.lng;
         const bLat = (b as any).location?.lat ?? b.lat;
         const bLng = (b as any).location?.lng ?? b.lng;
         if (aLat == null || bLat == null) return 0;
-        const distA = haversineKm(userCoords.lat, userCoords.lng, aLat, aLng);
-        const distB = haversineKm(userCoords.lat, userCoords.lng, bLat, bLng);
+        const distA = haversineKm(referenceCoords.lat, referenceCoords.lng, aLat, aLng);
+        const distB = haversineKm(referenceCoords.lat, referenceCoords.lng, bLat, bLng);
         return distA - distB;
     });
 

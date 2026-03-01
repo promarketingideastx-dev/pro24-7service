@@ -8,7 +8,9 @@ import { UserService } from '@/services/user.service';
 import { db } from '@/lib/firebase';
 import { enableNetwork } from 'firebase/firestore';
 import { toast } from 'sonner';
-import { Search, Briefcase } from 'lucide-react';
+import { Search, Briefcase, MapPin } from 'lucide-react';
+import { useCountry } from '@/context/CountryContext';
+import CountrySelector from '@/components/ui/CountrySelector';
 
 function OnboardingContent() {
     const { user } = useAuth();
@@ -23,6 +25,7 @@ function OnboardingContent() {
     };
     const searchParams = useSearchParams();
     const [loading, setLoading] = useState(false);
+    const { selectedCountry, clearCountry } = useCountry();
 
     // mode=login → user is logging in (not registering)
     const isLoginMode = searchParams.get('mode') === 'login';
@@ -74,11 +77,24 @@ function OnboardingContent() {
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-[#F4F6F8] p-6 relative overflow-hidden">
+            {!selectedCountry && <CountrySelector />}
+
             {/* Background Effects */}
             <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
             <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
             <div className="relative z-10 w-full max-w-2xl flex flex-col items-center">
+                {selectedCountry && (
+                    <button
+                        onClick={clearCountry}
+                        className="mb-6 flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-full text-xs font-bold text-slate-600 shadow-sm hover:shadow-md hover:border-[#14B8A6]/50 transition-all group"
+                    >
+                        <span className="text-base leading-none">{selectedCountry.flag}</span>
+                        <span>{selectedCountry.name}</span>
+                        <MapPin className="w-3 h-3 text-slate-400 group-hover:text-[#14B8A6]" />
+                    </button>
+                )}
+
                 <h1 className="text-3xl md:text-4xl font-bold mb-2 text-slate-900 text-center">
                     {isLoginMode ? (
                         <>¿Cómo usas <span className="text-brand-neon-cyan">Pro24/7YA</span>?</>

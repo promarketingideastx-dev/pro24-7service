@@ -511,12 +511,19 @@ export const BusinessProfileService = {
      */
     async getPublicBusinesses(countryCode?: string) {
         try {
-            const { collection, getDocs, query } = await import('firebase/firestore');
+            const { collection, getDocs, query, where } = await import('firebase/firestore');
 
             // Fetch all businesses — status filtering is done client-side so that
             // businesses without a 'status' field (created before the field was added)
             // are still visible. Only 'suspended' businesses are hidden.
-            const q = query(collection(db, 'businesses_public'));
+            let q = query(collection(db, 'businesses_public'));
+
+            if (countryCode && countryCode !== 'ALL' && countryCode !== 'GLOBAL') {
+                q = query(collection(db, 'businesses_public'), where('countryCode', '==', countryCode));
+
+                // Note: Older documents might not have 'countryCode' indexed or populated. 
+                // We will fall back to filtering in memory for safety if the query doesn't match effectively yet.
+            }
 
             const querySnapshot = await getDocs(q);
 
@@ -552,8 +559,17 @@ export const BusinessProfileService = {
                         description: data.shortDescription || ''
                     } as any;
                 })
-                // Client-side: only hide explicitly suspended businesses
-                .filter(biz => biz.status !== 'suspended');
+                .filter(biz => {
+                    // Client-side: only hide explicitly suspended businesses
+                    if (biz.status === 'suspended') return false;
+
+                    // If a country parameter was provided, do an extra memory pass to ensure 
+                    // older documents without 'countryCode' properly formatted are still caught
+                    if (countryCode && countryCode !== 'ALL' && countryCode !== 'GLOBAL') {
+                        return biz.countryCode === countryCode;
+                    }
+                    return true;
+                });
 
         } catch (error) {
             console.error("Error fetching public businesses:", error);

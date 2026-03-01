@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 // Force Node.js runtime — required for firebase-admin and web-push (cannot run in Edge)
 export const runtime = 'nodejs';
 
+// To avoid Next.js static analysis failures on dynamic requires
+declare var __non_webpack_require__: (id: string) => any;
+
 // ── Lazy-load firebase-admin ───────────────────────────────────────────────────
 async function getAdminSDK() {
     const { getApps, initializeApp, cert } = await import('firebase-admin/app');
@@ -16,8 +19,9 @@ async function getAdminSDK() {
             credential = cert(serviceAccount);
         } else {
             try {
+                // Bypass Webpack static analysis for local dev file
                 // eslint-disable-next-line @typescript-eslint/no-require-imports
-                const serviceAccount = require('../../../../../serviceAccountKey.json');
+                const serviceAccount = __non_webpack_require__('../../../../../serviceAccountKey.json');
                 credential = cert(serviceAccount);
             } catch {
                 return null;
