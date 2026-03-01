@@ -20,15 +20,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     useEffect(() => {
         if (loading) return;
-        if (!user) { router.replace(lp('/auth/login')); return; }
+        const redirect = (path: string) => { setTimeout(() => router.replace(path), 0); };
+
+        if (!user) { redirect(lp('/auth/login')); return; }
 
         getDoc(doc(db, 'users', user.uid)).then(snap => {
             const data = snap.data();
-            if (data?.isAdmin === true) {
+            const hasAdminRole = data?.isAdmin === true || data?.roles?.admin === true;
+            if (hasAdminRole) {
                 setIsAdmin(true);
             } else {
                 setIsAdmin(false);
-                router.replace(lp('/'));
+                console.log('[AdminLayout] Redirecting to home - isAdmin evaluated as false'); redirect(lp('/'));
             }
         });
     }, [user, loading, router]);

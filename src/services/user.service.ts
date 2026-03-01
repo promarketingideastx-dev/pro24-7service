@@ -1,6 +1,7 @@
 import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { UserDocument } from '@/types/firestore-schema';
+import { getCountryFromTimezone } from '@/utils/timezone-country';
 
 export const UserService = {
     /**
@@ -33,7 +34,7 @@ export const UserService = {
                 role: null, // Initialize primary role as null
                 createdAt: serverTimestamp() as any,
                 lastLogin: serverTimestamp() as any,
-                country_code: 'HN',
+                country_code: getCountryFromTimezone(),
                 locale: 'es',
                 settings: {
                     unit_km_mi: 'km',

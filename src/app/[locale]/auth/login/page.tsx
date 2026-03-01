@@ -28,17 +28,18 @@ function LoginForm() {
     // Auto-redirect when user is already authenticated (e.g., after signInWithRedirect returns)
     useEffect(() => {
         if (!authLoading && user) {
+            const redirect = (path: string) => { setTimeout(() => router.replace(path), 0); };
             const stored = sessionStorage.getItem('auth_redirect_to');
             if (stored) {
                 sessionStorage.removeItem('auth_redirect_to');
-                router.replace(stored);
+                redirect(stored);
             } else {
                 const hasLocalePrefix = LOCALE_PREFIXES.some(p => returnTo.startsWith(p));
                 const target = returnTo && returnTo !== '/' && !hasLocalePrefix ? lp(returnTo) : returnTo || lp('/');
-                router.replace(target);
+                redirect(target);
             }
         }
-    }, [user, authLoading]);
+    }, [user, authLoading, returnTo, router, locale]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();

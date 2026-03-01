@@ -31,9 +31,15 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         const startsWithAny = (prefixes: string[]) =>
             prefixes.some(p => localelessPath === p || localelessPath.startsWith(p + "/"));
 
+        const redirect = (path: string) => {
+            setTimeout(() => {
+                router.replace(path);
+            }, 0);
+        };
+
         if (!user) {
             if (startsWithAny(PROTECTED_PREFIXES) || startsWithAny(PROVIDER_ONLY_PREFIXES)) {
-                router.replace(lp(`/auth/login?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
+                redirect(lp(`/auth/login?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
             } else {
                 setIsAuthorized(true);
             }
@@ -41,26 +47,29 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         }
 
         if (userProfile) {
-            const hasRole = userProfile.roles?.client || userProfile.roles?.provider;
+            // Un usuario tiene rol válido si es cliente, proveedor, O es un admin (isAdmin / roles.admin) O tiene bandera isProvider
+            const isRootAdmin = userProfile.isAdmin === true || userProfile.roles?.admin === true;
+            const isRootProvider = userProfile.isProvider === true || userProfile.role === 'provider';
+            const hasRole = userProfile.roles?.client || userProfile.roles?.provider || isRootAdmin || isRootProvider;
 
             if (!hasRole) {
                 if (startsWithAny(ONBOARDING_PREFIXES) || startsWithAny(PUBLIC_PREFIXES)) {
                     setIsAuthorized(true);
                 } else {
-                    router.replace(lp(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
+                    redirect(lp(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
                 }
                 return;
             }
 
+            const isProvider = userProfile.roles?.provider || isRootProvider || isRootAdmin;
+
             if (startsWithAny(AUTH_PREFIXES)) {
-                const isProvider = userProfile.roles?.provider || userProfile.role === 'provider' || userProfile.isAdmin;
-                router.replace(isProvider ? lp('/business/dashboard') : lp('/'));
+                redirect(isProvider ? lp('/business/dashboard') : lp('/'));
                 return;
             }
 
-            const isProvider = userProfile.roles?.provider || userProfile.role === 'provider' || userProfile.isAdmin;
             if (startsWithAny(PROVIDER_ONLY_PREFIXES) && !isProvider) {
-                router.replace(lp('/'));
+                redirect(lp('/'));
                 return;
             }
 

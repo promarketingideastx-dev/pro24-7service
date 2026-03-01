@@ -1,4 +1,4 @@
-import { auth, db } from '@/lib/firebase';
+import { auth, db, storage } from '@/lib/firebase';
 import {
     GoogleAuthProvider,
     OAuthProvider,
@@ -13,7 +13,8 @@ import {
     EmailAuthProvider,
     sendPasswordResetEmail,
 } from 'firebase/auth';
-import { doc, deleteDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
+import { doc, deleteDoc, collection, getDocs, writeBatch, getDoc } from 'firebase/firestore';
+import { ref, listAll, deleteObject } from 'firebase/storage';
 import { UserService } from './user.service';
 
 export const AuthService = {
@@ -123,21 +124,60 @@ export const AuthService = {
             // 1. Delete Firestore data (best effort)
             const batch = writeBatch(db);
 
+            // Fetch user doc first to find their actual business Profile ID before deleting
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            const userData = userDoc.exists() ? userDoc.data() : null;
+            const bizId = userData?.businessProfileId || user.uid;
+
             // Main docs
             batch.delete(doc(db, 'users', user.uid));
-            batch.delete(doc(db, 'businesses_public', user.uid));
-            batch.delete(doc(db, 'businesses_private', user.uid));
+            batch.delete(doc(db, 'businesses', bizId)); // The gated plan info document
+            batch.delete(doc(db, 'businesses_public', bizId));
+            batch.delete(doc(db, 'businesses_private', bizId));
 
-            // Subcollections of business_private: services, portfolio_posts, reviews
-            const subcollections = ['services', 'portfolio_posts', 'reviews'];
-            for (const sub of subcollections) {
+            // Subcollections of business_private/public
+            const publicSubcollections = ['portfolio_posts', 'reviews'];
+            const privateSubcollections = ['services'];
+
+            for (const sub of privateSubcollections) {
                 try {
-                    const snapshot = await getDocs(collection(db, 'businesses_private', user.uid, sub));
+                    const snapshot = await getDocs(collection(db, 'businesses_private', bizId, sub));
+                    snapshot.forEach(d => batch.delete(d.ref));
+                } catch (_) { /* ignore if not found */ }
+            }
+
+            for (const sub of publicSubcollections) {
+                try {
+                    const snapshot = await getDocs(collection(db, 'businesses_public', bizId, sub));
                     snapshot.forEach(d => batch.delete(d.ref));
                 } catch (_) { /* ignore if not found */ }
             }
 
             await batch.commit().catch(e => console.warn('Partial Firestore cleanup:', e));
+
+            // 1.5 Delete Firebase Storage files (avatars & business_images)
+            try {
+                // We use listAll to get all files in a directory and delete them
+                const deleteStorageFolder = async (folderPath: string) => {
+                    try {
+                        const folderRef = ref(storage, folderPath);
+                        const result = await listAll(folderRef);
+                        const deletePromises = result.items.map(item => deleteObject(item));
+                        await Promise.all(deletePromises);
+                    } catch (err: any) {
+                        // ignore if folder doesn't exist
+                        if (err.code !== 'storage/object-not-found') {
+                            console.warn(`Could not empty folder ${folderPath}:`, err);
+                        }
+                    }
+                };
+
+                await deleteStorageFolder(`avatars/${user.uid}`);
+                // Storage service uses user.uid for business images path
+                await deleteStorageFolder(`business_images/${user.uid}`);
+            } catch (storageErr) {
+                console.warn('Storage cleanup failed:', storageErr);
+            }
 
             // 2. Delete Firebase Auth account
             await user.delete();

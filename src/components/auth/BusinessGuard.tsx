@@ -25,9 +25,15 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
 
         const currentPathWithQuery = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
 
+        const redirect = (path: string) => {
+            setTimeout(() => {
+                router.replace(path);
+            }, 0);
+        };
+
         // 1. Unauthenticated -> Login
         if (!user) {
-            router.replace(lp(`/auth/login?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
+            redirect(lp(`/auth/login?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
             return;
         }
 
@@ -39,16 +45,17 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
         }
 
 
-        // 3. Check Provider Role (roles.provider, role='provider', or isAdmin all qualify)
-        const isProvider = userProfile.roles?.provider || userProfile.role === 'provider' || userProfile.isAdmin;
+        // 3. Check Provider Role (roles.provider, role='provider', or roles.admin/isAdmin all qualify)
+        const isAdmin = userProfile.isAdmin === true || userProfile.roles?.admin === true;
+        const isProvider = userProfile.roles?.provider || userProfile.role === 'provider' || isAdmin;
         if (!isProvider) {
             // Not a provider -> Onboarding
-            router.replace(lp(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
+            console.log('[BusinessGuard] Redirecting to onboarding'); redirect(lp(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
             return;
         }
 
         // 4. Admin users always have full access to all business routes
-        if (userProfile.isAdmin) {
+        if (isAdmin) {
             setIsAuthorized(true);
             return;
         }

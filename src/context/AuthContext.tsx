@@ -67,12 +67,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 unsubscribeFirestore = onSnapshot(userRef, (docSnap) => {
                     if (docSnap.exists()) {
                         setUserProfile(docSnap.data() as UserDocument);
+                        setLoading(false);
                     } else {
                         // Profile doesn't exist yet -> Trigger creation in background
                         UserService.createUserProfile(currentUser.uid, currentUser.email || '').catch(e => console.error(e));
                         setUserProfile(null);
+                        setLoading(false);
                     }
-                    setLoading(false);
                 }, (error) => {
                     console.error("AuthContext Firestore Error:", error);
                     setLoading(false);

@@ -53,6 +53,8 @@ export interface UserDocument {
     // Estado Negocio
     businessProfileId?: string | null;
     isBusinessActive: boolean;
+    isProvider?: boolean;
+    isVip?: boolean;
 
     // Admin flag — set by set-admin.js script
     isAdmin?: boolean;

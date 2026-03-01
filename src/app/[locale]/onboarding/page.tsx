@@ -50,7 +50,7 @@ function OnboardingContent() {
         try {
             try { await enableNetwork(db); } catch { /* ignore */ }
 
-            await UserService.createUserProfile(user.uid, user.email || '');
+            const userProfile = await UserService.createUserProfile(user.uid, user.email || '');
 
             if (typeof window !== 'undefined') {
                 localStorage.setItem('pro247_user_mode', role === 'provider' ? 'business' : 'client');
@@ -58,10 +58,25 @@ function OnboardingContent() {
 
             await UserService.setUserRole(user.uid, role);
 
-            if (role === 'provider') {
-                router.push(lp('/business/setup'));
+            const redirect = (path: string) => {
+                setTimeout(() => {
+                    router.replace(path);
+                }, 0);
+            };
+
+            if (userProfile?.isAdmin) {
+                redirect(lp('/admin/dashboard'));
+                return;
+            }
+
+            if (userProfile?.role === 'provider' || userProfile?.roles?.provider || userProfile?.isProvider) {
+                if (userProfile?.businessProfileId) {
+                    redirect(lp('/business/dashboard'));
+                } else {
+                    redirect(lp('/business/setup'));
+                }
             } else {
-                router.push(lp(returnTo || '/'));
+                redirect(lp('/'));
             }
         } catch (error: any) {
             console.error('Error saving role:', error);

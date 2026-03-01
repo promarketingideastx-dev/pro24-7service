@@ -31,6 +31,21 @@ type UserRecord = {
 
 type Filter = 'all' | 'providers' | 'clients' | 'banned' | 'new';
 
+const COUNTRY_FLAGS: Record<string, string> = {
+    ALL: '🌍', HN: '🇭🇳', GT: '🇬🇹', SV: '🇸🇻', NI: '🇳🇮', CR: '🇨🇷',
+    PA: '🇵🇦', MX: '🇲🇽', US: '🇺🇸', CA: '🇨🇦', CO: '🇨🇴', BR: '🇧🇷',
+    AR: '🇦🇷', CL: '🇨🇱', PE: '🇵🇪', EC: '🇪🇨', VE: '🇻🇪', BO: '🇧🇴',
+    PY: '🇵🇾', UY: '🇺🇾', DO: '🇩🇴', CU: '🇨🇺', ES: '🇪🇸',
+};
+
+const COUNTRY_NAMES: Record<string, string> = {
+    HN: 'Honduras', US: 'EE.UU.', MX: 'México', BR: 'Brasil', GT: 'Guatemala',
+    SV: 'El Salvador', CO: 'Colombia', AR: 'Argentina', CA: 'Canadá', ES: 'España',
+    CL: 'Chile', PE: 'Perú', CR: 'Costa Rica', NI: 'Nicaragua', PA: 'Panamá',
+    EC: 'Ecuador', VE: 'Venezuela', BO: 'Bolivia', PY: 'Paraguay', UY: 'Uruguay',
+    DO: 'Rep. Dominicana', CU: 'Cuba',
+};
+
 const ROLE_BADGE: Record<string, string> = {
     provider: 'bg-purple-500/15 text-purple-400 border border-purple-500/20',
     client: 'bg-blue-500/15 text-blue-400 border border-blue-500/20',
@@ -367,7 +382,12 @@ export default function AdminUsersPage() {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-3 text-xs text-slate-400">{u.country_code ?? '—'}</td>
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center gap-1.5 text-xs text-slate-600">
+                                                    <span className="text-base leading-none">{u.country_code ? (COUNTRY_FLAGS[u.country_code] || '🌍') : '—'}</span>
+                                                    <span className="font-medium">{u.country_code ? (COUNTRY_NAMES[u.country_code] || u.country_code) : '—'}</span>
+                                                </div>
+                                            </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-2">
                                                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${ROLE_BADGE[role]}`}>

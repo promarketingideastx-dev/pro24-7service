@@ -115,6 +115,21 @@ function PlanDropdown({ business, planLabels, planOptions, onChanged }: {
     );
 }
 
+const COUNTRY_FLAGS: Record<string, string> = {
+    ALL: '🌍', HN: '🇭🇳', GT: '🇬🇹', SV: '🇸🇻', NI: '🇳🇮', CR: '🇨🇷',
+    PA: '🇵🇦', MX: '🇲🇽', US: '🇺🇸', CA: '🇨🇦', CO: '🇨🇴', BR: '🇧🇷',
+    AR: '🇦🇷', CL: '🇨🇱', PE: '🇵🇪', EC: '🇪🇨', VE: '🇻🇪', BO: '🇧🇴',
+    PY: '🇵🇾', UY: '🇺🇾', DO: '🇩🇴', CU: '🇨🇺', ES: '🇪🇸',
+};
+
+const COUNTRY_NAMES: Record<string, string> = {
+    HN: 'Honduras', US: 'EE.UU.', MX: 'México', BR: 'Brasil', GT: 'Guatemala',
+    SV: 'El Salvador', CO: 'Colombia', AR: 'Argentina', CA: 'Canadá', ES: 'España',
+    CL: 'Chile', PE: 'Perú', CR: 'Costa Rica', NI: 'Nicaragua', PA: 'Panamá',
+    EC: 'Ecuador', VE: 'Venezuela', BO: 'Bolivia', PY: 'Paraguay', UY: 'Uruguay',
+    DO: 'Rep. Dominicana', CU: 'Cuba',
+};
+
 export default function AdminBusinessesPage() {
     const { selectedCountry } = useAdminContext();
     const t = useTranslations('admin.businesses');
@@ -303,8 +318,21 @@ export default function AdminBusinessesPage() {
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <p className="text-sm text-slate-600">{b.country ?? '—'}</p>
-                                                    <p className="text-xs text-slate-500">{b.city ?? ''}</p>
+                                                    {(() => {
+                                                        const rawCountry = b.country?.toUpperCase() ?? '';
+                                                        const code = Object.keys(COUNTRY_NAMES).find(k => COUNTRY_NAMES[k].toUpperCase() === rawCountry) || (COUNTRY_FLAGS[rawCountry] ? rawCountry : 'HN');
+                                                        const name = COUNTRY_NAMES[code] || rawCountry;
+                                                        const flag = COUNTRY_FLAGS[code] || '🌍';
+                                                        return (
+                                                            <>
+                                                                <div className="flex items-center gap-1.5 text-sm text-slate-600 font-medium">
+                                                                    <span>{flag}</span>
+                                                                    <span>{name || '—'}</span>
+                                                                </div>
+                                                                <p className="text-xs text-slate-400 mt-0.5">{b.city ?? ''}</p>
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </td>
                                                 <td className="px-4 py-3 text-xs text-slate-400">{b.category ?? '—'}</td>
                                                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
