@@ -157,24 +157,9 @@ export default function Home() {
         }
     };
 
-    // Timestamp-based double-tap: requires 2 intentional taps within 400ms
-    // Fixes mobile phantom-click issue where 1 touch fires 2 click events ~10ms apart
-    const lastTapRef = useRef<{ id: string; time: number } | null>(null);
-    const DOUBLE_TAP_MS = 400;
-
     const handleBusinessClick = (biz: BusinessMock) => {
-        const now = Date.now();
-        const last = lastTapRef.current;
-
-        if (last && last.id === biz.id && now - last.time < DOUBLE_TAP_MS) {
-            // Genuine double-tap — navigate to profile
-            lastTapRef.current = null;
-            handleNavigate(biz);
-        } else {
-            // First tap — select & show card
-            lastTapRef.current = { id: biz.id, time: now };
-            setSelectedBusiness(biz);
-        }
+        setSelectedBusiness(biz);
+        handleNavigate(biz);
     };
 
     // Derived State: Intelligent Search Logic
