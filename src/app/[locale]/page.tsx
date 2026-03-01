@@ -44,6 +44,7 @@ export default function Home() {
     const [geoLoading, setGeoLoading] = useState(false);
     const [geoError, setGeoError] = useState<string | null>(null);
     const [filterMaxKm, setFilterMaxKm] = useState<number>(0); // 0 = sin límite
+    const [revealedCardId, setRevealedCardId] = useState<string | null>(null);
 
     const activeFilterCount = (filterCategory ? 1 : 0) + (filterRating > 0 ? 1 : 0) + (filterHasSchedule ? 1 : 0) + (filterMaxKm > 0 ? 1 : 0);
 
@@ -880,10 +881,19 @@ export default function Home() {
                                         biz.category === 'general_services' ? { border: '#2563EB', bg: '#EFF6FF', avatar: '#DBEAFE', text: '#1E40AF' } :
                                             biz.category === 'health_medicine' ? { border: '#059669', bg: '#ECFDF5', avatar: '#D1FAE5', text: '#065F46' } :
                                                 { border: '#14B8A6', bg: '#F0FDFA', avatar: '#CCFBF1', text: '#0F766E' };
+
+                            const isRevealed = revealedCardId === biz.id;
+
                             return (
                                 <div
                                     key={biz.id}
-                                    onClick={() => handleBusinessClick(biz)}
+                                    onClick={() => {
+                                        if (!isRevealed) {
+                                            setRevealedCardId(biz.id);
+                                        } else {
+                                            handleBusinessClick(biz);
+                                        }
+                                    }}
                                     style={{ borderColor: selectedBusiness?.id === biz.id ? catColor.border : undefined, backgroundColor: catColor.bg }}
                                     className={`flex items-center p-3 border rounded-2xl transition-all cursor-pointer group overflow-hidden relative
                                 ${selectedBusiness?.id === biz.id ? 'shadow-[0_0_0_2px_rgba(20,184,166,0.15)]' : 'border-[#E6E8EC] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]'}
@@ -940,13 +950,16 @@ export default function Home() {
                                         </div>
                                     </div>
                                     <div className="flex flex-col items-end gap-1.5 ml-2 shrink-0">
-                                        <div className="hidden group-hover:flex items-center px-2 py-1 bg-[rgba(20,184,166,0.10)] rounded-full text-[10px] text-[#0F766E] font-semibold whitespace-nowrap border border-[#14B8A6]/20">
+                                        {/* Desktop 'Ver' button */}
+                                        <div className="hidden md:flex items-center px-2 py-1 bg-[rgba(20,184,166,0.10)] rounded-full text-[10px] text-[#0F766E] font-semibold whitespace-nowrap border border-[#14B8A6]/20">
                                             {t('viewBtn')}
                                         </div>
-                                        {/* Double-tap hint: always visible on mobile */}
-                                        <div className="flex md:hidden items-center gap-1 text-base font-bold whitespace-nowrap" style={{ color: catColor.text }}>
-                                            <span>👆👆</span>
-                                            <span>ver perfil</span>
+                                        {/* Mobile reveal logic - Requires double tap */}
+                                        <div
+                                            className={`flex md:hidden items-center text-[10px] font-bold whitespace-nowrap transition-opacity duration-300 ${isRevealed ? 'opacity-100 block' : 'opacity-0 hidden'}`}
+                                            style={{ color: catColor.text }}
+                                        >
+                                            ver perfil
                                         </div>
                                     </div>
                                 </div>
