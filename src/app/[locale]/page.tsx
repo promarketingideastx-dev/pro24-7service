@@ -884,9 +884,9 @@ export default function Home() {
                                         // On desktop, or if already revealed on mobile, navigate immediately
                                         handleBusinessClick(biz);
                                     }}
-                                    style={{ borderColor: selectedBusiness?.id === biz.id ? catColor.border : undefined, backgroundColor: catColor.bg }}
+                                    style={{ backgroundColor: catColor.bg }}
                                     className={`flex items-center p-3 border rounded-2xl transition-all cursor-pointer group overflow-hidden relative
-                                ${selectedBusiness?.id === biz.id ? 'shadow-[0_0_0_2px_rgba(20,184,166,0.15)]' : 'border-[#E6E8EC] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]'}
+                                ${selectedBusiness?.id === biz.id ? 'border-[#14B8A6] shadow-[0_0_0_2px_rgba(20,184,166,0.15)]' : 'border-[#E6E8EC] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]'}
                             `}
                                 >
                                     {/* Colored left accent bar */}
@@ -946,8 +946,7 @@ export default function Home() {
                                         </div>
                                         {/* Mobile reveal logic - Requires double tap */}
                                         <div
-                                            className={`flex md:hidden items-center text-[10px] font-bold whitespace-nowrap transition-opacity duration-300 ${isRevealed ? 'opacity-100 block' : 'opacity-0 hidden'}`}
-                                            style={{ color: catColor.text }}
+                                            className={`flex md:hidden items-center text-[10px] font-bold whitespace-nowrap transition-opacity duration-300 ${isRevealed ? 'opacity-100 block' : 'opacity-0 hidden'} text-[#0F766E]`}
                                         >
                                             ver perfil
                                         </div>
