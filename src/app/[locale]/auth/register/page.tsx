@@ -176,7 +176,7 @@ function RegisterForm() {
             redirectingRef.current = true;
             const profile = await UserService.getUserProfile(loggedUser.uid);
             const role = profile?.role;
-            const isAdmin = profile?.roles?.admin === true;
+            const isAdmin = profile?.isAdmin === true;
 
             if (isAdmin) {
                 router.replace(lp('/admin/dashboard'));
@@ -214,7 +214,7 @@ function RegisterForm() {
 
             const profile = await UserService.getUserProfile(loggedUser.uid);
             const role = profile?.role;
-            const isAdmin = profile?.roles?.admin === true;
+            const isAdmin = profile?.isAdmin === true;
             if (isAdmin) {
                 router.replace(lp('/admin/dashboard'));
             } else if (role === 'provider') {

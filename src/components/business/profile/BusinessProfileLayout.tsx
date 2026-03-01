@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Share2, ArrowLeft, Star, MapPin, Heart, Award, CheckCircle2, Phone, MessageCircle, Calendar, Link } from 'lucide-react';
+import { Share2, ArrowLeft, Star, MapPin, Heart, Award, CheckCircle2, Phone, MessageCircle, Calendar, Link, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
@@ -216,9 +216,10 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                         {isOwner && (
                             <button
                                 onClick={() => router.push(`/${locale}/business/dashboard`)}
-                                className="px-3 py-1.5 rounded-full bg-[rgba(20,184,166,0.15)] border border-[#14B8A6]/50 text-[#0F766E] text-xs font-bold backdrop-blur-md hover:bg-[rgba(20,184,166,0.25)]"
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[rgba(20,184,166,0.15)] border border-[#14B8A6]/50 text-[#0F766E] text-xs font-bold backdrop-blur-md hover:bg-[rgba(20,184,166,0.25)] transition-all"
                             >
-                                Editar Perfil
+                                <Settings className="w-3.5 h-3.5" />
+                                Administrar cuenta
                             </button>
                         )}
                         <button
