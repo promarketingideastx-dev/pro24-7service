@@ -31,16 +31,13 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
             return;
         }
 
-        // 2. User exists but Profile not loaded yet?
-        // If userProfile is null but user exists, it might be loading or failed. 
-        // AuthContext usually sets loading=false after trying to fetch/create.
-        // If it sends null, it means creation failed or logic gap.
-        // We will assume if !userProfile here, we redirect to onboarding as fallback or wait.
+        // 2. User exists but profile not yet loaded → just wait (show spinner)
+        // Do NOT redirect here — Firestore snapshot may still be in-flight.
+        // The effect will re-run once userProfile is set.
         if (!userProfile) {
-            // Safe fallback
-            router.replace(lp(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
-            return;
+            return; // Stay on spinner, do not redirect
         }
+
 
         // 3. Check Provider Role (roles.provider, role='provider', or isAdmin all qualify)
         const isProvider = userProfile.roles?.provider || userProfile.role === 'provider' || userProfile.isAdmin;

@@ -12,38 +12,48 @@ export const UserService = {
 
         const userRef = doc(db, 'users', uid);
 
-        // Define default values
-        const defaultUser: Partial<UserDocument> = {
-            uid,
-            email,
-            roles: {
-                client: false,
-                provider: false,
-                admin: false
-            },
-            role: null, // Initialize primary role as null
-            createdAt: serverTimestamp() as any,
-            lastLogin: serverTimestamp() as any,
-            country_code: 'HN',
-            locale: 'es',
-            settings: {
-                unit_km_mi: 'km',
-                notifications_enabled: true
-            },
-            clientProfile: {
-                fullName: '',
-                avatar: { type: 'none' },
-                privacy_policy_accepted: false,
-                updated_at: new Date().toISOString()
-            },
-            isBusinessActive: false
-        };
+        try {
+            // First check if user exists. 
+            // This prevents overwriting roles or settings if the user logs in again.
+            const snap = await getDoc(userRef);
 
-        // Use setDoc with merge to create if missing, or update if exists.
-        // This works even if client is offline (writes are queued).
-        await setDoc(userRef, defaultUser, { merge: true });
+            if (snap.exists()) {
+                return snap.data() as UserDocument;
+            }
 
-        return defaultUser as UserDocument;
+            // Define default values ONLY for totally new users
+            const defaultUser: Partial<UserDocument> = {
+                uid,
+                email,
+                roles: {
+                    client: false,
+                    provider: false,
+                    admin: false
+                },
+                role: null, // Initialize primary role as null
+                createdAt: serverTimestamp() as any,
+                lastLogin: serverTimestamp() as any,
+                country_code: 'HN',
+                locale: 'es',
+                settings: {
+                    unit_km_mi: 'km',
+                    notifications_enabled: true
+                },
+                clientProfile: {
+                    fullName: '',
+                    avatar: { type: 'none' },
+                    privacy_policy_accepted: false,
+                    updated_at: new Date().toISOString()
+                },
+                isBusinessActive: false
+            };
+
+            await setDoc(userRef, defaultUser);
+            return defaultUser as UserDocument;
+        } catch (error) {
+            console.error('Error creating user profile:', error);
+            return null;
+        }
     },
 
     /**

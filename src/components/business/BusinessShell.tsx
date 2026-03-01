@@ -36,12 +36,12 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
 
     // The setup wizard has its own full-screen layout — skip the shell
     if (pathname === lp('/business/setup') || pathname === '/business/setup') {
-        return <>{children}</>;
+        return <BusinessGuard><>{children}</></BusinessGuard>;
     }
 
     // The messages page has its own full-screen layout — skip the shell
     if (pathname?.includes('/business/messages')) {
-        return <>{children}</>;
+        return <BusinessGuard><>{children}</></BusinessGuard>;
     }
 
     const menuItems = [
