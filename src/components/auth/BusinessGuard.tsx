@@ -42,8 +42,9 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
             return;
         }
 
-        // 3. Check Provider Role
-        if (!userProfile.roles?.provider) {
+        // 3. Check Provider Role (roles.provider, role='provider', or isAdmin all qualify)
+        const isProvider = userProfile.roles?.provider || userProfile.role === 'provider' || userProfile.isAdmin;
+        if (!isProvider) {
             // Not a provider -> Onboarding
             router.replace(lp(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
             return;
