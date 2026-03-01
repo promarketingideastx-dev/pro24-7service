@@ -1063,7 +1063,7 @@ export default function Home() {
                             <div className="flex items-center justify-between mb-5">
                                 <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                                     <Filter className="w-5 h-5 text-[#14B8A6]" />
-                                    Filtros
+                                    {t('filters.title')}
                                 </h3>
                                 {activeFilterCount > 0 && (
                                     <button
@@ -1079,7 +1079,7 @@ export default function Home() {
                             <div className="mb-5">
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t('filters.category')}</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {[{ id: null, label: 'Todas' }, { id: 'general_services', label: '🛠️ Servicios' }, { id: 'beauty_wellness', label: '💇 Belleza' }, { id: 'art_design', label: '🎨 Arte' }].map(opt => (
+                                    {[{ id: null, label: t('filters.allCategories') }, { id: 'general_services', label: `🛠️ ${t('cat_generalServices')}` }, { id: 'beauty_wellness', label: `💇 ${t('cat_beautyWellness')}` }, { id: 'art_design', label: `🎨 ${t('cat_artDesign')}` }].map(opt => (
                                         <button
                                             key={opt.label}
                                             onClick={() => setFilterCategory(opt.id)}
@@ -1098,7 +1098,7 @@ export default function Home() {
                             <div className="mb-5">
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t('filters.minRating')}</p>
                                 <div className="flex gap-2">
-                                    {[{ val: 0, label: 'Cualquiera' }, { val: 4, label: '4+ ⭐' }, { val: 5, label: '5.0 ⭐' }].map(opt => (
+                                    {[{ val: 0, label: t('filters.anyRating') }, { val: 4, label: '4+ ⭐' }, { val: 5, label: '5.0 ⭐' }].map(opt => (
                                         <button
                                             key={opt.val}
                                             onClick={() => setFilterRating(opt.val)}
@@ -1125,12 +1125,12 @@ export default function Home() {
                                         className="flex items-center gap-2 w-full px-4 py-3 rounded-2xl border border-dashed border-teal-400 bg-teal-50 text-teal-700 text-sm font-semibold hover:bg-teal-100 transition-all disabled:opacity-60 mb-2"
                                     >
                                         <Navigation className="w-4 h-4 shrink-0" />
-                                        {geoLoading ? 'Obteniendo ubicación...' : '📍 Usar mi ubicación'}
+                                        {geoLoading ? t('filters.gettingLocation') : `📍 ${t('filters.useLocation')}`}
                                     </button>
                                 ) : (
                                     <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-teal-50 border border-teal-200 text-teal-700 text-xs font-semibold mb-2">
                                         <Navigation className="w-3.5 h-3.5" />
-                                        Ubicación activa ✅
+                                        {t('filters.locationActive')} ✅
                                         <button onClick={() => { setUserCoords(null); setFilterMaxKm(0); }} className="ml-auto text-red-400 hover:text-red-600 text-xs">{t('filters.remove')}</button>
                                     </div>
                                 )}
@@ -1139,7 +1139,7 @@ export default function Home() {
 
                                 {/* Distance options */}
                                 <div className="flex flex-wrap gap-2">
-                                    {[{ val: 0, label: 'Sin límite' }, { val: 5, label: '5 km' }, { val: 10, label: '10 km' }, { val: 25, label: '25 km' }, { val: 50, label: '50 km' }].map(opt => (
+                                    {[{ val: 0, label: t('filters.noLimit') }, { val: 5, label: '5 km' }, { val: 10, label: '10 km' }, { val: 25, label: '25 km' }, { val: 50, label: '50 km' }].map(opt => (
                                         <button
                                             key={opt.val}
                                             disabled={!userCoords && opt.val > 0}
@@ -1169,7 +1169,7 @@ export default function Home() {
                                         }`}>
                                         {filterHasSchedule && <span className="w-2 h-2 bg-white rounded-full" />}
                                     </span>
-                                    📅 Solo con agenda disponible
+                                    📅 {t('filters.onlyWithSchedule')}
                                 </button>
                             </div>
 
@@ -1178,7 +1178,7 @@ export default function Home() {
                                 onClick={() => setShowFilters(false)}
                                 className="w-full py-3.5 rounded-2xl bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold text-sm shadow-[0_4px_14px_rgba(20,184,166,0.30)] transition-all"
                             >
-                                {activeFilterCount > 0 ? `Aplicar ${activeFilterCount} filtro${activeFilterCount > 1 ? 's' : ''}` : 'Cerrar'}
+                                {activeFilterCount > 0 ? (activeFilterCount > 1 ? t('filters.applyPlural', { count: activeFilterCount }) : t('filters.applySingular', { count: activeFilterCount })) : t('filters.close')}
                             </button>
                         </div>
                     </div>

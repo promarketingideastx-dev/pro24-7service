@@ -12,7 +12,18 @@
       "minRating": "Minimum rating",
       "distance": "Distance",
       "options": "Options",
-      "remove": "Remove"
+      "remove": "Remove",
+      "title": "Filters",
+      "allCategories": "All",
+      "anyRating": "Any",
+      "useLocation": "Use my location",
+      "gettingLocation": "Getting location...",
+      "locationActive": "Active location",
+      "noLimit": "No limit",
+      "onlyWithSchedule": "Only with available schedule",
+      "applyPlural": "Apply {count} filters",
+      "applySingular": "Apply {count} filter",
+      "close": "Close"
     },
     "location": "Location",
     "manageMyBusiness": "Manage my Business",
@@ -1108,7 +1119,12 @@
   },
   "common": {
     "notifications": {
-      "activate": "Turn on notifications"
+      "activate": "Turn on notifications",
+      "title": "My Notifications",
+      "emptyState": "No notifications yet",
+      "allRead": "All read",
+      "viewAllMessages": "View all my messages",
+      "ariaLabel": "Notifications"
     },
     "notFound": {
       "title": "404 - Page not found",

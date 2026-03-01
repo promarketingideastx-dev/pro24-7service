@@ -262,7 +262,18 @@
       "minRating": "Rating mínimo",
       "distance": "Distancia",
       "options": "Opciones",
-      "remove": "Quitar"
+      "remove": "Quitar",
+      "title": "Filtros",
+      "allCategories": "Todas",
+      "anyRating": "Cualquiera",
+      "useLocation": "Usar mi ubicación",
+      "gettingLocation": "Obteniendo ubicación...",
+      "locationActive": "Ubicación activa",
+      "noLimit": "Sin límite",
+      "onlyWithSchedule": "Solo con agenda disponible",
+      "applyPlural": "Aplicar {count} filtros",
+      "applySingular": "Aplicar {count} filtro",
+      "close": "Cerrar"
     },
     "location": "Ubicación",
     "manageMyBusiness": "Administrar mi Negocio",
@@ -1108,7 +1119,12 @@
   },
   "common": {
     "notifications": {
-      "activate": "Activa las notificaciones"
+      "activate": "Activa las notificaciones",
+      "title": "Mis Notificaciones",
+      "emptyState": "Sin notificaciones aún",
+      "allRead": "Todo leído",
+      "viewAllMessages": "Ver todos mis mensajes",
+      "ariaLabel": "Notificaciones"
     },
     "notFound": {
       "title": "404 - Página no encontrada",

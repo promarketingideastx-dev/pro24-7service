@@ -9,7 +9,7 @@ import {
 } from '@/services/clientNotification.service';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { unlockAudio, playNotificationSound } from '@/lib/audioUtils';
 
@@ -19,6 +19,7 @@ interface ClientNotifBellProps {
 
 export default function ClientNotifBell({ clientUid }: ClientNotifBellProps) {
     const locale = useLocale();
+    const t = useTranslations('common.notifications');
     const router = useRouter();
     const lp = (path: string) => `/${locale}${path}`;
     const [unread, setUnread] = useState(0);
@@ -85,7 +86,7 @@ export default function ClientNotifBell({ clientUid }: ClientNotifBellProps) {
             <button
                 onClick={handleOpen}
                 className="relative w-9 h-9 flex items-center justify-center rounded-xl bg-white/15 hover:bg-white/25 text-white transition-all"
-                aria-label="Notificaciones"
+                aria-label={t('ariaLabel')}
             >
                 <Bell size={18} />
                 {unread > 0 && (
@@ -99,16 +100,16 @@ export default function ClientNotifBell({ clientUid }: ClientNotifBellProps) {
             {open && (
                 <div className="absolute right-0 top-12 w-80 bg-[#0d1929] border border-slate-700 rounded-2xl shadow-2xl z-[500] overflow-hidden">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-                        <span className="text-sm font-bold text-white">Mis Notificaciones</span>
+                        <span className="text-sm font-bold text-white">{t('title')}</span>
                         {unread === 0 && items.length > 0 && (
-                            <span className="text-[10px] text-slate-500">Todo leído</span>
+                            <span className="text-[10px] text-slate-500">{t('allRead')}</span>
                         )}
                     </div>
 
                     {items.length === 0 ? (
                         <div className="p-6 text-center text-slate-500 text-sm">
                             <Bell size={20} className="mx-auto mb-2 opacity-30" />
-                            Sin notificaciones aún
+                            {t('emptyState')}
                         </div>
                     ) : (
                         <div className="divide-y divide-white/5 max-h-72 overflow-y-auto">
@@ -141,7 +142,7 @@ export default function ClientNotifBell({ clientUid }: ClientNotifBellProps) {
                             className="w-full flex items-center justify-center gap-1.5 text-xs text-[#14B8A6] hover:text-teal-300 font-semibold transition-colors"
                         >
                             <MessageCircle size={12} />
-                            Ver todos mis mensajes
+                            {t('viewAllMessages')}
                         </button>
                     </div>
                 </div>
