@@ -873,7 +873,15 @@ export default function Home() {
                                 <div
                                     key={biz.id}
                                     onClick={() => {
-                                        setRevealedCardId(biz.id);
+                                        // On mobile (md breakpoint is 768px), first tap reveals text, second tap navigates
+                                        if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                                            if (revealedCardId !== biz.id) {
+                                                setRevealedCardId(biz.id);
+                                                setSelectedBusiness(biz);
+                                                return;
+                                            }
+                                        }
+                                        // On desktop, or if already revealed on mobile, navigate immediately
                                         handleBusinessClick(biz);
                                     }}
                                     style={{ borderColor: selectedBusiness?.id === biz.id ? catColor.border : undefined, backgroundColor: catColor.bg }}
