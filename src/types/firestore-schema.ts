@@ -60,6 +60,25 @@ export interface UserDocument {
 }
 
 // ==========================================
+// 1.5 VIP Collaborator Invites
+// ==========================================
+export type VipInviteStatus = 'pending' | 'used' | 'revoked';
+export type VipInviteType = 'email' | 'code';
+
+export interface VipInvite {
+    id: string;                         // Auto-generated Firestore ID
+    type: VipInviteType;                // 'email' or 'code'
+    email?: string | null;              // Valid if type === 'email'
+    code?: string | null;               // Valid if type === 'code' (e.g. VIP-123)
+    status: VipInviteStatus;
+    registeredBusinessId?: string;      // ID of business once used
+    registeredUserId?: string;          // ID of user once used
+    createdBy: string;                  // Admin UID who created it
+    createdAt: any;                     // Timestamp
+    usedAt?: any;                       // Timestamp
+}
+
+// ==========================================
 // 2. Business Collection (businesses/{businessId})
 // ==========================================
 

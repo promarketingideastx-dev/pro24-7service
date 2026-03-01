@@ -46,6 +46,8 @@ export default function BusinessWizard() {
         setFormData((prev) => ({ ...prev, [key]: value }));
     };
 
+    const [vipCode, setVipCode] = useState('');
+
     const handleLogin = async () => {
         try {
             await AuthService.loginWithGoogle();
@@ -73,14 +75,51 @@ export default function BusinessWizard() {
                 lng: baseLng + (Math.random() - 0.5) * 0.05
             };
 
-            // ── VIP Collaborator plan — all beta signups get VIP, no expiry ──
-            const collaboratorPlanData = {
+            // ── Verify VIP Invitation (Email or Code) ──
+            const [VipInviteService] = await Promise.all([
+                import('@/services/vipInvite.service').then(m => m.VipInviteService)
+            ]);
+
+            let isVip = false;
+            let usedInviteId: string | null = null;
+            let usedInviteType: 'email' | 'code' | null = null;
+
+            // 1. Check if their actual email is pre-approved
+            const emailInvite = await VipInviteService.getInviteByEmail(user.email || '');
+            if (emailInvite) {
+                isVip = true;
+                usedInviteId = emailInvite.id;
+                usedInviteType = 'email';
+            }
+            // 2. Or if they provided a valid code
+            else if (vipCode.trim()) {
+                const codeInvite = await VipInviteService.getInviteByCode(vipCode.trim());
+                if (codeInvite) {
+                    isVip = true;
+                    usedInviteId = codeInvite.id;
+                    usedInviteType = 'code';
+                } else {
+                    throw new Error('El código VIP ingresado no es válido o ya fue utilizado.');
+                }
+            }
+
+            // ── Assign Plan based on results ──
+            const _finalPlanData = isVip ? {
                 plan: 'vip' as const,
                 planStatus: 'active' as const,
                 planSource: 'collaborator_beta' as const,
                 overriddenByCRM: true,
                 teamMemberLimit: 999,
                 planExpiresAt: null,      // No expiry for collaborators
+                trialStartDate: null,
+                trialEndDate: null,
+            } : {
+                plan: 'free' as const,
+                planStatus: 'active' as const,
+                planSource: 'collaborator_beta' as const, // Technical default for free
+                overriddenByCRM: false,
+                teamMemberLimit: 0,
+                planExpiresAt: null,
                 trialStartDate: null,
                 trialEndDate: null,
             };
@@ -96,14 +135,19 @@ export default function BusinessWizard() {
                 department: formData.department || 'Cortés',
                 location: mockLocation,
                 modality: formData.modality as 'home' | 'local' | 'both',
-                planData: collaboratorPlanData,
-                collaboratorData: {
+                planData: _finalPlanData,
+                collaboratorData: isVip ? {
                     activatedAt: new Date().toISOString(),
                     lastActionAt: new Date().toISOString(),
-                },
+                } : undefined,
             };
 
-            await BusinessProfileService.createProfile(user.uid, profileData);
+            const bizRes = await BusinessProfileService.createProfile(user.uid, profileData);
+
+            // ── Redeem the invite if one was used ──
+            if (usedInviteId && bizRes.success && bizRes.id) {
+                await VipInviteService.redeemInvite(usedInviteId, bizRes.id, user.uid).catch(console.error);
+            }
 
             // Fire-and-forget: email notification to admin
             fetch('/api/notify-admin', {
@@ -122,11 +166,11 @@ export default function BusinessWizard() {
                 }),
             }).catch(() => { /* silent */ });
 
-            // In-app notification — VIP collaborator request
+            // In-app notification
             AdminNotificationService.create({
                 type: 'new_collaborator_request',
-                title: `👑 Nuevo colaborador VIP: ${formData.businessName}`,
-                body: `${formData.category} · ${formData.city}, ${formData.country} · ${user.email}`,
+                title: isVip ? `👑 Nuevo colaborador VIP: ${formData.businessName}` : `🏢 Nuevo Negocio (Free): ${formData.businessName}`,
+                body: `${formData.category} · ${formData.city}, ${formData.country} · ${user.email} ${usedInviteType ? `(Usó inv: ${usedInviteType})` : ''}`,
                 country: formData.country,
                 relatedName: formData.businessName,
             }).catch(() => { /* silent */ });
@@ -234,7 +278,26 @@ export default function BusinessWizard() {
                                     <Step4Contact data={formData} update={updateData} />
                                 )}
                                 {currentStep === 5 && (
-                                    <Step4Portfolio data={formData} update={updateData} />
+                                    <>
+                                        <Step4Portfolio data={formData} update={updateData} />
+
+                                        {/* Promo Code Input on Final Step */}
+                                        <div className="mt-8 pt-8 border-t border-slate-700/50">
+                                            <label className="block text-sm font-semibold text-slate-300 mb-2">
+                                                ¿Tienes un Código VIP de Colaborador? <span className="text-slate-500 font-normal">(Opcional)</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={vipCode}
+                                                onChange={(e) => setVipCode(e.target.value)}
+                                                placeholder="Ej: PRO-VIP-123"
+                                                className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 uppercase"
+                                            />
+                                            <p className="mt-2 text-xs text-slate-500">
+                                                Si no tienes un código, puedes dejar este campo vacío. Tu correo electrónico será verificado automáticamente.
+                                            </p>
+                                        </div>
+                                    </>
                                 )}
                             </motion.div>
                         </AnimatePresence>

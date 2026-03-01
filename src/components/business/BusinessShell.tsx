@@ -152,11 +152,22 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                             {/* Logout */}
                             <button
                                 onClick={async () => await AuthService.logout()}
-                                className="mt-auto flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-500 transition-colors font-medium text-sm"
+                                className="mt-2 flex items-center justify-between px-4 py-3 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-500 transition-colors font-medium text-sm w-full"
                             >
-                                <span className="rotate-180"><LogOut size={20} /></span>
-                                <span className="font-medium text-sm">{t('logout')}</span>
+                                <div className="flex items-center gap-3">
+                                    <span className="rotate-180"><LogOut size={20} /></span>
+                                    <span>{t('logout')}</span>
+                                </div>
                             </button>
+
+                            {/* Mobile-only: SWITCH TO CLIENT MODE (At the bottom) */}
+                            <Link
+                                href={lp('/')}
+                                className="md:hidden mt-2 w-full flex items-center justify-center gap-2 bg-[#F8FAFC] hover:bg-white border border-[#E6E8EC] hover:border-[#14B8A6]/30 rounded-lg py-3 text-xs font-semibold text-slate-600 hover:text-[#0F766E] transition-all"
+                            >
+                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                {t('clientMode')}
+                            </Link>
                         </div>
                     </aside>
 

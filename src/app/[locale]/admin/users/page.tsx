@@ -5,11 +5,11 @@ import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
 import { useAdminContext } from '@/context/AdminContext';
 import { AdminService } from '@/services/admin.service';
-import { updateDoc, doc } from 'firebase/firestore';
+import { updateDoc, doc, collection, query, where, getDocs, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import {
     Users, Search, RefreshCw, UserCheck, UserX,
-    Building2, Shield, Clock, ChevronDown, MoreHorizontal
+    Building2, Shield, Clock, ChevronDown, MoreHorizontal, Crown
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -20,6 +20,7 @@ type UserRecord = {
     isProvider?: boolean;
     isAdmin?: boolean;
     isBanned?: boolean;
+    isVip?: boolean; // Added for VIP UI
     country_code?: string;
     createdAt?: any;
     lastLogin?: any;
@@ -72,17 +73,120 @@ function ActionMenu({ user, onRefresh }: { user: UserRecord; onRefresh: () => vo
         finally { setLoading(false); }
     };
 
+    const makeVip = async () => {
+        setLoading(true);
+        setOpen(false);
+        try {
+            // If they are already a provider with a profile, just update it
+            if (user.isProvider && user.businessProfileId) {
+                const businessDocRef = doc(db, 'businesses_public', user.businessProfileId);
+                await updateDoc(businessDocRef, {
+                    'planData.plan': 'vip',
+                    'planData.planStatus': 'active',
+                    'planData.planSource': 'collaborator_beta',
+                    'planData.overriddenByCRM': true,
+                    'planData.teamMemberLimit': 999,
+                    'collaboratorData.activatedAt': serverTimestamp(),
+                    'collaboratorData.activatedBy': 'admin_manual',
+                });
+
+                // Set isVip flag on the user doc for quick UI reference
+                await updateDoc(doc(db, 'users', user.id), {
+                    isVip: true
+                });
+            } else {
+                // If they are a client (or a provider without a valid profile reference), create a skeleton VIP profile for them.
+                // We use their user ID as the business document ID for simplicity, or we can just let Firestore generate one. 
+                // Let's use user.id to be safe and avoid duplicates.
+                const newBizId = user.id;
+                const newBizRef = doc(db, 'businesses_public', newBizId);
+
+                await setDoc(newBizRef, {
+                    ownerUid: user.id,
+                    ownerEmail: user.email || '',
+                    ownerName: user.displayName || 'Usuario',
+                    brandName: user.displayName || 'Negocio de ' + (user.email?.split('@')[0] || 'Usuario'),
+                    businessName: user.displayName || 'Negocio de ' + (user.email?.split('@')[0] || 'Usuario'),
+                    country: user.country_code || 'HN',
+                    status: 'active',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    category: 'servicios_profesionales',
+                    planData: {
+                        plan: 'vip',
+                        planStatus: 'active',
+                        planSource: 'collaborator_beta',
+                        overriddenByCRM: true,
+                        teamMemberLimit: 999
+                    },
+                    collaboratorData: {
+                        activatedAt: serverTimestamp(),
+                        activatedBy: 'admin_manual'
+                    }
+                });
+
+                // Set up the required private and root documents to prevent updateProfile crashes
+                await setDoc(doc(db, 'businesses_private', newBizId), {
+                    id: newBizId,
+                    email: user.email || '',
+                    phone: '',
+                    address: '',
+                    department: '',
+                    gallery: [],
+                    socialMedia: { instagram: '', facebook: '', tiktok: '' },
+                    verificationStatus: 'pending',
+                    fullDescription: '',
+                    updatedAt: serverTimestamp()
+                });
+
+                await setDoc(doc(db, 'businesses', newBizId), {
+                    planData: {
+                        plan: 'vip',
+                        planStatus: 'active',
+                        planSource: 'collaborator_beta',
+                        overriddenByCRM: true,
+                        teamMemberLimit: 999
+                    },
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+
+                // Update the user record to reflect they are now a provider with this profile
+                await updateDoc(doc(db, 'users', user.id), {
+                    isProvider: true,
+                    isVip: true,
+                    businessProfileId: newBizId,
+                    'roles.provider': true
+                });
+            }
+
+            toast.success('¡Usuario convertido y ascendido a VIP Colaborador exitosamente!');
+            onRefresh();
+        } catch (err: any) {
+            console.error(err);
+            toast.error('Error al ascender a VIP.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const dropdown = open ? (
         <div
             style={{ position: 'fixed', top: coords.top, right: coords.right, zIndex: 9999 }}
-            className="bg-white border border-slate-200 rounded-xl shadow-2xl w-44 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-100"
+            className="bg-white border border-slate-200 rounded-xl shadow-2xl w-48 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-100"
             onMouseDown={e => e.stopPropagation()}
         >
             <button
                 onClick={toggleBan}
-                className={`w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 hover:bg-slate-50 transition-colors ${user.isBanned ? 'text-green-400' : 'text-red-400'}`}
+                className={`w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 hover:bg-slate-50 transition-colors ${user.isBanned ? 'text-green-500' : 'text-slate-700'}`}
             >
-                {user.isBanned ? <><UserCheck size={12} /> Desbloquear</> : <><UserX size={12} /> Bloquear</>}
+                {user.isBanned ? <><UserCheck size={14} className="text-green-500" /> Desbloquear</> : <><UserX size={14} className="text-red-500" /> Bloquear usuario</>}
+            </button>
+            <button
+                onClick={makeVip}
+                className="w-full text-left px-4 py-2.5 text-xs flex items-center gap-2 hover:bg-amber-50/50 transition-colors text-amber-600 border-t border-slate-100"
+            >
+                <Crown size={14} className="text-amber-500" /> Ascender a VIP
             </button>
         </div>
     ) : null;
@@ -265,9 +369,16 @@ export default function AdminUsersPage() {
                                             </td>
                                             <td className="px-4 py-3 text-xs text-slate-400">{u.country_code ?? '—'}</td>
                                             <td className="px-4 py-3">
-                                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${ROLE_BADGE[role]}`}>
-                                                    {role === 'admin' ? '🛡️ Admin' : role === 'provider' ? '🏢 Proveedor' : '👤 Cliente'}
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${ROLE_BADGE[role]}`}>
+                                                        {role === 'admin' ? '🛡️ Admin' : role === 'provider' ? '🏢 Proveedor' : '👤 Cliente'}
+                                                    </span>
+                                                    {u.isVip && (
+                                                        <span title="VIP Colaborador">
+                                                            <Crown size={14} className="text-amber-500" />
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </td>
                                             <td className="px-4 py-3 text-xs text-slate-500">{lastLogin ?? '—'}</td>
                                             <td className="px-4 py-3 text-xs text-slate-500">{createdDate ?? '—'}</td>

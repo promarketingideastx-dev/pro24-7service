@@ -11,9 +11,10 @@ import {
 import { db } from '@/lib/firebase';
 import { AuditLogService } from '@/services/auditLog.service';
 import { AdminNotificationService } from '@/services/adminNotification.service';
+import { VipInviteService } from '@/services/vipInvite.service';
 import {
     Crown, Play, Pause, XCircle, Trash2, Search,
-    Globe, User, Calendar, ChevronDown, Filter
+    Globe, User, Calendar, ChevronDown, Filter, Plus, Mail, Key
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -71,12 +72,17 @@ export default function CollaboratorsPage() {
     const [pauseDialog, setPauseDialog] = useState<{ id: string; name: string; row?: CollabRow } | null>(null);
     const [pauseReason, setPauseReason] = useState('');
 
+    // Invite Modal State
+    const [inviteDialog, setInviteDialog] = useState<'email' | 'code' | null>(null);
+    const [inviteEmail, setInviteEmail] = useState('');
+    const [generatedCode, setGeneratedCode] = useState('');
+    const [isGenerating, setIsGenerating] = useState(false);
+
     // ── Realtime listener ────────────────────────────────────────────────────
     useEffect(() => {
         const q = query(
             collection(db, 'businesses_public'),
-            where('planData.planSource', '==', 'collaborator_beta'),
-            orderBy('createdAt', 'desc')
+            where('planData.planSource', '==', 'collaborator_beta')
         );
 
         const unsub = onSnapshot(q, (snap) => {
@@ -97,6 +103,14 @@ export default function CollaboratorsPage() {
                     collaboratorData: r.collaboratorData,
                 };
             });
+
+            // Sort in memory to avoid Firebase missing 'createdAt' or index issues filtering out users
+            data.sort((a, b) => {
+                const aTime = a.createdAt?.toMillis?.() ?? (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0);
+                const bTime = b.createdAt?.toMillis?.() ?? (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0);
+                return bTime - aTime;
+            });
+
             setRows(data);
             setLoading(false);
         }, () => setLoading(false));
@@ -106,7 +120,7 @@ export default function CollaboratorsPage() {
 
     // ── Filters ──────────────────────────────────────────────────────────────
     const filtered = rows.filter(r => {
-        const matchCountry = !selectedCountry || r.country === selectedCountry;
+        const matchCountry = selectedCountry === 'ALL' || !selectedCountry || r.country === selectedCountry;
         const matchStatus = statusFilter === 'all' || r.planStatus === statusFilter;
         const term = search.toLowerCase();
         const matchSearch = !term ||
@@ -219,8 +233,46 @@ export default function CollaboratorsPage() {
         await updateStatus(pauseDialog.id, pauseDialog.name, 'paused', {
             'collaboratorData.pauseReason': pauseReason || '',
         }, pauseDialog.row);
+
+        // Also downgrade their plan to 'free' so they lose privileges immediately
+        await updateDoc(doc(db, 'businesses_public', pauseDialog.id), {
+            'planData.plan': 'free'
+        }).catch(() => { });
+
         setPauseDialog(null);
         setPauseReason('');
+    };
+
+    // Note: Deactivation logic should also downgrade them to 'free'
+    const handleCreateInvite = async () => {
+        if (!user) return;
+        setIsGenerating(true);
+        try {
+            if (inviteDialog === 'email') {
+                if (!inviteEmail.includes('@')) throw new Error('Email inválido');
+                await VipInviteService.createInvite({
+                    type: 'email',
+                    email: inviteEmail,
+                    createdBy: user.uid,
+                });
+                toast.success('Invitación por correo creada exitosamente');
+                setInviteDialog(null);
+                setInviteEmail('');
+            } else if (inviteDialog === 'code') {
+                const code = VipInviteService.generateCode();
+                await VipInviteService.createInvite({
+                    type: 'code',
+                    code: code,
+                    createdBy: user.uid,
+                });
+                setGeneratedCode(code);
+                toast.success('Código VIP generado');
+            }
+        } catch (err: any) {
+            toast.error(err.message || 'Error al generar la invitación');
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     // ── Pending count badge ──────────────────────────────────────────────────
@@ -241,9 +293,24 @@ export default function CollaboratorsPage() {
                             </span>
                         )}
                     </div>
-                    <p className="text-sm text-slate-500">{t('subtitle')}</p>
+                    <p className="text-sm text-slate-500">{t('subtitle')} y Gestión de Invitaciones VIP</p>
                 </div>
-                <p className="text-sm text-slate-600">{filtered.length} / {rows.length}</p>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => { setInviteDialog('email'); setGeneratedCode(''); }}
+                        className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors text-sm font-medium shadow-sm"
+                    >
+                        <Mail className="w-4 h-4" />
+                        Aprobar Email
+                    </button>
+                    <button
+                        onClick={() => { setInviteDialog('code'); setGeneratedCode(''); }}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#131929] text-white rounded-xl hover:bg-[#1f2937] transition-colors text-sm font-medium shadow-sm"
+                    >
+                        <Key className="w-4 h-4" />
+                        Generar Código
+                    </button>
+                </div>
             </div>
 
             {/* Filters */}
@@ -416,6 +483,70 @@ export default function CollaboratorsPage() {
                             >
                                 {t('actionPause')}
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Invite Dialogs */}
+            {inviteDialog && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#F4F6F8]/40 backdrop-blur-sm p-4">
+                    <div className="bg-[#131929] border border-slate-200 rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+                        <button onClick={() => setInviteDialog(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white">
+                            <XCircle className="w-5 h-5" />
+                        </button>
+
+                        <h3 className="text-white font-bold text-lg mb-2 flex items-center gap-2">
+                            {inviteDialog === 'email' ? <Mail className="w-5 h-5 text-amber-400" /> : <Key className="w-5 h-5 text-amber-400" />}
+                            {inviteDialog === 'email' ? 'Pre-aprobar Email' : 'Generar Código VIP'}
+                        </h3>
+
+                        <p className="text-slate-400 text-sm mb-6">
+                            {inviteDialog === 'email'
+                                ? 'Ingresa el correo del colaborador. Cuando se registre con este correo, obtendrá el plan VIP automáticamente.'
+                                : 'Genera un código único de 6 dígitos que puedes enviar por WhatsApp. Solo se puede usar una vez.'}
+                        </p>
+
+                        {inviteDialog === 'email' && (
+                            <input
+                                type="email"
+                                value={inviteEmail}
+                                onChange={e => setInviteEmail(e.target.value)}
+                                className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 mb-6"
+                                placeholder="ejemplo@correo.com"
+                                autoFocus
+                            />
+                        )}
+
+                        {inviteDialog === 'code' && generatedCode && (
+                            <div className="mb-6 bg-amber-500/10 border border-amber-500/30 rounded-xl p-6 text-center">
+                                <p className="text-xs text-amber-500/70 uppercase tracking-widest font-bold mb-2">Código Generado</p>
+                                <p className="text-3xl font-mono text-amber-400 tracking-wider font-bold select-all">{generatedCode}</p>
+                                <button
+                                    onClick={() => { navigator.clipboard.writeText(generatedCode); toast.success('Copiado al portapapeles'); }}
+                                    className="mt-4 text-xs font-semibold text-amber-400/80 hover:text-amber-400 transition-colors"
+                                >
+                                    Copiar Código
+                                </button>
+                            </div>
+                        )}
+
+                        <div className="flex gap-3 mt-4">
+                            <button
+                                onClick={() => { setInviteDialog(null); setInviteEmail(''); setGeneratedCode(''); }}
+                                className="flex-1 py-2.5 rounded-xl border border-slate-600 text-slate-400 hover:text-white text-sm transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            {!(inviteDialog === 'code' && generatedCode) && (
+                                <button
+                                    onClick={handleCreateInvite}
+                                    disabled={isGenerating}
+                                    className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold text-sm transition-colors disabled:opacity-50"
+                                >
+                                    {isGenerating ? 'Generando...' : (inviteDialog === 'email' ? 'Aprobar Email' : 'Generar Código')}
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
