@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { Search, Briefcase, MapPin } from 'lucide-react';
 import { useCountry } from '@/context/CountryContext';
 import CountrySelector from '@/components/ui/CountrySelector';
+import Logo from '@/components/ui/Logo';
 
 function OnboardingContent() {
     const { user } = useAuth();
@@ -110,13 +111,18 @@ function OnboardingContent() {
                     </button>
                 )}
 
-                <h1 className="text-3xl md:text-4xl font-bold mb-2 text-slate-900 text-center">
+                <div className="mb-2">
                     {isLoginMode ? (
-                        <>¿Cómo usas <span className="text-brand-neon-cyan">Pro24/7YA</span>?</>
+                        <div className="flex flex-col items-center gap-4">
+                            <Logo size="lg" />
+                            <h1 className="text-3xl md:text-4xl font-bold text-slate-900 text-center">
+                                ¿Cómo usas Pro24/7YA?
+                            </h1>
+                        </div>
                     ) : (
-                        <><span className="text-[#14B8A6]">Pro24/7YA</span></>
+                        <Logo size="lg" />
                     )}
-                </h1>
+                </div>
                 <p className="text-slate-400 mb-10 text-center text-sm md:text-base">
                     {isLoginMode
                         ? t('subtitleLogin')

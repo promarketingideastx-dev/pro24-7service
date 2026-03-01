@@ -257,6 +257,13 @@
     }
   },
   "home": {
+    "filters": {
+      "category": "Categoría",
+      "minRating": "Rating mínimo",
+      "distance": "Distancia",
+      "options": "Opciones",
+      "remove": "Quitar"
+    },
     "location": "Ubicación",
     "manageMyBusiness": "Administrar mi Negocio",
     "manageBusiness": "Administrar Negocio",
@@ -283,7 +290,11 @@
     "viewBtn": "Ver",
     "noResultsFor": "No encontramos resultados para \"{term}\"",
     "didYouMean": "¿Quiás quisiste decir?",
-    "share": "Compartir"
+    "share": "Compartir",
+    "tabs": {
+      "new": "Nuevos",
+      "withSchedule": "Con agenda"
+    }
   },
   "auth": {
     "welcomeBack": "Bienvenido de nuevo 👋",
@@ -337,6 +348,10 @@
     "errorSaving": "Hubo un error al guardar tu selección. Por favor intenta de nuevo."
   },
   "business": {
+    "badges": {
+      "new": "Nuevo",
+      "seeMore": "Ver más"
+    },
     "nav": {
       "dashboard": "Dashboard",
       "agenda": "Agenda",
@@ -943,6 +958,10 @@
     }
   },
   "userProfile": {
+    "reauth": {
+      "confirmIdentity": "Confirma tu identidad",
+      "deleteAccount": "Eliminar cuenta"
+    },
     "title": "Mi Perfil",
     "nameLabel": "Nombre Completo",
     "namePlaceholder": "Tu nombre",
@@ -1074,5 +1093,27 @@
     "checkoutError": "No se pudo abrir el checkout. Inténtalo de nuevo.",
     "portalError": "No se pudo abrir el portal de suscripción.",
     "legalNote": "Las suscripciones se procesan de forma segura vía Stripe en la web. PRO24/7 no procesa pagos entre clientes y negocios — esos se coordinan directamente."
+  },
+  "messages": {
+    "title": "Mis mensajes",
+    "deleteRead": "Borrar leídos",
+    "selectConversation": "Selecciona una conversación",
+    "writeFirstMessage": "Escribe tu primer mensaje"
+  },
+  "legal": {
+    "cookies": {
+      "alwaysActive": "Siempre activa",
+      "essentialCookies": "Cookies Esenciales"
+    }
+  },
+  "common": {
+    "notifications": {
+      "activate": "Activa las notificaciones"
+    },
+    "notFound": {
+      "title": "404 - Página no encontrada",
+      "desc": "La ruta que buscas no existe o no está disponible en la plataforma.",
+      "cta": "Ir al inicio"
+    }
   }
 }

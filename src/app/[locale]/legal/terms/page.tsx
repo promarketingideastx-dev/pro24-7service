@@ -60,7 +60,7 @@ export default function TermsPage() {
 
                         <section>
                             <h2 className="text-slate-900 font-bold text-base mb-2">6. Propiedad Intelectual</h2>
-                            <p>Todo el contenido de PRO24/7 está protegido. Al subir contenido, otorgas a PRO24/7 una licencia no exclusiva para mostrarlo en la plataforma. Puedes reportar violaciones en <a href="/legal/dmca" className="text-[#0F766E]">nuestra página DMCA</a>.</p>
+                            <p>Todo el contenido de PRO24/7 está protegido. Al subir contenido, otorgas a PRO24/7 una licencia no exclusiva para mostrarlo en la plataforma. Puedes reportar violaciones en <Link href={`/legal/dmca`} className="text-[#0F766E]">nuestra página DMCA</Link>.</p>
                         </section>
 
                         <section>

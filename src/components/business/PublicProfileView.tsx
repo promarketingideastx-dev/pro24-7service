@@ -3,6 +3,7 @@ import OpeningHoursStatus from './public/OpeningHoursStatus';
 import WeeklyScheduleView from './public/WeeklyScheduleView';
 import RequestAppointmentModal from '@/components/public/RequestAppointmentModal';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface PublicProfileViewProps {
     business: any;
@@ -11,6 +12,7 @@ interface PublicProfileViewProps {
 }
 
 export default function PublicProfileView({ business, onLogin, onRegister }: PublicProfileViewProps) {
+    const t = useTranslations('business.badges');
     const [isBookingOpen, setIsBookingOpen] = useState(false);
 
     if (!business) return null;
@@ -45,7 +47,7 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
                                         <span className="text-white font-bold text-sm">{business.rating ? business.rating.toFixed(1) : '5.0'}</span>
                                     </>
                                 ) : (
-                                    <span className="text-white font-bold text-sm px-1">Nuevo</span>
+                                    <span className="text-white font-bold text-sm px-1">{t('new')}</span>
                                 )}
                             </div>
                         </div>
@@ -83,7 +85,7 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
                     <h3 className="text-white font-bold mb-2 text-sm uppercase tracking-wider text-slate-500">Sobre Nosotros</h3>
                     <p className="text-slate-300 leading-relaxed text-sm">
                         {(business.shortDescription || business.description || '').substring(0, 100)}...
-                        <span className="text-brand-neon-cyan cursor-pointer hover:underline ml-1" onClick={onRegister}>Ver más</span>
+                        <span className="text-brand-neon-cyan cursor-pointer hover:underline ml-1" onClick={onRegister}>{t('seeMore')}</span>
                     </p>
                 </div>
 

@@ -4,8 +4,6 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    // firebase-admin is server-only — prevent webpack from bundling it for the client
-    serverExternalPackages: ['firebase-admin'],
     images: {
         domains: ['firebasestorage.googleapis.com'],
     },

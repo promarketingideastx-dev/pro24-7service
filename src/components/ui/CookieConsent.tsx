@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { Cookie, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 const STORAGE_KEY = 'pro247_cookies_consent';
 
 export default function CookieConsent() {
+    const t = useTranslations('legal.cookies');
     const [visible, setVisible] = useState(false);
     const [expanded, setExpanded] = useState(false);
 
@@ -51,7 +53,7 @@ export default function CookieConsent() {
 
                     {/* Expandable details */}
                     <button
-                        onClick={() => setExpanded(p => !p)}
+                        onClick={() => setExpanded((p: boolean) => !p)}
                         className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 transition-colors mb-3"
                     >
                         {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -68,7 +70,7 @@ export default function CookieConsent() {
                                 <div key={item.name} className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                                     <p className="font-semibold text-slate-900 mb-1">{item.name}</p>
                                     <p className="text-slate-500 leading-relaxed">{item.desc}</p>
-                                    {item.locked && <span className="text-[10px] text-[#0F766E] mt-1 inline-block">Siempre activa</span>}
+                                    {item.locked && <span className="text-[10px] text-[#0F766E] mt-1 inline-block">{t('alwaysActive')}</span>}
                                 </div>
                             ))}
                         </div>

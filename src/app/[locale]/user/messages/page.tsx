@@ -6,7 +6,7 @@ import { ChatService, Chat, ChatMessage } from '@/services/chat.service';
 import { MessageCircle, Send, ArrowLeft, Paperclip, Trash2, Trash, FileText, Loader2, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -16,6 +16,7 @@ const MAX_FILE_MB = 8;
 export default function ClientMessagesPage() {
     const { user, userProfile } = useAuth();
     const locale = useLocale();
+    const t = useTranslations('messages');
     const router = useRouter();
     const lp = (path: string) => `/${locale}${path}`;
 
@@ -180,7 +181,7 @@ export default function ClientMessagesPage() {
                 </button>
                 <div className="flex items-center gap-2.5">
                     <MessageCircle className="w-5 h-5 text-[#14B8A6]" />
-                    <h1 className="text-white font-bold text-lg">Mis mensajes</h1>
+                    <h1 className="text-white font-bold text-lg">{t('title')}</h1>
                 </div>
                 {chats.some(c => (c.unreadClient ?? 0) > 0) && (
                     <span className="ml-auto text-xs bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">
@@ -257,7 +258,7 @@ export default function ClientMessagesPage() {
                                     className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors text-xs font-medium shrink-0"
                                     title="Borrar mensajes leídos">
                                     <Trash size={14} />
-                                    <span className="hidden sm:inline">Borrar leídos</span>
+                                    <span className="hidden sm:inline">{t('deleteRead')}</span>
                                 </button>
                             )}
                         </div>
@@ -267,7 +268,7 @@ export default function ClientMessagesPage() {
                             {messages.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-3">
                                     <MessageCircle className="w-10 h-10 opacity-20" />
-                                    <p className="text-sm">Escribe tu primer mensaje</p>
+                                    <p className="text-sm">{t('writeFirstMessage')}</p>
                                 </div>
                             ) : (
                                 messages.map(msg => {
@@ -324,7 +325,7 @@ export default function ClientMessagesPage() {
                 ) : (
                     <div className="hidden md:flex flex-1 items-center justify-center text-slate-400 flex-col gap-3">
                         <MessageCircle className="w-10 h-10 opacity-20" />
-                        <p className="text-sm">Selecciona una conversación</p>
+                        <p className="text-sm">{t('selectConversation')}</p>
                     </div>
                 )}
             </div>

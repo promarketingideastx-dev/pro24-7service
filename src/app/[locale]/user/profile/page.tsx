@@ -181,7 +181,7 @@ export default function UserProfilePage() {
                     toast.error('Por seguridad, vuelve a iniciar sesión con Google y luego elimina la cuenta.');
                     const { AuthService } = await import('@/services/auth.service');
                     await AuthService.logout();
-                    router.push('/auth/login?reason=reauth');
+                    router.push(`/${locale}/auth/login?reason=reauth`);
                 } else {
                     // For email users: show password re-auth modal
                     setShowReauthModal(true);
@@ -570,7 +570,7 @@ export default function UserProfilePage() {
                                 <Lock size={28} />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-slate-900 mb-1">Confirma tu identidad</h3>
+                                <h3 className="text-xl font-bold text-slate-900 mb-1">{t('reauth.confirmIdentity')}</h3>
                                 <p className="text-slate-400 text-sm">
                                     Por seguridad, ingresa tu contraseña actual para continuar con la eliminación de tu cuenta.
                                 </p>
@@ -593,7 +593,7 @@ export default function UserProfilePage() {
                                     {isDeleting ? (
                                         <><div className="w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin" /> Eliminando...</>
                                     ) : (
-                                        <><Trash2 size={18} /> Eliminar cuenta</>
+                                        <><Trash2 size={18} /> {t('reauth.deleteAccount')}</>
                                     )}
                                 </button>
                                 <button

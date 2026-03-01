@@ -7,6 +7,13 @@
     "secureNote": "🔒 Seus dados estão protegidos. Leva apenas 30 segundos."
   },
   "home": {
+    "filters": {
+      "category": "Categoria",
+      "minRating": "Avaliação mínima",
+      "distance": "Distância",
+      "options": "Opções",
+      "remove": "Remover"
+    },
     "location": "Localização",
     "manageMyBusiness": "Gerenciar meu Negócio",
     "manageBusiness": "Gerenciar Negócio",
@@ -33,7 +40,11 @@
     "viewBtn": "Ver",
     "noResultsFor": "Nenhum resultado encontrado para \"{term}\"",
     "didYouMean": "Você quis dizer?",
-    "share": "Compartilhar"
+    "share": "Compartilhar",
+    "tabs": {
+      "new": "Novos",
+      "withSchedule": "Com agenda"
+    }
   },
   "auth": {
     "welcomeBack": "Bem-vindo de volta 👋",
@@ -337,6 +348,10 @@
     }
   },
   "business": {
+    "badges": {
+      "new": "Novo",
+      "seeMore": "Ver mais"
+    },
     "nav": {
       "dashboard": "Dashboard",
       "agenda": "Agenda",
@@ -943,6 +958,10 @@
     }
   },
   "userProfile": {
+    "reauth": {
+      "confirmIdentity": "Confirme sua identidade",
+      "deleteAccount": "Excluir conta"
+    },
     "title": "Meu Perfil",
     "nameLabel": "Nome Completo",
     "namePlaceholder": "Seu nome",
@@ -1074,5 +1093,27 @@
     "checkoutError": "Não foi possível abrir o checkout. Tente novamente.",
     "portalError": "Não foi possível abrir o portal de assinatura.",
     "legalNote": "As assinaturas são processadas com segurança via Stripe na web. PRO24/7 não processa pagamentos entre clientes e negócios — esses são coordenados diretamente."
+  },
+  "messages": {
+    "title": "Minhas mensagens",
+    "deleteRead": "Apagar lidas",
+    "selectConversation": "Selecione uma conversa",
+    "writeFirstMessage": "Escreva sua primeira mensagem"
+  },
+  "legal": {
+    "cookies": {
+      "alwaysActive": "Sempre ativa",
+      "essentialCookies": "Cookies Essenciais"
+    }
+  },
+  "common": {
+    "notifications": {
+      "activate": "Ativar notificações"
+    },
+    "notFound": {
+      "title": "404 - Página não encontrada",
+      "desc": "A página que você procura não existe ou não está disponível.",
+      "cta": "Voltar ao início"
+    }
   }
 }

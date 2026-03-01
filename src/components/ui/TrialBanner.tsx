@@ -5,6 +5,7 @@ import { TrialService } from '@/services/trial.service';
 import { AlertTriangle, Clock, X } from 'lucide-react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
+import Logo from '@/components/ui/Logo';
 
 interface TrialBannerProps {
     business: {
@@ -90,11 +91,14 @@ export function TrialExpiredOverlay({ business }: { business: { planData?: any }
                 <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-6">
                     <Clock className="w-8 h-8 text-amber-400" />
                 </div>
+                <div className="mb-6">
+                    <Logo size="md" />
+                </div>
                 <h2 className="text-2xl font-bold text-white mb-2">
                     Tu prueba gratuita finalizó
                 </h2>
                 <p className="text-slate-400 text-sm mb-8">
-                    Para continuar usando Pro24/7YA, elige el plan que mejor se adapte a tu negocio.
+                    Para continuar usando la plataforma, elige el plan que mejor se adapte a tu negocio.
                     Todos los datos de tu perfil están seguros.
                 </p>
                 <Link

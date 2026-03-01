@@ -19,6 +19,7 @@ const TOKEN_TTL_DAYS = 7;
  */
 export default function NotificationBanner() {
     const { user } = useAuth();
+    const t = useTranslations('common.notifications');
     const [visible, setVisible] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -89,7 +90,7 @@ export default function NotificationBanner() {
                 <Bell className="w-4 h-4 text-teal-400" />
             </div>
             <div className="flex-1 min-w-0">
-                <p className="text-white text-sm font-semibold">Activa las notificaciones</p>
+                <p className="text-white text-sm font-semibold">{t('activate')}</p>
                 <p className="text-slate-400 text-xs mt-0.5">Recibe alertas de citas y mensajes en tiempo real.</p>
                 <button
                     onClick={handleEnable}

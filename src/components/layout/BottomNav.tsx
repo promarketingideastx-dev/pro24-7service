@@ -1,21 +1,25 @@
 'use client';
 
-import { Home, Map, Calendar, User, PlusCircle } from 'lucide-react';
+import { Home, Calendar, User, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useLocale } from 'next-intl';
 
 export function BottomNav() {
     const pathname = usePathname();
+    const locale = useLocale();
+
+    // Helper for locale prefixes
+    const lp = (path: string) => `/${locale}${path}`;
 
     // Hide on wizard pages or specific flows if needed
     if (pathname?.includes('/negocio/nuevo')) return null;
 
     const navItems = [
-        { name: 'Inicio', icon: Home, href: '/' },
-        { name: 'Mapa', icon: Map, href: '/mapa' },
-        { name: 'Publicar', icon: PlusCircle, href: '/negocio/nuevo', isFab: true },
-        { name: 'Agenda', icon: Calendar, href: '/reservas' },
-        { name: 'Perfil', icon: User, href: '/perfil' },
+        { name: 'Inicio', icon: Home, href: lp('/') },
+        { name: 'Publicar', icon: PlusCircle, href: lp('/negocio/nuevo'), isFab: true },
+        { name: 'Agenda', icon: Calendar, href: lp('/user/profile') },
+        { name: 'Perfil', icon: User, href: lp('/user/profile') },
     ];
 
     return (

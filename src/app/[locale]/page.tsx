@@ -430,7 +430,7 @@ export default function Home() {
                     {/* Status Filter Chips */}
                     <div className="shrink-0 px-4 pt-2 pb-1 sm:px-6 sm:pt-3 sm:pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
                         {(['all', 'new', 'withSchedule'] as const).map((f) => {
-                            const labels: Record<string, string> = { all: t('allServices'), new: '🆕 Nuevos', withSchedule: '📅 Con Agenda' };
+                            const labels: Record<string, string> = { all: t('allServices'), new: `🆕 ${t('tabs.new')}`, withSchedule: `📅 ${t('tabs.withSchedule')}` };
                             const active = statusFilter === f;
                             return (
                                 <button
@@ -1070,14 +1070,14 @@ export default function Home() {
                                         onClick={() => { setFilterCategory(null); setFilterRating(0); setFilterHasSchedule(false); setFilterMaxKm(0); }}
                                         className="text-xs text-red-500 font-semibold hover:text-red-600 transition-colors"
                                     >
-                                        Limpiar filtros
+                                        {t('filters.remove')}
                                     </button>
                                 )}
                             </div>
 
                             {/* Section: Categoría */}
                             <div className="mb-5">
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Categoría</p>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t('filters.category')}</p>
                                 <div className="flex flex-wrap gap-2">
                                     {[{ id: null, label: 'Todas' }, { id: 'general_services', label: '🛠️ Servicios' }, { id: 'beauty_wellness', label: '💇 Belleza' }, { id: 'art_design', label: '🎨 Arte' }].map(opt => (
                                         <button
@@ -1096,7 +1096,7 @@ export default function Home() {
 
                             {/* Section: Rating */}
                             <div className="mb-5">
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Rating mínimo</p>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t('filters.minRating')}</p>
                                 <div className="flex gap-2">
                                     {[{ val: 0, label: 'Cualquiera' }, { val: 4, label: '4+ ⭐' }, { val: 5, label: '5.0 ⭐' }].map(opt => (
                                         <button
@@ -1115,7 +1115,7 @@ export default function Home() {
 
                             {/* Section: Distancia */}
                             <div className="mb-5">
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Distancia</p>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t('filters.distance')}</p>
 
                                 {/* Request location button */}
                                 {!userCoords ? (
@@ -1131,7 +1131,7 @@ export default function Home() {
                                     <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-teal-50 border border-teal-200 text-teal-700 text-xs font-semibold mb-2">
                                         <Navigation className="w-3.5 h-3.5" />
                                         Ubicación activa ✅
-                                        <button onClick={() => { setUserCoords(null); setFilterMaxKm(0); }} className="ml-auto text-red-400 hover:text-red-600 text-xs">Quitar</button>
+                                        <button onClick={() => { setUserCoords(null); setFilterMaxKm(0); }} className="ml-auto text-red-400 hover:text-red-600 text-xs">{t('filters.remove')}</button>
                                     </div>
                                 )}
 
@@ -1157,7 +1157,7 @@ export default function Home() {
 
                             {/* Section: Con Agenda */}
                             <div className="mb-6">
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Opciones</p>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t('filters.options')}</p>
                                 <button
                                     onClick={() => setFilterHasSchedule(v => !v)}
                                     className={`flex items-center gap-3 w-full px-4 py-3 rounded-2xl border text-sm font-semibold transition-all ${filterHasSchedule

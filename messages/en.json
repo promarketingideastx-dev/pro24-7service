@@ -7,6 +7,13 @@
     "secureNote": "🔒 Your data is protected. It only takes 30 seconds."
   },
   "home": {
+    "filters": {
+      "category": "Category",
+      "minRating": "Minimum rating",
+      "distance": "Distance",
+      "options": "Options",
+      "remove": "Remove"
+    },
     "location": "Location",
     "manageMyBusiness": "Manage my Business",
     "manageBusiness": "Manage Business",
@@ -33,7 +40,11 @@
     "viewBtn": "View",
     "noResultsFor": "No results found for \"{term}\"",
     "didYouMean": "Did you mean?",
-    "share": "Share"
+    "share": "Share",
+    "tabs": {
+      "new": "New",
+      "withSchedule": "With booking"
+    }
   },
   "auth": {
     "welcomeBack": "Welcome back 👋",
@@ -337,6 +348,10 @@
     }
   },
   "business": {
+    "badges": {
+      "new": "New",
+      "seeMore": "See more"
+    },
     "nav": {
       "dashboard": "Dashboard",
       "agenda": "Schedule",
@@ -943,6 +958,10 @@
     }
   },
   "userProfile": {
+    "reauth": {
+      "confirmIdentity": "Confirm your identity",
+      "deleteAccount": "Delete account"
+    },
     "title": "My Profile",
     "nameLabel": "Full Name",
     "namePlaceholder": "Your name",
@@ -1074,5 +1093,27 @@
     "checkoutError": "Could not open checkout. Try again.",
     "portalError": "Could not open subscription portal.",
     "legalNote": "Subscriptions are processed securely via Stripe on the web. PRO24/7 does not process payments between clients and businesses — those are coordinated directly."
+  },
+  "messages": {
+    "title": "My messages",
+    "deleteRead": "Delete read",
+    "selectConversation": "Select a conversation",
+    "writeFirstMessage": "Write your first message"
+  },
+  "legal": {
+    "cookies": {
+      "alwaysActive": "Always active",
+      "essentialCookies": "Essential Cookies"
+    }
+  },
+  "common": {
+    "notifications": {
+      "activate": "Turn on notifications"
+    },
+    "notFound": {
+      "title": "404 - Page not found",
+      "desc": "The page you are looking for does not exist or is unavailable.",
+      "cta": "Go to Home"
+    }
   }
 }
