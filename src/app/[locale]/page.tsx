@@ -227,7 +227,7 @@ export default function Home() {
             const matchesSubCat = subcats.includes(filterCategory);
             if (!matchesMainCat && !matchesSubCat) return false;
         }
-        if (filterRating > 0 && ((b as any).rating ?? 5.0) < filterRating) return false;
+        if (filterRating > 0 && ((b as any).rating ?? 0) < filterRating) return false;
         if (filterHasSchedule && !((b as any).openingHours || (b as any).hasSchedule)) return false;
         return true;
     }).filter(b => {
@@ -909,8 +909,14 @@ export default function Home() {
                                             })()}
                                         </p>
                                         <div className="flex items-center gap-1.5">
-                                            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                                            <span className="text-yellow-400 font-bold text-[10px]">{((biz as any).rating ?? 5.0).toFixed(1)}</span>
+                                            {((biz as any).reviewCount || 0) > 0 ? (
+                                                <>
+                                                    <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                                                    <span className="text-yellow-400 font-bold text-[10px]">{((biz as any).rating ?? 0).toFixed(1)}</span>
+                                                </>
+                                            ) : (
+                                                <span className="text-[#0F766E] font-bold text-[10px] px-1.5 py-0.5 bg-[rgba(20,184,166,0.1)] rounded px-1">Nuevo</span>
+                                            )}
                                             {userCoords && (() => {
                                                 const bizLat = (biz as any).location?.lat ?? biz.lat;
                                                 const bizLng = (biz as any).location?.lng ?? biz.lng;

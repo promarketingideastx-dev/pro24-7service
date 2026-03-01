@@ -63,8 +63,14 @@ export default function PublicBusinessPreviewModal({ isOpen, onClose, business }
                             </div>
                             <div className="flex flex-col items-end">
                                 <div className="flex items-center gap-1 bg-black/40 backdrop-blur px-2 py-1 rounded-lg border border-slate-200">
-                                    <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-                                    <span className="text-white font-bold text-sm">{business.rating || '5.0'}</span>
+                                    {(business.reviewCount || 0) > 0 ? (
+                                        <>
+                                            <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                                            <span className="text-white font-bold text-sm">{business.rating ? business.rating.toFixed(1) : '5.0'}</span>
+                                        </>
+                                    ) : (
+                                        <span className="text-white font-bold text-sm px-1">Nuevo</span>
+                                    )}
                                 </div>
                             </div>
                         </div>

@@ -136,6 +136,43 @@ export const AnalyticsService = {
             callback(sorted);
         }, () => callback([]));
     },
+
+    /**
+     * Get Retention Metrics (Active Users vs Total)
+     */
+    onRetentionMetrics(
+        filters: { days?: number },
+        callback: (metrics: { totalUsers: number; activeUsers: number; newUsers: number; mauPercentage: number }) => void
+    ): () => void {
+        const q = query(collection(db, 'users'), limit(10000));
+        return onSnapshot(q, snap => {
+            const now = Date.now();
+            const days = filters.days || 30;
+            const cutoff = now - days * 24 * 60 * 60 * 1000;
+
+            let totalUsers = 0;
+            let activeUsers = 0;
+            let newUsers = 0;
+
+            snap.docs.forEach(doc => {
+                const data = doc.data();
+                totalUsers++;
+
+                const lastLoginTime = data.lastLogin?.toDate?.()?.getTime?.() || 0;
+                const createdTime = data.createdAt?.toDate?.()?.getTime?.() || 0;
+
+                if (lastLoginTime > cutoff) activeUsers++;
+                if (createdTime > cutoff) newUsers++;
+            });
+
+            callback({
+                totalUsers,
+                activeUsers,
+                newUsers,
+                mauPercentage: totalUsers > 0 ? Math.round((activeUsers / totalUsers) * 100) : 0,
+            });
+        }, () => callback({ totalUsers: 0, activeUsers: 0, newUsers: 0, mauPercentage: 0 }));
+    },
 };
 
 // ── Funnel Step definition (exported for use in public pages) ─────────────────

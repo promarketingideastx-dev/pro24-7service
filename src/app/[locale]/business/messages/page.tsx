@@ -175,7 +175,7 @@ function BusinessMessagesContent() {
     };
 
     return (
-        <div className="h-screen flex flex-col bg-[#F4F6F8] overflow-hidden">
+        <div className="h-[100dvh] flex flex-col bg-[#F4F6F8] overflow-hidden">
 
             {/* ── Page Header (matches /user/messages) ── */}
             <div className="bg-gradient-to-br from-slate-800 to-slate-900 px-4 py-4 flex items-center gap-3 shrink-0">
