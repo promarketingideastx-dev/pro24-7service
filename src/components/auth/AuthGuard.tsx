@@ -53,11 +53,13 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             }
 
             if (startsWithAny(AUTH_PREFIXES)) {
-                router.replace(userProfile.roles.provider ? lp('/business/dashboard') : lp('/'));
+                const isProvider = userProfile.roles?.provider || userProfile.role === 'provider' || userProfile.isAdmin;
+                router.replace(isProvider ? lp('/business/dashboard') : lp('/'));
                 return;
             }
 
-            if (startsWithAny(PROVIDER_ONLY_PREFIXES) && !userProfile.roles.provider) {
+            const isProvider = userProfile.roles?.provider || userProfile.role === 'provider' || userProfile.isAdmin;
+            if (startsWithAny(PROVIDER_ONLY_PREFIXES) && !isProvider) {
                 router.replace(lp('/'));
                 return;
             }
