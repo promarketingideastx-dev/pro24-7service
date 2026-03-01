@@ -18,7 +18,7 @@ interface ChatModalProps {
 
 const MAX_FILE_MB = 8;
 
-export default function ChatModal({ businessId, businessName, onClose }: ChatModalProps) {
+export default function ChatModal({ businessId, businessName, onClose, isOpen }: ChatModalProps) {
     const { user, userProfile } = useAuth();
     const [chatDocId, setChatDocId] = useState<string | null>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -162,7 +162,7 @@ export default function ChatModal({ businessId, businessName, onClose }: ChatMod
         );
     };
 
-    if (!user) return null;
+    if (!user || !isOpen) return null;
 
     return (
         <>
