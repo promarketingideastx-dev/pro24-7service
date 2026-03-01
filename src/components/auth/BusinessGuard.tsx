@@ -50,7 +50,13 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
             return;
         }
 
-        // 4. Check Business Profile Existence
+        // 4. Admin users always have full access to all business routes
+        if (userProfile.isAdmin) {
+            setIsAuthorized(true);
+            return;
+        }
+
+        // 5. Check Business Profile Existence (for regular providers only)
         const hasBusiness = !!userProfile.businessProfileId;
         const isSetupPage = pathname.includes('/business/setup');
         const isBusinessRoute = pathname.includes('/business');
