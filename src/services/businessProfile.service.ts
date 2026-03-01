@@ -518,12 +518,8 @@ export const BusinessProfileService = {
             // are still visible. Only 'suspended' businesses are hidden.
             let q = query(collection(db, 'businesses_public'));
 
-            if (countryCode && countryCode !== 'ALL' && countryCode !== 'GLOBAL') {
-                q = query(collection(db, 'businesses_public'), where('countryCode', '==', countryCode));
-
-                // Note: Older documents might not have 'countryCode' indexed or populated. 
-                // We will fall back to filtering in memory for safety if the query doesn't match effectively yet.
-            }
+            // Note: Older documents might not have 'countryCode' indexed or populated. 
+            // We will rely entirely on the memory filter below to ensure no businesses disappear.
 
             const querySnapshot = await getDocs(q);
 
