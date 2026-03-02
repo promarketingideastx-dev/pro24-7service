@@ -6,6 +6,65 @@ import {
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { BusinessNotificationService } from '@/services/businessNotification.service';
 
+// ── Email Retries Job Enqueueing ─────────────────────────────────────────────
+async function enqueueChatEmailJob(
+    chatId: string,
+    recipientId: string,
+    recipientRole: 'client' | 'business',
+    senderName: string,
+    textPreview: string
+) {
+    try {
+        const dedupeKey = `chat_${chatId}_${recipientId}`;
+        const jobRef = doc(db, 'notification_jobs', dedupeKey);
+
+        let userEmail = '';
+        if (recipientRole === 'client') {
+            const snap = await getDoc(doc(db, 'users', recipientId));
+            userEmail = snap.data()?.email || '';
+        } else {
+            const snap = await getDoc(doc(db, 'businesses_private', recipientId));
+            userEmail = snap.data()?.email || '';
+        }
+
+        if (!userEmail) return;
+
+        const jobSnap = await getDoc(jobRef);
+        const nowMs = Date.now();
+        const fifteenMinsMs = 15 * 60 * 1000;
+
+        if (jobSnap.exists() && jobSnap.data()?.status === 'pending') {
+            await updateDoc(jobRef, {
+                messageCount: increment(1),
+                payload: { senderName, textPreview },
+                scheduledFor: new Date(nowMs + fifteenMinsMs),
+                updatedAt: serverTimestamp()
+            });
+        } else {
+            await setDoc(jobRef, {
+                status: 'pending',
+                type: 'chat',
+                userId: recipientId,
+                userRole: recipientRole,
+                userEmail,
+                relatedEntityId: chatId,
+                payload: { senderName, textPreview },
+                dedupeKey,
+                messageCount: 1,
+                attempts: 0,
+                maxAttempts: 2,
+                scheduledFor: new Date(nowMs + fifteenMinsMs),
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            }, { merge: false });
+        }
+    } catch (err) {
+        console.error('[ChatService] Failed to enqueue email job:', err);
+    }
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+
 export interface ChatMessage {
     id?: string;
     text: string;
@@ -101,6 +160,9 @@ export const ChatService = {
                 relatedId: chatDocId,
                 relatedName: senderName,
             }).catch(() => { /* silent */ });
+
+            // Queue email delivery if not seen
+            enqueueChatEmailJob(chatDocId, chatData.businessId, 'business', senderName, text.trim().substring(0, 80));
         }
 
         // 🔔 Notify the client when the business replies
@@ -113,6 +175,9 @@ export const ChatService = {
                 relatedId: chatDocId,
                 relatedName: chatData.businessName || senderName,
             }).catch(() => { /* silent */ });
+
+            // Queue email delivery if not seen
+            enqueueChatEmailJob(chatDocId, chatData.clientUid, 'client', chatData.businessName || senderName, text.trim().substring(0, 80));
         }
     },
 
@@ -248,6 +313,9 @@ export const ChatService = {
                 relatedId: chatDocId,
                 relatedName: senderName,
             }).catch(() => { });
+
+            // Queue email delivery if not seen
+            enqueueChatEmailJob(chatDocId, chatData.businessId, 'business', senderName, preview.substring(0, 80));
         }
         if (senderRole === 'business' && chatData?.clientUid) {
             const { ClientNotificationService } = await import('@/services/clientNotification.service');
@@ -258,6 +326,9 @@ export const ChatService = {
                 relatedId: chatDocId,
                 relatedName: chatData.businessName || senderName,
             }).catch(() => { });
+
+            // Queue email delivery if not seen
+            enqueueChatEmailJob(chatDocId, chatData.clientUid, 'client', chatData.businessName || senderName, preview.substring(0, 80));
         }
     },
 
