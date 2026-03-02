@@ -108,12 +108,42 @@ export const FavoritesService = {
         }
     },
 
-    /** Get all favorites for a user. */
+    /** Get all favorites for a user (filters out deleted/suspended businesses). */
     async getFavorites(userId: string): Promise<FavoriteRecord[]> {
         try {
             const ref = collection(db, `users/${userId}/favorites`);
             const snap = await getDocs(ref);
-            return snap.docs.map(d => d.data() as FavoriteRecord);
+            const favorites = snap.docs.map(d => d.data() as FavoriteRecord);
+            const validFavorites: FavoriteRecord[] = [];
+
+            await Promise.all(favorites.map(async (fav) => {
+                try {
+                    const bizRef = doc(db, 'businesses_public', fav.businessId);
+                    const bizSnap = await getDoc(bizRef);
+
+                    // Note: If bizSnap doesn't exist, it means the business was heavily deleted (hard deleted).
+                    // If bizSnap exists but the status is suspended, it also shouldn't be shown.
+                    if (!bizSnap.exists() || bizSnap.data()?.status === 'suspended') {
+                        // Dead link / orphaned favorite: queue cleanup and return nothing
+                        console.warn(`[Favorites Hygiene] Cleanup orphaned favorite: ${fav.businessId}`);
+                        const favRef = doc(db, `users/${userId}/favorites/${fav.businessId}`);
+                        await deleteDoc(favRef).catch(e => console.error("Cleanup error", e));
+                    } else {
+                        // Optional hygiene: refresh naming / logo if we want, but for now just validate existence
+                        validFavorites.push(fav);
+                    }
+                } catch (err) {
+                    // On network error or DB timeout, assume positive to prevent accidental deletion
+                    validFavorites.push(fav);
+                }
+            }));
+
+            // Restore sorting order (newest first)
+            return validFavorites.sort((a, b) => {
+                const timeA = a.savedAt?.toMillis?.() || 0;
+                const timeB = b.savedAt?.toMillis?.() || 0;
+                return timeB - timeA;
+            });
         } catch {
             return [];
         }
