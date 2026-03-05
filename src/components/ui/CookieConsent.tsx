@@ -28,7 +28,7 @@ export default function CookieConsent() {
     if (!visible) return null;
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-[9999] p-4 sm:p-6 pointer-events-none">
+        <div className="fixed bottom-0 left-0 right-0 z-[9998] p-4 sm:p-6 pointer-events-none">
             <div className="max-w-2xl mx-auto pointer-events-auto">
                 <div className="bg-white/95 backdrop-blur-xl border border-slate-200 rounded-2xl shadow-2xl p-5">
                     {/* Header */}

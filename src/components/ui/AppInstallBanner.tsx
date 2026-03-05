@@ -67,9 +67,11 @@ export default function AppInstallBanner({ businessName }: AppInstallBannerProps
                 <div className="absolute inset-0 bg-gradient-to-r from-brand-neon-cyan/5 to-brand-neon-purple/5 pointer-events-none" />
 
                 {/* App icon */}
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-neon-cyan to-brand-neon-purple flex items-center justify-center shrink-0 shadow-lg shadow-cyan-500/20 relative z-10">
-                    <span className="text-2xl font-black text-black">P</span>
-                </div>
+                <img
+                    src="/logo.png"
+                    alt="Pro24/7YA Logo"
+                    className="w-12 h-12 rounded-xl object-contain shrink-0 shadow-lg shadow-cyan-500/20 relative z-10 bg-white"
+                />
 
                 {/* Message */}
                 <div className="flex-1 min-w-0 relative z-10">

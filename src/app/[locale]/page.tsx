@@ -30,6 +30,7 @@ export default function Home() {
     const [statusFilter, setStatusFilter] = useState<'all' | 'new' | 'withSchedule'>('all');
     /* State for Category Modal */
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(null);
     /* State for Selected Business (Map Focus) */
     const [selectedBusiness, setSelectedBusiness] = useState<BusinessMock | null>(null);
 
@@ -48,21 +49,49 @@ export default function Home() {
 
     const activeFilterCount = (filterCategory ? 1 : 0) + (filterRating > 0 ? 1 : 0) + (filterHasSchedule ? 1 : 0) + (filterMaxKm > 0 ? 1 : 0);
 
-    const requestLocation = () => {
+    const requestLocation = async () => {
         setGeoLoading(true);
         setGeoError(null);
+
+        try {
+            const { Capacitor } = await import('@capacitor/core');
+
+            if (Capacitor.isNativePlatform()) {
+                const { Geolocation } = await import('@capacitor/geolocation');
+                // Use Capacitor plugin
+                let status = await Geolocation.checkPermissions();
+                if (status.location !== 'granted') {
+                    status = await Geolocation.requestPermissions();
+                    if (status.location !== 'granted') {
+                        setGeoError('No se otorgaron los permisos de ubicación en el dispositivo.');
+                        setGeoLoading(false);
+                        return;
+                    }
+                }
+
+                const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+                setUserCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
+                setGeoLoading(false);
+                return;
+            }
+        } catch (e) {
+            console.warn('Capacitor geolocation fallback triggered', e);
+        }
+
+        // Web Fallback
         if (!navigator.geolocation) {
             setGeoError('Tu navegador no soporta geolocalización');
             setGeoLoading(false);
             return;
         }
+
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
                 setGeoLoading(false);
             },
             () => {
-                setGeoError('No se pudo obtener tu ubicación. Verifica los permisos.');
+                setGeoError('No se pudo obtener tu ubicación. Verifica los permisos de tu navegador.');
                 setGeoLoading(false);
             },
             { timeout: 10000 }
@@ -109,6 +138,16 @@ export default function Home() {
         { id: 'art_design', name: t('cat_artDesign'), icon: '🎥', color: 'text-purple-400', border: 'border-purple-500/30', bg: 'bg-purple-500/10' },
         { id: 'health_medicine', name: t('cat_healthMedicine'), icon: '🩺', color: 'text-emerald-400', border: 'border-emerald-500/30', bg: 'bg-emerald-500/10' },
     ];
+
+    const getCategoryColors = (catId: string) => {
+        switch (catId) {
+            case 'general_services': return { bg: 'bg-blue-500', text: 'text-white', lightBorder: 'border-blue-200', hoverBorder: 'hover:border-blue-400', lightBg: 'bg-blue-50', solidText: 'text-blue-800', hoverBg: 'hover:bg-blue-100', dot: 'bg-blue-600' };
+            case 'beauty_wellness': return { bg: 'bg-pink-500', text: 'text-white', lightBorder: 'border-pink-200', hoverBorder: 'hover:border-pink-400', lightBg: 'bg-pink-50', solidText: 'text-pink-800', hoverBg: 'hover:bg-pink-100', dot: 'bg-pink-600' };
+            case 'art_design': return { bg: 'bg-purple-500', text: 'text-white', lightBorder: 'border-purple-200', hoverBorder: 'hover:border-purple-400', lightBg: 'bg-purple-50', solidText: 'text-purple-800', hoverBg: 'hover:bg-purple-100', dot: 'bg-purple-600' };
+            case 'health_medicine': return { bg: 'bg-emerald-500', text: 'text-white', lightBorder: 'border-emerald-200', hoverBorder: 'hover:border-emerald-400', lightBg: 'bg-emerald-50', solidText: 'text-emerald-800', hoverBg: 'hover:bg-emerald-100', dot: 'bg-emerald-600' };
+            default: return { bg: 'bg-[#14B8A6]', text: 'text-white', lightBorder: 'border-slate-200', hoverBorder: 'hover:border-[#14B8A6]/40', lightBg: 'bg-[#F8FAFC]', solidText: 'text-slate-900', hoverBg: 'hover:bg-slate-100', dot: 'bg-[#14B8A6]' };
+        }
+    };
 
     const [showAuthModal, setShowAuthModal] = useState(false);
     const [pendingBusiness, setPendingBusiness] = useState<BusinessMock | null>(null);
@@ -983,66 +1022,86 @@ export default function Home() {
                     />
 
                     {/* Categories Detail Modal */}
-                    {selectedCategory && selectedTaxonomy && (
-                        <div className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                            <div className="bg-white w-full max-w-lg rounded-3xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom duration-300">
+                    {/* Categories Detail Modal */}
+                    {selectedCategory && selectedTaxonomy && (() => {
+                        const theme = getCategoryColors(selectedCategory);
+                        return (
+                            <div className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                                <div className="bg-white w-full max-w-lg rounded-3xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom duration-300">
 
-                                {/* Header */}
-                                <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-[#F8FAFC]">
-                                    <div>
-                                        <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                                            {categories.find(c => c.id === selectedCategory)?.icon}
-                                            {selectedTaxonomy.label[localeKey as keyof typeof selectedTaxonomy.label]}
-                                        </h2>
-                                        <p className="text-xs text-slate-400 mt-1">{t('exploreServices')}</p>
-                                    </div>
-                                    <button
-                                        onClick={() => setSelectedCategory(null)}
-                                        className="p-2 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition-colors"
-                                    >
-                                        <X className="w-5 h-5" />
-                                    </button>
-                                </div>
-
-                                {/* Scrollable Content */}
-                                <div className="overflow-y-auto p-4 space-y-4 custom-scrollbar">
-                                    {selectedTaxonomy.subcategories.map((sub) => (
-                                        <div key={sub.id} className="bg-white rounded-2xl p-4 border-2 border-slate-100 hover:border-slate-200 transition-colors shadow-sm">
-                                            <h3 className="text-base font-black text-[#1E3A8A] mb-3 flex items-center gap-2">
-                                                <span className="w-2 h-2 rounded-full bg-[#2563EB]"></span>
-                                                {sub.label[localeKey as keyof typeof sub.label]}
-                                            </h3>
-                                            <div className="flex flex-wrap gap-2">
-                                                {sub.specialties.map((spec, i) => (
-                                                    <button
-                                                        key={i}
-                                                        onClick={() => {
-                                                            setSearchTerm((spec as any).es);
-                                                            setSelectedCategory(null);
-                                                        }}
-                                                        className="flex items-center gap-1.5 bg-slate-50 border-2 border-slate-200 shadow-sm rounded-xl px-3 py-2 text-[13px] font-bold text-slate-800 hover:bg-[rgba(20,184,166,0.08)] hover:border-[#14B8A6]/60 hover:text-[#0F766E] cursor-pointer transition-all group/item active:scale-95"
-                                                    >
-                                                        <ChevronRight className="w-3 h-3 text-slate-400 group-hover/item:text-[#14B8A6] shrink-0 transition-colors" />
-                                                        <span className="font-bold">{(spec as any)[localeKey] ?? (spec as any).es}</span>
-                                                    </button>
-                                                ))}
-                                            </div>
+                                    {/* Header */}
+                                    <div className={`p-6 border-b border-slate-200 flex justify-between items-center ${theme.lightBg}`}>
+                                        <div>
+                                            <h2 className={`text-xl font-black ${theme.solidText} flex items-center gap-2`}>
+                                                {categories.find(c => c.id === selectedCategory)?.icon}
+                                                {selectedTaxonomy.label[localeKey as keyof typeof selectedTaxonomy.label]}
+                                            </h2>
+                                            <p className={`text-xs ${theme.solidText} opacity-70 mt-1`}>{t('exploreServices')}</p>
                                         </div>
-                                    ))}
-                                </div>
+                                        <button
+                                            onClick={() => { setSelectedCategory(null); setSelectedSpecialty(null); }}
+                                            className="p-2 rounded-full bg-white/50 hover:bg-white text-slate-500 hover:text-slate-900 transition-colors shadow-sm"
+                                        >
+                                            <X className="w-5 h-5" />
+                                        </button>
+                                    </div>
 
-                                {/* Footer */}
-                                <div className="p-4 border-t border-slate-200 bg-[#F8FAFC]">
-                                    <button
-                                        onClick={() => setSelectedCategory(null)}
-                                        className="w-full py-3 rounded-xl bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold text-sm shadow-[0_4px_14px_rgba(20,184,166,0.30)] hover:shadow-[0_6px_20px_rgba(20,184,166,0.45)] transition-all"
-                                    >
-                                        {t('closeExplorer')}
-                                    </button>
+                                    {/* Scrollable Content */}
+                                    <div className="overflow-y-auto p-4 space-y-4 custom-scrollbar">
+                                        {selectedTaxonomy.subcategories.map((sub) => (
+                                            <div key={sub.id} className={`bg-white rounded-2xl p-4 border-2 ${theme.lightBorder} transition-colors shadow-sm`}>
+                                                <h3 className={`text-base font-black ${theme.solidText} mb-3 flex items-center gap-2`}>
+                                                    <span className={`w-2 h-2 rounded-full ${theme.dot}`}></span>
+                                                    {sub.label[localeKey as keyof typeof sub.label]}
+                                                </h3>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {sub.specialties.map((spec, i) => {
+                                                        const specValue = (spec as any).es;
+                                                        const isSelected = selectedSpecialty === specValue;
+                                                        return (
+                                                            <button
+                                                                key={i}
+                                                                onClick={() => {
+                                                                    if (isSelected) {
+                                                                        setSearchTerm(specValue);
+                                                                        setSelectedCategory(null);
+                                                                        setSelectedSpecialty(null);
+                                                                    } else {
+                                                                        setSelectedSpecialty(specValue);
+                                                                    }
+                                                                }}
+                                                                className={`flex items-center gap-1.5 border-2 shadow-sm rounded-xl px-3 py-2 text-[13px] font-bold cursor-pointer transition-all active:scale-95 ${isSelected
+                                                                        ? `${theme.bg} ${theme.text} border-transparent scale-[1.02]`
+                                                                        : `bg-white ${theme.lightBorder} ${theme.hoverBorder} ${theme.solidText} ${theme.hoverBg}`
+                                                                    }`}
+                                                            >
+                                                                {isSelected ? (
+                                                                    <Zap className="w-3.5 h-3.5 text-white shrink-0 animate-pulse" />
+                                                                ) : (
+                                                                    <ChevronRight className={`w-3 h-3 opacity-50 shrink-0 transition-colors`} />
+                                                                )}
+                                                                <span className="font-bold">{(spec as any)[localeKey] ?? (spec as any).es}</span>
+                                                            </button>
+                                                        )
+                                                    })}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Footer */}
+                                    <div className="p-4 border-t border-slate-200 bg-[#F8FAFC]">
+                                        <button
+                                            onClick={() => { setSelectedCategory(null); setSelectedSpecialty(null); }}
+                                            className="w-full py-3 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm transition-all"
+                                        >
+                                            {t('closeExplorer')}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        );
+                    })()}
 
                 </div>
 

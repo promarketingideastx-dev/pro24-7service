@@ -44,6 +44,7 @@ export default function CountrySelector() {
     const router = useRouter();
     const pathname = usePathname();
 
+    // Country Selection component logic.
     const switchLocale = (newLocale: string) => {
         const segments = pathname.split('/');
         segments[1] = newLocale;
