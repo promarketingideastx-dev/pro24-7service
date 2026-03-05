@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Suspense } from 'react';
 import { ArrowLeft, Edit2, Phone, Mail, MapPin, Calendar, FileText, Clock, TrendingUp, CheckCircle, XCircle, AlertCircle, Save } from 'lucide-react';
 import { CustomerService, Customer } from '@/services/customer.service';
 import { AppointmentService, Appointment } from '@/services/appointment.service';
@@ -19,11 +20,11 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.
     'no-show': { label: 'No Asistió', color: 'text-slate-500 bg-slate-50 border-slate-200', icon: <XCircle className="w-3 h-3" /> },
 };
 
-export default function CustomerDetailPage() {
-    const params = useParams();
+function CustomerDetailContent() {
+    const searchParams = useSearchParams();
     const router = useRouter();
     const { user } = useAuth();
-    const id = params.id as string;
+    const id = searchParams.get('id') as string;
 
     const [customer, setCustomer] = useState<Customer | null>(null);
     const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -278,5 +279,13 @@ export default function CustomerDetailPage() {
                 customerToEdit={customer}
             />
         </div>
+    );
+}
+
+export default function CustomerDetailPage() {
+    return (
+        <Suspense fallback={<div className="p-8 text-center text-slate-500 animate-pulse">Cargando perfil...</div>}>
+            <CustomerDetailContent />
+        </Suspense>
     );
 }

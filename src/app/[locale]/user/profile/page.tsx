@@ -365,7 +365,7 @@ export default function UserProfilePage() {
                             {favorites.map((fav) => (
                                 <Link
                                     key={fav.businessId}
-                                    href={`/${locale}/negocio/${fav.businessId}`}
+                                    href={`/${locale}/negocio/perfil?id=${fav.businessId}`}
                                     className="group flex items-center gap-4 p-4 bg-[#F8FAFC] hover:bg-white border border-[#E6E8EC] hover:border-[#14B8A6]/30 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] rounded-2xl transition-all active:scale-[0.98]"
                                 >
                                     {/* Logo / Avatar */}

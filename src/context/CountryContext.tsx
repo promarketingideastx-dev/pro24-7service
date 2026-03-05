@@ -35,10 +35,7 @@ export function CountryProvider({ children }: { children: React.ReactNode }) {
     };
 
     const clearCountry = () => {
-        // We probably shouldn't "clear" to null if we want strict persistence,
-        // but removing logic allows showing the selector again.
-        localStorage.removeItem('pro247_country'); // Manually remove for 'reset' effect if needed
-        document.cookie = 'pro247_country=; Max-Age=0; path=/;';
+        ActiveCountry.clear();
         setSelectedCountry(null);
     };
 

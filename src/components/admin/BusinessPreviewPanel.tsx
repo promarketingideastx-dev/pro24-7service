@@ -49,7 +49,7 @@ export default function BusinessPreviewPanel({ businessId, onClose }: BusinessPr
         setIframeKey(k => k + 1);
     }, [businessId]);
 
-    const profileUrl = businessId ? `/${locale}/negocio/${businessId}` : null;
+    const profileUrl = businessId ? `/${locale}/negocio/perfil?id=${businessId}` : null;
     const plan = biz?.planData?.plan ?? 'free';
     const statusColor = biz?.suspended ? '#ef4444' : biz?.status === 'pending' ? '#f59e0b' : '#22c55e';
     const statusLabels: Record<string, string> = {

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Pro24 7 YA</string>
+    <string name="title_activity_main">Pro24 7 YA</string>
+    <string name="package_name">com.promarketingideas.pro247ya</string>
+    <string name="custom_url_scheme">com.promarketingideas.pro247ya</string>
+</resources>

@@ -16,7 +16,7 @@ export default function PublicBusinessPreviewModal({ isOpen, onClose, business }
 
     if (!isOpen || !business) return null;
 
-    const returnUrl = `/negocio/${business.id}`;
+    const returnUrl = `/negocio/perfil?id=${business.id}`;
 
     const handleLogin = () => {
         router.push(lp(`/auth/login?returnTo=${encodeURIComponent(returnUrl)}`));

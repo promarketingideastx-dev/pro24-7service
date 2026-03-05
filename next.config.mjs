@@ -4,8 +4,10 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    output: 'export',
     images: {
         domains: ['firebasestorage.googleapis.com'],
+        unoptimized: true,
     },
     webpack: (config, { isServer }) => {
         // Alias undici globally to avoid parsing errors
@@ -21,7 +23,7 @@ const nextConfig = {
     },
     // Proxy Firebase Auth handler so pro247ya.com works as authDomain
     // Without this, /__/auth/handler returns 404 breaking Google/Apple login
-    async rewrites() {
+    /* async rewrites() {
         return [
             {
                 source: '/__/auth/:path*',
@@ -32,7 +34,7 @@ const nextConfig = {
                 destination: 'https://service-marketplace-mvp-28884.firebaseapp.com/__/firebase/:path*',
             },
         ];
-    },
+    }, */
     // FORCE BUILD SUCCESS: Ignore strict type/lint checks on Vercel
     typescript: {
         ignoreBuildErrors: true,

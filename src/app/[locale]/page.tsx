@@ -153,7 +153,7 @@ export default function Home() {
             setPendingBusiness(biz);
             setShowAuthModal(true);
         } else {
-            router.push(lp(`/negocio/${biz.id}`));
+            router.push(lp(`/negocio/perfil?id=${biz.id}`));
         }
     };
 
@@ -269,7 +269,7 @@ export default function Home() {
         <>
             <main className="h-dvh bg-[#F4F6F8] text-slate-900 overflow-hidden font-sans flex flex-col" style={{ height: '100dvh' }}>
                 {/* ── Header ── */}
-                <header className="shrink-0 bg-gradient-to-br from-slate-800 to-slate-900 px-4 pt-3 pb-3 sm:px-5 sm:pt-5 sm:pb-5 z-50">
+                <header className="shrink-0 bg-gradient-to-br from-slate-800 to-slate-900 px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3 sm:px-5 sm:pt-[calc(1.25rem+env(safe-area-inset-top))] sm:pb-5 z-50">
 
                     {/* Row 1: Country + Actions */}
                     <div className="flex items-center justify-between mb-2 sm:mb-4">

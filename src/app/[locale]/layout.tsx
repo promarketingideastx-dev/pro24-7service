@@ -8,6 +8,10 @@ import SWRegistrar from '@/components/ui/SWRegistrar';
 
 const LOCALES = ['es', 'en', 'pt-BR'];
 
+export function generateStaticParams() {
+    return LOCALES.map((locale) => ({ locale }));
+}
+
 export default async function LocaleLayout({
     children,
     params,

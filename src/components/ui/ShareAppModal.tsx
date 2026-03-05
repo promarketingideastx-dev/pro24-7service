@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { X, QrCode, Link2, Copy, Check, Share2, Download } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
 
 interface ShareAppModalProps {
     isOpen: boolean;
@@ -133,14 +134,20 @@ export default function ShareAppModal({ isOpen, onClose }: ShareAppModalProps) {
                                 <p className="text-slate-900 font-semibold text-sm">{t('qrHint')}</p>
                                 <p className="text-slate-500 text-xs mt-1 font-mono">{shareUrl}</p>
                             </div>
-                            {/* Download QR hint */}
-                            <div className="w-full bg-slate-50 rounded-2xl p-3 flex items-center gap-3 border border-slate-200">
-                                <Download size={16} className="text-cyan-400 shrink-0" />
-                                <div>
-                                    <p className="text-slate-900 text-xs font-semibold">{t('downloadTitle')}</p>
-                                    <p className="text-slate-500 text-xs">{t('downloadSubtitle')}</p>
+                            {/* Download QR hint - Only show on WEB */}
+                            {typeof window !== 'undefined' && !Capacitor?.isNativePlatform?.() && (
+                                <div className="w-full bg-slate-50 rounded-2xl p-3 flex items-center gap-3 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => {
+                                    // Normally you'd emit an event to AppInstallBanner or handle beforeinstallprompt
+                                    const event = new CustomEvent('trigger-pwa-install');
+                                    window.dispatchEvent(event);
+                                }}>
+                                    <Download size={16} className="text-cyan-400 shrink-0" />
+                                    <div>
+                                        <p className="text-slate-900 text-xs font-semibold">{t('downloadTitle')}</p>
+                                        <p className="text-slate-500 text-xs">{t('downloadSubtitle')}</p>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     )}
 

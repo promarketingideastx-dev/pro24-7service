@@ -1,9 +1,8 @@
 'use client';
 
-import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
 import { Lock, Award, Star, Phone, MessageSquare, Calendar } from 'lucide-react';
 // import PublicProfileView from '@/components/business/PublicProfileView'; // Deprecated
 import RequestAppointmentModal from '@/components/public/RequestAppointmentModal';
@@ -20,11 +19,11 @@ import { PlanService } from '@/services/plan.service';
 import { AnalyticsService } from '@/services/analytics.service';
 
 
-export default function BusinessProfilePage() {
-    const params = useParams();
+function BusinessProfileContent() {
+    const searchParams = useSearchParams();
     const { user, loading } = useAuth();
     const router = useRouter();
-    const id = params.id as string;
+    const id = searchParams.get('id') as string;
 
     const [publicData, setPublicData] = useState<any>(null);
     const [privateData, setPrivateData] = useState<any>(null);
@@ -198,5 +197,13 @@ export default function BusinessProfilePage() {
                 businessName={displayData?.name || 'Negocio'}
             />
         </BusinessProfileLayout>
+    );
+}
+
+export default function BusinessProfilePage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center text-slate-400">Cargando perfil...</div>}>
+            <BusinessProfileContent />
+        </Suspense>
     );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { Globe, ChevronDown } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useState, useRef, useEffect } from 'react';
 
@@ -23,6 +23,7 @@ interface LanguageSwitcherProps {
 export default function LanguageSwitcher({ variant = 'full', className = '' }: LanguageSwitcherProps) {
     const locale = useLocale();
     const pathname = usePathname();
+    const router = useRouter();
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -44,7 +45,11 @@ export default function LanguageSwitcher({ variant = 'full', className = '' }: L
         } else {
             segments.unshift(newLocale);
         }
-        window.location.href = '/' + segments.join('/');
+
+        // Also ensure a leading slash for the route
+        const newPath = '/' + segments.join('/');
+
+        router.replace(newPath);
         setOpen(false);
     };
 

@@ -14,23 +14,36 @@ const firebaseConfig = {
     measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Singleton pattern to prevent multiple initializations in development
+import { Capacitor } from '@capacitor/core';
+import { initializeAuth, browserLocalPersistence } from 'firebase/auth';
+
+console.log('[FIREBASE] initializeApp started');
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+console.log('[FIREBASE] getAuth started');
 
-export const auth = getAuth(app);
+export const auth = (() => {
+    if (typeof window === 'undefined') {
+        return getAuth(app);
+    }
+    if (Capacitor.isNativePlatform()) {
+        console.log('[FIREBASE] Initializing auth with browserLocalPersistence to prevent iOS IndexedDB hang');
+        return initializeAuth(app, {
+            persistence: browserLocalPersistence
+        });
+    } else {
+        return getAuth(app);
+    }
+})();
+
+console.log('[FIREBASE] getStorage started');
 export const storage = getStorage(app);
+console.log('[FIREBASE] getFirestore started');
 export const db = getFirestore(app);
+console.log('[FIREBASE] init complete! Auth, Storage, DB ready.');
 
-// Enable offline persistence
-if (typeof window !== 'undefined') {
-    enableMultiTabIndexedDbPersistence(db).catch((err) => {
-        if (err.code === 'failed-precondition') {
-            console.warn('Persistence failed: Multiple tabs open');
-        } else if (err.code === 'unimplemented') {
-            console.warn('Persistence failed: Browser not supported');
-        }
-    });
-}
+// Temporarily disabled multi-tab persistence to fix iOS Simulator infinite hanging
+// on Firestore init.
+// if (typeof window !== 'undefined') { ... }
 
 export default app;
 

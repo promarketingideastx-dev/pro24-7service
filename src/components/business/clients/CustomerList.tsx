@@ -128,7 +128,7 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
                             <div
                                 key={customer.id}
                                 className="group bg-white hover:bg-[#F8FAFC] border border-[#E6E8EC] hover:border-[#14B8A6]/20 rounded-xl p-4 transition-all hover:shadow-sm cursor-pointer"
-                                onClick={() => router.push(lp(`/business/clients/${customer.id}`))}
+                                onClick={() => router.push(lp(`/business/clients/detalle?id=${customer.id}`))}
                             >
                                 <div className="flex flex-col md:grid md:grid-cols-12 gap-3 items-center">
 

@@ -57,12 +57,11 @@ export default function CountrySelector() {
         return defaultName; // Spanish is the default
     };
 
-    const allCountries = PRIORITY_ORDER
-        .map(code => COUNTRIES[code])
-        .filter(Boolean)
-        .concat(Object.values(COUNTRIES).filter(c => !PRIORITY_ORDER.includes(c.code)));
-
-    const uniqueCountries = Array.from(new Map(allCountries.map(c => [c.code, c])).values());
+    const uniqueCountries = Object.values(COUNTRIES).sort((a, b) => {
+        const nameA = getCountryName(a.code, a.name);
+        const nameB = getCountryName(b.code, b.name);
+        return nameA.localeCompare(nameB, locale === 'pt-BR' ? 'pt' : locale);
+    });
 
     const filtered = searchTerm
         ? uniqueCountries.filter(c =>
@@ -81,12 +80,11 @@ export default function CountrySelector() {
             </div>
 
             {/* ── Top bar: logo + language switcher ── */}
-            <div className="relative z-10 shrink-0 flex items-center justify-between px-5 pt-5 pb-3">
-                {/* Logo wordmark */}
-                <span className="text-lg font-black tracking-tight select-none">
-                    <span className="text-slate-900">Pro</span>
-                    <span className="text-[#14B8A6]">24/7YA</span>
-                </span>
+            <div className="relative z-10 shrink-0 flex items-center justify-between px-5 pt-[calc(1.25rem+env(safe-area-inset-top))] pb-3">
+                {/* Logo image */}
+                <div className="flex items-center">
+                    <img src="/logo.png" alt="Pro24/7YA" className="h-7 w-auto object-contain" />
+                </div>
 
                 {/* Language pills */}
                 <div className="flex items-center gap-1.5">
@@ -112,10 +110,13 @@ export default function CountrySelector() {
 
             {/* ── Hero heading ── */}
             <div className="relative z-10 shrink-0 text-center px-6 pt-6 pb-2">
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 tracking-tight leading-none mb-3">
+                <h1
+                    className="text-3xl sm:text-4xl md:text-5xl font-semibold text-slate-800 tracking-tight leading-tight mb-2"
+                    style={{ fontFamily: 'var(--font-outfit), sans-serif' }}
+                >
                     {t('welcome')}
                 </h1>
-                <p className="text-slate-400 text-base sm:text-lg font-medium max-w-md mx-auto leading-relaxed">
+                <p className="text-slate-500 text-sm sm:text-base font-medium max-w-md mx-auto leading-relaxed">
                     {t('selectCountry')}
                 </p>
             </div>
@@ -147,7 +148,7 @@ export default function CountrySelector() {
                         <p className="text-sm">{t('noResults')} &ldquo;{searchTerm}&rdquo;</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4">
                         {filtered.map(country => {
                             const isPriority = PRIORITY_ORDER.includes(country.code) && !searchTerm;
                             return (
@@ -155,7 +156,7 @@ export default function CountrySelector() {
                                     key={country.code}
                                     onClick={() => selectCountry(country.code)}
                                     className="
-                                        group relative flex flex-col items-center gap-3 p-4 rounded-2xl
+                                        group relative flex flex-col items-center gap-2 p-2 sm:p-3 rounded-2xl
                                         bg-white border border-slate-200
                                         hover:bg-slate-50 hover:border-[#14B8A6]/30
                                         hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(20,184,166,0.12)]
@@ -168,10 +169,10 @@ export default function CountrySelector() {
                                         <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-cyan-400/60 shadow-[0_0_6px_rgba(6,182,212,0.8)]" />
                                     )}
 
-                                    {/* Flag — 50% larger than original */}
-                                    <div className="w-20 h-14 rounded-xl overflow-hidden shadow-lg ring-1 ring-slate-200 group-hover:ring-[#14B8A6]/30 group-hover:shadow-[0_4px_16px_rgba(20,184,166,0.2)] transition-all duration-200">
+                                    {/* Flag — Scaled down for 3-col grid */}
+                                    <div className="w-[3.25rem] h-[2.25rem] sm:w-[4.25rem] sm:h-[3rem] rounded-lg overflow-hidden shadow-sm ring-1 ring-slate-200 group-hover:ring-[#14B8A6]/30 group-hover:shadow-[0_4px_12px_rgba(20,184,166,0.2)] transition-all duration-200">
                                         <img
-                                            src={`https://flagcdn.com/w160/${country.code.toLowerCase()}.png`}
+                                            src={`https://flagcdn.com/w80/${country.code.toLowerCase()}.png`}
                                             alt={getCountryName(country.code, country.name)}
                                             className="w-full h-full object-cover"
                                             loading="lazy"
@@ -191,7 +192,7 @@ export default function CountrySelector() {
                                     </div>
 
                                     {/* Country name — localized */}
-                                    <span className="text-slate-900 text-sm font-semibold text-center leading-tight group-hover:text-[#0F766E] transition-colors duration-200 line-clamp-2">
+                                    <span className="text-slate-900 text-[11px] sm:text-xs font-semibold text-center leading-tight group-hover:text-[#0F766E] transition-colors duration-200 line-clamp-2">
                                         {getCountryName(country.code, country.name)}
                                     </span>
                                 </button>

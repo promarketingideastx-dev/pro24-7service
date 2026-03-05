@@ -1,0 +1,29 @@
+{
+    "project_info": {
+        "project_number": "914462693945",
+        "project_id": "service-marketplace-mvp-28884",
+        "storage_bucket": "service-marketplace-mvp-28884.firebasestorage.app"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:914462693945:android:e5708623aed5cc03070be8",
+                "android_client_info": {
+                    "package_name": "com.promarketingideas.pro247ya"
+                }
+            },
+            "oauth_client": [],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyB5ZOlW9HiOya4g0nKPHW202CRUzTlf4fo"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": []
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}
