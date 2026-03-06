@@ -15,6 +15,7 @@ export default function GalleryTab({ businessId, images: initialImages }: Galler
     const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
+    const [touchStartY, setTouchStartY] = useState(0);
 
     useEffect(() => {
         const fetchPortfolio = async () => {
@@ -79,28 +80,38 @@ export default function GalleryTab({ businessId, images: initialImages }: Galler
             {/* Lightbox Modal */}
             {selectedItem && (
                 <div
-                    className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 animate-in fade-in duration-200"
+                    className="fixed inset-0 z-[9999] bg-black/95 flex flex-col items-center justify-center p-4 animate-in fade-in duration-200"
                     onClick={() => setSelectedItem(null)}
                 >
                     <button
-                        onClick={() => setSelectedItem(null)}
-                        className="absolute top-4 right-4 p-2 rounded-full bg-white/90 text-slate-800 hover:bg-white transition-colors z-10"
+                        onClick={(e) => { e.stopPropagation(); setSelectedItem(null); }}
+                        className="absolute right-4 p-2.5 rounded-full bg-white text-slate-900 shadow-xl hover:bg-slate-100 transition-transform active:scale-90 z-[10000]"
+                        style={{ top: 'calc(max(env(safe-area-inset-top), 20px) + 16px)' }}
                     >
                         <X className="w-6 h-6" />
                     </button>
 
-                    <div className="max-w-4xl w-full max-h-[90vh] flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
+                    <div
+                        className="max-w-4xl w-full flex flex-col items-center mt-10 md:mt-0"
+                        onClick={(e) => e.stopPropagation()}
+                        onTouchStart={(e) => setTouchStartY(e.touches[0].clientY)}
+                        onTouchEnd={(e) => {
+                            const touchEndY = e.changedTouches[0].clientY;
+                            if (touchEndY - touchStartY > 80) setSelectedItem(null);
+                        }}
+                    >
                         <img
                             src={selectedItem.url}
-                            className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                            className="max-w-full max-h-[70vh] md:max-h-[85vh] object-contain rounded-lg shadow-2xl transition-transform"
                             alt="Full View"
+                            draggable="false"
                         />
 
                         {/* Caption Area (New) */}
                         {(selectedItem.description || selectedItem.title) && (
-                            <div className="mt-4 p-4 bg-white/90 backdrop-blur-md rounded-xl text-center max-w-lg w-full border border-slate-200">
+                            <div className="mt-6 p-5 bg-white backdrop-blur-md rounded-2xl text-center max-w-lg w-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100">
                                 {selectedItem.title && <h4 className="text-slate-900 font-bold text-lg mb-1">{selectedItem.title}</h4>}
-                                {selectedItem.description && <p className="text-slate-600 text-sm whitespace-pre-wrap">{selectedItem.description}</p>}
+                                {selectedItem.description && <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">{selectedItem.description}</p>}
                             </div>
                         )}
                     </div>

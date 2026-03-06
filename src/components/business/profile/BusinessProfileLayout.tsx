@@ -180,31 +180,37 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                             <span className="text-6xl opacity-20">🏢</span>
                         </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-[#0B0F19]/60 to-transparent"></div>
+                    {/* Shadow gradient for general depth at the bottom */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-transparent to-transparent"></div>
+                    {/* Shadow gradient at the top so white buttons are always visible */}
+                    <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/50 to-transparent pointer-events-none"></div>
                 </div>
 
                 {/* Top Nav (Absolute) */}
-                <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-50">
+                <div
+                    className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-50 transition-all pointer-events-none"
+                    style={{ paddingTop: 'calc(max(env(safe-area-inset-top), 20px) + 12px)' }}
+                >
                     <button
                         onClick={() => router.back()}
-                        className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white border border-slate-200 hover:bg-slate-900/40 transition-all"
+                        className="p-2.5 rounded-full bg-black/30 backdrop-blur-md text-white border border-white/20 hover:bg-black/50 hover:scale-105 active:scale-95 transition-all shadow-[0_4px_12px_rgba(0,0,0,0.3)] pointer-events-auto"
                     >
-                        <ArrowLeft className="w-5 h-5" />
+                        <ArrowLeft className="w-5 h-5 drop-shadow-md" />
                     </button>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 pointer-events-auto">
                         {/* Desktop Booking CTA */}
                         {!isOwner && (
                             <>
                                 <button
                                     onClick={() => setShowChat(true)}
-                                    className="hidden md:flex bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-sm font-bold backdrop-blur-md transition-all items-center gap-2 border border-white/30"
+                                    className="hidden md:flex bg-black/30 backdrop-blur-md hover:bg-black/50 text-white px-4 py-2 rounded-full text-sm font-bold transition-all items-center gap-2 border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:scale-105 active:scale-95"
                                 >
                                     <MessageCircle className="w-4 h-4" />
                                     {t('chat')}
                                 </button>
                                 <button
                                     onClick={onBookClick}
-                                    className="hidden md:flex bg-[#14B8A6] hover:bg-[#0F9488] text-white px-4 py-2 rounded-full text-sm font-bold backdrop-blur-md transition-all shadow-lg shadow-teal-500/20 items-center gap-2"
+                                    className="hidden md:flex bg-[#14B8A6] hover:bg-[#0F9488] text-white px-4 py-2 rounded-full text-sm font-bold backdrop-blur-md transition-all shadow-lg shadow-teal-500/30 items-center gap-2 border border-teal-400 hover:scale-105 active:scale-95"
                                 >
                                     <Calendar className="w-4 h-4" />
                                     {t('bookAppointment')}
@@ -216,29 +222,29 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                         {isOwner && (
                             <button
                                 onClick={() => router.push(`/${locale}/business/dashboard`)}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[rgba(20,184,166,0.15)] border border-[#14B8A6]/50 text-[#0F766E] text-xs font-bold backdrop-blur-md hover:bg-[rgba(20,184,166,0.25)] transition-all"
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/30 border border-white/20 text-white text-xs font-bold backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.3)] hover:bg-[#14B8A6]/80 hover:border-[#14B8A6] transition-all"
                             >
                                 <Settings className="w-3.5 h-3.5" />
-                                Administrar cuenta
+                                <span className="drop-shadow-sm">Admin</span>
                             </button>
                         )}
                         <button
                             onClick={handleShare}
-                            className="p-2 rounded-full bg-black/40 backdrop-blur-md text-white border border-slate-200 hover:bg-[rgba(20,184,166,0.2)] hover:border-[#14B8A6]/40 hover:text-[#14B8A6] active:scale-90 transition-all"
+                            className="p-2.5 rounded-full bg-black/30 backdrop-blur-md text-white border border-white/20 hover:bg-black/50 hover:scale-105 active:scale-95 transition-all shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
                             title={t('shareTitle')}
                         >
-                            <Share2 className="w-5 h-5" />
+                            <Share2 className="w-5 h-5 drop-shadow-md" />
                         </button>
                         <button
                             onClick={handleFavorite}
                             disabled={favProcessing}
-                            className={`p-2 rounded-full backdrop-blur-md border transition-all ${favProcessing ? 'opacity-60 cursor-wait' : 'active:scale-90'} ${isFavorited
-                                ? 'bg-red-500/20 border-red-500/40 text-red-400 shadow-[0_0_12px_rgba(239,68,68,0.4)]'
-                                : 'bg-black/40 border-slate-200 text-white hover:bg-red-500/10 hover:border-red-400/30 hover:text-red-400'
+                            className={`p-2.5 rounded-full backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.3)] border transition-all ${favProcessing ? 'opacity-60 cursor-wait' : 'hover:scale-105 active:scale-90'} ${isFavorited
+                                ? 'bg-black/30 border-red-500 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]'
+                                : 'bg-black/30 border-white/20 text-white hover:bg-black/50 hover:border-red-400/50 hover:text-red-400'
                                 } ${heartAnim ? 'scale-125' : 'scale-100'}`}
                             title={isFavorited ? t('favRemoveTitle') : t('favAddTitle')}
                         >
-                            <Heart className={`w-5 h-5 transition-all ${isFavorited ? 'fill-red-400' : ''}`} />
+                            <Heart className={`w-5 h-5 drop-shadow-md transition-all ${isFavorited ? 'fill-red-500' : ''}`} />
                         </button>
                     </div>
                 </div>
