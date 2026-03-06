@@ -153,7 +153,7 @@ export default function BusinessProfilePage() {
     if (loading) return <div className="p-12 text-center text-slate-500">{t('loadingProfile')}</div>;
 
     return (
-        <div className="space-y-6 max-w-4xl mx-auto pb-20 md:pb-12 pt-14 md:pt-6 px-4 md:px-0">
+        <div className="space-y-6 max-w-4xl mx-auto pb-20 md:pb-12 pt-6 px-4 md:px-0">
             <div className="flex items-center gap-4 mb-6">
                 <button onClick={() => router.back()} className="p-2 hover:bg-slate-50 rounded-full text-slate-400 hover:text-slate-800 transition-colors">
                     <ArrowLeft size={24} />

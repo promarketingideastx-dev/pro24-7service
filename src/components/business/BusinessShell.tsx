@@ -68,7 +68,10 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                     <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-500/05 rounded-full blur-[100px] pointer-events-none"></div>
 
                     {/* Mobile Header */}
-                    <div className="md:hidden flex items-center justify-between px-4 pb-3 pt-14 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 z-50 sticky top-0 shadow-sm">
+                    <div
+                        className="md:hidden flex items-center justify-between px-4 pb-3 pt-4 bg-white/95 backdrop-blur-2xl border-b border-slate-200/60 z-50 sticky top-0 shadow-sm"
+                        style={{ paddingTop: 'calc(max(env(safe-area-inset-top), 20px) + 12px)' }}
+                    >
                         <div className="flex items-center">
                             <img src="/logo-header.png" alt="Pro24/7" className="h-9 w-auto object-contain drop-shadow-sm" style={{ maxWidth: '140px' }} />
                         </div>
