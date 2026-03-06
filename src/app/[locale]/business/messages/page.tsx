@@ -44,6 +44,8 @@ function BusinessMessagesContent() {
     const bottomRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
     // Subscribe to business chats, then auto-select if chatId is in URL
     useEffect(() => {
@@ -87,16 +89,30 @@ function BusinessMessagesContent() {
     }, [messages]);
 
     const handleSend = async () => {
-        if (!text.trim() || !activeChat?.id || !user || sending) return;
+        if ((!text.trim() && !pendingFile) || !activeChat?.id || !user || sending || uploading) return;
         const msg = text.trim();
+        const fileToUpload = pendingFile;
         setText('');
+        setPendingFile(null);
+        setPreviewUrl(null);
         setSending(true);
         try {
-            await ChatService.sendMessageWithFile(activeChat.id, msg, user.uid, 'business', businessName);
+            let attachment;
+            if (fileToUpload) {
+                setUploading(true);
+                attachment = await ChatService.uploadFile(activeChat.id, fileToUpload);
+                setUploading(false);
+            }
+            await ChatService.sendMessageWithFile(activeChat.id, msg, user.uid, 'business', businessName, attachment);
         } catch {
             setText(msg);
+            setPendingFile(fileToUpload);
+            if (fileToUpload?.type.startsWith('image/')) {
+                setPreviewUrl(URL.createObjectURL(fileToUpload));
+            }
         } finally {
             setSending(false);
+            setUploading(false);
             inputRef.current?.focus();
         }
     };
@@ -108,16 +124,13 @@ function BusinessMessagesContent() {
             alert(`El archivo debe ser menor de ${MAX_FILE_MB}MB`);
             return;
         }
-        setUploading(true);
-        try {
-            const attachment = await ChatService.uploadFile(activeChat.id, file);
-            await ChatService.sendMessageWithFile(activeChat.id, '', user.uid, 'business', businessName, attachment);
-        } catch (err) {
-            console.error('Upload failed:', err);
-        } finally {
-            setUploading(false);
-            if (fileInputRef.current) fileInputRef.current.value = '';
+        setPendingFile(file);
+        if (file.type.startsWith('image/')) {
+            setPreviewUrl(URL.createObjectURL(file));
+        } else {
+            setPreviewUrl(null);
         }
+        if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
     const handleLongPressStart = (msgId: string) => {
@@ -142,6 +155,7 @@ function BusinessMessagesContent() {
 
     const handleDeleteSelected = async () => {
         if (!activeChat?.id || !user) return;
+        if (!window.confirm(`¿Estás seguro de que quieres borrar ${selectedMsgs.size} mensaje(s)?`)) return;
         await Promise.all(Array.from(selectedMsgs).map(id =>
             ChatService.deleteMessage(activeChat.id!, id, user.uid, chatMeta.unreadBusiness, chatMeta.unreadClient)
         ));
@@ -149,6 +163,7 @@ function BusinessMessagesContent() {
     };
     const handleDeleteAllRead = async () => {
         if (!activeChat?.id || !user) return;
+        if (!window.confirm("¿Estás seguro de que quieres borrar TODOS los mensajes de este chat? Esta acción no se puede deshacer.")) return;
         await ChatService.deleteAllRead(activeChat.id, user.uid, 'business');
     };
 
@@ -175,23 +190,7 @@ function BusinessMessagesContent() {
     };
 
     return (
-        <div className="h-[100dvh] flex flex-col bg-[#F4F6F8] overflow-hidden">
-
-            {/* ── Page Header (matches /user/messages) ── */}
-            <div
-                className="bg-gradient-to-br from-slate-800 to-slate-900 px-4 pb-4 flex items-center gap-3 shrink-0"
-                style={{ paddingTop: 'calc(max(env(safe-area-inset-top), 20px) + 12px)' }}
-            >
-                <button
-                    onClick={() => router.push(lp('/business/dashboard'))}
-                    className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors"
-                >
-                    <ArrowLeft size={18} />
-                </button>
-                <MessageCircle className="w-5 h-5 text-[#14B8A6]" />
-                <h1 className="text-white font-bold text-base">Mis mensajes</h1>
-            </div>
-
+        <div className="h-full flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.03)]">
             {/* ── Chat body ── */}
             <div className="flex-1 min-h-0 flex bg-white overflow-hidden border-x-0">
 
@@ -309,23 +308,42 @@ function BusinessMessagesContent() {
                         </div>
 
                         {/* Input */}
-                        <div className="flex items-center gap-2.5 px-4 py-3 border-t border-slate-200 bg-white shrink-0">
-                            <input ref={fileInputRef} type="file" accept="image/*,.pdf,application/pdf"
-                                className="hidden" onChange={handleFileChange} />
-                            <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
-                                title="Adjuntar imagen o PDF"
-                                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors disabled:opacity-40 shrink-0">
-                                {uploading ? <Loader2 size={16} className="animate-spin" /> : <Paperclip size={16} />}
-                            </button>
-                            <input ref={inputRef} type="text" value={text} onChange={e => setText(e.target.value)}
-                                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                                placeholder="Escribe un mensaje..."
-                                className="flex-1 bg-slate-100 rounded-full px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/30 transition-all"
-                            />
-                            <button onClick={handleSend} disabled={!text.trim() || sending}
-                                className="w-9 h-9 rounded-full bg-[#14B8A6] hover:bg-[#0F9488] disabled:opacity-40 flex items-center justify-center text-white transition-all active:scale-95 shrink-0 shadow-md">
-                                <Send size={16} />
-                            </button>
+                        <div className="flex flex-col bg-white border-t border-slate-200 shrink-0">
+                            {pendingFile && (
+                                <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b border-slate-200 shadow-inner">
+                                    <div className="flex items-center gap-3">
+                                        {previewUrl ? (
+                                            <img src={previewUrl} alt="preview" className="w-12 h-12 rounded-lg object-cover border border-slate-200 shadow-sm" />
+                                        ) : (
+                                            <div className="w-12 h-12 rounded-lg bg-slate-200 flex items-center justify-center text-slate-500 shadow-sm">
+                                                <FileText size={20} />
+                                            </div>
+                                        )}
+                                        <div className="text-sm font-medium text-slate-700 truncate max-w-[200px]">{pendingFile.name}</div>
+                                    </div>
+                                    <button onClick={() => { setPendingFile(null); setPreviewUrl(null); }} className="p-2 text-slate-400 hover:bg-slate-200 rounded-full transition-colors active:scale-95">
+                                        <X size={18} />
+                                    </button>
+                                </div>
+                            )}
+                            <div className="flex items-center gap-2.5 px-4 py-3">
+                                <input ref={fileInputRef} type="file" accept="image/*,.pdf,application/pdf"
+                                    className="hidden" onChange={handleFileChange} />
+                                <button onClick={() => fileInputRef.current?.click()} disabled={uploading || pendingFile !== null}
+                                    title="Adjuntar imagen o PDF"
+                                    className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors disabled:opacity-40 shrink-0 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+                                    {uploading ? <Loader2 size={18} className="animate-spin" /> : <Paperclip size={18} />}
+                                </button>
+                                <input ref={inputRef} type="text" value={text} onChange={e => setText(e.target.value)}
+                                    onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+                                    placeholder="Escribe un mensaje..."
+                                    className="flex-1 bg-slate-100/80 hover:bg-slate-100 rounded-full px-5 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/30 transition-all border border-transparent focus:border-[#14B8A6]/30"
+                                />
+                                <button onClick={handleSend} disabled={(!text.trim() && !pendingFile) || sending || uploading}
+                                    className="w-10 h-10 rounded-full bg-[#14B8A6] hover:bg-[#0F9488] disabled:opacity-40 flex items-center justify-center text-white transition-all active:scale-95 shrink-0 shadow-[0_4px_12px_rgba(20,184,166,0.3)]">
+                                    <Send size={18} />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 ) : (

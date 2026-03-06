@@ -39,10 +39,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
         return <BusinessGuard><>{children}</></BusinessGuard>;
     }
 
-    // The messages page has its own full-screen layout — skip the shell
-    if (pathname?.includes('/business/messages')) {
-        return <BusinessGuard><>{children}</></BusinessGuard>;
-    }
+    const isMessages = pathname?.includes('/business/messages');
 
     const menuItems = [
         { name: t('dashboard'), href: lp('/business/dashboard'), icon: <LayoutDashboard size={20} /> },
@@ -190,8 +187,8 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                     )}
 
                     {/* Main Content Area */}
-                    <main className="flex-1 flex flex-col p-4 md:p-8 relative z-10 w-full">
-                        <div className="w-full max-w-6xl mx-auto flex-1">
+                    <main className={`flex-1 flex flex-col relative z-10 w-full ${isMessages ? 'p-0 h-[calc(100dvh-80px)] md:h-screen md:p-4 overflow-hidden' : 'p-4 md:p-8'}`}>
+                        <div className={`w-full max-w-6xl mx-auto flex-1 ${isMessages ? 'h-full flex flex-col' : ''}`}>
                             {children}
                         </div>
                     </main>
