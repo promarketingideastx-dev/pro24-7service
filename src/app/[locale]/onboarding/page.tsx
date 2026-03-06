@@ -124,22 +124,27 @@ function OnboardingContent() {
                     {isLoginMode ? t('subtitleLogin') : t('subtitle')}
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full px-2">
+                <div className="flex flex-col gap-4 w-full px-2 mt-4">
                     {/* Client Option */}
                     <button
                         onClick={() => handleRoleSelection('client')}
                         disabled={loading}
-                        className="flex flex-col items-center p-6 bg-blue-500/10 backdrop-blur-md border-[2px] border-blue-500/30 rounded-3xl hover:bg-blue-500/20 hover:border-blue-400 hover:shadow-[0_4px_20px_rgba(59,130,246,0.15)] transition-all group active:scale-95 text-left relative overflow-hidden"
+                        className="w-full flex items-center p-4 border rounded-2xl transition-all cursor-pointer group overflow-hidden relative bg-blue-50/50 hover:bg-blue-50/80 border-[#E6E8EC] hover:border-blue-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] text-left active:scale-[0.98]"
                     >
-                        <div className="w-14 h-14 rounded-full bg-blue-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                            <Search className="w-7 h-7 text-blue-600" />
+                        <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl bg-blue-500" />
+                        <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center mr-4 shrink-0 transition-transform group-hover:scale-110">
+                            <Search className="w-6 h-6 text-blue-600" />
                         </div>
-                        <h2 className="text-lg font-bold mb-1 text-slate-800">{t('clientTitle')}</h2>
-                        <p className="text-slate-500 text-center text-xs leading-relaxed max-w-[220px]">
-                            {t('clientDesc')}
-                        </p>
-                        <div className="mt-5 px-6 py-2.5 text-center rounded-xl bg-white text-[#0F766E] text-sm font-bold shadow-[0_4px_14px_rgba(0,0,0,0.1)] group-hover:shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition-all w-[90%] flex items-center justify-center min-h-[44px]">
-                            {isLoginMode ? t('loginAsClient') : t('registerFree')}
+                        <div className="flex-1 min-w-0 pr-2">
+                            <h2 className="font-bold text-slate-900 text-sm md:text-base">{t('clientTitle')}</h2>
+                            <p className="text-xs text-slate-500 mt-0.5 leading-snug line-clamp-2">
+                                {t('clientDesc')}
+                            </p>
+                        </div>
+                        <div className="shrink-0 flex flex-col items-center">
+                            <div className="bg-white rounded-full p-1.5 shadow-sm border border-slate-100 group-hover:border-blue-200 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500 group-hover:translate-x-0.5 transition-transform"><path d="m9 18 6-6-6-6" /></svg>
+                            </div>
                         </div>
                     </button>
 
@@ -147,17 +152,22 @@ function OnboardingContent() {
                     <button
                         onClick={() => handleRoleSelection('provider')}
                         disabled={loading}
-                        className="flex flex-col items-center p-6 bg-pink-500/10 backdrop-blur-md border-[2px] border-pink-500/30 rounded-3xl hover:bg-pink-500/20 hover:border-pink-400 hover:shadow-[0_4px_20px_rgba(236,72,153,0.15)] transition-all group active:scale-95 text-left relative overflow-hidden"
+                        className="w-full flex items-center p-4 border rounded-2xl transition-all cursor-pointer group overflow-hidden relative bg-pink-50/50 hover:bg-pink-50/80 border-[#E6E8EC] hover:border-pink-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] text-left active:scale-[0.98]"
                     >
-                        <div className="w-14 h-14 rounded-full bg-pink-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                            <Briefcase className="w-7 h-7 text-pink-600" />
+                        <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl bg-pink-500" />
+                        <div className="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center mr-4 shrink-0 transition-transform group-hover:scale-110">
+                            <Briefcase className="w-6 h-6 text-pink-600" />
                         </div>
-                        <h2 className="text-lg font-bold mb-1 text-slate-800">{t('providerTitle')}</h2>
-                        <p className="text-slate-500 text-center text-xs leading-relaxed max-w-[220px]">
-                            {t('providerDesc')}
-                        </p>
-                        <div className="mt-5 px-6 py-2.5 text-center rounded-xl bg-white text-[#0F766E] text-sm font-bold shadow-[0_4px_14px_rgba(0,0,0,0.1)] group-hover:shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition-all w-[90%] flex items-center justify-center min-h-[44px]">
-                            {isLoginMode ? t('loginAsBusiness') : t('registerBusiness')}
+                        <div className="flex-1 min-w-0 pr-2">
+                            <h2 className="font-bold text-slate-900 text-sm md:text-base">{t('providerTitle')}</h2>
+                            <p className="text-xs text-slate-500 mt-0.5 leading-snug line-clamp-2">
+                                {t('providerDesc')}
+                            </p>
+                        </div>
+                        <div className="shrink-0 flex flex-col items-center">
+                            <div className="bg-white rounded-full p-1.5 shadow-sm border border-slate-100 group-hover:border-pink-200 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-pink-500 group-hover:translate-x-0.5 transition-transform"><path d="m9 18 6-6-6-6" /></svg>
+                            </div>
                         </div>
                     </button>
                 </div>
