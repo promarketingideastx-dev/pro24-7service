@@ -116,7 +116,12 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     };
 
     const handleShare = async () => {
-        const url = window.location.href;
+        // In Capacitor, window.location.origin might be 'capacitor://localhost' or 'http://localhost'
+        // iOS share sheet will silently fail or crash if given a non-public scheme.
+        const isNative = window.location.origin.includes('capacitor') || window.location.origin.includes('localhost');
+        const origin = isNative ? 'https://pro24-7ya.com' : window.location.origin;
+        const url = `${origin}${window.location.pathname}${window.location.search}`;
+
         const title = business?.name || t('defaultBusinessName');
         const text = t('shareText').replace('{title}', title);
 
@@ -128,6 +133,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                 dialogTitle: 'Compartir Perfil'
             });
         } catch (error) {
+            console.warn("Native share failed/cancelled, falling back to web:", error);
             // Fallbacks for web
             if (navigator.share) {
                 try {
