@@ -111,40 +111,34 @@ function OnboardingContent() {
                     </button>
                 )}
 
-                <div className="mb-2">
-                    {isLoginMode ? (
-                        <div className="flex flex-col items-center gap-4">
-                            <Logo size="lg" />
-                            <h1 className="text-3xl md:text-4xl font-bold text-slate-900 text-center">
-                                ¿Cómo usas Pro24/7YA?
-                            </h1>
-                        </div>
-                    ) : (
-                        <Logo size="lg" />
-                    )}
+                <div className="mb-2 flex flex-col items-center gap-3">
+                    <Logo size="lg" />
+                    <h1
+                        className="text-3xl md:text-4xl font-semibold text-slate-800 tracking-tight leading-tight text-center"
+                        style={{ fontFamily: 'var(--font-outfit), sans-serif' }}
+                    >
+                        ¿Cómo usas Pro24/7YA?
+                    </h1>
                 </div>
-                <p className="text-slate-400 mb-10 text-center text-sm md:text-base">
-                    {isLoginMode
-                        ? t('subtitleLogin')
-                        : t('subtitle')
-                    }
+                <p className="text-slate-500 mb-6 text-center text-sm md:text-base font-medium max-w-sm">
+                    {isLoginMode ? t('subtitleLogin') : t('subtitle')}
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full px-2">
                     {/* Client Option */}
                     <button
                         onClick={() => handleRoleSelection('client')}
                         disabled={loading}
-                        className="flex flex-col items-center p-8 bg-white/60 backdrop-blur-md border border-slate-200 rounded-3xl hover:border-brand-neon-cyan hover:bg-white/80 hover:shadow-[0_0_30px_rgba(0,240,255,0.15)] transition-all group text-left relative overflow-hidden"
+                        className="flex flex-col items-center p-6 bg-blue-500/10 backdrop-blur-md border-[2px] border-blue-500/30 rounded-3xl hover:bg-blue-500/20 hover:border-blue-400 hover:shadow-[0_4px_20px_rgba(59,130,246,0.15)] transition-all group active:scale-95 text-left relative overflow-hidden"
                     >
-                        <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <Search className="w-8 h-8 text-blue-400" />
+                        <div className="w-14 h-14 rounded-full bg-blue-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <Search className="w-7 h-7 text-blue-600" />
                         </div>
-                        <h2 className="text-xl font-bold mb-2 text-slate-900">{t('clientTitle')}</h2>
-                        <p className="text-slate-400 text-center text-xs leading-relaxed">
+                        <h2 className="text-lg font-bold mb-1 text-slate-800">{t('clientTitle')}</h2>
+                        <p className="text-slate-500 text-center text-xs leading-relaxed max-w-[220px]">
                             {t('clientDesc')}
                         </p>
-                        <div className="mt-6 px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs font-bold">
+                        <div className="mt-5 px-6 py-2.5 text-center rounded-xl bg-white text-[#0F766E] text-sm font-bold shadow-[0_4px_14px_rgba(0,0,0,0.1)] group-hover:shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition-all w-[90%] flex items-center justify-center min-h-[44px]">
                             {isLoginMode ? t('loginAsClient') : t('registerFree')}
                         </div>
                     </button>
@@ -153,16 +147,16 @@ function OnboardingContent() {
                     <button
                         onClick={() => handleRoleSelection('provider')}
                         disabled={loading}
-                        className="flex flex-col items-center p-8 bg-white/60 backdrop-blur-md border border-slate-200 rounded-3xl hover:border-green-400 hover:bg-white/80 hover:shadow-[0_0_30px_rgba(74,222,128,0.15)] transition-all group text-left relative overflow-hidden"
+                        className="flex flex-col items-center p-6 bg-pink-500/10 backdrop-blur-md border-[2px] border-pink-500/30 rounded-3xl hover:bg-pink-500/20 hover:border-pink-400 hover:shadow-[0_4px_20px_rgba(236,72,153,0.15)] transition-all group active:scale-95 text-left relative overflow-hidden"
                     >
-                        <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <Briefcase className="w-8 h-8 text-green-400" />
+                        <div className="w-14 h-14 rounded-full bg-pink-500/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <Briefcase className="w-7 h-7 text-pink-600" />
                         </div>
-                        <h2 className="text-xl font-bold mb-2 text-slate-900">{t('providerTitle')}</h2>
-                        <p className="text-slate-400 text-center text-xs leading-relaxed">
+                        <h2 className="text-lg font-bold mb-1 text-slate-800">{t('providerTitle')}</h2>
+                        <p className="text-slate-500 text-center text-xs leading-relaxed max-w-[220px]">
                             {t('providerDesc')}
                         </p>
-                        <div className="mt-6 px-4 py-2 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 text-xs font-bold">
+                        <div className="mt-5 px-6 py-2.5 text-center rounded-xl bg-white text-[#0F766E] text-sm font-bold shadow-[0_4px_14px_rgba(0,0,0,0.1)] group-hover:shadow-[0_6px_20px_rgba(0,0,0,0.15)] transition-all w-[90%] flex items-center justify-center min-h-[44px]">
                             {isLoginMode ? t('loginAsBusiness') : t('registerBusiness')}
                         </div>
                     </button>
