@@ -405,18 +405,18 @@ export default function DashboardPage() {
                         <div className="glass-panel p-4 sm:p-5">
                             <h3 className="text-sm font-bold text-slate-900 mb-3">{t('quickActions')}</h3>
                             <div className="space-y-2">
-                                <a
+                                <NextLink
                                     href={`/${locale}/business/clients`}
                                     className="w-full p-3 bg-[#F8FAFC] hover:bg-[rgba(20,184,166,0.08)] border border-transparent hover:border-[#14B8A6]/20 rounded-xl text-left text-sm text-slate-700 hover:text-[#0F766E] font-medium transition-all flex items-center gap-3"
                                 >
                                     <Users size={15} className="text-[#8B5CF6]" /> {t('viewClients')}
-                                </a>
-                                <a
+                                </NextLink>
+                                <NextLink
                                     href={`/${locale}/business/agenda`}
                                     className="w-full p-3 bg-[#F8FAFC] hover:bg-[rgba(20,184,166,0.08)] border border-transparent hover:border-[#14B8A6]/20 rounded-xl text-left text-sm text-slate-700 hover:text-[#0F766E] font-medium transition-all flex items-center gap-3"
                                 >
                                     <CalendarCheck size={15} className="text-[#14B8A6]" /> {t('goToAgenda')}
-                                </a>
+                                </NextLink>
                             </div>
                         </div>
 
