@@ -275,8 +275,8 @@ function RegisterForm() {
             )}
 
             <form onSubmit={handleRegister} className="space-y-4">
-                <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Email</label>
+                <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-800 uppercase tracking-widest">Email</label>
                     <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                         <input
@@ -288,8 +288,8 @@ function RegisterForm() {
                                 if (emailCheckStatus === 'exists') setEmailCheckStatus('idle'); // Reset on change
                             }}
                             onBlur={handleEmailBlur}
-                            className={`w-full bg-[#F4F6F8] border rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:outline-none transition-all
-                                ${emailCheckStatus === 'exists' ? 'border-blue-500/50 focus:border-blue-500' : 'border-slate-200 focus:border-cyan-500/50'}
+                            className={`w-full bg-white/60 backdrop-blur-sm border-[1.5px] rounded-xl py-3.5 pl-11 pr-4 text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:ring-4 transition-all shadow-sm
+                                ${emailCheckStatus === 'exists' ? 'border-blue-500/50 focus:border-blue-500 focus:ring-blue-500/10' : 'border-slate-300/80 focus:border-blue-500 focus:ring-blue-500/10'}
                             `}
                             placeholder="tucorreo@ejemplo.com"
                         />
@@ -303,8 +303,8 @@ function RegisterForm() {
                 </div>
 
 
-                <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('password')}</label>
+                <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-800 uppercase tracking-widest">{t('password')}</label>
                     <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                         <input
@@ -312,13 +312,13 @@ function RegisterForm() {
                             required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl py-3 pl-10 pr-10 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all"
+                            className="w-full bg-white/60 backdrop-blur-sm border-[1.5px] border-slate-300/80 rounded-xl py-3.5 pl-11 pr-11 text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-sm"
                             placeholder="Mínimo 6 caracteres"
                         />
                         <button
                             type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 transition-colors focus:outline-none"
+                            onClick={(e) => { e.preventDefault(); setShowPassword(!showPassword); }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 transition-colors focus:outline-none p-1"
                             aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                         >
                             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -327,8 +327,8 @@ function RegisterForm() {
                     </div>
                 </div>
 
-                <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('confirmPassword')}</label>
+                <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-800 uppercase tracking-widest">{t('confirmPassword')}</label>
                     <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                         <input
@@ -336,13 +336,13 @@ function RegisterForm() {
                             required
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl py-3 pl-10 pr-10 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all"
+                            className="w-full bg-white/60 backdrop-blur-sm border-[1.5px] border-slate-300/80 rounded-xl py-3.5 pl-11 pr-11 text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-sm"
                             placeholder="Repite tu contraseña"
                         />
                         <button
                             type="button"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 transition-colors focus:outline-none"
+                            onClick={(e) => { e.preventDefault(); setShowConfirmPassword(!showConfirmPassword); }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 transition-colors focus:outline-none p-1"
                             aria-label={showConfirmPassword ? t('hidePassword') : t('showPassword')}
                         >
                             {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -355,7 +355,7 @@ function RegisterForm() {
                 <button
                     type="submit"
                     disabled={loading || emailCheckStatus === 'checking'}
-                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-sm shadow-lg hover:shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full mt-2 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-[15px] shadow-[0_8px_20px_rgba(37,99,235,0.25)] hover:shadow-[0_10px_25px_rgba(37,99,235,0.4)] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:grayscale-[50%] disabled:cursor-wait active:scale-[0.98]"
                 >
                     {loading || emailCheckStatus === 'checking' ? (
                         <span className="w-5 h-5 border-2 border-slate-300 border-t-white rounded-full animate-spin"></span>
@@ -382,7 +382,7 @@ function RegisterForm() {
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={loading}
-                className="w-full py-3.5 rounded-xl bg-white text-slate-900 font-bold text-sm hover:bg-slate-100 transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-xl bg-white border-[1.5px] border-slate-200 text-slate-800 font-bold text-sm hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
             >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path
@@ -409,7 +409,7 @@ function RegisterForm() {
                 type="button"
                 onClick={handleAppleLogin}
                 disabled={loading}
-                className="mt-3 w-full py-3.5 rounded-xl bg-black border border-slate-800 text-white font-bold text-sm hover:bg-slate-900 transition-colors flex items-center justify-center gap-2"
+                className="mt-3 w-full py-3.5 rounded-xl bg-[#000000] text-white font-bold text-sm hover:bg-[#1a1a1a] shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
             >
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />

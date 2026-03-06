@@ -114,6 +114,12 @@ export const AuthService = {
 
     loginWithEmail: async (email: string, pass: string) => {
         try {
+            if (Capacitor.isNativePlatform()) {
+                const result = await FirebaseAuthentication.signInWithEmailAndPassword({ email, password: pass });
+                if (!result.user) throw new Error('Native login failed without user');
+                return result.user; // Note: AuthContext will pick this up via Web SDK sync
+            }
+
             const result = await signInWithEmailAndPassword(auth, email, pass);
             return result.user;
         } catch (error) {
@@ -124,9 +130,22 @@ export const AuthService = {
 
     registerWithEmail: async (email: string, pass: string) => {
         try {
-            const result = await createUserWithEmailAndPassword(auth, email, pass);
-            await UserService.createUserProfile(result.user.uid, result.user.email || '');
-            return result.user;
+            let uid: string;
+            let finalEmail = email;
+
+            if (Capacitor.isNativePlatform()) {
+                const result = await FirebaseAuthentication.createUserWithEmailAndPassword({ email, password: pass });
+                if (!result.user?.uid) throw new Error('Native register failed without uid');
+                uid = result.user.uid;
+                finalEmail = result.user.email || email;
+            } else {
+                const result = await createUserWithEmailAndPassword(auth, email, pass);
+                uid = result.user.uid;
+                finalEmail = result.user.email || email;
+            }
+
+            await UserService.createUserProfile(uid, finalEmail);
+            return { uid, email: finalEmail };
         } catch (error) {
             console.error('Error registering with Email:', error);
             throw error;
@@ -135,7 +154,14 @@ export const AuthService = {
 
     async logout() {
         try {
+            if (Capacitor.isNativePlatform()) {
+                await FirebaseAuthentication.signOut();
+            }
             await signOut(auth);
+            // Clear any stored redirect paths
+            if (typeof window !== 'undefined') {
+                sessionStorage.removeItem('auth_redirect_to');
+            }
         } catch (error) {
             console.error('Error signing out:', error);
             throw error;
