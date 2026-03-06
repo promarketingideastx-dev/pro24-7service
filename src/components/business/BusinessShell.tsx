@@ -56,7 +56,10 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
         { name: t('settings'), href: lp('/business/profile'), icon: <Settings size={20} /> },
     ];
 
-    const isActive = (path: string) => pathname === path;
+    const isActive = (path: string) => {
+        if (path === lp('/business/dashboard')) return pathname === path || pathname === lp('/business');
+        return pathname?.startsWith(path);
+    };
 
     return (
         <BusinessGuard>
@@ -73,7 +76,9 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                         style={{ paddingTop: 'calc(max(env(safe-area-inset-top), 20px) + 12px)' }}
                     >
                         <div className="flex items-center">
-                            <img src="/logo-header.png" alt="Pro24/7" className="h-9 w-auto object-contain drop-shadow-sm" style={{ maxWidth: '140px' }} />
+                            <Link href={lp('/business/dashboard')} className="active:scale-95 transition-transform" onClick={() => setIsMobileMenuOpen(false)}>
+                                <img src="/logo-header.png" alt="Pro24/7" className="h-9 w-auto object-contain drop-shadow-sm" style={{ maxWidth: '140px' }} />
+                            </Link>
                         </div>
                         <div className="flex items-center gap-3">
                             <LanguageSwitcher variant="icon" />
@@ -90,12 +95,14 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                     md:sticky md:top-0 md:h-screen md:overflow-y-auto no-scrollbar md:translate-x-0
                     ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
                 `}>
-                        <div className="flex flex-col h-full p-6">
+                        <div className="flex flex-col h-full p-6 pt-[120px] pb-24 md:pt-6 md:pb-6 overflow-y-auto no-scrollbar">
                             {/* Logo (Desktop) */}
                             <div className="hidden md:flex flex-col gap-4 mb-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center">
-                                        <img src="/logo-header.png" alt="Pro24/7" className="h-36 w-auto object-contain" style={{ maxWidth: '200px' }} />
+                                        <Link href={lp('/business/dashboard')} className="active:scale-95 transition-transform">
+                                            <img src="/logo-header.png" alt="Pro24/7" className="h-36 w-auto object-contain" style={{ maxWidth: '200px' }} />
+                                        </Link>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         {user?.uid && <BusinessNotifBell businessId={user.uid} />}

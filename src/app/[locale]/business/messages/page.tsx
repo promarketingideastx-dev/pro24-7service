@@ -178,7 +178,10 @@ function BusinessMessagesContent() {
         <div className="h-[100dvh] flex flex-col bg-[#F4F6F8] overflow-hidden">
 
             {/* ── Page Header (matches /user/messages) ── */}
-            <div className="bg-gradient-to-br from-slate-800 to-slate-900 px-4 py-4 flex items-center gap-3 shrink-0">
+            <div
+                className="bg-gradient-to-br from-slate-800 to-slate-900 px-4 pb-4 flex items-center gap-3 shrink-0"
+                style={{ paddingTop: 'calc(max(env(safe-area-inset-top), 20px) + 12px)' }}
+            >
                 <button
                     onClick={() => router.push(lp('/business/dashboard'))}
                     className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors"
