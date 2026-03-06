@@ -61,7 +61,10 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
     return (
         <aside className={`sticky top-0 h-screen shrink-0 bg-white border-r border-slate-200 flex flex-col z-40 transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'}`}>
             {/* Logo */}
-            <div className="flex items-center gap-3 px-4 py-5 border-b border-slate-200">
+            <div
+                className="flex items-center gap-3 px-4 pb-5 border-b border-slate-200"
+                style={{ paddingTop: 'calc(max(env(safe-area-inset-top), 20px) + 20px)' }}
+            >
                 <div className="shrink-0 flex items-center justify-center">
                     <Image
                         src={isOpen ? "/logo-header.png" : "/icon-192.png"}

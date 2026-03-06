@@ -152,7 +152,13 @@ export default function AdminHeader({ onMenuToggle }: AdminHeaderProps) {
     };
 
     return (
-        <header className="h-14 bg-white border-b border-slate-200 flex items-center px-4 gap-3 sticky top-0 z-[2000]">
+        <header
+            className="bg-white/95 backdrop-blur-2xl border-b border-slate-200/60 flex items-center px-4 gap-3 sticky top-0 z-[2000] shadow-sm shrink-0"
+            style={{
+                paddingTop: 'calc(max(env(safe-area-inset-top), 20px) + 12px)',
+                paddingBottom: '12px'
+            }}
+        >
             <button onClick={onMenuToggle} className="text-slate-400 hover:text-slate-800 transition-colors lg:hidden">
                 <Menu size={18} />
             </button>

@@ -219,7 +219,11 @@ body {
    ============================================= */
 
 .glass-panel {
-    @apply bg-white/80 backdrop-blur-3xl border border-slate-200/60 shadow-[0_4px_24px_rgba(0, 0, 0, 0.04)] rounded-[1.25rem];
+    @apply bg-white/80 backdrop-blur-3xl border-slate-200/60;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 1.25rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
 }
 
 .light-card {
