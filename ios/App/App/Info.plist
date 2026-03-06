@@ -49,5 +49,16 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Necesitamos tu ubicación para mostrarte negocios y servicios cercanos a ti.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.914462693945-1am2j1cbhcl5crqudl4sg8huiv5blhl6</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
