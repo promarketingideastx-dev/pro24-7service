@@ -76,6 +76,7 @@ export default function DashboardPage() {
     const locale = useLocale();
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     const [planData, setPlanData] = useState<{ planStatus?: string; planSource?: string; pauseReason?: string } | null>(null);
 
@@ -156,6 +157,17 @@ export default function DashboardPage() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleManualRefresh = async () => {
+        setIsRefreshing(true);
+        // Firebase responses from cache return in ~5ms.
+        // We add a synthetic 600ms minimum delay so the spin animation is perceptible and satisfying to the user.
+        await Promise.all([
+            fetchStats(),
+            new Promise(r => setTimeout(r, 600))
+        ]);
+        setIsRefreshing(false);
     };
 
     useEffect(() => { fetchStats(); }, [user]);
@@ -246,10 +258,11 @@ export default function DashboardPage() {
                         <p className="text-slate-500 text-sm mt-0.5">{t('subtitle')}</p>
                     </div>
                     <button
-                        onClick={fetchStats}
-                        className="px-4 py-2 bg-white hover:bg-[#F8FAFC] rounded-xl text-sm text-slate-600 hover:text-slate-900 transition-colors border border-[#E6E8EC] flex items-center gap-2 font-bold shadow-sm active:scale-[0.98] shrink-0"
+                        onClick={handleManualRefresh}
+                        disabled={isRefreshing}
+                        className="px-4 py-2 bg-white hover:bg-[#F8FAFC] rounded-xl text-sm text-slate-600 hover:text-slate-900 transition-colors border border-[#E6E8EC] flex items-center gap-2 font-bold shadow-sm active:scale-[0.98] shrink-0 disabled:opacity-70"
                     >
-                        <RefreshCw size={14} />
+                        <RefreshCw size={14} className={isRefreshing ? "animate-spin text-[#14B8A6]" : ""} />
                         <span className="hidden sm:inline">{t('refresh')}</span>
                         <span className="sm:hidden text-xs">{t('refresh')}</span>
                     </button>
