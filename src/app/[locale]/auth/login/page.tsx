@@ -112,9 +112,14 @@ function LoginForm() {
     };
 
     return (
-        <div className="bg-white backdrop-blur-xl border border-slate-200 p-8 rounded-3xl shadow-2xl">
-            <h2 className="text-xl font-bold text-slate-900 mb-2">{t('welcomeBack')}</h2>
-            <p className="text-slate-400 text-sm mb-6">{t('enterData')}</p>
+        <div className="bg-white/90 backdrop-blur-3xl border-[2px] border-slate-200/60 p-6 md:p-8 rounded-[2rem] shadow-[0_8px_30px_rgba(0,0,0,0.06)] relative overflow-hidden">
+            <h2
+                className="text-2xl md:text-3xl font-semibold text-slate-800 mb-2 tracking-tight"
+                style={{ fontFamily: 'var(--font-outfit), sans-serif' }}
+            >
+                {t('welcomeBack')}
+            </h2>
+            <p className="text-slate-500 font-medium text-sm md:text-base mb-6">{t('enterData')}</p>
 
             {error && (
                 <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 flex items-center gap-2 text-red-700 text-sm">

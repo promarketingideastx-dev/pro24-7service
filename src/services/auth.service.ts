@@ -12,10 +12,13 @@ import {
     reauthenticateWithCredential,
     EmailAuthProvider,
     sendPasswordResetEmail,
+    signInWithCredential
 } from 'firebase/auth';
 import { doc, deleteDoc, collection, getDocs, writeBatch, getDoc } from 'firebase/firestore';
 import { ref, listAll, deleteObject } from 'firebase/storage';
 import { UserService } from './user.service';
+import { Capacitor } from '@capacitor/core';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 
 export const AuthService = {
     // Check if email exists to prevent duplicate account creation attempts
@@ -44,6 +47,20 @@ export const AuthService = {
     getRedirectResult: () => getRedirectResult(auth),
 
     loginWithGoogle: async (returnTo?: string) => {
+        if (Capacitor.isNativePlatform()) {
+            // Capacitor Native App: use capacitor-firebase plugin
+            const result = await FirebaseAuthentication.signInWithGoogle();
+            const idToken = result.credential?.idToken;
+            if (!idToken) throw new Error('No idToken from Google Login');
+            const credential = GoogleAuthProvider.credential(idToken);
+            const userCredential = await signInWithCredential(auth, credential);
+            const profile = await UserService.getUserProfile(userCredential.user.uid);
+            if (!profile) {
+                await UserService.createUserProfile(userCredential.user.uid, userCredential.user.email || '');
+            }
+            return userCredential.user;
+        }
+
         const provider = new GoogleAuthProvider();
         if (AuthService._isMobileOrPWA()) {
             // Mobile/PWA: store returnTo and use redirect (popup is blocked)
@@ -61,6 +78,24 @@ export const AuthService = {
     },
 
     loginWithApple: async (returnTo?: string) => {
+        if (Capacitor.isNativePlatform()) {
+            const result = await FirebaseAuthentication.signInWithApple();
+            const idToken = result.credential?.idToken;
+            const nonce = result.credential?.nonce;
+            if (!idToken) throw new Error('No idToken from Apple Login');
+            const provider = new OAuthProvider('apple.com');
+            const credential = provider.credential({
+                idToken: idToken,
+                rawNonce: nonce,
+            });
+            const userCredential = await signInWithCredential(auth, credential);
+            const profile = await UserService.getUserProfile(userCredential.user.uid);
+            if (!profile) {
+                await UserService.createUserProfile(userCredential.user.uid, userCredential.user.email || '');
+            }
+            return userCredential.user;
+        }
+
         const provider = new OAuthProvider('apple.com');
         provider.addScope('email');
         provider.addScope('name');
