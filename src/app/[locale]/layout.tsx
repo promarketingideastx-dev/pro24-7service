@@ -37,7 +37,7 @@ export default async function LocaleLayout({
                 {children}
                 <NotificationBanner />
                 <SWRegistrar />
-                <Toaster position="top-right" theme="dark" richColors />
+                <Toaster position="top-center" theme="dark" richColors toastOptions={{ style: { marginTop: 'calc(env(safe-area-inset-top, 1rem) + 1rem)' } }} />
                 <CookieConsent />
             </Providers>
         </NextIntlClientProvider>

@@ -215,11 +215,11 @@ export default function UserProfilePage() {
     return (
         <div className="min-h-screen bg-[#F4F6F8] text-slate-900 pb-20">
             {/* Header / Nav Back */}
-            <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+            <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-6 pb-4 pt-[calc(env(safe-area-inset-top,1rem)+0.5rem)] flex items-center justify-between sticky top-0 z-50 shadow-sm">
                 <Link href="/">
-                    <img src="/logo-header.png" alt="Pro24/7" className="h-20 w-auto object-contain" style={{ maxWidth: '200px' }} />
+                    <img src="/logo-header.png" alt="Pro24/7" className="h-10 w-auto object-contain drop-shadow-sm" style={{ maxWidth: '160px' }} />
                 </Link>
-                <button type="button" onClick={() => router.push(`/${locale}`)} className="text-sm text-slate-400 hover:text-slate-800">
+                <button type="button" onClick={() => router.push(`/${locale}`)} className="text-sm font-bold text-slate-500 hover:text-[#14B8A6] transition-colors">
                     {t('back')}
                 </button>
             </div>
@@ -227,7 +227,7 @@ export default function UserProfilePage() {
             <div className="max-w-3xl mx-auto px-6 py-10 space-y-8">
 
                 {/* 1. Identity Section */}
-                <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8">
+                <div className="bg-white/90 backdrop-blur-3xl border-[2px] border-slate-200/60 p-6 md:p-8 rounded-[2rem] shadow-[0_8px_30px_rgba(0,0,0,0.06)] relative overflow-hidden">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-blue-500/10 rounded-xl">
                             <User className="w-6 h-6 text-blue-400" />
@@ -320,9 +320,9 @@ export default function UserProfilePage() {
                                     type="button"
                                     onClick={handleSave}
                                     disabled={loading}
-                                    className="btn-primary flex items-center gap-2 text-sm"
+                                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#14B8A6] to-[#0F766E] hover:from-[#0F766E] hover:to-[#0F766E] text-white font-extrabold text-[15px] shadow-[0_8px_20px_rgba(20,184,166,0.25)] hover:shadow-[0_10px_25px_rgba(20,184,166,0.4)] transition-all flex items-center gap-2 disabled:opacity-70 active:scale-[0.98]"
                                 >
-                                    <Save className="w-4 h-4" />
+                                    <Save className="w-5 h-5" />
                                     {loading ? t('saving') : t('saveBtn')}
                                 </button>
                                 {successMessage && (
@@ -336,7 +336,7 @@ export default function UserProfilePage() {
                 </div>
 
                 {/* 2. Mis Favoritos (Negocios Guardados) */}
-                <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8">
+                <div className="bg-white/90 backdrop-blur-3xl border-[2px] border-slate-200/60 p-6 md:p-8 rounded-[2rem] shadow-[0_8px_30px_rgba(0,0,0,0.06)] relative overflow-hidden">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-red-500/10 rounded-xl">
                             <Heart className="w-6 h-6 text-red-400 fill-red-400" />
@@ -366,8 +366,11 @@ export default function UserProfilePage() {
                                 <Link
                                     key={fav.businessId}
                                     href={`/${locale}/negocio/perfil?id=${fav.businessId}`}
-                                    className="group flex items-center gap-4 p-4 bg-[#F8FAFC] hover:bg-white border border-[#E6E8EC] hover:border-[#14B8A6]/30 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] rounded-2xl transition-all active:scale-[0.98]"
+                                    className="group flex items-center gap-4 p-4 border rounded-2xl transition-all cursor-pointer overflow-hidden relative bg-red-50/30 hover:bg-red-50/80 border-[#E6E8EC] hover:border-red-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] active:scale-[0.98]"
                                 >
+                                    {/* Left Accent Bar */}
+                                    <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl bg-red-400" />
+
                                     {/* Logo / Avatar */}
                                     <div className="w-12 h-12 rounded-xl bg-slate-100 border border-[#E6E8EC] shrink-0 overflow-hidden flex items-center justify-center">
                                         {fav.businessLogoUrl ? (
@@ -391,7 +394,7 @@ export default function UserProfilePage() {
                 </div>
 
                 {/* 3. Mis Citas */}
-                <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8">
+                <div className="bg-white/90 backdrop-blur-3xl border-[2px] border-slate-200/60 p-6 md:p-8 rounded-[2rem] shadow-[0_8px_30px_rgba(0,0,0,0.06)] relative overflow-hidden">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-[rgba(20,184,166,0.08)] rounded-xl">
                             <Calendar className="w-6 h-6 text-[#14B8A6]" />
@@ -434,8 +437,9 @@ export default function UserProfilePage() {
                                 return (
                                     <div
                                         key={apt.id}
-                                        className="flex items-center gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl transition-all"
+                                        className="flex items-center gap-3 p-4 border rounded-2xl transition-all relative overflow-hidden bg-teal-50/30 hover:bg-teal-50/80 border-[#E6E8EC] hover:border-[#14B8A6]/30 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
                                     >
+                                        <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl bg-[#14B8A6]" />
                                         {/* Date block */}
                                         <div className="shrink-0 text-center w-12">
                                             <p className="text-[#0F766E] font-bold text-lg leading-none">
@@ -499,7 +503,9 @@ export default function UserProfilePage() {
                 </div>
 
                 {/* 4. Danger Zone */}
-                <div className="border border-red-500/10 bg-red-500/5 rounded-3xl p-6 md:p-8">
+                <div className="bg-white/90 backdrop-blur-3xl border-[2px] border-red-500/20 p-6 md:p-8 rounded-[2rem] shadow-[0_8px_30px_rgba(239,68,68,0.04)] relative overflow-hidden">
+                    {/* Background faint red glow */}
+                    <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-red-500/10 rounded-full blur-[50px] pointer-events-none"></div>
                     <div className="flex items-center gap-3 mb-4">
                         <AlertTriangle className="w-5 h-5 text-red-400" />
                         <h2 className="text-lg font-bold text-red-600">{t('dangerZone')}</h2>
@@ -510,7 +516,7 @@ export default function UserProfilePage() {
                     <button
                         type="button" // Explicitly prevent form submission
                         onClick={handleDeleteAccount}
-                        className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors"
+                        className="px-6 py-3 rounded-xl bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-extrabold text-sm shadow-[0_8px_20px_rgba(239,68,68,0.25)] hover:shadow-[0_10px_25px_rgba(239,68,68,0.4)] transition-all flex items-center gap-2 w-fit active:scale-[0.98]"
                     >
                         <Trash2 className="w-4 h-4" />
                         {t('deleteBtn')}
