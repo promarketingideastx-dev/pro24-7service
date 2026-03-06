@@ -11,6 +11,7 @@ import { CustomerService } from '@/services/customer.service';
 import { format, startOfMonth, endOfMonth, startOfWeek, addDays, isSameDay, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useTranslations, useLocale } from 'next-intl';
+import NextLink from 'next/link';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
@@ -188,6 +189,7 @@ export default function DashboardPage() {
             valueColor: 'text-teal-700',
             wrap: 'bg-teal-50 border border-teal-200',
             topAccent: 'bg-[#14B8A6]',
+            href: `/${locale}/business/agenda`,
         },
         {
             label: t('requests'),
@@ -199,6 +201,7 @@ export default function DashboardPage() {
             valueColor: stats.pendingCount > 0 ? 'text-amber-600' : 'text-amber-700',
             wrap: 'bg-amber-50 border border-amber-200',
             topAccent: 'bg-amber-400',
+            href: `/${locale}/business/agenda`,
         },
         {
             label: t('clients'),
@@ -210,6 +213,7 @@ export default function DashboardPage() {
             valueColor: 'text-purple-700',
             wrap: 'bg-purple-50 border border-purple-200',
             topAccent: 'bg-[#8B5CF6]',
+            href: `/${locale}/business/clients`,
         },
         {
             label: t('monthRevenue'),
@@ -223,6 +227,7 @@ export default function DashboardPage() {
             valueColor: stats.monthRevenue > 0 ? 'text-green-700' : 'text-slate-600',
             wrap: stats.monthRevenue > 0 ? 'bg-green-50 border border-green-200' : 'bg-slate-50 border border-slate-200',
             topAccent: stats.monthRevenue > 0 ? 'bg-green-400' : 'bg-slate-300',
+            href: `#`,
         },
     ];
 
@@ -253,9 +258,10 @@ export default function DashboardPage() {
                 {/* ── KPI Cards ──────────────────────────────────────────── */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                     {kpiCards.map((card, i) => (
-                        <div
+                        <NextLink
+                            href={card.href}
                             key={i}
-                            className={`${card.wrap} rounded-[1.25rem] p-3.5 md:p-4 flex flex-col gap-2 relative overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.03)]`}
+                            className={`${card.wrap} rounded-[1.25rem] p-3.5 md:p-4 flex flex-col gap-2 relative overflow-hidden hover:scale-[1.02] shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md transition-all cursor-pointer`}
                         >
                             {/* Top accent stripe */}
                             <div className={`absolute top-0 left-0 right-0 h-1 ${card.topAccent}`} />
@@ -268,7 +274,7 @@ export default function DashboardPage() {
                                 <div className={`text-xl sm:text-2xl font-bold ${card.valueColor}`}>{card.value}</div>
                                 <div className="text-[10px] sm:text-xs text-slate-500 mt-1 whitespace-nowrap overflow-hidden text-ellipsis">{card.sub}</div>
                             </div>
-                        </div>
+                        </NextLink>
                     ))}
                 </div>
 

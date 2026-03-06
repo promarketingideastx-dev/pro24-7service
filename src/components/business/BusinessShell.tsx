@@ -61,7 +61,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
     return (
         <BusinessGuard>
             <AppointmentRefreshProvider>
-                <div className="min-h-screen bg-[#F4F6F8] text-slate-900 flex flex-col md:flex-row relative overflow-hidden">
+                <div className="min-h-screen bg-[#F4F6F8] text-slate-900 flex flex-col md:flex-row relative">
 
                     {/* Background Ambient Effects (Consistent with Auth) */}
                     <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-500/05 rounded-full blur-[100px] pointer-events-none"></div>
@@ -69,7 +69,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
 
                     {/* Mobile Header */}
                     <div
-                        className="md:hidden flex items-center justify-between px-4 pb-3 pt-4 bg-white/95 backdrop-blur-2xl border-b border-slate-200/60 z-50 sticky top-0 shadow-sm"
+                        className="md:hidden flex items-center justify-between px-4 pb-3 pt-4 bg-white/80 backdrop-blur-md border-b border-slate-200/60 z-[60] sticky top-0 shadow-sm"
                         style={{ paddingTop: 'calc(max(env(safe-area-inset-top), 20px) + 12px)' }}
                     >
                         <div className="flex items-center">
@@ -87,7 +87,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                     {/* Sidebar (Desktop + Mobile Drawer) */}
                     <aside className={`
                     fixed inset-y-0 left-0 z-40 w-64 bg-white/95 backdrop-blur-xl border-r border-slate-200 transform transition-transform duration-300 ease-in-out
-                    md:relative md:translate-x-0
+                    md:sticky md:top-0 md:h-screen md:overflow-y-auto no-scrollbar md:translate-x-0
                     ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
                 `}>
                         <div className="flex flex-col h-full p-6">
@@ -183,7 +183,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                     )}
 
                     {/* Main Content Area */}
-                    <main className="flex-1 overflow-y-auto flex flex-col min-h-0 md:h-screen p-4 md:p-8 relative z-10 custom-scrollbar">
+                    <main className="flex-1 flex flex-col p-4 md:p-8 relative z-10 w-full">
                         <div className="w-full max-w-6xl mx-auto flex-1">
                             {children}
                         </div>
