@@ -68,15 +68,15 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                     <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-500/05 rounded-full blur-[100px] pointer-events-none"></div>
 
                     {/* Mobile Header */}
-                    <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white/90 backdrop-blur-md border-b border-slate-200 z-50 sticky top-0">
+                    <div className="md:hidden flex items-center justify-between px-4 pb-3 pt-[calc(env(safe-area-inset-top,1rem)+0.5rem)] bg-white/80 backdrop-blur-xl border-b border-slate-200/60 z-50 sticky top-0 shadow-sm">
                         <div className="flex items-center">
-                            <img src="/logo-header.png" alt="Pro24/7" className="h-10 w-auto object-contain" style={{ maxWidth: '140px' }} />
+                            <img src="/logo-header.png" alt="Pro24/7" className="h-9 w-auto object-contain drop-shadow-sm" style={{ maxWidth: '140px' }} />
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3">
                             <LanguageSwitcher variant="icon" />
                             {user?.uid && <BusinessNotifBell businessId={user.uid} />}
-                            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-slate-500 hover:text-slate-900">
-                                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-1.5 text-slate-500 hover:text-slate-900 transition-colors bg-slate-50 rounded-lg border border-slate-200 shadow-sm active:scale-95">
+                                {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
                             </button>
                         </div>
                     </div>
@@ -180,8 +180,8 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                     )}
 
                     {/* Main Content Area */}
-                    <main className="flex-1 overflow-y-auto h-[calc(100vh-64px)] md:h-screen p-4 md:p-8 relative z-10 custom-scrollbar">
-                        <div className="max-w-6xl mx-auto">
+                    <main className="flex-1 overflow-y-auto flex flex-col min-h-0 md:h-screen p-4 md:p-8 relative z-10 custom-scrollbar">
+                        <div className="w-full max-w-6xl mx-auto flex-1">
                             {children}
                         </div>
                     </main>

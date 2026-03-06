@@ -235,37 +235,38 @@ export default function DashboardPage() {
             <div className="space-y-6 pb-20">
 
                 {/* ── Header ─────────────────────────────────────────────── */}
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900">{t('title')}</h1>
                         <p className="text-slate-500 text-sm mt-0.5">{t('subtitle')}</p>
                     </div>
                     <button
                         onClick={fetchStats}
-                        className="px-4 py-2 bg-white hover:bg-[#F8FAFC] rounded-lg text-sm text-slate-600 hover:text-slate-900 transition-colors border border-[#E6E8EC] flex items-center gap-2 font-medium"
+                        className="px-4 py-2 bg-white hover:bg-[#F8FAFC] rounded-xl text-sm text-slate-600 hover:text-slate-900 transition-colors border border-[#E6E8EC] flex items-center gap-2 font-bold shadow-sm active:scale-[0.98] shrink-0"
                     >
                         <RefreshCw size={14} />
-                        {t('refresh')}
+                        <span className="hidden sm:inline">{t('refresh')}</span>
+                        <span className="sm:hidden text-xs">{t('refresh')}</span>
                     </button>
                 </div>
 
                 {/* ── KPI Cards ──────────────────────────────────────────── */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                     {kpiCards.map((card, i) => (
                         <div
                             key={i}
-                            className={`${card.wrap} rounded-2xl p-4 flex flex-col gap-3 relative overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.06)]`}
+                            className={`${card.wrap} rounded-[1.25rem] p-3.5 md:p-4 flex flex-col gap-2 relative overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.03)]`}
                         >
                             {/* Top accent stripe */}
-                            <div className={`absolute top-0 left-0 right-0 h-1 ${card.topAccent} rounded-t-2xl`} />
+                            <div className={`absolute top-0 left-0 right-0 h-1 ${card.topAccent}`} />
 
                             <div className="flex items-center justify-between pt-1">
-                                <span className="text-slate-500 text-xs font-semibold uppercase tracking-wider">{card.label}</span>
-                                <span className={`${card.iconColor} ${card.iconBg} p-1.5 rounded-lg`}>{card.icon}</span>
+                                <span className="text-slate-500 text-[10px] sm:text-xs font-semibold uppercase tracking-wider overflow-hidden text-ellipsis whitespace-nowrap">{card.label}</span>
+                                <span className={`${card.iconColor} ${card.iconBg} p-1.5 rounded-[0.6rem]`}>{card.icon}</span>
                             </div>
                             <div>
-                                <div className={`text-2xl font-bold ${card.valueColor}`}>{card.value}</div>
-                                <div className="text-xs text-slate-500 mt-0.5">{card.sub}</div>
+                                <div className={`text-xl sm:text-2xl font-bold ${card.valueColor}`}>{card.value}</div>
+                                <div className="text-[10px] sm:text-xs text-slate-500 mt-1 whitespace-nowrap overflow-hidden text-ellipsis">{card.sub}</div>
                             </div>
                         </div>
                     ))}
@@ -278,13 +279,13 @@ export default function DashboardPage() {
                     <div className="lg:col-span-2 space-y-6">
 
                         {/* Income Chart */}
-                        <div className="bg-white border border-[#E6E8EC] rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+                        <div className="bg-white/80 backdrop-blur-3xl border border-[#E6E8EC] rounded-3xl p-4 sm:p-5 md:p-6 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                                    <TrendingUp className="w-4 h-4 text-[#14B8A6]" />
+                                <h3 className="text-sm md:text-base font-bold text-slate-900 flex items-center gap-2">
+                                    <TrendingUp className="w-5 h-5 text-[#14B8A6]" />
                                     {t('weeklyRevenue')}
                                 </h3>
-                                <span className="text-xs text-slate-400">{t('last8Weeks')}</span>
+                                <span className="text-[10px] md:text-xs text-slate-400 font-medium bg-slate-50 px-2 py-1 rounded-md">{t('last8Weeks')}</span>
                             </div>
 
                             {stats.weeklyRevenue.every(w => w.amount === 0) ? (
@@ -318,8 +319,8 @@ export default function DashboardPage() {
                         </div>
 
                         {/* Appointment Inbox */}
-                        <div className="space-y-3">
-                            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <div className="space-y-4 pt-2">
+                            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 shrink-0">
                                 <Activity size={18} className="text-[#14B8A6]" />
                                 {t('inbox')}
                             </h3>
@@ -331,7 +332,7 @@ export default function DashboardPage() {
                     <div className="space-y-5">
 
                         {/* Confirmation Rate */}
-                        <div className="bg-white border border-[#E6E8EC] rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+                        <div className="bg-white/80 backdrop-blur-3xl border border-[#E6E8EC] rounded-3xl p-4 sm:p-5 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
                             <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
                                 <CheckCircle className="w-4 h-4 text-green-500" />
                                 {t('confirmationRate')}
@@ -363,7 +364,7 @@ export default function DashboardPage() {
                         </div>
 
                         {/* Top Services */}
-                        <div className="bg-white border border-[#E6E8EC] rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+                        <div className="bg-white/80 backdrop-blur-3xl border border-[#E6E8EC] rounded-3xl p-4 sm:p-5 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
                             <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
                                 <Activity className="w-4 h-4 text-[#14B8A6]" />
                                 {t('topServices')}
@@ -395,7 +396,7 @@ export default function DashboardPage() {
                         </div>
 
                         {/* Quick Actions */}
-                        <div className="bg-white border border-[#E6E8EC] rounded-2xl p-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+                        <div className="bg-white/80 backdrop-blur-3xl border border-[#E6E8EC] rounded-3xl p-4 sm:p-5 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
                             <h3 className="text-sm font-bold text-slate-900 mb-3">{t('quickActions')}</h3>
                             <div className="space-y-2">
                                 <a
