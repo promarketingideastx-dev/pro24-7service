@@ -308,7 +308,10 @@ export default function Home() {
         <>
             <main className="h-dvh bg-[#F4F6F8] text-slate-900 overflow-hidden font-sans flex flex-col" style={{ height: '100dvh' }}>
                 {/* ── Header ── */}
-                <header className="shrink-0 bg-gradient-to-br from-slate-800 to-slate-900 px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3 sm:px-5 sm:pt-[calc(1.25rem+env(safe-area-inset-top))] sm:pb-5 z-50">
+                <header
+                    className="shrink-0 bg-gradient-to-br from-slate-800 to-slate-900 px-4 pb-3 sm:px-5 sm:pb-5 z-50 sticky top-0 shadow-xl"
+                    style={{ paddingTop: 'calc(max(env(safe-area-inset-top), 20px) + 12px)' }}
+                >
 
                     {/* Row 1: Country + Actions */}
                     <div className="flex items-center justify-between mb-2 sm:mb-4">
@@ -924,8 +927,8 @@ export default function Home() {
                                         handleBusinessClick(biz);
                                     }}
                                     style={{ backgroundColor: catColor.bg }}
-                                    className={`flex items-center p-3 border rounded-2xl transition-all cursor-pointer group overflow-hidden relative
-                                ${selectedBusiness?.id === biz.id ? 'border-[#14B8A6] shadow-[0_0_0_2px_rgba(20,184,166,0.15)]' : 'border-[#E6E8EC] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]'}
+                                    className={`flex items-center p-3 transition-all cursor-pointer group overflow-hidden relative card-l2
+                                ${selectedBusiness?.id === biz.id ? 'border-[#14B8A6] shadow-[0_4px_24px_rgba(20,184,166,0.25)]' : 'border-[#E6E8EC]'}
                             `}
                                 >
                                     {/* Colored left accent bar */}
@@ -1071,8 +1074,8 @@ export default function Home() {
                                                                     }
                                                                 }}
                                                                 className={`flex items-center gap-1.5 border-2 shadow-sm rounded-xl px-3 py-2 text-[13px] font-bold cursor-pointer transition-all active:scale-95 ${isSelected
-                                                                        ? `${theme.bg} ${theme.text} border-transparent scale-[1.02]`
-                                                                        : `bg-white ${theme.lightBorder} ${theme.hoverBorder} ${theme.solidText} ${theme.hoverBg}`
+                                                                    ? `${theme.bg} ${theme.text} border-transparent scale-[1.02]`
+                                                                    : `bg-white ${theme.lightBorder} ${theme.hoverBorder} ${theme.solidText} ${theme.hoverBg}`
                                                                     }`}
                                                             >
                                                                 {isSelected ? (

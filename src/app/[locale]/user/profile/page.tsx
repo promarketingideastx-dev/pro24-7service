@@ -230,7 +230,7 @@ export default function UserProfilePage() {
             <div className="max-w-3xl mx-auto px-6 py-10 space-y-8">
 
                 {/* 1. Identity Section */}
-                <div className="bg-white/90 backdrop-blur-3xl border-[2px] border-slate-200/60 p-6 md:p-8 rounded-[2rem] shadow-[0_8px_30px_rgba(0,0,0,0.06)] relative overflow-hidden">
+                <div className="glass-panel p-6 md:p-8 relative overflow-hidden">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-blue-500/10 rounded-xl">
                             <User className="w-6 h-6 text-blue-400" />
@@ -339,7 +339,7 @@ export default function UserProfilePage() {
                 </div>
 
                 {/* 2. Mis Favoritos (Negocios Guardados) */}
-                <div className="bg-white/90 backdrop-blur-3xl border-[2px] border-slate-200/60 p-6 md:p-8 rounded-[2rem] shadow-[0_8px_30px_rgba(0,0,0,0.06)] relative overflow-hidden">
+                <div className="glass-panel p-6 md:p-8 relative overflow-hidden">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-red-500/10 rounded-xl">
                             <Heart className="w-6 h-6 text-red-400 fill-red-400" />
@@ -397,7 +397,7 @@ export default function UserProfilePage() {
                 </div>
 
                 {/* 3. Mis Citas */}
-                <div className="bg-white/90 backdrop-blur-3xl border-[2px] border-slate-200/60 p-6 md:p-8 rounded-[2rem] shadow-[0_8px_30px_rgba(0,0,0,0.06)] relative overflow-hidden">
+                <div className="glass-panel p-6 md:p-8 relative overflow-hidden">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="p-2 bg-[rgba(20,184,166,0.08)] rounded-xl">
                             <Calendar className="w-6 h-6 text-[#14B8A6]" />
@@ -506,7 +506,7 @@ export default function UserProfilePage() {
                 </div>
 
                 {/* 4. Danger Zone */}
-                <div className="bg-white/90 backdrop-blur-3xl border-[2px] border-red-500/20 p-6 md:p-8 rounded-[2rem] shadow-[0_8px_30px_rgba(239,68,68,0.04)] relative overflow-hidden">
+                <div className="glass-panel p-6 md:p-8 relative overflow-hidden border-red-500/20 shadow-[0_4px_24px_rgba(239,68,68,0.08)]">
                     {/* Background faint red glow */}
                     <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-red-500/10 rounded-full blur-[50px] pointer-events-none"></div>
                     <div className="flex items-center gap-3 mb-4">

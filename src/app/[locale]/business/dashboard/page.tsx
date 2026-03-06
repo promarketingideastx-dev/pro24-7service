@@ -279,7 +279,7 @@ export default function DashboardPage() {
                     <div className="lg:col-span-2 space-y-6">
 
                         {/* Income Chart */}
-                        <div className="bg-white/80 backdrop-blur-3xl border border-[#E6E8EC] rounded-3xl p-4 sm:p-5 md:p-6 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                        <div className="glass-panel p-4 sm:p-5 md:p-6">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-sm md:text-base font-bold text-slate-900 flex items-center gap-2">
                                     <TrendingUp className="w-5 h-5 text-[#14B8A6]" />
@@ -332,7 +332,7 @@ export default function DashboardPage() {
                     <div className="space-y-5">
 
                         {/* Confirmation Rate */}
-                        <div className="bg-white/80 backdrop-blur-3xl border border-[#E6E8EC] rounded-3xl p-4 sm:p-5 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                        <div className="glass-panel p-4 sm:p-5">
                             <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
                                 <CheckCircle className="w-4 h-4 text-green-500" />
                                 {t('confirmationRate')}
@@ -364,7 +364,7 @@ export default function DashboardPage() {
                         </div>
 
                         {/* Top Services */}
-                        <div className="bg-white/80 backdrop-blur-3xl border border-[#E6E8EC] rounded-3xl p-4 sm:p-5 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                        <div className="glass-panel p-4 sm:p-5">
                             <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
                                 <Activity className="w-4 h-4 text-[#14B8A6]" />
                                 {t('topServices')}
@@ -396,7 +396,7 @@ export default function DashboardPage() {
                         </div>
 
                         {/* Quick Actions */}
-                        <div className="bg-white/80 backdrop-blur-3xl border border-[#E6E8EC] rounded-3xl p-4 sm:p-5 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                        <div className="glass-panel p-4 sm:p-5">
                             <h3 className="text-sm font-bold text-slate-900 mb-3">{t('quickActions')}</h3>
                             <div className="space-y-2">
                                 <a

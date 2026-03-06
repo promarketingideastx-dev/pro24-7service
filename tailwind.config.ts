@@ -56,11 +56,12 @@ const config: Config = {
                 // Named by semantic role
                 "neon": "0 0 10px rgba(20, 184, 166, 0.4), 0 0 20px rgba(20, 184, 166, 0.2)",
                 "neon-hover": "0 0 15px rgba(20, 184, 166, 0.6), 0 0 30px rgba(20, 184, 166, 0.4)",
-                "glass": "0 8px 32px 0 rgba(0, 0, 0, 0.08)",
-                "card": "0 2px 8px rgba(0,0,0,0.06)",
-                "card-hover": "0 6px 20px rgba(0,0,0,0.10)",
-                "btn-primary": "0 4px 14px rgba(20,184,166,0.30)",
-                "btn-primary-hover": "0 6px 20px rgba(20,184,166,0.45)",
+                "glass": "0 4px 24px rgba(0, 0, 0, 0.04)",
+                "glass-deep": "0 8px 32px rgba(0, 0, 0, 0.08)",
+                "card": "0 2px 12px rgba(0,0,0,0.06)",
+                "card-hover": "0 8px 32px rgba(0,0,0,0.10)",
+                "btn-primary": "0 4px 14px rgba(20,184,166,0.35)",
+                "btn-primary-hover": "0 6px 20px rgba(20,184,166,0.45), inset 0 1px 0 rgba(255,255,255,0.4)",
             },
             backdropBlur: {
                 xs: '2px',
