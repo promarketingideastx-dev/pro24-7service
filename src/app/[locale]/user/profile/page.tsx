@@ -213,9 +213,12 @@ export default function UserProfilePage() {
     if (!user) return <div className="min-h-screen bg-[#F4F6F8] text-slate-900 flex items-center justify-center">{t('loading')}</div>;
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] text-slate-900 pb-20">
+        <div className="min-h-screen bg-[#F4F6F8] text-slate-900" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 6rem)' }}>
             {/* Header / Nav Back */}
-            <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-6 pb-4 pt-[calc(env(safe-area-inset-top,1rem)+0.5rem)] flex items-center justify-between sticky top-0 z-50 shadow-sm">
+            <div
+                className="bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-6 pb-4 flex items-center justify-between sticky top-0 z-50 shadow-sm"
+                style={{ paddingTop: 'max(env(safe-area-inset-top), 3.5rem)' }}
+            >
                 <Link href="/">
                     <img src="/logo-header.png" alt="Pro24/7" className="h-10 w-auto object-contain drop-shadow-sm" style={{ maxWidth: '160px' }} />
                 </Link>
