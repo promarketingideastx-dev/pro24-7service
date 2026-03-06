@@ -117,7 +117,7 @@ function OnboardingContent() {
                         className="text-3xl md:text-4xl font-semibold text-slate-800 tracking-tight leading-tight text-center"
                         style={{ fontFamily: 'var(--font-outfit), sans-serif' }}
                     >
-                        ¿Cómo usas Pro24/7YA?
+                        {t('title')}
                     </h1>
                 </div>
                 <p className="text-slate-500 mb-6 text-center text-sm md:text-base font-medium max-w-sm">
