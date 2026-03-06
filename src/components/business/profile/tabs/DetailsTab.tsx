@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { MapPin, Phone, Globe, Clock, MessageCircle, Banknote, Building2, Wallet, Navigation } from 'lucide-react';
 import WeeklyScheduleView from '@/components/business/public/WeeklyScheduleView';
 import OpeningHoursStatus from '@/components/business/public/OpeningHoursStatus';
@@ -36,6 +37,7 @@ const TikTokIcon = () => (
 
 export default function DetailsTab({ business }: DetailsTabProps) {
     const t = useTranslations('business.publicProfile');
+    const [isMapInteractive, setIsMapInteractive] = useState(false);
 
     if (!business) return null;
 
@@ -75,22 +77,37 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                     </div>
 
                     {/* MAP WIDGET INTEGRATION */}
-                    <div className="h-64 w-full rounded-2xl overflow-hidden border border-slate-200 mt-4 relative z-0">
-                        <MapWidget
-                            businesses={[{
-                                id: business.id || 'preview',
-                                name: business.name,
-                                category: business.category,
-                                subcategory: business.subcategory || '',
-                                tags: business.tags || [],
-                                lat: business.lat || business.location?.lat || 15.50417,
-                                lng: business.lng || business.location?.lng || -88.02500,
-                                icon: '\uD83D\uDCCD',
-                                color: 'bg-brand-neon-cyan',
-                                description: business.description || '',
-                                countryCode: business.country || 'HN'
-                            }]}
-                        />
+                    <div
+                        className="h-[280px] w-full rounded-2xl border border-slate-200 mt-4 relative z-0 overflow-hidden"
+                        onMouseLeave={() => setIsMapInteractive(false)}
+                    >
+                        {!isMapInteractive && (
+                            <div
+                                className="absolute inset-0 z-10 flex items-center justify-center cursor-pointer bg-transparent"
+                                onClick={() => setIsMapInteractive(true)}
+                            >
+                                <div className="bg-black/70 backdrop-blur-md px-5 py-2.5 rounded-full text-white text-sm font-bold shadow-[0_4px_15px_rgba(0,0,0,0.3)] animate-bounce hover:animate-none">
+                                    tocar para interactuar
+                                </div>
+                            </div>
+                        )}
+                        <div className={`w-full h-full transition-all duration-300 ${!isMapInteractive ? 'pointer-events-none' : ''}`}>
+                            <MapWidget
+                                businesses={[{
+                                    id: business.id || 'preview',
+                                    name: business.name,
+                                    category: business.category,
+                                    subcategory: business.subcategory || '',
+                                    tags: business.tags || [],
+                                    lat: business.lat || business.location?.lat || 15.50417,
+                                    lng: business.lng || business.location?.lng || -88.02500,
+                                    icon: '\uD83D\uDCCD',
+                                    color: 'bg-brand-neon-cyan',
+                                    description: business.description || '',
+                                    countryCode: business.country || 'HN'
+                                }]}
+                            />
+                        </div>
                     </div>
 
                     {/* Cómo llegar button */}
@@ -101,27 +118,34 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                         const name = business.name;
                         const city = business.city || business.department || '';
 
-                        let mapsUrl: string | null = null;
-                        if (placeId) {
-                            mapsUrl = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
-                        } else if (lat && lng) {
-                            mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
-                        } else if (name && city) {
-                            mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(`${name} ${city}`)}`;
-                        }
+                        const handleDirectionsClick = (e: React.MouseEvent) => {
+                            e.preventDefault();
+                            const ua = navigator.userAgent || navigator.vendor;
+                            const isIos = /iPad|iPhone|iPod/i.test(ua);
 
-                        if (!mapsUrl) return null;
+                            let url = '';
+                            if (isIos) {
+                                // Native Apple Maps schema
+                                url = (lat && lng)
+                                    ? `http://maps.apple.com/?q=${lat},${lng}&ll=${lat},${lng}`
+                                    : `http://maps.apple.com/?q=${encodeURIComponent(`${name} ${city}`)}`;
+                            } else {
+                                // Google Maps Web / Deep Link
+                                if (placeId) url = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
+                                else if (lat && lng) url = `https://maps.google.com/?q=${lat},${lng}`;
+                                else url = `https://maps.google.com/?q=${encodeURIComponent(`${name} ${city}`)}`;
+                            }
+                            if (url) window.open(url, '_blank');
+                        };
 
                         return (
-                            <a
-                                href={mapsUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="mt-3 flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white font-semibold text-sm transition-all active:scale-95 shadow-md shadow-blue-500/30"
+                            <button
+                                onClick={handleDirectionsClick}
+                                className="mt-5 flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold text-sm shadow-[0_6px_20px_rgba(37,99,235,0.4)] active:scale-[0.98] transition-all border border-blue-400/50"
                             >
-                                <Navigation className="w-4 h-4" />
+                                <Navigation className="w-5 h-5 fill-white/20" />
                                 Cómo llegar
-                            </a>
+                            </button>
                         );
                     })()}
 
