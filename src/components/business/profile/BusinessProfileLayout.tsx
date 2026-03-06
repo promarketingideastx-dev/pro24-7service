@@ -9,6 +9,7 @@ import { FavoritesService } from '@/services/favorites.service';
 import { useTranslations, useLocale } from 'next-intl';
 import { TAXONOMY } from '@/lib/taxonomy';
 import dynamic from 'next/dynamic';
+import { Share } from '@capacitor/share';
 
 const ChatModal = dynamic(() => import('@/components/ui/ChatModal'), { ssr: false });
 
@@ -119,16 +120,26 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
         const title = business?.name || t('defaultBusinessName');
         const text = t('shareText').replace('{title}', title);
 
-        if (navigator.share) {
-            try {
-                await navigator.share({ title, text, url });
-            } catch { /* user cancelled */ }
-        } else {
-            try {
-                await navigator.clipboard.writeText(url);
-                toast.success(t('linkCopied'), { icon: '🔗' });
-            } catch {
-                toast.error(t('linkCopyError'));
+        try {
+            await Share.share({
+                title,
+                text,
+                url,
+                dialogTitle: 'Compartir Perfil'
+            });
+        } catch (error) {
+            // Fallbacks for web
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title, text, url });
+                } catch { /* user cancelled */ }
+            } else {
+                try {
+                    await navigator.clipboard.writeText(url);
+                    toast.success(t('linkCopied'), { icon: '🔗' });
+                } catch {
+                    toast.error(t('linkCopyError'));
+                }
             }
         }
     };
@@ -171,19 +182,19 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
             {/* --- 1. PREMIUM HEADER --- */}
             <header className="relative w-full">
 
-                {/* Foto de portada — más compacta en móvil para dejar espacio al contenido */}
-                <div className="h-28 md:h-48 lg:h-56 w-full bg-slate-800 relative overflow-hidden">
+                {/* Foto de portada — extendida para evitar cortes visuales y dejar espacio a navegación */}
+                <div className="h-56 md:h-72 lg:h-[340px] w-full bg-slate-800 relative overflow-hidden">
                     {business.coverImage ? (
-                        <img src={business.coverImage} className="w-full h-full object-cover" alt="Cover" />
+                        <img src={business.coverImage} className="w-full h-full object-cover object-center" alt="Cover" />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
                             <span className="text-6xl opacity-20">🏢</span>
                         </div>
                     )}
                     {/* Shadow gradient for general depth at the bottom */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-transparent to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-[#0B0F19]/20 to-transparent"></div>
                     {/* Shadow gradient at the top so white buttons are always visible */}
-                    <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/50 to-transparent pointer-events-none"></div>
+                    <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/60 to-transparent pointer-events-none"></div>
                 </div>
 
                 {/* Top Nav (Absolute) */}
@@ -250,10 +261,10 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                 </div>
 
                 {/* Business Info (Overlapping Cover) */}
-                <div className="px-6 -mt-12 relative flex flex-col md:flex-row gap-4 md:items-end">
+                <div className="px-6 -mt-14 md:-mt-20 relative flex flex-col md:flex-row gap-4 md:items-end">
 
                     {/* Avatar / Logo */}
-                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl md:rounded-3xl bg-slate-100 border-4 border-white shadow-2xl overflow-hidden shrink-0 relative z-10 group">
+                    <div className="w-28 h-28 md:w-36 md:h-36 rounded-[1.75rem] border-4 border-[#F4F6F8] ring-4 ring-white bg-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.15)] overflow-hidden shrink-0 relative z-10 group bg-clip-padding">
                         {/* Fallback logic for avatar if needed, using coverImage as proxy or first gallery image */}
                         {business.logoUrl || business.coverImage ? (
                             <img src={business.logoUrl || business.coverImage} className="w-full h-full object-cover" alt="Logo" />
