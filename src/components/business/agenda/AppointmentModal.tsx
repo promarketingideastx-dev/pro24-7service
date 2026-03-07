@@ -125,20 +125,20 @@ export default function AppointmentModal({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-            <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-slate-900/40 backdrop-blur-md">
+            <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-lg shadow-[0_4px_14px_rgba(0,0,0,0.15)] relative flex flex-col max-h-[calc(100dvh-4rem)] sm:max-h-[90dvh] overflow-hidden">
 
-                {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-slate-200">
+                {/* Header Clean Light */}
+                <div className="flex-none flex items-center justify-between p-5 bg-slate-50 border-b border-slate-100">
                     <div>
-                        <h2 className="text-xl font-bold text-slate-900">
+                        <h2 className="text-lg font-bold text-slate-800">
                             {appointment ? t('editTitle') : t('newTitle')}
                         </h2>
-                        <p className="text-sm text-slate-400">
+                        <p className="text-sm font-medium text-slate-500 mt-0.5">
                             {appointment ? t('editSubtitle') : t('newSubtitle')}
                         </p>
                     </div>
-                    <button onClick={onClose} className="text-slate-400 hover:text-slate-800 transition-colors">
+                    <button type="button" onClick={onClose} className="p-2 rounded-full text-slate-400 hover:text-slate-800 hover:bg-slate-200 transition-colors">
                         <X size={24} />
                     </button>
                 </div>
@@ -149,20 +149,20 @@ export default function AppointmentModal({
                     {/* ── Customer Section ── */}
                     {appointment ? (
                         <div className="space-y-1">
-                            <label className="text-xs text-slate-500 font-semibold ml-1">{t('client')}</label>
-                            <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                            <label className="text-xs font-bold text-slate-800 uppercase tracking-wide mb-2 ml-1">{t('client')}</label>
+                            <div className="flex items-center gap-3 bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3">
                                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
                                     {(appointment.customerName || '?').charAt(0).toUpperCase()}
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-slate-900 font-medium text-sm leading-tight truncate">
+                                    <p className="text-slate-900 font-bold text-sm leading-tight truncate">
                                         {appointment.customerName || t('noName')}
                                     </p>
                                     {appointment.customerPhone && (
                                         <p className="text-slate-500 text-xs">{appointment.customerPhone}</p>
                                     )}
                                 </div>
-                                <span className="ml-auto text-[10px] text-slate-600 bg-slate-50 px-2 py-0.5 rounded-full shrink-0">
+                                <span className="ml-auto text-[10px] font-bold text-slate-500 bg-slate-200/50 px-2 py-0.5 rounded-full shrink-0">
                                     {t('locked')}
                                 </span>
                             </div>
@@ -171,11 +171,11 @@ export default function AppointmentModal({
                             <input type="hidden" {...register('customerPhone')} />
                         </div>
                     ) : (
-                        <div className="space-y-1 relative">
-                            <label className="text-xs text-slate-500 font-semibold ml-1">{t('client')} <span className="text-red-500">*</span></label>
+                        <div className="space-y-1 relative mb-2">
+                            <label className="text-xs font-bold text-slate-800 uppercase tracking-wide mb-2 ml-1">{t('client')} <span className="text-red-500">*</span></label>
                             <input type="hidden" {...register('customerId')} />
                             <div className="relative">
-                                <User className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
+                                <User className="absolute left-4 top-3.5 text-slate-400 w-5 h-5" />
                                 <input
                                     value={customerSearch}
                                     onChange={(e) => {
@@ -185,7 +185,7 @@ export default function AppointmentModal({
                                         setShowCustomerResults(true);
                                     }}
                                     onFocus={() => setShowCustomerResults(true)}
-                                    className="w-full bg-white border border-[#E6E8EC] rounded-xl py-2 pl-9 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6]/20"
+                                    className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl py-3 pl-11 pr-10 text-sm text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] transition-all"
                                     placeholder={t('clientPlaceholder')}
                                     autoComplete="off"
                                 />
@@ -224,22 +224,22 @@ export default function AppointmentModal({
 
                     {/* Phone */}
                     {!appointment && (
-                        <div className="space-y-1">
-                            <label className="text-xs text-slate-500 font-semibold ml-1">{t('phone')}</label>
+                        <div className="space-y-1 mb-2">
+                            <label className="text-xs font-bold text-slate-800 uppercase tracking-wide mb-2 ml-1">{t('phone')}</label>
                             <input {...register('customerPhone')}
-                                className="w-full bg-white border border-[#E6E8EC] rounded-xl py-2 px-4 text-sm text-slate-900 focus:outline-none focus:border-[#14B8A6]"
+                                className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-900 font-medium focus:outline-none focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] transition-all"
                                 placeholder="+504 9999-9999" />
                         </div>
                     )}
 
                     {/* Service */}
-                    <div className="space-y-1">
-                        <label className="text-xs text-slate-400 font-medium ml-1">{t('service')} <span className="text-red-500">*</span></label>
+                    <div className="space-y-1 mb-2">
+                        <label className="text-xs font-bold text-slate-800 uppercase tracking-wide mb-2 ml-1">{t('service')} <span className="text-red-500">*</span></label>
                         <div className="relative">
-                            <Briefcase className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
+                            <Briefcase className="absolute left-4 top-3.5 text-slate-400 w-5 h-5 pointer-events-none" />
                             <select
                                 {...register('serviceId', { required: t('serviceRequired') })}
-                                className="w-full bg-white border border-[#E6E8EC] rounded-xl py-2 pl-9 pr-4 text-sm text-slate-900 focus:outline-none focus:border-[#14B8A6] appearance-none"
+                                className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl py-3 pl-11 pr-4 text-sm text-slate-900 font-bold focus:outline-none focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] appearance-none transition-all"
                             >
                                 <option value="">{t('selectService')}</option>
                                 {services.map(s => (
@@ -253,8 +253,8 @@ export default function AppointmentModal({
                     </div>
 
                     {/* Team Member */}
-                    <div className="space-y-2">
-                        <label className="text-xs text-slate-400 font-medium ml-1">{t('assignTeam')}</label>
+                    <div className="space-y-2 mb-2">
+                        <label className="text-xs font-bold text-slate-800 uppercase tracking-wide mb-3 ml-1">{t('assignTeam')}</label>
                         <input type="hidden" {...register('employeeId')} />
                         <div className="flex gap-2 flex-wrap">
                             <button
@@ -306,31 +306,31 @@ export default function AppointmentModal({
                     </div>
 
                     {/* Date & Time */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-4 mb-2">
                         <div className="space-y-1">
-                            <label className="text-xs text-slate-500 font-semibold ml-1">{t('date')} <span className="text-red-500">*</span></label>
+                            <label className="text-xs font-bold text-slate-800 uppercase tracking-wide mb-2 ml-1">{t('date')} <span className="text-red-500">*</span></label>
                             <div className="relative">
-                                <CalendarIcon className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
+                                <CalendarIcon className="absolute left-4 top-3.5 text-slate-400 w-5 h-5 pointer-events-none" />
                                 <input type="date" {...register('date', { required: true })}
-                                    className="w-full bg-white border border-[#E6E8EC] rounded-xl py-2 pl-9 pr-4 text-sm text-slate-900 focus:outline-none focus:border-[#14B8A6]" />
+                                    className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl py-3 pl-11 pr-4 text-sm text-slate-900 font-bold focus:outline-none focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] transition-all" />
                             </div>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-xs text-slate-500 font-semibold ml-1">{t('time')} <span className="text-red-500">*</span></label>
+                            <label className="text-xs font-bold text-slate-800 uppercase tracking-wide mb-2 ml-1">{t('time')} <span className="text-red-500">*</span></label>
                             <div className="relative">
-                                <Clock className="absolute left-3 top-2.5 text-slate-500 w-4 h-4" />
+                                <Clock className="absolute left-4 top-3.5 text-slate-400 w-5 h-5 pointer-events-none" />
                                 <input type="time" {...register('time', { required: true })}
-                                    className="w-full bg-white border border-[#E6E8EC] rounded-xl py-2 pl-9 pr-4 text-sm text-slate-900 focus:outline-none focus:border-[#14B8A6]" />
+                                    className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl py-3 pl-11 pr-4 text-sm text-slate-900 font-bold focus:outline-none focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] transition-all" />
                             </div>
                         </div>
                     </div>
 
                     {/* Status (Edit only) */}
                     {appointment && (
-                        <div className="space-y-1">
-                            <label className="text-xs text-slate-500 font-semibold ml-1">{t('status')}</label>
+                        <div className="space-y-1 mb-2">
+                            <label className="text-xs font-bold text-slate-800 uppercase tracking-wide mb-2 ml-1">{t('status')}</label>
                             <select {...register('status')}
-                                className="w-full bg-white border border-[#E6E8EC] rounded-xl py-2 px-4 text-sm text-slate-900 focus:outline-none focus:border-[#14B8A6]"
+                                className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-900 font-bold focus:outline-none focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] transition-all"
                             >
                                 <option value="confirmed">{t('statusConfirmed')}</option>
                                 <option value="pending">{t('statusPending')}</option>
@@ -342,23 +342,23 @@ export default function AppointmentModal({
                     )}
 
                     {/* Notes */}
-                    <div className="space-y-1">
-                        <label className="text-xs text-slate-400 font-medium ml-1">{t('notes')}</label>
+                    <div className="space-y-1 mb-2 text-left">
+                        <label className="text-xs font-bold text-slate-800 uppercase tracking-wide mb-2 ml-1">{t('notes')}</label>
                         <textarea {...register('notes')} rows={3}
-                            className="w-full bg-white border border-[#E6E8EC] rounded-xl py-2 px-4 text-sm text-slate-900 focus:outline-none focus:border-[#14B8A6] resize-none"
+                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-900 font-medium focus:outline-none focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] resize-none transition-all"
                             placeholder={t('notesPlaceholder')} />
                     </div>
                 </form>
 
-                {/* Footer */}
-                <div className="p-6 border-t border-slate-200 flex justify-end gap-3">
-                    <button onClick={onClose} className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 transition-colors">
+                {/* Footer Minimalista */}
+                <div className="p-6 pt-2 pb-8 flex justify-end gap-3">
+                    <button onClick={onClose} className="px-5 py-3.5 text-sm font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
                         {t('cancel')}
                     </button>
                     <button
                         onClick={handleSubmit(onSubmit)}
                         disabled={loading}
-                        className="px-6 py-2 bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold rounded-xl text-sm shadow-[0_4px_14px_rgba(20,184,166,0.30)] transition-all disabled:opacity-50"
+                        className="flex-1 py-3.5 bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold rounded-xl text-sm shadow-[0_4px_14px_rgba(20,184,166,0.30)] transition-all disabled:opacity-50"
                     >
                         {loading ? t('saving') : (appointment ? t('saveChanges') : t('create'))}
                     </button>

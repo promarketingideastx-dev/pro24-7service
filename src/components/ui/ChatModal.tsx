@@ -166,11 +166,11 @@ export default function ChatModal({ businessId, businessName, onClose, isOpen }:
 
     return (
         <>
-            <div className="fixed inset-0 z-[9000] flex items-end sm:items-center justify-center sm:p-4 bg-black/50 backdrop-blur-sm">
-                <div className="w-full sm:max-w-md h-[85dvh] sm:h-[70vh] bg-white rounded-t-3xl sm:rounded-3xl flex flex-col overflow-hidden shadow-2xl border border-slate-200">
+            <div className="fixed inset-0 z-[9000] flex items-end sm:items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-md">
+                <div className="w-full sm:max-w-md h-[85dvh] sm:h-[70vh] bg-white rounded-3xl flex flex-col overflow-hidden shadow-[0_4px_14px_rgba(0,0,0,0.15)] border border-slate-200">
 
-                    {/* Header — light */}
-                    <div className="flex items-center justify-between px-4 py-3.5 border-b border-slate-200 bg-white shrink-0">
+                    {/* Header — Clean Light */}
+                    <div className="flex items-center justify-between pt-8 pb-4 px-6 border-b border-slate-100 bg-white shrink-0">
                         <div className="flex items-center gap-2.5">
                             <div className="w-8 h-8 rounded-full bg-[#14B8A6]/15 flex items-center justify-center text-[#0F766E] font-bold text-sm">
                                 {businessName.charAt(0).toUpperCase()}
@@ -196,10 +196,9 @@ export default function ChatModal({ businessId, businessName, onClose, isOpen }:
                                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors text-xs font-medium"
                                         title="Borrar mensajes leídos">
                                         <Trash size={13} />
-                                        Borrar
                                     </button>
                                     <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
-                                        <X size={16} />
+                                        <X size={20} />
                                     </button>
                                 </>
                             )}

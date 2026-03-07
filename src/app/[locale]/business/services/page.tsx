@@ -314,29 +314,29 @@ export default function ServicesPage() {
 
             {/* Service Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-white border border-[#E6E8EC] w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
-                        {/* Modal Header */}
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+                <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200">
+                    <div className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-[0_4px_14px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[calc(100dvh-4rem)] sm:max-h-[90dvh]">
+                        {/* Modal Header Clean Light */}
+                        <div className="flex-none flex items-center justify-between p-5 bg-slate-50 border-b border-slate-100">
                             <div>
-                                <h2 className="text-lg font-bold text-slate-900">
+                                <h2 className="text-lg font-bold text-slate-800">
                                     {editingId ? t('editService') : t('add')}
                                 </h2>
-                                <p className="text-xs text-slate-500 mt-0.5">
+                                <p className="text-sm font-medium text-slate-500 mt-0.5">
                                     {t('modalSubtitle')}
                                 </p>
                             </div>
-                            <button onClick={() => setIsModalOpen(false)} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-colors">
-                                <X size={20} />
+                            <button onClick={() => setIsModalOpen(false)} className="p-2 rounded-full text-slate-400 hover:text-slate-800 hover:bg-slate-200 transition-colors">
+                                <X size={24} />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
+                        <form onSubmit={handleSubmit} className="flex-1 p-6 space-y-5 overflow-y-auto">
 
                             {/* ── Fotos del servicio (máx. 10) ── */}
                             <div>
-                                <div className="flex items-center justify-between mb-1">
-                                    <label className="block text-xs font-semibold text-slate-600 uppercase">
+                                <div className="flex items-center justify-between mb-2">
+                                    <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
                                         {t('serviceImage')}
                                     </label>
                                     <span className="text-[10px] text-slate-400">{imageUrls.length}/10 fotos</span>
@@ -363,14 +363,14 @@ export default function ServicesPage() {
                                     {imageUrls.length < 10 && (
                                         <div
                                             onClick={() => imageInputRef.current?.click()}
-                                            className="aspect-video border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-[#14B8A6]/50 hover:bg-teal-50 transition-all"
+                                            className="aspect-video border-2 border-dashed border-slate-300 bg-slate-50 rounded-xl flex flex-col items-center justify-center gap-1.5 cursor-pointer hover:border-[#14B8A6] hover:bg-[#14B8A6]/5 transition-all"
                                         >
                                             {imageUploading ? (
-                                                <div className="w-4 h-4 border-2 border-slate-200 border-t-[#14B8A6] rounded-full animate-spin" />
+                                                <div className="w-5 h-5 border-2 border-slate-300 border-t-[#14B8A6] rounded-full animate-spin" />
                                             ) : (
                                                 <>
-                                                    <ImageIcon size={18} className="text-slate-400" />
-                                                    <p className="text-[10px] text-slate-400 text-center leading-tight">Añadir<br />foto</p>
+                                                    <ImageIcon size={22} className="text-slate-400" />
+                                                    <p className="text-[11px] font-medium text-slate-500 text-center leading-tight">Añadir<br />foto</p>
                                                 </>
                                             )}
                                         </div>
@@ -390,8 +390,8 @@ export default function ServicesPage() {
                             {!editingId && (
                                 Object.keys(specialtiesBySubcategory).length > 0 ? (
                                     <div>
-                                        <label className="block text-xs font-semibold text-slate-400 uppercase mb-2 flex items-center gap-1.5">
-                                            <Sparkles size={12} /> {t('yourSpecialties')}
+                                        <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                            <Sparkles size={14} className="text-[#14B8A6]" /> {t('yourSpecialties')}
                                         </label>
                                         <div className="space-y-3">
                                             {Object.entries(specialtiesBySubcategory).map(([subId, specs]) => {
@@ -404,8 +404,8 @@ export default function ServicesPage() {
                                                 }
                                                 return (
                                                     <div key={subId}>
-                                                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-1.5">{subLabel}</p>
-                                                        <div className="flex flex-wrap gap-1.5">
+                                                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">{subLabel}</p>
+                                                        <div className="flex flex-wrap gap-2">
                                                             {specs.map(spec => (
                                                                 <button
                                                                     key={spec}
@@ -421,10 +421,10 @@ export default function ServicesPage() {
                                                                         }
                                                                         return { ...prev, name: nameEs, nameI18n: { es: nameEs, en: nameEn, pt: namePt }, category: spec };
                                                                     })}
-                                                                    className={`text-xs px-2.5 py-1.5 rounded-full border transition-all
+                                                                    className={`text-sm px-4 py-2 rounded-xl border-2 transition-all font-medium
                                                                         ${formData.category === spec
-                                                                            ? 'bg-[rgba(20,184,166,0.12)] border-[#14B8A6] text-[#0F766E]'
-                                                                            : 'border-[#E6E8EC] text-slate-600 hover:border-slate-300 hover:text-slate-800'
+                                                                            ? 'bg-[#14B8A6]/10 border-[#14B8A6] text-[#0F766E] shadow-sm'
+                                                                            : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50'
                                                                         }`}
                                                                 >
                                                                     {formData.category === spec && <Check size={10} className="inline mr-1" />}
@@ -441,8 +441,8 @@ export default function ServicesPage() {
                                 ) : businessSpecialties.length > 0 ? (
                                     // Fallback: flat list (legacy)
                                     <div>
-                                        <label className="block text-xs font-semibold text-slate-400 uppercase mb-2 flex items-center gap-1.5">
-                                            <Sparkles size={12} /> {t('yourSpecialties')}
+                                        <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                            <Sparkles size={14} className="text-[#14B8A6]" /> {t('yourSpecialties')}
                                         </label>
                                         <div className="flex flex-wrap gap-2">
                                             {businessSpecialties.map(spec => (
@@ -471,10 +471,10 @@ export default function ServicesPage() {
                                                         })();
                                                         return { ...prev, name: nameEs, nameI18n: { es: nameEs, en: nameEn, pt: namePt }, category: spec };
                                                     })}
-                                                    className={`text-xs px-3 py-1.5 rounded-full border transition-all
+                                                    className={`text-sm px-4 py-2 rounded-xl border-2 transition-all font-medium
                                                         ${formData.category === spec
-                                                            ? 'bg-[rgba(20,184,166,0.12)] border-[#14B8A6] text-[#0F766E]'
-                                                            : 'border-[#E6E8EC] text-slate-600 hover:border-slate-300 hover:text-slate-800'
+                                                            ? 'bg-[#14B8A6]/10 border-[#14B8A6] text-[#0F766E] shadow-sm'
+                                                            : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50'
                                                         }`}
                                                 >
                                                     {formData.category === spec && <Check size={10} className="inline mr-1" />}
@@ -489,7 +489,7 @@ export default function ServicesPage() {
 
                             {/* Name — 3 language inputs */}
                             <div>
-                                <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">
+                                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-2">
                                     {t('serviceName')} *
                                 </label>
                                 <div className="space-y-2">
@@ -505,7 +505,7 @@ export default function ServicesPage() {
                                                     name: lang === 'es' ? e.target.value : prev.name,
                                                     nameI18n: { ...prev.nameI18n!, [lang]: e.target.value } as any
                                                 }))}
-                                                className={`flex-1 bg-[#F4F6F8] border border-[#E6E8EC] rounded-xl px-4 py-2.5 text-slate-900 focus:border-[#14B8A6] focus:outline-none transition-colors placeholder:text-slate-400 text-sm`}
+                                                className={`flex-1 bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] focus:outline-none transition-all placeholder:text-slate-400 text-sm`}
                                                 placeholder={lang === 'es' ? t('serviceNamePlaceholder') : lang === 'en' ? 'e.g. Regular Cut...' : 'Ex. Corte Regular...'}
                                             />
                                         </div>
@@ -515,11 +515,11 @@ export default function ServicesPage() {
 
                             {/* Description */}
                             <div>
-                                <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">{t('description')}</label>
+                                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-2">{t('description')}</label>
                                 <textarea
                                     value={formData.description}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full bg-[#F4F6F8] border border-[#E6E8EC] rounded-xl px-4 py-3 text-slate-900 focus:border-[#14B8A6] focus:outline-none resize-none h-20 placeholder:text-slate-400 transition-colors"
+                                    className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] focus:outline-none resize-none h-24 placeholder:text-slate-400 transition-all"
                                     placeholder={t('descriptionPlaceholder')}
                                 />
                             </div>
@@ -527,9 +527,9 @@ export default function ServicesPage() {
                             {/* Price + Duration row */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">{t('price')} *</label>
+                                    <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-2">{t('price')} *</label>
                                     <div className="relative">
-                                        <span className="absolute left-3 top-3.5 text-slate-500 text-sm font-medium">{formData.currency}</span>
+                                        <span className="absolute left-4 top-3.5 text-slate-500 font-bold">{formData.currency}</span>
                                         <input
                                             type="number"
                                             required
@@ -538,13 +538,13 @@ export default function ServicesPage() {
                                             placeholder="0.00"
                                             value={formData.price === 0 ? '' : formData.price}
                                             onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
-                                            className="w-full bg-[#F4F6F8] border border-[#E6E8EC] rounded-xl pl-9 pr-4 py-3 text-slate-900 focus:border-[#14B8A6] focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl pl-10 pr-4 py-3 text-slate-900 font-bold text-lg focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5 flex items-center gap-1">
-                                        <Clock size={11} /> {t('duration')} *
+                                    <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                                        <Clock size={14} className="text-[#14B8A6]" /> {t('duration')} *
                                     </label>
                                     {/* Predefined + "Otro" selector */}
                                     <div className="relative">
@@ -559,7 +559,7 @@ export default function ServicesPage() {
                                                     setFormData({ ...formData, durationMinutes: val });
                                                 }
                                             }}
-                                            className="w-full bg-[#F4F6F8] border border-[#E6E8EC] rounded-xl px-4 py-3 text-slate-900 focus:border-[#14B8A6] focus:outline-none appearance-none transition-colors"
+                                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-bold focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] focus:outline-none appearance-none transition-all text-sm"
                                         >
                                             {DURATION_OPTIONS.map(d => (
                                                 <option key={d} value={d}>{formatDuration(d)}</option>
@@ -635,7 +635,7 @@ export default function ServicesPage() {
                             <button
                                 type="submit"
                                 disabled={isSubmitting || !formData.name}
-                                className="w-full py-3.5 bg-brand-neon-cyan hover:bg-brand-neon-cyan/90 text-black font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(0,240,255,0.2)] hover:shadow-[0_0_30px_rgba(0,240,255,0.35)] flex items-center justify-center gap-2"
+                                className="w-full py-3 bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold rounded-xl transition-all disabled:opacity-50 shadow-[0_4px_14px_rgba(20,184,166,0.30)] flex items-center justify-center gap-2"
                             >
                                 {isSubmitting ? (
                                     <><div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> {t('saving')}</>

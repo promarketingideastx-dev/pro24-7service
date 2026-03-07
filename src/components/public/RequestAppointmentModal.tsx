@@ -383,11 +383,11 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
+        <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/40 backdrop-blur-md">
+            <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-lg shadow-[0_4px_14px_rgba(0,0,0,0.15)] relative flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
 
-                {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-slate-200">
+                {/* Header Clean Light */}
+                <div className="flex items-center justify-between pt-8 pb-4 px-6">
                     <div className="flex items-center gap-3">
                         {step !== 'service' && (
                             <button onClick={() => {
@@ -406,9 +406,9 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 <ChevronLeft className="w-5 h-5 text-slate-900" />
                             </button>
                         )}
-                        <h2 className="text-lg font-bold text-slate-900">{t('title')}</h2>
+                        <h2 className="text-xl font-bold text-slate-900">{t('title')}</h2>
                     </div>
-                    <button onClick={onClose} className="text-slate-400 hover:text-slate-800">
+                    <button onClick={onClose} className="p-2 rounded-full text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors">
                         <X size={24} />
                     </button>
                 </div>

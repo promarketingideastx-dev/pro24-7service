@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import GlassPanel from '@/components/ui/GlassPanel';
-import { Plus, Users, Edit2, Trash2, X, Check, Shield, AlertTriangle, Clock, Camera, Image as ImageIcon, UserCircle2 } from 'lucide-react';
+import { Plus, Users, Edit2, Trash2, X, Check, Shield, AlertTriangle, Clock, Camera, Image as ImageIcon, UserCircle2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { storage } from '@/lib/firebase';
@@ -440,23 +440,23 @@ export default function TeamPage() {
 
             {/* ── Add / Edit Member Modal ── */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-white border border-[#E6E8EC] w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+                <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200">
+                    <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-[0_4px_14px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[calc(100dvh-4rem)] sm:max-h-[90dvh]">
 
-                        {/* Modal Header */}
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+                        {/* Modal Header Clean Light */}
+                        <div className="flex-none flex items-center justify-between p-5 bg-slate-50 border-b border-slate-100">
                             <div>
-                                <h2 className="text-lg font-bold text-slate-900">
+                                <h2 className="text-lg font-bold text-slate-800">
                                     {editingId ? t('editMember') : t('add')}
                                 </h2>
-                                <p className="text-xs text-slate-500 mt-0.5">{t('modalSubtitle')}</p>
+                                <p className="text-sm font-medium text-slate-500 mt-0.5">{t('modalSubtitle')}</p>
                             </div>
-                            <button onClick={() => setIsModalOpen(false)} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition-colors">
-                                <X size={20} />
+                            <button type="button" onClick={() => setIsModalOpen(false)} className="p-2 text-slate-400 hover:text-slate-800 hover:bg-slate-200 rounded-full transition-colors">
+                                <X size={24} />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[78vh] overflow-y-auto custom-scrollbar">
+                        <form onSubmit={handleSubmit} className="flex-1 p-6 space-y-4 overflow-y-auto custom-scrollbar">
 
                             {/* ── Photo Picker ── */}
                             <div className="flex flex-col items-center gap-3 pb-5 border-b border-slate-200">
@@ -531,24 +531,24 @@ export default function TeamPage() {
 
                             {/* Name */}
                             <div>
-                                <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">{t('fullName')}</label>
+                                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-2">{t('fullName')}</label>
                                 <input
                                     type="text"
                                     required
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                    className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] focus:outline-none transition-all"
                                     placeholder={t('fullNamePlaceholder')}
                                 />
                             </div>
 
                             {/* Role type */}
                             <div>
-                                <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">{t('roleInBusiness')}</label>
+                                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-2">{t('roleInBusiness')}</label>
                                 <select
                                     value={formData.roleType || 'technician'}
                                     onChange={e => setFormData({ ...formData, roleType: e.target.value as any })}
-                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none appearance-none"
+                                    className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] focus:outline-none appearance-none transition-all"
                                 >
                                     <option value="manager">{t('roleManager')}</option>
                                     <option value="reception">{t('roleReception')}</option>
@@ -562,14 +562,14 @@ export default function TeamPage() {
 
                             {/* Custom role */}
                             {formData.roleType === 'other' && (
-                                <div className="animate-in fade-in slide-in-from-top-1">
-                                    <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">{t('specifyRole')}</label>
+                                <div className="animate-in fade-in slide-in-from-top-1 mb-2">
+                                    <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-2">{t('specifyRole')}</label>
                                     <input
                                         type="text"
                                         required
                                         value={formData.roleCustom || ''}
                                         onChange={e => setFormData({ ...formData, roleCustom: e.target.value })}
-                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                        className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] focus:outline-none transition-all"
                                         placeholder={t('specifyRolePlaceholder')}
                                     />
                                 </div>
@@ -577,18 +577,20 @@ export default function TeamPage() {
 
                             {/* Specialty / Title */}
                             <div>
-                                <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">{t('titleSpecialty')}</label>
+                                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                    <Sparkles size={14} className="text-[#14B8A6]" /> {t('titleSpecialty')}
+                                </label>
                                 {businessSpecialties.length > 0 && (
-                                    <div className="flex flex-wrap gap-1.5 mb-2">
+                                    <div className="flex flex-wrap gap-2 mb-3">
                                         {businessSpecialties.map(spec => (
                                             <button
                                                 key={spec}
                                                 type="button"
                                                 onClick={() => setFormData({ ...formData, role: formData.role === spec ? '' : spec })}
-                                                className={`text-xs px-2.5 py-1 rounded-full border transition-all
+                                                className={`text-sm px-4 py-2 rounded-xl border-2 transition-all font-medium
                                                     ${formData.role === spec
-                                                        ? 'bg-brand-neon-cyan/15 border-brand-neon-cyan text-brand-neon-cyan'
-                                                        : 'border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-200'}`}
+                                                        ? 'bg-[#14B8A6]/10 border-[#14B8A6] text-[#0F766E] shadow-sm'
+                                                        : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50'}`}
                                             >
                                                 {resolveSpecLabel(spec)}
                                             </button>
@@ -599,7 +601,7 @@ export default function TeamPage() {
                                     type="text"
                                     value={formData.role}
                                     onChange={e => setFormData({ ...formData, role: e.target.value })}
-                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none"
+                                    className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] focus:outline-none transition-all placeholder:text-slate-400"
                                     placeholder={t('titleSpecialtyPlaceholder')}
                                 />
                             </div>
@@ -611,12 +613,12 @@ export default function TeamPage() {
                                 const over = words > MAX_WORDS;
                                 return (
                                     <div>
-                                        <label className="block text-xs font-medium text-slate-400 mb-1 uppercase">{t('descriptionOptional')}</label>
+                                        <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-2">{t('descriptionOptional')}</label>
                                         <textarea
                                             rows={3}
                                             value={formData.description || ''}
                                             onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-3 text-white focus:border-brand-neon-cyan focus:outline-none resize-none text-sm leading-relaxed"
+                                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] focus:outline-none resize-none text-sm transition-all placeholder:text-slate-400"
                                             placeholder={t('descriptionPlaceholder')}
                                         />
                                         <p className={`text-right text-xs mt-1 ${over ? 'text-red-400' : 'text-slate-600'}`}>
@@ -643,14 +645,14 @@ export default function TeamPage() {
                             <button
                                 type="submit"
                                 disabled={isSubmitting || photoUploading}
-                                className="w-full bg-brand-neon-cyan text-black font-bold py-3 rounded-xl hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="w-full bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold py-3.5 rounded-xl shadow-[0_4px_14px_rgba(20,184,166,0.30)] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {isSubmitting ? (
-                                    <><div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> {t('saving')}</>
+                                    <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> {t('saving')}</>
                                 ) : photoUploading ? (
-                                    <><div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> {t('uploadingPhoto')}</>
+                                    <><div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" /> {t('uploadingPhoto')}</>
                                 ) : (
-                                    <><Check size={16} /> {editingId ? t('saveChanges') : t('add')}</>
+                                    <><Check size={18} /> {editingId ? t('saveChanges') : t('add')}</>
                                 )}
                             </button>
                         </form>
@@ -660,8 +662,8 @@ export default function TeamPage() {
 
             {/* Delete Confirmation */}
             {memberToDelete && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="bg-[#0f1629] border border-slate-200 w-full max-w-sm rounded-2xl p-6 shadow-2xl">
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200">
+                    <div className="bg-white border border-slate-200 w-full max-w-sm rounded-2xl p-6 shadow-[0_4px_14px_rgba(0,0,0,0.15)]">
                         <div className="flex flex-col items-center text-center gap-4">
                             <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-2">
                                 <AlertTriangle size={24} />

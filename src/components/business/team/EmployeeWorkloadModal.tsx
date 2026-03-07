@@ -23,8 +23,8 @@ export default function EmployeeWorkloadModal({ isOpen, onClose, employee, appoi
     const past = appointments.filter(a => a.date.toDate() < now);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white border border-slate-200 w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200">
+            <div className="bg-white border border-slate-200 w-full max-w-2xl rounded-2xl p-6 shadow-[0_4px_14px_rgba(0,0,0,0.15)] relative max-h-[90vh] flex flex-col">
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 text-slate-500 hover:text-slate-800"

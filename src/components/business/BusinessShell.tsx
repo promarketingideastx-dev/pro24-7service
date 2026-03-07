@@ -61,7 +61,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
     return (
         <BusinessGuard>
             <AppointmentRefreshProvider>
-                <div className="min-h-screen bg-[#F4F6F8] text-slate-900 flex flex-col md:flex-row relative">
+                <div className="h-[100dvh] bg-[#F4F6F8] text-slate-900 flex flex-col md:flex-row relative w-full overflow-hidden">
 
                     {/* Background Ambient Effects (Consistent with Auth) */}
                     <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-500/05 rounded-full blur-[100px] pointer-events-none"></div>
@@ -69,7 +69,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
 
                     {/* Mobile Header */}
                     <div
-                        className="md:hidden flex items-center justify-between px-4 pb-3 pt-4 bg-white/80 backdrop-blur-md border-b border-slate-200/60 z-[60] sticky top-0 shadow-sm"
+                        className="md:hidden flex-none flex items-center justify-between px-4 pb-3 bg-white/80 backdrop-blur-md border-b border-slate-200/60 z-[40] shadow-sm transition-all"
                         style={{ paddingTop: 'calc(max(env(safe-area-inset-top), 20px) + 12px)' }}
                     >
                         <div className="flex items-center">
@@ -80,25 +80,25 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                         <div className="flex items-center gap-3">
                             <LanguageSwitcher variant="icon" />
                             {user?.uid && <BusinessNotifBell businessId={user.uid} />}
-                            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-1.5 text-slate-500 hover:text-slate-900 transition-colors bg-slate-50 rounded-lg border border-slate-200 shadow-sm active:scale-95">
-                                {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-slate-500 hover:text-slate-900 transition-colors bg-white rounded-xl border border-slate-200 shadow-sm active:scale-95 z-50">
+                                {isMobileMenuOpen ? <X size={22} className="text-red-500" /> : <Menu size={22} className="text-[#14B8A6]" />}
                             </button>
                         </div>
                     </div>
 
                     {/* Sidebar (Desktop + Mobile Drawer) */}
                     <aside className={`
-                    fixed inset-y-0 left-0 z-40 w-64 bg-white/95 backdrop-blur-xl border-r border-slate-200 transform transition-transform duration-300 ease-in-out
-                    md:sticky md:top-0 md:h-screen md:overflow-y-auto no-scrollbar md:translate-x-0
+                    fixed inset-y-0 left-0 z-[60] w-[280px] bg-white/95 backdrop-blur-xl border-r border-slate-200 transform transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none
+                    md:sticky md:top-0 md:h-[100dvh] md:overflow-y-auto no-scrollbar md:translate-x-0
                     ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
                 `}>
-                        <div className="flex flex-col h-full p-6 pt-[120px] pb-24 md:pt-6 md:pb-6 overflow-y-auto no-scrollbar">
+                        <div className="flex flex-col h-full px-4 pt-[calc(max(env(safe-area-inset-top),20px)+20px)] pb-[calc(env(safe-area-inset-bottom)+24px)] md:py-6 overflow-y-auto no-scrollbar">
                             {/* Logo (Desktop) */}
-                            <div className="hidden md:flex flex-col gap-4 mb-4">
+                            <div className="hidden md:flex flex-col gap-4 mb-6 px-2">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center">
-                                        <Link href={lp('/business/dashboard')} className="active:scale-95 transition-transform">
-                                            <img src="/logo-header.png" alt="Pro24/7" className="h-36 w-auto object-contain" style={{ maxWidth: '200px' }} />
+                                        <Link href={lp('/business/dashboard')} className="active:scale-95 transition-transform hover:opacity-80">
+                                            <img src="/logo-header.png" alt="Pro24/7" className="h-10 w-auto object-contain" />
                                         </Link>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -110,85 +110,81 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                                 {/* SWITCH TO CLIENT MODE */}
                                 <Link
                                     href={lp('/')}
-                                    className="w-full flex items-center justify-center gap-2 bg-[#F8FAFC] hover:bg-white border border-[#E6E8EC] hover:border-[#14B8A6]/30 rounded-lg py-2 text-xs font-semibold text-slate-600 hover:text-[#0F766E] transition-all"
+                                    className="w-full flex items-center justify-center gap-2 bg-slate-50 hover:bg-[#14B8A6]/10 border border-slate-200 hover:border-[#14B8A6]/30 rounded-xl py-2.5 text-xs font-bold text-slate-600 hover:text-[#0F766E] transition-all shadow-sm"
                                 >
-                                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
                                     {t('clientMode')}
                                 </Link>
                             </div>
 
                             {/* Navigation */}
-                            <nav className="flex-1 space-y-2">
+                            <nav className="flex-1 space-y-1.5 md:px-2">
                                 {menuItems.map((item) => (
                                     <Link
                                         key={item.href}
                                         href={item.href}
                                         onClick={() => setIsMobileMenuOpen(false)}
                                         className={`
-                                        flex items-center gap-3 px-4 py-3 rounded-xl transition-all group relative
+                                        flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group relative font-semibold text-sm
                                         ${isActive(item.href)
-                                                ? 'bg-[rgba(20,184,166,0.10)] text-[#0F766E] border border-[#14B8A6]/25'
-                                                : 'text-slate-600 hover:bg-[#F8FAFC] hover:text-slate-900'
+                                                ? 'bg-gradient-to-r from-[#14B8A6]/10 to-transparent text-[#0F766E] border-y border-r border-[#14B8A6]/10 shadow-[inset_4px_0_0_#14B8A6]'
+                                                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
                                             }
                                     `}
                                     >
-                                        {/* Left accent bar for active */}
-                                        {isActive(item.href) && (
-                                            <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-[#14B8A6] rounded-r-full" />
-                                        )}
-                                        <span className={isActive(item.href) ? 'text-[#14B8A6]' : 'text-slate-400 group-hover:text-slate-700'}>
+                                        <span className={isActive(item.href) ? 'text-[#14B8A6] scale-110 transition-transform' : 'text-slate-400 group-hover:text-slate-600 transition-colors'}>
                                             {item.icon}
                                         </span>
-                                        <span className="font-semibold text-sm">{item.name}</span>
+                                        <span className="tracking-tight">{item.name}</span>
                                     </Link>
                                 ))}
                             </nav>
 
                             {/* Admin CRM — solo visible para admin */}
-                            {isAdmin && (
-                                <Link
-                                    href={lp('/admin/dashboard')}
-                                    className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all mb-2 bg-[#14B8A6] hover:bg-[#0F9488] text-white shadow-[0_4px_12px_rgba(20,184,166,0.30)]"
+                            <div className="mt-auto pt-4 md:px-2">
+                                {isAdmin && (
+                                    <Link
+                                        href={lp('/admin/dashboard')}
+                                        className="flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all mb-3 bg-gradient-to-br from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-white shadow-lg active:scale-95"
+                                    >
+                                        <Shield size={18} className="text-[#14B8A6]" />
+                                        <span className="font-bold text-sm">Admin CRM</span>
+                                        <span className="ml-auto text-[10px] bg-[#14B8A6]/20 text-[#14B8A6] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">DEV</span>
+                                    </Link>
+                                )}
+
+                                {/* Logout */}
+                                <button
+                                    onClick={async () => await AuthService.logout()}
+                                    className="flex items-center justify-start gap-3 px-4 py-3.5 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors font-semibold text-sm w-full group"
                                 >
-                                    <Shield size={18} className="text-white" />
-                                    <span className="font-bold text-sm">Admin CRM</span>
-                                    <span className="ml-auto text-[9px] bg-white/25 text-white px-1.5 py-0.5 rounded-full font-bold">ADMIN</span>
-                                </Link>
-                            )}
-
-                            {/* Logout */}
-                            <button
-                                onClick={async () => await AuthService.logout()}
-                                className="mt-2 flex items-center justify-between px-4 py-3 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-500 transition-colors font-medium text-sm w-full"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <span className="rotate-180"><LogOut size={20} /></span>
+                                    <span className="rotate-180 text-slate-400 group-hover:text-red-500 transition-colors"><LogOut size={20} /></span>
                                     <span>{t('logout')}</span>
-                                </div>
-                            </button>
+                                </button>
 
-                            {/* Mobile-only: SWITCH TO CLIENT MODE (At the bottom) */}
-                            <Link
-                                href={lp('/')}
-                                className="md:hidden mt-2 w-full flex items-center justify-center gap-2 bg-[#F8FAFC] hover:bg-white border border-[#E6E8EC] hover:border-[#14B8A6]/30 rounded-lg py-3 text-xs font-semibold text-slate-600 hover:text-[#0F766E] transition-all"
-                            >
-                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                {t('clientMode')}
-                            </Link>
+                                {/* Mobile-only: SWITCH TO CLIENT MODE (At the bottom) */}
+                                <Link
+                                    href={lp('/')}
+                                    className="md:hidden mt-4 w-full flex items-center justify-center gap-2 bg-slate-50 hover:bg-[#14B8A6]/10 border border-slate-200 hover:border-[#14B8A6]/30 rounded-xl py-3.5 text-xs font-bold text-slate-600 hover:text-[#0F766E] transition-all shadow-sm active:scale-95"
+                                >
+                                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+                                    {t('clientMode')}
+                                </Link>
+                            </div>
                         </div>
                     </aside>
 
                     {/* Overlay for Mobile */}
                     {isMobileMenuOpen && (
                         <div
-                            className="fixed inset-0 bg-black/50 z-30 md:hidden backdrop-blur-sm"
+                            className="fixed inset-0 bg-slate-900/40 z-[50] md:hidden backdrop-blur-sm transition-opacity"
                             onClick={() => setIsMobileMenuOpen(false)}
                         />
                     )}
 
                     {/* Main Content Area */}
-                    <main className={`flex-1 flex flex-col relative z-10 w-full ${isMessages ? 'p-0 h-[calc(100dvh-80px)] md:h-screen md:p-4 overflow-hidden' : 'p-4 md:p-8'}`}>
-                        <div className={`w-full max-w-6xl mx-auto flex-1 ${isMessages ? 'h-full flex flex-col' : ''}`}>
+                    <main className={`flex-1 flex flex-col relative w-full min-w-0 pb-[env(safe-area-inset-bottom)] ${isMessages ? 'p-0 h-[calc(100dvh-70px)] md:h-[100dvh] md:p-4 overflow-hidden' : 'p-3 sm:p-4 md:p-8 overflow-y-auto'}`}>
+                        <div className={`w-full max-w-7xl mx-auto flex-1 ${isMessages ? 'h-full flex flex-col' : ''}`}>
                             {children}
                         </div>
                     </main>
