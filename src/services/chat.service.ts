@@ -91,6 +91,7 @@ export interface Chat {
     lastMessageAt: any;
     unreadBusiness: number;
     unreadClient: number;
+    hiddenBy?: string[];
 }
 
 // chatId = {businessId}_{clientUid}
@@ -118,6 +119,7 @@ export const ChatService = {
                 lastMessageAt: serverTimestamp(),
                 unreadBusiness: 0,
                 unreadClient: 0,
+                hiddenBy: [],
             });
         }
         return id;
@@ -149,6 +151,7 @@ export const ChatService = {
             lastMessage: text.trim(),
             lastMessageAt: serverTimestamp(),
             [unreadField]: increment(1),
+            hiddenBy: [],
         });
 
         // 🔔 Notify the business when a client sends a message
@@ -211,6 +214,7 @@ export const ChatService = {
             const chats = snap.docs
                 .map(d => ({ id: d.id, ...d.data() } as Chat))
                 .filter(c => c.businessId === businessId)
+                .filter(c => !(c.hiddenBy || []).includes(businessId))
                 .sort((a, b) => {
                     const at = a.lastMessageAt?.toMillis?.() ?? 0;
                     const bt = b.lastMessageAt?.toMillis?.() ?? 0;
@@ -230,6 +234,7 @@ export const ChatService = {
             const chats = snap.docs
                 .map(d => ({ id: d.id, ...d.data() } as Chat))
                 .filter(c => c.clientUid === clientUid)
+                .filter(c => !(c.hiddenBy || []).includes(clientUid))
                 .sort((a, b) => {
                     const at = a.lastMessageAt?.toMillis?.() ?? 0;
                     const bt = b.lastMessageAt?.toMillis?.() ?? 0;
@@ -302,6 +307,7 @@ export const ChatService = {
             lastMessage: preview,
             lastMessageAt: serverTimestamp(),
             [unreadField]: increment(1),
+            hiddenBy: [],
         });
 
         // Notifications
@@ -395,6 +401,16 @@ export const ChatService = {
             }
         });
         await batch.commit();
+    },
+
+    /** Hide chat from caller's inbox */
+    async hideChatFromInbox(chatDocId: string, callerUid: string) {
+        const chatRef = doc(db, 'chats', chatDocId);
+        const snap = await getDoc(chatRef);
+        const existing: string[] = snap.data()?.hiddenBy || [];
+        if (!existing.includes(callerUid)) {
+            await updateDoc(chatRef, { hiddenBy: [...existing, callerUid] });
+        }
     },
 
     getChatId: chatId,

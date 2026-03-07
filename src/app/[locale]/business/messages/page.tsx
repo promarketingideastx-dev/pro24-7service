@@ -174,6 +174,7 @@ function BusinessMessagesContent() {
 
         try {
             await ChatService.deleteAllRead(chatId, user.uid, 'business');
+            await ChatService.hideChatFromInbox(chatId, user.uid);
             if (activeChat?.id === chatId) {
                 setActiveChat(null);
             }
