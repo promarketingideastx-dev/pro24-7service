@@ -167,6 +167,21 @@ function BusinessMessagesContent() {
         await ChatService.deleteAllRead(activeChat.id, user.uid, 'business');
     };
 
+    const handleDeleteFullConversation = async (e: React.MouseEvent, chatId: string) => {
+        e.stopPropagation();
+        if (!user) return;
+        if (!window.confirm("¿Estás seguro de que deseas eliminar y desaparecer toda esta conversación?")) return;
+
+        try {
+            await ChatService.deleteAllRead(chatId, user.uid, 'business');
+            if (activeChat?.id === chatId) {
+                setActiveChat(null);
+            }
+        } catch (error) {
+            console.error("Error borrando conversación", error);
+        }
+    };
+
     const formatTime = (ts: any) => {
         if (!ts) return '';
         try { return formatDistanceToNow(ts.toDate?.() ?? new Date(ts), { addSuffix: true, locale: es }); } catch { return ''; }
@@ -196,10 +211,10 @@ function BusinessMessagesContent() {
 
                 {/* ── Left: Chat List ── */}
                 <div className={`${activeChat ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-slate-200 bg-[#F8FAFC]`}>
-                    <div className="px-5 py-4 border-b border-slate-200">
+                    <div className="px-5 pt-12 pb-4 border-b border-slate-200">
                         <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                             <MessageCircle className="w-5 h-5 text-[#14B8A6]" />
-                            Mensajes
+                            Mis Mensajes
                         </h2>
                         {chats.length > 0 && (
                             <p className="text-xs text-slate-500 mt-0.5">{chats.length} conversaci{chats.length === 1 ? 'ón' : 'ones'}</p>
@@ -228,11 +243,20 @@ function BusinessMessagesContent() {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between">
                                             <p className="font-semibold text-slate-900 text-sm truncate">{chat.clientName}</p>
-                                            {(chat.unreadBusiness ?? 0) > 0 && (
-                                                <span className="ml-2 min-w-[18px] h-[18px] bg-[#14B8A6] text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shrink-0">
-                                                    {chat.unreadBusiness}
-                                                </span>
-                                            )}
+                                            <div className="flex flex-col items-end gap-1">
+                                                {(chat.unreadBusiness ?? 0) > 0 && (
+                                                    <span className="min-w-[18px] h-[18px] bg-[#14B8A6] text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shrink-0">
+                                                        {chat.unreadBusiness}
+                                                    </span>
+                                                )}
+                                                <button
+                                                    onClick={(e) => handleDeleteFullConversation(e, chat.id)}
+                                                    className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors opacity-0 group-hover:opacity-100 md:opacity-100"
+                                                    title="Eliminar Conversación"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
                                         </div>
                                         <p className="text-slate-400 text-xs truncate mt-0.5">{chat.lastMessage || 'Sin mensajes'}</p>
                                     </div>
@@ -246,7 +270,7 @@ function BusinessMessagesContent() {
                 {activeChat ? (
                     <div className="flex-1 flex flex-col min-w-0">
                         {/* Chat header — sticky so it never scrolls off */}
-                        <div className="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 border-b border-slate-200 bg-white shrink-0">
+                        <div className="sticky top-0 z-10 flex items-center gap-3 px-4 pt-12 pb-3 md:pt-3 border-b border-slate-200 bg-white shrink-0 shadow-sm">
                             <button onClick={() => { setActiveChat(null); cancelSelection(); }} className="md:hidden p-1 text-slate-400">
                                 <ArrowLeft size={18} />
                             </button>
