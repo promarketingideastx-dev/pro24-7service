@@ -34,6 +34,11 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
         });
     }, [user]);
 
+    // Close mobile menu automatically on route change
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [pathname]);
+
     // The setup wizard has its own full-screen layout — skip the shell
     if (pathname === lp('/business/setup') || pathname === '/business/setup') {
         return <BusinessGuard><>{children}</></BusinessGuard>;
@@ -120,10 +125,9 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                             {/* Navigation */}
                             <nav className="flex-1 space-y-1.5 md:px-2">
                                 {menuItems.map((item) => (
-                                    <Link
+                                    <a
                                         key={item.href}
                                         href={item.href}
-                                        onClick={() => setIsMobileMenuOpen(false)}
                                         className={`
                                         flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all group relative font-semibold text-sm
                                         ${isActive(item.href)
@@ -136,7 +140,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                                             {item.icon}
                                         </span>
                                         <span className="tracking-tight">{item.name}</span>
-                                    </Link>
+                                    </a>
                                 ))}
                             </nav>
 
