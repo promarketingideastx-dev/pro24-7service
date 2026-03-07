@@ -10,6 +10,8 @@ import { format } from 'date-fns';
 import { es, enUS, ptBR } from 'date-fns/locale';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
+import { ActiveCountry } from '@/lib/activeCountry';
+import { getCountryConfig } from '@/lib/locations';
 
 import { WeeklySchedule } from '@/services/employee.service';
 import { PaymentSettings } from '@/types/firestore-schema';
@@ -214,6 +216,14 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
     const locale = useLocale();
     const localeKey = locale === 'en' ? 'en' : locale === 'pt-BR' ? 'pt' : 'es';
     const dateFnsLocale = locale === 'en' ? enUS : locale === 'pt-BR' ? ptBR : es;
+
+    const getCurrencySymbol = (code: string) => {
+        const symbols: Record<string, string> = { HNL: 'L.', USD: '$', GTQ: 'Q.', MXN: '$', COP: '$', PEN: 'S/', BOB: 'Bs.', CRC: '₡', NIO: 'C$', PAB: 'B/.', ARS: '$', CLP: '$', UYU: '$', PYG: '₲' };
+        return symbols[code] || code;
+    };
+    const countryCode = ActiveCountry.get();
+    const countryConfig = getCountryConfig(countryCode);
+    const currencySymbol = getCurrencySymbol(countryConfig.currency);
 
     const [step, setStep] = useState<Step>('service');
     const [loading, setLoading] = useState(false);
@@ -440,7 +450,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                         >
                                             <div className="text-left">
                                                 <p className="font-bold text-slate-900 group-hover:text-[#14B8A6] transition-colors">{service.name}</p>
-                                                <p className="text-sm text-slate-400">${service.price}</p>
+                                                <p className="text-sm text-slate-400">{currencySymbol} {service.price}</p>
                                             </div>
                                             <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-[#14B8A6]" />
                                         </button>
@@ -487,7 +497,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                         <span className="text-slate-900 font-bold">
                                             {paymentSettings.depositType === 'percent'
                                                 ? `${paymentSettings.depositValue}%`
-                                                : `L. ${paymentSettings.depositValue}`
+                                                : `${currencySymbol} ${paymentSettings.depositValue}`
                                             }
                                         </span>
                                     </div>

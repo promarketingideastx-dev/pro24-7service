@@ -1,4 +1,4 @@
-import { MapPin, Star, Lock, Phone, MessageSquare, UserPlus, LogIn, Globe, Calendar } from 'lucide-react';
+import { MapPin, Star, Lock, Phone, MessageSquare, UserPlus, LogIn, Globe, Calendar, CreditCard, Banknote, Landmark, Wallet } from 'lucide-react';
 import OpeningHoursStatus from './public/OpeningHoursStatus';
 import WeeklyScheduleView from './public/WeeklyScheduleView';
 import RequestAppointmentModal from '@/components/public/RequestAppointmentModal';
@@ -94,6 +94,33 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
                     <OpeningHoursStatus schedule={business.openingHours} />
                     <WeeklyScheduleView schedule={business.openingHours} />
                 </div>
+
+                {/* Métodos de Pago P2P */}
+                {business.paymentSettings && (business.paymentSettings.acceptsCash || business.paymentSettings.acceptsBankTransfer || business.paymentSettings.acceptsDigitalWallet) && (
+                    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 mb-6">
+                        <h3 className="text-slate-800 font-bold mb-3 text-sm flex items-center gap-2">
+                            <CreditCard className="w-4 h-4 text-[#14B8A6]" />
+                            Métodos de Pago Aceptados
+                        </h3>
+                        <div className="flex flex-wrap gap-2 mt-1">
+                            {business.paymentSettings.acceptsCash && (
+                                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#14B8A6]/10 border border-[#14B8A6]/20 text-[#0F766E] text-xs font-semibold rounded-lg shadow-sm">
+                                    <Banknote className="w-3.5 h-3.5" /> Efectivo
+                                </div>
+                            )}
+                            {business.paymentSettings.acceptsBankTransfer && (
+                                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#14B8A6]/10 border border-[#14B8A6]/20 text-[#0F766E] text-xs font-semibold rounded-lg shadow-sm">
+                                    <Landmark className="w-3.5 h-3.5" /> Transferencia
+                                </div>
+                            )}
+                            {business.paymentSettings.acceptsDigitalWallet && (
+                                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#14B8A6]/10 border border-[#14B8A6]/20 text-[#0F766E] text-xs font-semibold rounded-lg shadow-sm">
+                                    <Wallet className="w-3.5 h-3.5" /> Billetera Digital
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {/* Booking Teaser / Action */}
                 <div className="bg-gradient-to-r from-brand-neon-cyan/10 to-brand-neon-purple/10 border border-brand-neon-cyan/20 rounded-2xl p-6 relative overflow-hidden group">

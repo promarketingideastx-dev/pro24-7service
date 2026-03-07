@@ -209,7 +209,7 @@ export default function SubscriptionPanel({ currentPlan, businessId }: Subscript
                                 <div>
                                     <p className="font-bold text-slate-900 text-sm">{t(plan.nameKey as any)}</p>
                                     <p className="text-xl font-extrabold text-slate-900">
-                                        {plan.price === 0 ? t('free') : `$${plan.price}`}
+                                        {plan.price === 0 ? t('free') : `$${plan.price} USD`}
                                         {plan.price > 0 && <span className="text-xs font-normal text-slate-400">/mes</span>}
                                     </p>
                                 </div>

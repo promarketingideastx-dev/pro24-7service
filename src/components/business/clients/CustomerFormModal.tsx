@@ -74,11 +74,11 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-slate-900/40 backdrop-blur-md p-0 sm:p-6 animate-in fade-in duration-200">
-            <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-[0_4px_14px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[calc(100dvh-4rem)] sm:max-h-[90dvh] animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/40 backdrop-blur-md p-4 sm:p-6 animate-in fade-in duration-200">
+            <div className="bg-white w-full max-w-md rounded-3xl shadow-[0_4px_14px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[90dvh] animate-in zoom-in-95 duration-200">
 
                 {/* Header Clean Light */}
-                <div className="flex-none flex items-center justify-between p-5 bg-slate-50 border-b border-slate-100">
+                <div className="flex-none flex items-center justify-between p-5 pt-12 bg-slate-50 border-b border-slate-100">
                     <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                         {customerToEdit ? t('editTitle') : t('newTitle')}
                     </h2>

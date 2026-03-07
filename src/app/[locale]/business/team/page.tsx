@@ -440,11 +440,11 @@ export default function TeamPage() {
 
             {/* ── Add / Edit Member Modal ── */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200">
-                    <div className="bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl shadow-[0_4px_14px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[calc(100dvh-4rem)] sm:max-h-[90dvh]">
+                <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200">
+                    <div className="bg-white w-full max-w-md rounded-3xl shadow-[0_4px_14px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[90dvh]">
 
                         {/* Modal Header Clean Light */}
-                        <div className="flex-none flex items-center justify-between p-5 bg-slate-50 border-b border-slate-100">
+                        <div className="flex-none flex items-center justify-between p-5 pt-12 bg-slate-50 border-b border-slate-100">
                             <div>
                                 <h2 className="text-lg font-bold text-slate-800">
                                     {editingId ? t('editMember') : t('add')}
