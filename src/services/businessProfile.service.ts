@@ -449,10 +449,27 @@ export const BusinessProfileService = {
                 location = await geocodeAddress(data.city, data.department, data.country, data.address);
             }
 
-            // 3. Prepare Public Payload (Safe for everyone)
+            // 3. Fetch user profile to verify VIP status and basic info
+            const { UserService } = await import('@/services/user.service');
+            const userProfile = await UserService.getUserProfile(userId);
+            const isVip = userProfile?.isVip === true;
+
+            // 4. Determine Plan Status (VIP vs Standard Trial)
+            const planData = isVip ? {
+                plan: 'vip',
+                planStatus: 'active',
+                planSource: 'collaborator_beta',
+                teamMemberLimit: 999, // VIP infinite
+                overriddenByCRM: false
+            } : TrialService.getNewBusinessPlanData();
+
+            // 5. Prepare Public Payload (Safe for everyone, readable by Admin)
             const publicPayload = {
                 id: userId,
                 name: data.businessName,
+                ownerUid: userId,
+                ownerEmail: userProfile?.email || data.email || '',
+                ownerName: userProfile?.displayName || userProfile?.clientProfile?.fullName || data.businessName,
                 category: data.category,
                 subcategory: data.subcategory || (data.subcategories?.[0] ?? ''),
                 subcategories: data.subcategories || (data.subcategory ? [data.subcategory] : []),
@@ -477,10 +494,17 @@ export const BusinessProfileService = {
                 status: 'active',
                 openingHours: data.openingHours || null,
                 createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp()
+                updatedAt: serverTimestamp(),
+                planData: isVip ? {
+                    plan: 'vip',
+                    planStatus: 'active',
+                    planSource: 'collaborator_beta',
+                    teamMemberLimit: 999,
+                    overriddenByCRM: false
+                } : TrialService.getNewBusinessPlanData()
             };
 
-            // 3. Prepare Private Payload (Sensitive info)
+            // 6. Prepare Private Payload (Sensitive info)
             const privatePayload = {
                 id: userId,
                 fullDescription: data.description,
@@ -494,20 +518,7 @@ export const BusinessProfileService = {
                 updatedAt: serverTimestamp()
             };
 
-            // 4. Determine Plan Status (VIP vs Standard Trial)
-            const { UserService } = await import('@/services/user.service');
-            const userProfile = await UserService.getUserProfile(userId);
-            const isVip = userProfile?.isVip === true;
-
-            const planData = isVip ? {
-                plan: 'vip',
-                planStatus: 'active',
-                planSource: 'collaborator_beta',
-                teamMemberLimit: 999, // VIP infinite
-                overriddenByCRM: false
-            } : TrialService.getNewBusinessPlanData();
-
-            // 4. Batch Writes
+            // 7. Batch Writes
             batch.set(publicRef, publicPayload);
             batch.set(privateRef, privatePayload);
             batch.update(userRef, {
@@ -517,7 +528,7 @@ export const BusinessProfileService = {
                 providerSince: serverTimestamp()
             });
 
-            // 5. Write trial plan data to businesses doc (gated plan management)
+            // 8. Write trial plan data to businesses doc (gated plan management)
             const businessesRef = doc(db, 'businesses', userId);
             batch.set(businessesRef, {
                 planData: planData,

@@ -1151,5 +1151,37 @@
       "desc": "A página que você procura não existe ou não está disponível.",
       "cta": "Voltar ao início"
     }
+  },
+  "setup": {
+    "stepInfo": "Informações",
+    "stepLocation": "Localização",
+    "stepCat": "Categoria",
+    "stepGallery": "Galeria",
+    "stepReview": "Revisão",
+    "businessName": "Nome do Negócio *",
+    "businessDesc": "Slogan ou Descrição Curta",
+    "phone": "Telefone",
+    "website": "Site (Opcional)",
+    "socialMedia": "Redes Sociais",
+    "dept": "Departamento/Estado",
+    "city": "Cidade",
+    "address": "Endereço Exato",
+    "mainCat": "Categoria Principal",
+    "subCat": "Especialidade (Subcategoria)",
+    "tags": "Tags de Busca",
+    "serviceMode": "Modalidade de Serviço",
+    "modeHome": "Em Casa",
+    "modeLocation": "No Local",
+    "modeBoth": "Ambos",
+    "coverPhotos": "Fotos e Capas",
+    "createBusiness": "Criar Negócio",
+    "creating": "Criando...",
+    "back": "Voltar",
+    "continue": "Continuar",
+    "goHome": "Voltar ao Início",
+    "progress": "Progresso",
+    "summary": "Resumo do Negócio",
+    "finishDesc": "Ao clicar em 'Criar Negócio', seu perfil será ativado como um Provedor e você pode começar a gerenciar seus serviços.",
+    "headerTitle": "Registro do Negócio"
   }
 }

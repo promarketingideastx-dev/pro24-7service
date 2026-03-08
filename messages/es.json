@@ -1154,5 +1154,37 @@
       "desc": "La ruta que buscas no existe o no está disponible en la plataforma.",
       "cta": "Ir al inicio"
     }
+  },
+  "setup": {
+    "stepInfo": "Información",
+    "stepLocation": "Ubicación",
+    "stepCat": "Categoría",
+    "stepGallery": "Galería",
+    "stepReview": "Revisión",
+    "businessName": "Nombre del Negocio *",
+    "businessDesc": "Eslogan o Descripción Corta",
+    "phone": "Teléfono",
+    "website": "Sitio Web (Opcional)",
+    "socialMedia": "Redes Sociales",
+    "dept": "Departamento/Estado",
+    "city": "Ciudad",
+    "address": "Dirección Exacta",
+    "mainCat": "Categoría Principal",
+    "subCat": "Especialidad (Subcategoría)",
+    "tags": "Etiquetas de Búsqueda",
+    "serviceMode": "Modalidad de Servicio",
+    "modeHome": "A Domicilio",
+    "modeLocation": "En Local",
+    "modeBoth": "Ambos",
+    "coverPhotos": "Fotos y Portadas",
+    "createBusiness": "Crear Negocio",
+    "creating": "Creando...",
+    "back": "Atrás",
+    "continue": "Continuar",
+    "goHome": "Volver al Inicio",
+    "progress": "Progreso",
+    "summary": "Resumen del Negocio",
+    "finishDesc": "Al hacer clic en 'Crear Negocio', tu perfil será activado como Proveedor y podrás empezar a gestionar tus servicios.",
+    "headerTitle": "Registro de Negocio"
   }
 }

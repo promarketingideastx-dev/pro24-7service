@@ -1153,5 +1153,37 @@
       "desc": "The page you are looking for does not exist or is unavailable.",
       "cta": "Go to Home"
     }
+  },
+  "setup": {
+    "stepInfo": "Information",
+    "stepLocation": "Location",
+    "stepCat": "Category",
+    "stepGallery": "Gallery",
+    "stepReview": "Review",
+    "businessName": "Business Name *",
+    "businessDesc": "Slogan or Short Description",
+    "phone": "Phone",
+    "website": "Website (Optional)",
+    "socialMedia": "Social Media",
+    "dept": "Department/State",
+    "city": "City",
+    "address": "Exact Address",
+    "mainCat": "Main Category",
+    "subCat": "Specialty (Subcategory)",
+    "tags": "Search Tags",
+    "serviceMode": "Service Mode",
+    "modeHome": "At Home",
+    "modeLocation": "At Location",
+    "modeBoth": "Both",
+    "coverPhotos": "Photos & Covers",
+    "createBusiness": "Create Business",
+    "creating": "Creating...",
+    "back": "Back",
+    "continue": "Continue",
+    "goHome": "Go to Home",
+    "progress": "Progress",
+    "summary": "Business Summary",
+    "finishDesc": "By clicking 'Create Business', your profile will be activated as a Provider and you can start managing your services.",
+    "headerTitle": "Business Setup"
   }
 }
