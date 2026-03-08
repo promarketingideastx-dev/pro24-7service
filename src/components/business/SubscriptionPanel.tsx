@@ -16,7 +16,7 @@ const PLANS = [
         price: 0,
         icon: '🆓',
         color: 'slate',
-        features: ['featureFreeProfile', 'featureFreeBooking', 'featureFreeBasic'],
+        features: ['featureFreeProfile', 'featureFreeBasic', 'featureFreeBooking', 'featureFreeEmp'],
     },
     {
         id: 'premium' as const,

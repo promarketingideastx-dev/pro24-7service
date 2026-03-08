@@ -8,17 +8,13 @@ import { Loader2, Save, BadgeDollarSign, Building2, CreditCard, Wallet } from 'l
 import { toast } from 'sonner';
 import GlassPanel from '@/components/ui/GlassPanel';
 import { useTranslations } from 'next-intl';
-import SubscriptionPanel from '@/components/business/SubscriptionPanel';
-import { StripeService } from '@/services/stripe.service';
 
 export default function PaymentSettingsPage() {
     const { user } = useAuth();
     const t = useTranslations('business.payments');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [currentPlan, setCurrentPlan] = useState('premium');
 
-    // Default Settings
     const [settings, setSettings] = useState<PaymentSettings>({
         acceptsCash: true,
         acceptsBankTransfer: false,
@@ -39,15 +35,9 @@ export default function PaymentSettingsPage() {
 
     const loadSettings = async () => {
         try {
-            const [profile, subStatus] = await Promise.all([
-                BusinessProfileService.getProfile(user!.uid),
-                StripeService.getSubscriptionStatus(user!.uid),
-            ]);
+            const profile = await BusinessProfileService.getProfile(user!.uid);
             if (profile?.paymentSettings) {
                 setSettings({ ...settings, ...profile.paymentSettings });
-            }
-            if (subStatus?.plan) {
-                setCurrentPlan(subStatus.plan);
             }
         } catch (error) {
             console.error(error);
@@ -96,17 +86,17 @@ export default function PaymentSettingsPage() {
                 </button>
             </div>
 
-            {/* ── Subscription Panel (PRO24/7 plan) ── */}
-            {user?.uid && (
-                <div className="mb-8">
-                    <GlassPanel className="p-6">
-                        <SubscriptionPanel
-                            currentPlan={currentPlan}
-                            businessId={user.uid}
-                        />
-                    </GlassPanel>
+            <div className="bg-cyan-50 border border-cyan-100 p-4 rounded-xl flex items-start gap-3 mb-6">
+                <div className="p-2 bg-cyan-100 rounded-lg text-cyan-600 shrink-0">
+                    <Wallet className="w-5 h-5" />
                 </div>
-            )}
+                <div>
+                    <h3 className="font-bold text-slate-900 text-sm">{t('platformNoteTitle')}</h3>
+                    <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                        {t('platformNoteDesc')}
+                    </p>
+                </div>
+            </div>
 
             {/* Methods Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -270,6 +260,24 @@ export default function PaymentSettingsPage() {
                             </div>
                         </div>
                     )}
+                </GlassPanel>
+            </div>
+
+            {/* Placeholder for future WhatsApp/SMS voucher integration */}
+            <div className="mt-8">
+                <GlassPanel className="p-6 border-dashed border-slate-300">
+                    <div className="opacity-70">
+                        <h3 className="font-bold text-slate-800 text-sm mb-2">Comprobantes de Pago (Pre-Lanzamiento)</h3>
+                        <p className="text-xs text-slate-500 max-w-2xl mb-4">
+                            En el futuro, si el pago de tu cliente requiere validación (Ej. Depósito Bancario), aquí se activará la opción para que el cliente pueda enviarte la captura / comprobante gráfico directamente a tu WhatsApp o SMS al agendar.
+                        </p>
+                        <div className="flex items-center gap-3">
+                            <span className="text-[10px] uppercase font-bold text-slate-400 border border-slate-200 px-2 py-0.5 rounded-full">Próximamente</span>
+                            <span className="text-xs text-[#14B8A6] font-medium block">
+                                Opciones planeadas: Enviar vía WhatsApp / Enviar vía SMS
+                            </span>
+                        </div>
+                    </div>
                 </GlassPanel>
             </div>
 
