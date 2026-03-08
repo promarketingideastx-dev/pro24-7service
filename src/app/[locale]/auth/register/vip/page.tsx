@@ -78,12 +78,18 @@ function VipRegisterForm() {
         setLoading(true);
         setError(null);
 
+        let isPreApproved = hasPreApprovedEmail;
         if (emailCheckStatus === 'idle') {
-            await handleEmailBlur();
-            if (emailCheckStatus === 'exists') {
+            const exists = await AuthService.checkEmailExists(email);
+            if (exists) {
+                setEmailCheckStatus('exists');
                 setLoading(false);
                 return;
             }
+            const invite = await VipInviteService.getInviteByEmail(email);
+            isPreApproved = !!invite;
+            setEmailCheckStatus('available');
+            setHasPreApprovedEmail(isPreApproved);
         } else if (emailCheckStatus === 'exists') {
             setLoading(false);
             return;
@@ -111,16 +117,16 @@ function VipRegisterForm() {
             // VIP VALIDATION BEFORE CREATING ACCOUNT
             let validInviteId = null;
 
-            if (hasPreApprovedEmail) {
+            if (isPreApproved) {
                 const invite = await VipInviteService.getInviteByEmail(email);
-                if (!invite) throw new Error('Invitación expirada o inválida para este correo.');
+                if (!invite) throw new Error(t('vipInvalidEmailOrCode'));
                 validInviteId = invite.id;
             } else {
                 if (!inviteCode.trim()) {
-                    throw new Error('No tienes un correo preaprobado. Ingresa un código VIP.');
+                    throw new Error(t('vipNoPreapprovedEmail'));
                 }
                 const invite = await VipInviteService.getInviteByCode(inviteCode.trim());
-                if (!invite) throw new Error('Código VIP inválido o ya utilizado.');
+                if (!invite) throw new Error(t('vipCodeInvalid'));
                 validInviteId = invite.id;
             }
 
@@ -175,12 +181,12 @@ function VipRegisterForm() {
                     className="text-2xl md:text-3xl font-semibold text-slate-800 tracking-tight"
                     style={{ fontFamily: 'var(--font-outfit), sans-serif' }}
                 >
-                    Registro VIP
+                    {t('vipRegisterTitle')}
                 </h2>
             </div>
 
             <p className="text-slate-500 font-medium text-sm md:text-base mb-6">
-                Ingresa con tu correo preaprobado o ingresa tu código de acceso.
+                {t('vipRegisterDesc')}
             </p>
 
             {emailCheckStatus === 'exists' && (
@@ -207,7 +213,7 @@ function VipRegisterForm() {
 
             {hasPreApprovedEmail && emailCheckStatus === 'available' && !error && (
                 <div className="mb-6 p-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm animate-in fade-in slide-in-from-top-2">
-                    <strong>¡Correo Preaprobado!</strong> Puedes continuar tu registro VIP sin código extra.
+                    {t('vipPreapprovedEmail')}
                 </div>
             )}
 
@@ -249,7 +255,7 @@ function VipRegisterForm() {
                 {emailCheckStatus === 'available' && !hasPreApprovedEmail && (
                     <div className="space-y-1.5 animate-in fade-in">
                         <label className="text-xs font-bold text-purple-800 uppercase tracking-widest flex items-center gap-1">
-                            <KeyRound size={14} /> Código VIP Requerido
+                            <KeyRound size={14} /> {t('vipCodeRequiredTitle')}
                         </label>
                         <input
                             type="text"
@@ -257,9 +263,9 @@ function VipRegisterForm() {
                             value={inviteCode}
                             onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
                             className="w-full bg-purple-50/50 border-[1.5px] border-purple-200 rounded-xl py-3.5 px-4 text-slate-900 font-bold placeholder:text-purple-300 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all shadow-sm"
-                            placeholder="Ej. PRO-XYZ123"
+                            placeholder={t('vipCodePlaceholder')}
                         />
-                        <p className="text-xs text-slate-500 mt-1">Como tu correo no está preaprobado, necesitas un código válido para acceder.</p>
+                        <p className="text-xs text-slate-500 mt-1">{t('vipCodeRequiredDesc')}</p>
                     </div>
                 )}
 
@@ -353,7 +359,7 @@ function VipRegisterForm() {
                     ) : (
                         <>
                             <UserPlus className="w-4 h-4" />
-                            Activar Cuenta VIP
+                            {t('vipActivateBtn')}
                         </>
                     )}
                 </button>

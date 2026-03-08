@@ -41,15 +41,12 @@ function OnboardingContent() {
 
         // 1. Not logged in → send to login or register based on mode
         if (!user) {
-            if (isLoginMode) {
-                // If it's a VIP user trying to log in, standard login works fine, but we can pass intent
+            if (role === 'vip') {
+                router.push(lp(`/auth/register/vip?intent=${intent}${returnParam}`));
+            } else if (isLoginMode) {
                 router.push(lp(`/auth/login?intent=${intent}${returnParam}`));
             } else {
-                if (role === 'vip') {
-                    router.push(lp(`/auth/register/vip?intent=${intent}${returnParam}`));
-                } else {
-                    router.push(lp(`/auth/register?intent=${intent}${returnParam}`));
-                }
+                router.push(lp(`/auth/register?intent=${intent}${returnParam}`));
             }
             return;
         }
@@ -185,8 +182,8 @@ function OnboardingContent() {
                     {/* VIP Option */}
                     <button
                         onClick={() => handleRoleSelection('vip')}
-                        disabled={loading || isLoginMode}
-                        className={`w-full flex items-center p-4 border rounded-2xl transition-all cursor-pointer group overflow-hidden relative bg-purple-50/50 hover:bg-purple-50/80 border-[#E6E8EC] hover:border-purple-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] text-left active:scale-[0.98] ${isLoginMode ? 'opacity-50 pointer-events-none hidden' : ''}`}
+                        disabled={loading}
+                        className="w-full flex items-center p-4 border rounded-2xl transition-all cursor-pointer group overflow-hidden relative bg-purple-50/50 hover:bg-purple-50/80 border-[#E6E8EC] hover:border-purple-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] text-left active:scale-[0.98]"
                     >
                         <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl bg-purple-500" />
                         <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center mr-4 shrink-0 transition-transform group-hover:scale-110">

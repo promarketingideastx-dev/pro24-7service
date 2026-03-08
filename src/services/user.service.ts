@@ -98,9 +98,9 @@ export const UserService = {
     /**
      * Updates the user's profile information.
      */
-    async updateUserProfile(uid: string, data: { displayName?: string; phoneNumber?: string; address?: string }) {
+    async updateUserProfile(uid: string, data: { displayName?: string; phoneNumber?: string; address?: string; isVip?: boolean }) {
         if (!uid) throw new Error('User ID required');
         const userRef = doc(db, 'users', uid);
-        await updateDoc(userRef, data);
+        await updateDoc(userRef, data as any);
     }
 };

@@ -46,6 +46,7 @@ export interface UserDocument {
     displayName?: string;
     phoneNumber?: string;
     address?: string;
+    isVip?: boolean;
 
     // Perfil Cliente (Siempre existe, aunque sea básico)
     clientProfile: ClientProfile;
@@ -54,7 +55,6 @@ export interface UserDocument {
     businessProfileId?: string | null;
     isBusinessActive: boolean;
     isProvider?: boolean;
-    isVip?: boolean;
 
     // Admin flag — set by set-admin.js script
     isAdmin?: boolean;
