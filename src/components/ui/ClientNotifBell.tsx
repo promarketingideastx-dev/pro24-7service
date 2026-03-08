@@ -135,16 +135,7 @@ export default function ClientNotifBell({ clientUid }: ClientNotifBellProps) {
                         </div>
                     )}
 
-                    {/* Footer: go to messages page */}
-                    <div className="px-4 py-2.5 border-t border-white/10">
-                        <button
-                            onClick={() => { setOpen(false); router.push(lp('/user/messages')); }}
-                            className="w-full flex items-center justify-center gap-1.5 text-xs text-[#14B8A6] hover:text-teal-300 font-semibold transition-colors"
-                        >
-                            <MessageCircle size={12} />
-                            {t('viewAllMessages')}
-                        </button>
-                    </div>
+                    {/* Footer removed to prioritize WhatsApp and hide internal messages */}
                 </div>
             )}
         </div>

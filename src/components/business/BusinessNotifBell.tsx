@@ -120,13 +120,7 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
                                 return (
                                     <div
                                         key={item.id}
-                                        onClick={() => {
-                                            if (isMessage) {
-                                                setOpen(false);
-                                                router.push(lp(`/business/messages?chatId=${item.relatedId}`));
-                                            }
-                                        }}
-                                        className={`px-4 py-3 flex gap-3 ${item.read ? 'opacity-60' : ''} ${isMessage ? 'cursor-pointer hover:bg-white/5 active:bg-white/10 transition-colors' : ''}`}
+                                        className={`px-4 py-3 flex gap-3 ${item.read ? 'opacity-60' : ''}`}
                                     >
                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-base ${meta.bg}`}>
                                             {meta.emoji}
@@ -140,9 +134,7 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
                                                 </p>
                                             )}
                                         </div>
-                                        {isMessage && (
-                                            <span className="text-cyan-400 text-[10px] self-center shrink-0">Ver →</span>
-                                        )}
+                                        {/* isMessage handler removed */}
                                     </div>
                                 );
                             })}
