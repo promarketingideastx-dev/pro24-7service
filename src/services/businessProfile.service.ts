@@ -478,11 +478,13 @@ export const BusinessProfileService = {
                 additionalSpecialties: data.additionalSpecialties || [],
                 city: data.city || '',
                 department: data.department || '',
+                address: data.address || '',
                 country: data.country || 'HN',
                 tags: allTags,
                 rating: 0,
                 reviewCount: 0,
                 coverImage: data.images[0] || null,
+                logoUrl: data.logoUrl || null,
                 shortDescription: data.description.substring(0, 150),
                 website: data.website || '',
                 phone: data.phone || '',
@@ -513,6 +515,7 @@ export const BusinessProfileService = {
                 address: data.address || '',
                 department: data.department || '', // Also save in private for querying ease if needed
                 gallery: data.images || [],
+                logoUrl: data.logoUrl || null,
                 socialMedia: data.socialMedia || { instagram: '', facebook: '', tiktok: '' },
                 verificationStatus: 'pending',
                 updatedAt: serverTimestamp()

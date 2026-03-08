@@ -31,12 +31,12 @@ export default function BusinessSetupPage() {
     const t = useTranslations('setup');
     const router = useRouter();
     const STEPS = [
-    { id: 1, title: t('stepInfo'), icon: Building },
-    { id: 2, title: t('stepLocation'), icon: MapPin },
-    { id: 3, title: t('stepCat'), icon: Tag },
-    { id: 4, title: t('stepGallery'), icon: Camera },
-    { id: 5, title: t('stepReview'), icon: Check },
-];
+        { id: 1, title: t('stepInfo'), icon: Building },
+        { id: 2, title: t('stepLocation'), icon: MapPin },
+        { id: 3, title: t('stepCat'), icon: Tag },
+        { id: 4, title: t('stepGallery'), icon: Camera },
+        { id: 5, title: t('stepReview'), icon: Check },
+    ];
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showMultiArea, setShowMultiArea] = useState(false); // Toggle for additional areas
@@ -75,6 +75,7 @@ export default function BusinessSetupPage() {
         additionalSpecialties: [], // New: Multi-select specialties (reserved if needed, but we use 'specialties' for chips)
         modality: 'local',
         images: [],
+        logoUrl: '',
         socialMedia: { instagram: '', facebook: '', tiktok: '' }
     });
 
@@ -116,7 +117,7 @@ export default function BusinessSetupPage() {
         if (currentStep === 1) return !!formData.businessName;
         if (currentStep === 2) return !!formData.city && !!formData.department; // Validate Dept + City
         if (currentStep === 3) return !!formData.category;
-        if (currentStep === 4) return (formData.images?.length || 0) > 0; // Require at least 1 image
+        if (currentStep === 4) return (formData.images?.length || 0) > 0 && !!formData.logoUrl; // Require 1 logo and 1 image
         return true;
     };
 
@@ -281,13 +282,13 @@ export default function BusinessSetupPage() {
                     <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-slate-600 text-sm mb-1">País</label>
-                                <div className="w-full h-12 bg-slate-50 border border-slate-200 rounded-lg px-4 flex items-center text-slate-600 cursor-not-allowed">
+                                <label className="block text-slate-700 font-medium text-sm mb-1">País</label>
+                                <div className="w-full h-12 bg-slate-50 border border-slate-200 rounded-lg px-4 flex items-center text-slate-700 font-medium cursor-not-allowed">
                                     {currentCountryConfig.name} ({currentCountryConfig.code})
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-slate-600 text-sm mb-1">{currentCountryConfig.regionLabel} *</label>
+                                <label className="block text-slate-700 font-medium text-sm mb-1">{currentCountryConfig.regionLabel} *</label>
                                 <select
                                     value={formData.department || ''}
                                     onChange={e => {
@@ -615,13 +616,29 @@ export default function BusinessSetupPage() {
                     </div>
                 );
             case 4:
-                // New Galería Step
+                // New Galería Step with Split for Logo and Gallery
                 return (
                     <div className="space-y-6">
+                        {/* Logo / Foto de Perfil */}
                         <div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-2">Galería del Negocio</h3>
-                            <p className="text-slate-600 text-sm mb-6">
-                                Sube al menos una foto de portada. Estas imágenes serán lo primero que vean tus clientes.
+                            <h3 className="text-slate-900 font-bold mb-1">Foto de Perfil (Logo) *</h3>
+                            <p className="text-slate-600 text-sm mb-4">
+                                Esta imagen te representará de manera principal como proveedor (Recomendado 1:1).
+                            </p>
+                            <ImageUploader
+                                images={formData.logoUrl ? [formData.logoUrl] : []}
+                                onImagesChange={(urls) => setFormData({ ...formData, logoUrl: urls[0] || '' })}
+                                maxImages={1}
+                            />
+                        </div>
+
+                        <div className="h-px w-full bg-slate-200" />
+
+                        {/* Portada y Galería */}
+                        <div>
+                            <h3 className="text-slate-900 font-bold mb-1">Fotos Especiales / Portada *</h3>
+                            <p className="text-slate-600 text-sm mb-4">
+                                Sube hasta 5 fotos para mostrar un vistazo más amplio a tus clientes.
                             </p>
 
                             <ImageUploader
@@ -724,18 +741,16 @@ export default function BusinessSetupPage() {
                             const isPending = stepNum > currentStep;
 
                             return (
-                                <div key={step.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors"
-                                    style={{ background: isActive ? 'rgba(20,184,166,0.1)' : 'transparent' }}
-                                >
+                                <div key={step.id} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors ${isActive ? 'bg-teal-50' : ''}`}>
                                     {/* Step indicator */}
                                     <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold transition-all
-                                        ${isDone ? 'bg-green-500 text-white' : isActive ? 'bg-teal-500 text-black' : 'bg-slate-50 text-slate-500 border border-slate-200'}`}>
+                                        ${isDone ? 'bg-green-500 text-white' : isActive ? 'bg-teal-500 text-white shadow-sm' : 'bg-white text-slate-400 border border-slate-200'}`}>
                                         {isDone ? <Check size={12} /> : stepNum}
                                     </div>
-                                    <span className={`text-sm font-medium transition-colors ${isActive ? 'text-white' : isDone ? 'text-green-400' : 'text-slate-500'}`}>
+                                    <span className={`text-sm font-medium transition-colors ${isActive ? 'text-teal-700 font-bold' : isDone ? 'text-green-600' : 'text-slate-500'}`}>
                                         {stepNum}. {step.title}
                                     </span>
-                                    {isDone && <Check size={14} className="text-green-400 ml-auto shrink-0" />}
+                                    {isDone && <Check size={14} className="text-green-500 ml-auto shrink-0" />}
                                 </div>
                             );
                         })}

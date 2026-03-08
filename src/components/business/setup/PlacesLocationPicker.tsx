@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRef, useEffect, useState, useCallback } from 'react';
@@ -6,7 +7,6 @@ import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocom
 import { MapPin, Loader2, Search, X } from 'lucide-react';
 
 const LIBRARIES: ('places')[] = ['places'];
-
 const MAP_CONTAINER_STYLE = { width: '100%', height: '220px' };
 const DEFAULT_CENTER = { lat: 14.0818, lng: -87.2068 }; // Tegucigalpa
 
@@ -28,14 +28,7 @@ interface Props {
     initialLng?: number;
 }
 
-export default function PlacesLocationPicker({ onLocationSelect, initialAddress, initialLat, initialLng }: Props) {
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
-
-    const { isLoaded, loadError } = useJsApiLoader({
-        googleMapsApiKey: apiKey,
-        libraries: LIBRARIES,
-    });
-
+function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLat, initialLng }: Props) {
     const [markerPos, setMarkerPos] = useState<{ lat: number; lng: number }>(
         initialLat && initialLng ? { lat: initialLat, lng: initialLng } : DEFAULT_CENTER
     );
@@ -69,7 +62,7 @@ export default function PlacesLocationPicker({ onLocationSelect, initialAddress,
             let city = '';
             let department = '';
             let country = '';
-            const comps = results[0].address_components;
+            const comps = results[0].address_components || [];
             for (const comp of comps) {
                 if (comp.types.includes('locality')) city = comp.long_name;
                 if (comp.types.includes('administrative_area_level_1')) department = comp.long_name;
@@ -136,25 +129,22 @@ export default function PlacesLocationPicker({ onLocationSelect, initialAddress,
             };
             onLocationSelect(result);
         } catch (err) {
+            // No reverse geocode found, just save the lat/lng
+            const result: LocationResult = {
+                lat,
+                lng,
+                placeId: '',
+                formattedAddress: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+                googleMapsUrl: `https://maps.google.com/?q=${lat},${lng}`,
+                city: '',
+                department: '',
+                country: '',
+            };
+            onLocationSelect(result);
+            setValue(result.formattedAddress, false);
             console.error('Reverse geocode error:', err);
         }
     }, [setValue, onLocationSelect]);
-
-    if (loadError) {
-        return (
-            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-400 text-sm">
-                Error al cargar Google Maps. Verifica tu API Key.
-            </div>
-        );
-    }
-
-    if (!isLoaded) {
-        return (
-            <div className="flex items-center gap-2 text-slate-400 text-sm py-4">
-                <Loader2 size={16} className="animate-spin" /> Cargando mapa...
-            </div>
-        );
-    }
 
     return (
         <div className="space-y-3">
@@ -169,7 +159,7 @@ export default function PlacesLocationPicker({ onLocationSelect, initialAddress,
                     onChange={(e) => setValue(e.target.value)}
                     disabled={!ready}
                     placeholder="Busca tu dirección exacta... ej: Multiplaza Tegucigalpa"
-                    className="w-full h-12 bg-white border border-slate-200 rounded-lg pl-9 pr-9 text-slate-800 text-sm focus:outline-none focus:border-blue-500 placeholder:text-slate-400 disabled:opacity-50"
+                    className="w-full h-12 bg-white border border-slate-200 rounded-lg pl-9 pr-9 text-slate-800 text-sm focus:outline-none focus:border-teal-500 placeholder:text-slate-400 disabled:opacity-50"
                 />
                 {value && (
                     <button
@@ -187,9 +177,9 @@ export default function PlacesLocationPicker({ onLocationSelect, initialAddress,
                             <li
                                 key={place_id}
                                 onClick={() => handleSelect(description, place_id)}
-                                className="flex items-start gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-0 transition-colors"
+                                className="flex items-start gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition-colors"
                             >
-                                <MapPin size={14} className="text-blue-500 mt-0.5 shrink-0" />
+                                <MapPin size={14} className="text-teal-500 mt-0.5 shrink-0" />
                                 <span>{description}</span>
                             </li>
                         ))}
@@ -204,7 +194,7 @@ export default function PlacesLocationPicker({ onLocationSelect, initialAddress,
             </p>
 
             {/* Map with draggable marker */}
-            <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+            <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm relative">
                 <GoogleMap
                     mapContainerStyle={MAP_CONTAINER_STYLE}
                     center={mapCenter}
@@ -231,4 +221,31 @@ export default function PlacesLocationPicker({ onLocationSelect, initialAddress,
             </div>
         </div>
     );
+}
+
+export default function PlacesLocationPicker(props: Props) {
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+
+    const { isLoaded, loadError } = useJsApiLoader({
+        googleMapsApiKey: apiKey,
+        libraries: LIBRARIES,
+    });
+
+    if (loadError) {
+        return (
+            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-500 text-sm">
+                Error al cargar Google Maps. Verifica tu API Key o conexión: {loadError.message}
+            </div>
+        );
+    }
+
+    if (!isLoaded) {
+        return (
+            <div className="flex items-center gap-2 text-slate-400 text-sm py-4">
+                <Loader2 size={16} className="animate-spin text-teal-500" /> Cargando mapa...
+            </div>
+        );
+    }
+
+    return <PlacesLocationPickerInner {...props} />;
 }
