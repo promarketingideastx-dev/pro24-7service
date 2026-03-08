@@ -706,7 +706,11 @@
       "depositNotes": "Notas sobre o Sinal",
       "platformNoteTitle": "Assinatura PRO24/7YA",
       "platformNoteDesc": "A gestão do seu plano mensal/anual com o PRO24/7YA agora é administrada diretamente com a nossa equipe de suporte.",
-      "legalNote": "Nota: PRO24/7 não processa pagamentos. Você é responsável por receber o dinheiro e coordenar com o cliente."
+      "legalNote": "Nota: PRO24/7 não processa pagamentos. Você é responsável por receber o dinheiro e coordenar com o cliente.",
+      "paymentProofTitle": "Comprovantes de Pagamento (Pré-Lançamento)",
+      "paymentProofDescription": "No futuro, se o pagamento do seu cliente exigir validação (Ex: Depósito Bancário), a opção será ativada aqui para que o cliente envie a captura / comprovante diretamente via WhatsApp ou SMS ao agendar.",
+      "paymentProofComingSoon": "Em Breve",
+      "paymentProofOptions": "Opções planejadas: Enviar via WhatsApp / Enviar via SMS"
     },
     "notifications": {
       "title": "Notificações",

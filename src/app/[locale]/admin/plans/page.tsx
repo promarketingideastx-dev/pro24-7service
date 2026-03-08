@@ -143,51 +143,69 @@ export default function PlansPage() {
             {/* Plan Catalog */}
             <div className="mb-8">
                 <h2 className="text-sm font-bold text-slate-900 mb-4 uppercase tracking-wider">Catálogo Oficial de Planes</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Free */}
-                    <div className="bg-white border text-center border-slate-200 rounded-2xl p-6 relative">
+                    <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col hover:border-slate-300 transition-colors relative">
                         <div className="absolute top-0 right-0 bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl uppercase">Básico</div>
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="w-10 h-10 rounded-xl bg-slate-500/10 flex items-center justify-center">
+                                <span className="text-xl">🆓</span>
+                            </div>
+                        </div>
                         <h3 className="text-lg font-bold text-slate-900 mb-1">Free</h3>
-                        <div className="text-2xl font-black text-slate-900 mb-4">$0 <span className="text-[10px] font-normal text-slate-500">/ siempre</span></div>
-                        <ul className="text-xs text-left text-slate-600 space-y-2 mb-6">
-                            <li className="flex items-center gap-2"><span>✅</span> Perfil público visible</li>
-                            <li className="flex items-center gap-2"><span>✅</span> Máximo 5 servicios</li>
-                            <li className="flex items-center gap-2"><span>✅</span> Reservas básicas</li>
-                            <li className="flex items-center gap-2"><span>✅</span> 0 empleados</li>
+                        <div className="text-3xl font-bold text-slate-900 mb-4">$0</div>
+                        <p className="text-xs text-slate-500 font-medium mb-4 uppercase tracking-wider border-b border-slate-100 pb-2">Beneficios</p>
+                        <ul className="text-xs text-slate-600 space-y-2 mt-auto">
+                            <li className="flex items-start gap-2"><span className="text-[#14B8A6]">✓</span> Perfil público visible</li>
+                            <li className="flex items-start gap-2"><span className="text-[#14B8A6]">✓</span> Máximo 5 servicios</li>
+                            <li className="flex items-start gap-2"><span className="text-[#14B8A6]">✓</span> Reservas básicas</li>
+                            <li className="flex items-start gap-2"><span className="text-slate-300">-</span> Sin empleados extras</li>
                         </ul>
                     </div>
 
                     {/* Premium */}
-                    <div className="bg-blue-50/50 border border-blue-200 text-center rounded-2xl p-6 relative">
-                        <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl uppercase">Recomendado</div>
-                        <h3 className="text-lg font-bold text-blue-900 mb-1">Premium</h3>
-                        <div className="flex justify-center items-end gap-3 mb-4">
-                            <div className="text-2xl font-black text-blue-900">$9.99 <span className="text-[10px] font-normal text-blue-600/70">/ mes</span></div>
-                            <div className="text-sm font-bold text-blue-700">$99.99 <span className="text-[9px] font-normal text-blue-600/70">/ año</span></div>
+                    <div className="bg-white border-2 border-[#14B8A6]/20 rounded-2xl p-5 flex flex-col shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 right-0 bg-[#14B8A6] text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl uppercase">Recomendado</div>
+                        <div className="absolute top-0 left-0 w-full h-1 bg-[#14B8A6]" />
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                                <span className="text-xl">⭐</span>
+                            </div>
                         </div>
-                        <ul className="text-xs text-left text-blue-800 space-y-2 mb-6">
-                            <li className="flex items-center gap-2"><span>⭐️</span> Servicios ilimitados</li>
-                            <li className="flex items-center gap-2"><span>⭐️</span> Analytics básicos</li>
-                            <li className="flex items-center gap-2"><span>⭐️</span> Agenda completa</li>
-                            <li className="flex items-center gap-2"><span>⭐️</span> 1 empleado permitido</li>
-                            <li className="flex items-center gap-2"><span>⭐️</span> Perfil de negocio premium</li>
+                        <h3 className="text-lg font-bold text-slate-900 mb-1">Premium</h3>
+                        <div className="flex items-end gap-2 mb-4">
+                            <div className="text-3xl font-bold text-slate-900">$9.99<span className="text-[10px] font-normal text-slate-500">/mes</span></div>
+                            <div className="text-xs font-medium text-slate-400 line-through mb-1.5">$99.99/año</div>
+                        </div>
+                        <p className="text-xs text-slate-500 font-medium mb-4 uppercase tracking-wider border-b border-slate-100 pb-2">Beneficios Premium</p>
+                        <ul className="text-xs text-slate-600 space-y-2 mt-auto">
+                            <li className="flex items-start gap-2"><span className="text-[#14B8A6]">✓</span> Servicios ilimitados</li>
+                            <li className="flex items-start gap-2"><span className="text-[#14B8A6]">✓</span> Analytics básicos</li>
+                            <li className="flex items-start gap-2"><span className="text-[#14B8A6]">✓</span> Agenda completa</li>
+                            <li className="flex items-start gap-2"><span className="text-[#14B8A6]">✓</span> 1 empleado extra</li>
+                            <li className="flex items-start gap-2"><span className="text-[#14B8A6]">✓</span> Perfil destacado</li>
                         </ul>
                     </div>
 
                     {/* Plus */}
-                    <div className="bg-purple-50/50 border border-purple-200 text-center rounded-2xl p-6 relative">
-                        <div className="absolute top-0 right-0 bg-purple-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl uppercase">Avanzado</div>
-                        <h3 className="text-lg font-bold text-purple-900 mb-1">Plus Equipo</h3>
-                        <div className="flex justify-center items-end gap-3 mb-4">
-                            <div className="text-2xl font-black text-purple-900">$14.99 <span className="text-[10px] font-normal text-purple-600/70">/ mes</span></div>
-                            <div className="text-sm font-bold text-purple-700">$149.99 <span className="text-[9px] font-normal text-purple-600/70">/ año</span></div>
+                    <div className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col hover:border-slate-300 transition-colors relative">
+                        <div className="absolute top-0 right-0 bg-purple-100 text-purple-700 text-[10px] font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl uppercase">Equipos</div>
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                                <span className="text-xl">💎</span>
+                            </div>
                         </div>
-                        <ul className="text-xs text-left text-purple-800 space-y-2 mb-6">
-                            <li className="flex items-center gap-2"><span>💎</span> Todo lo de Premium</li>
-                            <li className="flex items-center gap-2"><span>💎</span> Hasta 5 empleados permitidos</li>
-                            <li className="flex items-center gap-2"><span>💎</span> Agenda colaborativa</li>
-                            <li className="flex items-center gap-2"><span>💎</span> Analytics avanzados</li>
-                            <li className="flex items-center gap-2"><span>💎</span> Panel de administración de equipo</li>
+                        <h3 className="text-lg font-bold text-slate-900 mb-1">Plus Equipo</h3>
+                        <div className="flex items-end gap-2 mb-4">
+                            <div className="text-3xl font-bold text-slate-900">$14.99<span className="text-[10px] font-normal text-slate-500">/mes</span></div>
+                            <div className="text-xs font-medium text-slate-400 line-through mb-1.5">$149.99/año</div>
+                        </div>
+                        <p className="text-xs text-slate-500 font-medium mb-4 uppercase tracking-wider border-b border-slate-100 pb-2">Beneficios Multi-Staff</p>
+                        <ul className="text-xs text-slate-600 space-y-2 mt-auto">
+                            <li className="flex items-start gap-2"><span className="text-[#14B8A6]">✓</span> Hasta 5 empleados extras</li>
+                            <li className="flex items-start gap-2"><span className="text-[#14B8A6]">✓</span> Agenda colaborativa total</li>
+                            <li className="flex items-start gap-2"><span className="text-[#14B8A6]">✓</span> Analytics avanzados</li>
+                            <li className="flex items-start gap-2"><span className="text-[#14B8A6]">✓</span> Citas asignables</li>
                         </ul>
                     </div>
                 </div>

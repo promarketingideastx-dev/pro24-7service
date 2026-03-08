@@ -708,7 +708,11 @@
       "depositNotes": "Deposit Notes",
       "platformNoteTitle": "PRO24/7YA Subscription",
       "platformNoteDesc": "The management of your monthly/annual plan with PRO24/7YA is now administered directly with our support team.",
-      "legalNote": "Note: PRO24/7 does not process payments. You are responsible for collecting money and coordinating with the client."
+      "legalNote": "Note: PRO24/7 does not process payments. You are responsible for collecting money and coordinating with the client.",
+      "paymentProofTitle": "Payment Proofs (Pre-Launch)",
+      "paymentProofDescription": "In the future, if your client's payment requires validation (e.g. Bank Deposit), the option will be enabled here for the client to send you the screenshot/receipt directly via WhatsApp or SMS upon booking.",
+      "paymentProofComingSoon": "Coming Soon",
+      "paymentProofOptions": "Planned options: Send via WhatsApp / Send via SMS"
     },
     "notifications": {
       "title": "Notifications",

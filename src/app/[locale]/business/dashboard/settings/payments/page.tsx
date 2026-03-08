@@ -267,14 +267,14 @@ export default function PaymentSettingsPage() {
             <div className="mt-8">
                 <GlassPanel className="p-6 border-dashed border-slate-300">
                     <div className="opacity-70">
-                        <h3 className="font-bold text-slate-800 text-sm mb-2">Comprobantes de Pago (Pre-Lanzamiento)</h3>
+                        <h3 className="font-bold text-slate-800 text-sm mb-2">{t('paymentProofTitle')}</h3>
                         <p className="text-xs text-slate-500 max-w-2xl mb-4">
-                            En el futuro, si el pago de tu cliente requiere validación (Ej. Depósito Bancario), aquí se activará la opción para que el cliente pueda enviarte la captura / comprobante gráfico directamente a tu WhatsApp o SMS al agendar.
+                            {t('paymentProofDescription')}
                         </p>
                         <div className="flex items-center gap-3">
-                            <span className="text-[10px] uppercase font-bold text-slate-400 border border-slate-200 px-2 py-0.5 rounded-full">Próximamente</span>
+                            <span className="text-[10px] uppercase font-bold text-slate-400 border border-slate-200 px-2 py-0.5 rounded-full">{t('paymentProofComingSoon')}</span>
                             <span className="text-xs text-[#14B8A6] font-medium block">
-                                Opciones planeadas: Enviar vía WhatsApp / Enviar vía SMS
+                                {t('paymentProofOptions')}
                             </span>
                         </div>
                     </div>
