@@ -365,6 +365,8 @@ export default function BusinessSetupPage() {
                                 initialAddress={formData.address}
                                 initialLat={formData.lat}
                                 initialLng={formData.lng}
+                                countryCode={formData.country as string}
+                                cityContext={formData.city && formData.department ? `${formData.city}, ${formData.department}` : undefined}
                             />
                         </div>
 

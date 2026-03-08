@@ -26,9 +26,11 @@ interface Props {
     initialAddress?: string;
     initialLat?: number;
     initialLng?: number;
+    countryCode?: string;
+    cityContext?: string;
 }
 
-function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLat, initialLng }: Props) {
+function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLat, initialLng, countryCode, cityContext }: Props) {
     const [markerPos, setMarkerPos] = useState<{ lat: number; lng: number }>(
         initialLat && initialLng ? { lat: initialLat, lng: initialLng } : DEFAULT_CENTER
     );
@@ -44,10 +46,32 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         setValue,
         clearSuggestions,
     } = usePlacesAutocomplete({
-        requestOptions: { componentRestrictions: { country: [] } },
+        requestOptions: {
+            componentRestrictions: countryCode ? { country: countryCode.toLowerCase() } : undefined
+        },
         debounce: 300,
         defaultValue: initialAddress || '',
     });
+
+    // Effect to center map on the selected city context if no initial coords were passed
+    useEffect(() => {
+        if (!initialLat && !initialLng && cityContext) {
+            const query = `${cityContext}${countryCode ? `, ${countryCode}` : ''}`;
+            getGeocode({ address: query }).then(async results => {
+                if (results && results.length > 0) {
+                    try {
+                        const { lat, lng } = await getLatLng(results[0]);
+                        setMapCenter({ lat, lng });
+                        setMarkerPos({ lat, lng });
+                        mapRef.current?.panTo({ lat, lng });
+                        mapRef.current?.setZoom(13);
+                    } catch (e) {
+                        console.error("getLatLng error:", e);
+                    }
+                }
+            }).catch(e => console.error("Geocoding city context error:", e));
+        }
+    }, [cityContext, countryCode, initialLat, initialLng]);
 
     // When user selects a suggestion from the dropdown
     const handleSelect = useCallback(async (description: string, placeId: string) => {
