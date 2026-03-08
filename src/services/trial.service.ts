@@ -9,10 +9,12 @@
  */
 
 import { db } from '@/lib/firebase';
-import { doc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import type { BusinessPlan } from '@/types/firestore-schema';
+import { PlanService } from './plan.service';
+import { EmployeeService } from './employee.service';
 
-export const TRIAL_DAYS = 7;
+export const TRIAL_DAYS = 14;
 
 export interface TrialStatus {
     isInTrial: boolean;
@@ -20,7 +22,7 @@ export interface TrialStatus {
     daysLeft: number;
     daysUsed: number;
     trialEndDate: Date | null;
-    showReminderBanner: boolean; // true when 1 day left
+    showReminderBanner: boolean; // true when <= 5 days left
     showUrgentBanner: boolean;   // true when 0 days left (last day)
     overriddenByCRM: boolean;    // beta override — trial checks skipped
 }
@@ -95,14 +97,14 @@ export const TrialService = {
             daysLeft,
             daysUsed,
             trialEndDate,
-            showReminderBanner: daysLeft === 1,
+            showReminderBanner: daysLeft <= 5 && !isExpired,
             showUrgentBanner: daysLeft === 0 && !isExpired,
             overriddenByCRM: false,
         };
     },
 
     /**
-     * Returns the default plan data for a NEW business (starts 7-day trial).
+     * Returns the default plan data for a NEW business (starts 14-day trial).
      * Called by BusinessProfileService.createProfile().
      */
     getNewBusinessPlanData() {
@@ -137,6 +139,42 @@ export const TrialService = {
             'planData.activatedAt': serverTimestamp(),
             updatedAt: serverTimestamp(),
         });
+    },
+
+    /**
+     * Modificador en segundo plano que detecta trial expirado y fuerza el Plan FREE,
+     * suspendiendo también a los empleados activos sobrantes.
+     */
+    async checkAndDowngradeTrial(businessId: string): Promise<boolean> {
+        try {
+            const bizRef = doc(db, 'businesses', businessId);
+            const snap = await getDoc(bizRef);
+            if (!snap.exists()) return false;
+
+            const bizData = snap.data();
+            const status = TrialService.getTrialStatus(bizData);
+
+            if (status.isExpired && bizData?.planData?.planStatus === 'trial') {
+                const limit = PlanService.TEAM_LIMITS['free'] || 0;
+
+                // 1. Downgrade a Free
+                await updateDoc(bizRef, {
+                    'planData.plan': 'free',
+                    'planData.planStatus': 'expired',
+                    'planData.teamMemberLimit': limit,
+                    updatedAt: serverTimestamp(),
+                });
+
+                // 2. Suspender empleados sobrantes basándose en el límite FREE (0)
+                await EmployeeService.suspendOverLimitEmployees(businessId, limit);
+
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error("Error checking trial expiration:", error);
+            return false;
+        }
     },
 
     /**

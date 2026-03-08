@@ -49,6 +49,14 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Necesitamos tu ubicación para mostrarte negocios y servicios cercanos a ti.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Necesitamos acceso a tu cámara para escanear recibos, códigos QR y tomar fotos para tu perfil o galería de servicios.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Necesitamos acceso a tu galería para que puedas seleccionar y subir imágenes a tu perfil o portafolio de servicios.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Necesitamos permiso para guardar imágenes en tu galería si decides descargar comprobantes o fotos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Necesitamos acceso al micrófono durante la grabación de video si decides usar la cámara para ese propósito.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

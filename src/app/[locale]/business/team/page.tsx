@@ -10,6 +10,9 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage
 import { EmployeeService, EmployeeData, WeeklySchedule } from '@/services/employee.service';
 import { ServicesService, ServiceData, BusinessProfileService } from '@/services/businessProfile.service';
 import { AppointmentService, Appointment } from '@/services/appointment.service';
+import { PlanService } from '@/services/plan.service';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import EmployeeWorkloadModal from '@/components/business/team/EmployeeWorkloadModal';
 import WeeklyScheduleEditor from '@/components/business/WeeklyScheduleEditor';
 import { useTranslations, useLocale } from 'next-intl';
@@ -49,6 +52,7 @@ export default function TeamPage() {
     const [employees, setEmployees] = useState<EmployeeData[]>([]);
     const [services, setServices] = useState<ServiceData[]>([]);
     const [businessSpecialties, setBusinessSpecialties] = useState<string[]>([]);
+    const [teamLimit, setTeamLimit] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -102,6 +106,13 @@ export default function TeamPage() {
                 .catch(() => { });
             BusinessProfileService.getProfile(user.uid).then(profile => {
                 if (profile?.specialties?.length) setBusinessSpecialties(profile.specialties);
+            }).catch(() => { });
+
+            getDoc(doc(db, 'businesses', user.uid)).then(snap => {
+                if (snap.exists()) {
+                    const plan = PlanService.getEffectivePlan(snap.data() || {});
+                    setTeamLimit(PlanService.getTeamLimit(plan));
+                }
             }).catch(() => { });
         } catch (error) {
             console.error('Error loading data:', error);
@@ -289,14 +300,22 @@ export default function TeamPage() {
         <div className="space-y-6">
 
             {/* Header */}
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900">{t('title')}</h1>
-                    <p className="text-slate-500 text-sm">{t('subtitle')}</p>
+                    <p className="text-slate-500 text-sm">
+                        {t('subtitle')}
+                        {teamLimit !== null && (
+                            <span className="ml-2 font-semibold text-[#14B8A6]">
+                                ({employees.length} / {teamLimit === 999 ? 'Ilimitados' : teamLimit})
+                            </span>
+                        )}
+                    </p>
                 </div>
                 <button
                     onClick={() => { resetForm(); setIsModalOpen(true); }}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#14B8A6] hover:bg-[#0F9488] rounded-xl text-sm font-bold text-white transition-colors shadow-[0_4px_12px_rgba(20,184,166,0.30)]"
+                    disabled={teamLimit !== null && employees.length >= teamLimit}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#14B8A6] hover:bg-[#0F9488] rounded-xl text-sm font-bold text-white transition-colors shadow-[0_4px_12px_rgba(20,184,166,0.30)] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <Plus size={16} /> {t('add')}
                 </button>
@@ -318,7 +337,8 @@ export default function TeamPage() {
                     </p>
                     <button
                         onClick={() => { resetForm(); setIsModalOpen(true); }}
-                        className="px-4 py-2 bg-[rgba(20,184,166,0.10)] hover:bg-[rgba(20,184,166,0.18)] border border-[#14B8A6]/30 text-[#0F766E] rounded-xl text-sm font-bold transition-colors"
+                        disabled={teamLimit !== null && employees.length >= teamLimit}
+                        className="px-4 py-2 bg-[rgba(20,184,166,0.10)] hover:bg-[rgba(20,184,166,0.18)] border border-[#14B8A6]/30 text-[#0F766E] rounded-xl text-sm font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {t('addFirst')}
                     </button>

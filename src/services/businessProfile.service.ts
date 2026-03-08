@@ -3,6 +3,7 @@ import { doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc,
 import { WeeklySchedule } from './employee.service';
 import { PaymentSettings } from '@/types/firestore-schema';
 import { TrialService } from './trial.service';
+import { PlanService } from './plan.service';
 
 
 // ── Country fallback coordinates ──
@@ -179,7 +180,23 @@ export const ServicesService = {
      */
     async addService(businessId: string, service: Omit<ServiceData, 'id'>): Promise<string> {
         try {
+            // BLOQUE 2A: Validación de Límites de Servicios
+            const bizRef = doc(db, 'businesses', businessId);
+            const bizSnap = await getDoc(bizRef);
+            const plan = PlanService.getEffectivePlan(bizSnap.data() || {});
+            const limit = PlanService.getServiceLimit(plan);
+
             const servicesRef = collection(db, 'businesses', businessId, 'services');
+
+            // Si el límite no es "infinito" (999), contamos los servicios creados
+            if (limit < 999) {
+                const q = query(servicesRef, orderBy('createdAt', 'asc'));
+                const snap = await getDocs(q);
+                if (snap.size >= limit) {
+                    throw new Error(`Límite alcanzado: Tu plan ${PlanService.PLAN_LABELS[plan] || 'actual'} permite un máximo de ${limit} servicios.`);
+                }
+            }
+
             const docRef = await addDoc(servicesRef, {
                 ...service,
                 createdAt: serverTimestamp(),
@@ -477,6 +494,19 @@ export const BusinessProfileService = {
                 updatedAt: serverTimestamp()
             };
 
+            // 4. Determine Plan Status (VIP vs Standard Trial)
+            const { UserService } = await import('@/services/user.service');
+            const userProfile = await UserService.getUserProfile(userId);
+            const isVip = userProfile?.isVip === true;
+
+            const planData = isVip ? {
+                plan: 'vip',
+                planStatus: 'active',
+                planSource: 'collaborator_beta',
+                teamMemberLimit: 999, // VIP infinite
+                overriddenByCRM: false
+            } : TrialService.getNewBusinessPlanData();
+
             // 4. Batch Writes
             batch.set(publicRef, publicPayload);
             batch.set(privateRef, privatePayload);
@@ -489,9 +519,8 @@ export const BusinessProfileService = {
 
             // 5. Write trial plan data to businesses doc (gated plan management)
             const businessesRef = doc(db, 'businesses', userId);
-            const trialPlanData = TrialService.getNewBusinessPlanData();
             batch.set(businessesRef, {
-                planData: trialPlanData,
+                planData: planData,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp()
             }, { merge: true });

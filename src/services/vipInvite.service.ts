@@ -108,10 +108,10 @@ export class VipInviteService {
     /**
      * Marks an invite as used by a specific business/user
      */
-    static async redeemInvite(id: string, businessId: string, userId: string): Promise<void> {
+    static async redeemInvite(id: string, userId: string, businessId?: string): Promise<void> {
         await updateDoc(doc(db, this.COLLECTION, id), {
             status: 'used',
-            registeredBusinessId: businessId,
+            registeredBusinessId: businessId || null,
             registeredUserId: userId,
             usedAt: serverTimestamp(),
         });

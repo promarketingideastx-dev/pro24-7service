@@ -146,7 +146,7 @@ export default function BusinessWizard() {
 
             // ── Redeem the invite if one was used ──
             if (usedInviteId && bizRes.success && bizRes.id) {
-                await VipInviteService.redeemInvite(usedInviteId, bizRes.id, user.uid).catch(console.error);
+                await VipInviteService.redeemInvite(usedInviteId, user.uid, bizRes.id).catch(console.error);
             }
 
             // Fire-and-forget: email notification to admin

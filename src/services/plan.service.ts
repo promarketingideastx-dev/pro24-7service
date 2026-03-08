@@ -19,9 +19,17 @@ export const PlanService = {
     /** Team member hard limits per plan */
     TEAM_LIMITS: {
         free: 0,
-        premium: 0,
+        premium: 1,
         plus_team: 5,
         vip: 999,        // Effectively unlimited; CRM admin manages individually
+    } as Record<BusinessPlan, number>,
+
+    /** Service hard limits per plan */
+    SERVICE_LIMITS: {
+        free: 5,
+        premium: 999,
+        plus_team: 999,
+        vip: 999,
     } as Record<BusinessPlan, number>,
 
     /** Plan display labels */
@@ -55,6 +63,11 @@ export const PlanService = {
     /** How many team members are allowed? */
     getTeamLimit(plan: BusinessPlan): number {
         return PlanService.TEAM_LIMITS[plan] ?? 0;
+    },
+
+    /** How many services are allowed? */
+    getServiceLimit(plan: BusinessPlan): number {
+        return PlanService.SERVICE_LIMITS[plan] ?? 5;
     },
 
     /** Is the plan at least Premium? */

@@ -8,7 +8,7 @@ import { UserService } from '@/services/user.service';
 import { db } from '@/lib/firebase';
 import { enableNetwork } from 'firebase/firestore';
 import { toast } from 'sonner';
-import { Search, Briefcase, MapPin } from 'lucide-react';
+import { Search, Briefcase, MapPin, Crown } from 'lucide-react';
 import { useCountry } from '@/context/CountryContext';
 import CountrySelector from '@/components/ui/CountrySelector';
 import Logo from '@/components/ui/Logo';
@@ -32,16 +32,24 @@ function OnboardingContent() {
     const isLoginMode = searchParams.get('mode') === 'login';
     const returnTo = searchParams.get('returnTo') || '';
 
-    const handleRoleSelection = async (role: 'client' | 'provider') => {
-        const intent = role === 'provider' ? 'business' : 'client';
+    const handleRoleSelection = async (role: 'client' | 'provider' | 'vip') => {
+        let intent = 'client';
+        if (role === 'provider') intent = 'business';
+        if (role === 'vip') intent = 'vip';
+
         const returnParam = returnTo ? `&returnTo=${encodeURIComponent(returnTo)}` : '';
 
         // 1. Not logged in → send to login or register based on mode
         if (!user) {
             if (isLoginMode) {
+                // If it's a VIP user trying to log in, standard login works fine, but we can pass intent
                 router.push(lp(`/auth/login?intent=${intent}${returnParam}`));
             } else {
-                router.push(lp(`/auth/register?intent=${intent}${returnParam}`));
+                if (role === 'vip') {
+                    router.push(lp(`/auth/register/vip?intent=${intent}${returnParam}`));
+                } else {
+                    router.push(lp(`/auth/register?intent=${intent}${returnParam}`));
+                }
             }
             return;
         }
@@ -57,7 +65,10 @@ function OnboardingContent() {
                 localStorage.setItem('pro247_user_mode', role === 'provider' ? 'business' : 'client');
             }
 
-            await UserService.setUserRole(user.uid, role);
+            // Normal provider/client mode save
+            if (role !== 'vip') {
+                await UserService.setUserRole(user.uid, role);
+            }
 
             const redirect = (path: string) => {
                 setTimeout(() => {
@@ -167,6 +178,29 @@ function OnboardingContent() {
                         <div className="shrink-0 flex flex-col items-center">
                             <div className="bg-white rounded-full p-1.5 shadow-sm border border-slate-100 group-hover:border-pink-200 transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-pink-500 group-hover:translate-x-0.5 transition-transform"><path d="m9 18 6-6-6-6" /></svg>
+                            </div>
+                        </div>
+                    </button>
+
+                    {/* VIP Option */}
+                    <button
+                        onClick={() => handleRoleSelection('vip')}
+                        disabled={loading || isLoginMode}
+                        className={`w-full flex items-center p-4 border rounded-2xl transition-all cursor-pointer group overflow-hidden relative bg-purple-50/50 hover:bg-purple-50/80 border-[#E6E8EC] hover:border-purple-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] text-left active:scale-[0.98] ${isLoginMode ? 'opacity-50 pointer-events-none hidden' : ''}`}
+                    >
+                        <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl bg-purple-500" />
+                        <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center mr-4 shrink-0 transition-transform group-hover:scale-110">
+                            <Crown className="w-6 h-6 text-purple-600" />
+                        </div>
+                        <div className="flex-1 min-w-0 pr-2">
+                            <h2 className="font-bold text-slate-900 text-sm md:text-base">{t('vipTitle')}</h2>
+                            <p className="text-xs text-slate-500 mt-0.5 leading-snug line-clamp-2">
+                                {t('vipDesc')}
+                            </p>
+                        </div>
+                        <div className="shrink-0 flex flex-col items-center">
+                            <div className="bg-white rounded-full p-1.5 shadow-sm border border-slate-100 group-hover:border-purple-200 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-purple-500 group-hover:translate-x-0.5 transition-transform"><path d="m9 18 6-6-6-6" /></svg>
                             </div>
                         </div>
                     </button>

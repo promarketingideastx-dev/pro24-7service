@@ -5,6 +5,8 @@ import { useEffect, useState, Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Lock, Award, Star, Phone, MessageSquare, Calendar } from 'lucide-react';
 // import PublicProfileView from '@/components/business/PublicProfileView'; // Deprecated
+import { useCuriousMode } from '@/hooks/useCuriousMode';
+import CuriousModeModal from '@/components/public/CuriousModeModal';
 import RequestAppointmentModal from '@/components/public/RequestAppointmentModal';
 
 import BusinessProfileLayout from '@/components/business/profile/BusinessProfileLayout';
@@ -111,6 +113,25 @@ function BusinessProfileContent() {
     // 2. If no public data found -> 404 (Real 404, no mocks)
     if (!publicData) {
         return <div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center text-slate-600">Negocio no encontrado</div>;
+    }
+
+    // 3. Curious Mode Check (Block after 5th visit if no account)
+    const { isBlocked, isInitialized } = useCuriousMode(id);
+
+    // Prevent FOUC: wait until localStorage is read before rendering public data
+    if (!isInitialized) {
+        return <div className="min-h-screen bg-[#F4F6F8]"></div>;
+    }
+
+    if (isBlocked) {
+        return (
+            <div className="min-h-screen bg-[#F4F6F8] relative overflow-hidden">
+                {/* Fake skeleton bg to make it look like they loaded the app before the modal drops */}
+                <div className="w-full h-64 bg-slate-200 animate-pulse"></div>
+                <div className="absolute top-48 inset-x-0 h-96 bg-white rounded-t-3xl"></div>
+                <CuriousModeModal />
+            </div>
+        );
     }
 
     // 4. Unified "Mini-App" View for ALL users (Guest & Logged In)

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { TrialService } from '@/services/trial.service';
 
 export default function BusinessGuard({ children }: { children: React.ReactNode }) {
     const { user, userProfile, loading } = useAuth();
@@ -66,6 +67,11 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
         const isBusinessRoute = pathname.includes('/business');
 
         if (hasBusiness) {
+            // BLOQUE 2D: Enforce Trial Expiration in background 
+            if (isProvider && user.uid) {
+                TrialService.checkAndDowngradeTrial(user.uid).catch(() => { });
+            }
+
             // Provider WITH business
             if (isSetupPage) {
                 router.replace(lp('/business/dashboard'));

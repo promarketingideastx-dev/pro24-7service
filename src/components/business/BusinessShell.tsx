@@ -7,6 +7,7 @@ import { LayoutDashboard, Store, Calendar, Settings, LogOut, Menu, X, Users, Cre
 import GlassPanel from '@/components/ui/GlassPanel';
 import BusinessGuard from '@/components/auth/BusinessGuard';
 import BusinessNotifBell from '@/components/business/BusinessNotifBell';
+import TrialWarningBanner from '@/components/business/TrialWarningBanner';
 import { AuthService } from '@/services/auth.service';
 import { AppointmentRefreshProvider } from '@/context/AppointmentRefreshContext';
 import { useAuth } from '@/context/AuthContext';
@@ -186,8 +187,9 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                     )}
 
                     {/* Main Content Area */}
-                    <main className={`flex-1 flex flex-col relative w-full min-w-0 pb-[env(safe-area-inset-bottom)] ${isMessages ? 'p-0 h-[calc(100dvh-70px)] md:h-[100dvh] md:p-4 overflow-hidden' : 'p-3 sm:p-4 md:p-8 overflow-y-auto'}`}>
-                        <div className={`w-full max-w-7xl mx-auto flex-1 ${isMessages ? 'h-full flex flex-col' : ''}`}>
+                    <main className={`flex-1 flex flex-col relative w-full min-w-0 pb-[env(safe-area-inset-bottom)] ${isMessages ? 'p-0 h-[calc(100dvh-70px)] md:h-[100dvh] md:p-4 overflow-hidden' : 'p-0 md:p-8 overflow-y-auto'}`}>
+                        <TrialWarningBanner />
+                        <div className={`w-full max-w-7xl mx-auto flex-1 p-3 sm:p-4 md:p-0 ${isMessages ? 'h-full flex flex-col' : ''}`}>
                             {children}
                         </div>
                     </main>
