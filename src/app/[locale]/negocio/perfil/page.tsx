@@ -33,11 +33,14 @@ function BusinessProfileContent() {
     const [error, setError] = useState(false);
     const [isBookingOpen, setIsBookingOpen] = useState(false);
 
-    // UI State (Moved up to prevent conditional hook error)
+    // UI State
     const [activeTab, setActiveTab] = useState('services');
     const [isChatOpen, setIsChatOpen] = useState(false);
 
-    // Combine data logic (Moved up)
+    // 1. Hooks MUST be at the top unconditionally
+    const { isBlocked, isInitialized } = useCuriousMode(id || '');
+
+    // Combine data logic
     const isOwner = user?.uid === id;
     const displayData = isOwner && privateData ? { ...publicData, ...privateData } : publicData;
 
@@ -72,6 +75,10 @@ function BusinessProfileContent() {
     };
 
     useEffect(() => {
+        if (!id) {
+            setPageLoading(false);
+            return;
+        }
         loadPublic();
     }, [id]);
 
@@ -95,6 +102,11 @@ function BusinessProfileContent() {
         return <div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center text-slate-400">Cargando perfil...</div>;
     }
 
+    // 0. Invalid ID
+    if (!id) {
+        return <div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center text-slate-600 font-bold text-lg">Negocio no encontrado</div>;
+    }
+
     // 1. Error State
     if (error) {
         return (
@@ -116,8 +128,6 @@ function BusinessProfileContent() {
     }
 
     // 3. Curious Mode Check (Block after 5th visit if no account)
-    const { isBlocked, isInitialized } = useCuriousMode(id);
-
     // Prevent FOUC: wait until localStorage is read before rendering public data
     if (!isInitialized) {
         return <div className="min-h-screen bg-[#F4F6F8]"></div>;
