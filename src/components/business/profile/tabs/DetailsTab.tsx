@@ -130,10 +130,10 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                     ? `http://maps.apple.com/?q=${lat},${lng}&ll=${lat},${lng}`
                                     : `http://maps.apple.com/?q=${encodeURIComponent(`${name} ${city}`)}`;
                             } else {
-                                // Google Maps Web / Deep Link
-                                if (placeId) url = `https://www.google.com/maps/place/?q=place_id:${placeId}`;
-                                else if (lat && lng) url = `https://maps.google.com/?q=${lat},${lng}`;
-                                else url = `https://maps.google.com/?q=${encodeURIComponent(`${name} ${city}`)}`;
+                                // Google Maps Web / Deep Link (Official Universal Maps URL)
+                                if (placeId) url = `https://www.google.com/maps/search/?api=1&query=${lat || 0},${lng || 0}&query_place_id=${placeId}`;
+                                else if (lat && lng) url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+                                else url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name} ${city}`)}`;
                             }
                             if (url) window.open(url, '_blank');
                         };
