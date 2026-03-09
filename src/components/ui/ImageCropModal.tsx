@@ -13,7 +13,8 @@ interface Area {
 
 interface Props {
     imageSrc: string;         // Base64 or object URL of image to crop
-    aspectRatio?: number;     // default: 16/9 for cover
+    aspectRatio?: number;     // default: 16/9 for cover. Ignored if freeCrop is true.
+    freeCrop?: boolean;       // If true, allows cropping without fixed aspect ratio
     onComplete: (croppedBlob: Blob) => void;
     onClose: () => void;
 }
@@ -51,7 +52,7 @@ async function getCroppedImg(imageSrc: string, pixelCrop: Area): Promise<Blob> {
     });
 }
 
-export default function ImageCropModal({ imageSrc, aspectRatio = 16 / 9, onComplete, onClose }: Props) {
+export default function ImageCropModal({ imageSrc, aspectRatio = 16 / 9, freeCrop = false, onComplete, onClose }: Props) {
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
@@ -97,7 +98,7 @@ export default function ImageCropModal({ imageSrc, aspectRatio = 16 / 9, onCompl
                         image={imageSrc}
                         crop={crop}
                         zoom={zoom}
-                        aspect={aspectRatio}
+                        aspect={freeCrop ? undefined : aspectRatio}
                         onCropChange={setCrop}
                         onZoomChange={setZoom}
                         onCropComplete={onCropComplete}

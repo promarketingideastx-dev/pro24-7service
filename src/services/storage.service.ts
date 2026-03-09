@@ -1,7 +1,30 @@
 import { storage } from '@/lib/firebase';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import imageCompression from 'browser-image-compression';
 
 export const StorageService = {
+    /**
+     * Helper to gracefully compress image files.
+     * Target: Max 5MB, Max Width/Height: 1920px
+     */
+    async compressImage(file: File): Promise<File> {
+        if (!file.type.startsWith('image/')) return file;
+
+        const options = {
+            maxSizeMB: 5,
+            maxWidthOrHeight: 1920,
+            useWebWorker: true,
+            fileType: 'image/webp' as const, // For web optimization
+        };
+
+        try {
+            return await imageCompression(file, options);
+        } catch (error) {
+            console.error("Compression Error:", error);
+            return file; // Fallback to original if compression fails
+        }
+    },
+
     /**
      * Uploads a Business Image to Firebase Storage.
      * Path: businesses/{userId}/{timestamp}_{filename}
@@ -9,15 +32,17 @@ export const StorageService = {
     async uploadBusinessImage(userId: string, file: File): Promise<string> {
         if (!userId) throw new Error("User ID is required for upload.");
 
+        const compressedFile = await this.compressImage(file);
+
         const timestamp = Date.now();
-        // Sanitize filename
-        const filename = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+        // Sanitize filename and enforce webp via the compress layer
+        const filename = compressedFile.name.replace(/[^a-zA-Z0-9.]/g, '_').replace(/\.[^/.]+$/, ".webp");
         const storagePath = `business_images/${userId}/${timestamp}_${filename}`;
 
         const storageRef = ref(storage, storagePath);
 
         try {
-            const snapshot = await uploadBytes(storageRef, file);
+            const snapshot = await uploadBytes(storageRef, compressedFile);
             const downloadURL = await getDownloadURL(snapshot.ref);
             return downloadURL;
         } catch (error: any) {
@@ -36,18 +61,18 @@ export const StorageService = {
     async uploadUserAvatar(userId: string, file: File): Promise<string> {
         if (!userId) throw new Error("User ID is required.");
 
+        const compressedFile = await this.compressImage(file);
+
         const timestamp = Date.now();
-        const extension = file.name.split('.').pop() || 'jpg';
-        const storagePath = `avatars/${userId}/avatar_${timestamp}.${extension}`;
+        const storagePath = `avatars/${userId}/avatar_${timestamp}.webp`;
 
         const storageRef = ref(storage, storagePath);
 
         try {
-            const snapshot = await uploadBytes(storageRef, file);
+            const snapshot = await uploadBytes(storageRef, compressedFile);
             return await getDownloadURL(snapshot.ref);
         } catch (error: any) {
             console.error("Avatar Upload Error:", error);
-            // Improve error message for permissions
             if (error.code === 'storage/unauthorized') {
                 throw new Error("No tienes permiso para subir archivos.");
             }

@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
-import { BusinessProfileService, BusinessProfileData } from '@/services/businessProfile.service';
+import { BusinessProfileService, BusinessProfileData, PortfolioService } from '@/services/businessProfile.service';
+import { StorageService } from '@/services/storage.service';
 import WizardSteps from '@/components/business/setup/WizardSteps';
 import GlassPanel from '@/components/ui/GlassPanel';
 import ImageUploader from '@/components/ui/ImageUploader';
-import { Instagram, Facebook, Globe } from 'lucide-react';
+import ImageCropModal from '@/components/ui/ImageCropModal';
 import {
+    Instagram, Facebook, Globe, Upload, X, Trash2, Edit2,
     Building, MapPin, Tag, Check, ArrowRight, ArrowLeft,
     MonitorPlay, Camera, Palette, Music, Scissors, Shield, // Art
     Wrench, Zap, Droplets, PaintBucket, Truck, Key, Car, Bike, Leaf, // General
@@ -39,7 +41,24 @@ export default function BusinessSetupPage() {
     ];
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [showMultiArea, setShowMultiArea] = useState(false); // Toggle for additional areas
+
+    // Crop Modal State
+    const [cropModal, setCropModal] = useState<{
+        isOpen: boolean;
+        imageSrc: string;
+        type: 'cover' | 'logo' | 'gallery';
+        galleryId?: string;
+    }>({ isOpen: false, imageSrc: '', type: 'cover' });
+
+    // Gallery Items State
+    const [galleryItems, setGalleryItems] = useState<Array<{
+        id: string;
+        url: string;
+        title: string;
+        description: string;
+    }>>([]);
 
     // Auth guard — redirect unauthenticated users to onboarding
     useEffect(() => {
@@ -80,9 +99,56 @@ export default function BusinessSetupPage() {
         socialMedia: { instagram: '', facebook: '', tiktok: '' }
     });
 
+    const triggerImageSelect = (type: 'cover' | 'logo' | 'gallery', galleryId?: string) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/png, image/jpeg, image/webp';
+        input.onchange = (e: any) => {
+            const file = e.target.files?.[0];
+            if (file) {
+                const objectUrl = URL.createObjectURL(file);
+                setCropModal({ isOpen: true, imageSrc: objectUrl, type, galleryId });
+            }
+        };
+        input.click();
+    };
+
+    const handleCropComplete = async (croppedBlob: Blob) => {
+        if (!user) return;
+        setIsUploading(true);
+        try {
+            const file = new File([croppedBlob], `crop_${Date.now()}.jpg`, { type: 'image/jpeg' });
+            const url = await StorageService.uploadBusinessImage(user.uid, file);
+
+            if (cropModal.type === 'cover') {
+                setFormData(prev => ({ ...prev, coverImage: url }));
+            } else if (cropModal.type === 'logo') {
+                setFormData(prev => ({ ...prev, logoUrl: url }));
+            } else if (cropModal.type === 'gallery') {
+                if (cropModal.galleryId) {
+                    setGalleryItems(prev => prev.map(item =>
+                        item.id === cropModal.galleryId ? { ...item, url } : item
+                    ));
+                } else {
+                    setGalleryItems(prev => [...prev, {
+                        id: Date.now().toString(),
+                        url,
+                        title: '',
+                        description: ''
+                    }]);
+                }
+            }
+            setCropModal({ isOpen: false, imageSrc: '', type: 'cover' });
+        } catch (error) {
+            console.error("Error cropping image:", error);
+            toast.error("Error al recortar la imagen.");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     // Effect: Enforce Active Country alignment on mount
     useEffect(() => {
-        // Now valid to read from storage/cookies
         const current = ActiveCountry.get();
         if (formData.country !== current) {
             setFormData(prev => ({
@@ -147,7 +213,7 @@ export default function BusinessSetupPage() {
                 placeId: formData.placeId,
                 googleMapsUrl: formData.googleMapsUrl,
                 coverImage: formData.coverImage,
-                images: formData.images || [],
+                images: galleryItems.map(item => item.url) || [], // Sync URLs
                 logoUrl: formData.logoUrl,
                 userId: user.uid,
                 email: formData.email!,
@@ -156,6 +222,17 @@ export default function BusinessSetupPage() {
             };
 
             await BusinessProfileService.createProfile(user.uid, payload);
+
+            // Inject gallery items as portfolio posts sequentially
+            if (galleryItems.length > 0) {
+                for (const item of galleryItems) {
+                    await PortfolioService.addPortfolioItem(user.uid, {
+                        url: item.url,
+                        title: item.title,
+                        description: item.description
+                    });
+                }
+            }
 
             // Redirect to dashboard
             router.push('/business/dashboard');
@@ -178,11 +255,29 @@ export default function BusinessSetupPage() {
 
                             <div>
                                 <label className="block text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">{t('coverImage')} *</label>
-                                <ImageUploader
-                                    images={formData.coverImage ? [formData.coverImage] : []}
-                                    onImagesChange={(urls) => setFormData({ ...formData, coverImage: urls[0] || '' })}
-                                    maxImages={1}
-                                />
+
+                                <div
+                                    onClick={() => triggerImageSelect('cover')}
+                                    className={`relative w-full aspect-[3/1] rounded-2xl border-2 border-dashed flex flex-col items-center justify-center overflow-hidden cursor-pointer transition-all group ${formData.coverImage ? 'border-teal-500/50' : 'border-slate-300 hover:border-teal-400 hover:bg-slate-50'}`}
+                                >
+                                    {formData.coverImage ? (
+                                        <>
+                                            <img src={formData.coverImage} alt="Cover" className="w-full h-full object-cover" />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                                <div className="flex items-center gap-2 text-white bg-black/60 px-4 py-2 rounded-full font-medium text-sm">
+                                                    <Edit2 size={16} /> {t('imageUploader.tapToChange')}
+                                                </div>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="text-center p-4">
+                                            <div className="bg-teal-50 text-teal-600 p-3 rounded-full inline-block mb-2">
+                                                <Upload size={24} />
+                                            </div>
+                                            <p className="text-sm font-medium text-slate-600">{t('imageUploader.uploadGallery')}</p>
+                                        </div>
+                                    )}
+                                </div>
                                 <p className="text-slate-500 text-xs mt-2">{t('coverHint')}</p>
                             </div>
 
@@ -190,12 +285,27 @@ export default function BusinessSetupPage() {
 
                             <div>
                                 <label className="block text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">{t('logoImage')} *</label>
-                                <div className="max-w-[200px]">
-                                    <ImageUploader
-                                        images={formData.logoUrl ? [formData.logoUrl] : []}
-                                        onImagesChange={(urls) => setFormData({ ...formData, logoUrl: urls[0] || '' })}
-                                        maxImages={1}
-                                    />
+                                <div
+                                    onClick={() => triggerImageSelect('logo')}
+                                    className={`relative w-32 h-32 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center overflow-hidden cursor-pointer transition-all group ${formData.logoUrl ? 'border-teal-500/50' : 'border-slate-300 hover:border-teal-400 hover:bg-slate-50'}`}
+                                >
+                                    {formData.logoUrl ? (
+                                        <>
+                                            <img src={formData.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                                                <div className="text-white bg-black/60 p-2 rounded-full font-medium">
+                                                    <Edit2 size={16} />
+                                                </div>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="text-center p-2">
+                                            <div className="bg-purple-50 text-purple-600 p-2 rounded-full inline-block mb-1">
+                                                <Upload size={20} />
+                                            </div>
+                                            <p className="text-xs font-medium text-slate-600 text-center uppercase">LOGO</p>
+                                        </div>
+                                    )}
                                 </div>
                                 <p className="text-slate-500 text-xs mt-2">{t('logoHint')}</p>
                             </div>
@@ -663,16 +773,74 @@ export default function BusinessSetupPage() {
                 return (
                     <div className="space-y-6">
                         <div>
-                            <h3 className="text-slate-900 font-bold mb-1">{t('galleryTitle')}</h3>
-                            <p className="text-slate-600 text-sm mb-4">
+                            <div className="flex items-center justify-between mb-1">
+                                <h3 className="text-slate-900 font-bold">{t('galleryTitle')}</h3>
+                                <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-md">{galleryItems.length} / 5</span>
+                            </div>
+                            <p className="text-slate-600 text-sm mb-6">
                                 {t('gallerySubtitle')}
                             </p>
 
-                            <ImageUploader
-                                images={formData.images || []}
-                                onImagesChange={(urls) => setFormData({ ...formData, images: urls })}
-                                maxImages={5}
-                            />
+                            <div className="space-y-4 max-w-2xl">
+                                {galleryItems.map((item, index) => (
+                                    <div key={item.id} className="bg-white border border-slate-200 rounded-2xl p-4 flex gap-4 md:gap-6 shadow-sm hover:shadow-md transition-shadow relative group animate-in fade-in zoom-in-95 duration-300">
+                                        <button
+                                            onClick={() => setGalleryItems(prev => prev.filter(i => i.id !== item.id))}
+                                            className="absolute -top-2 -right-2 bg-red-100 text-red-500 hover:bg-red-500 hover:text-white p-1.5 rounded-full transition-colors z-10 shadow-sm"
+                                            title="Eliminar imagen"
+                                        >
+                                            <X size={16} />
+                                        </button>
+
+                                        <div
+                                            onClick={() => triggerImageSelect('gallery', item.id)}
+                                            className="w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden shrink-0 cursor-pointer relative group/image border border-slate-200 bg-slate-50"
+                                        >
+                                            <img src={item.url} alt={`Gallery ${index}`} className="w-full h-full object-cover group-hover/image:scale-105 transition-transform" />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/image:opacity-100 flex items-center justify-center transition-opacity">
+                                                <Edit2 size={20} className="text-white drop-shadow-md" />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex-1 space-y-3">
+                                            <div>
+                                                <input
+                                                    type="text"
+                                                    value={item.title}
+                                                    onChange={(e) => setGalleryItems(prev => prev.map(i => i.id === item.id ? { ...i, title: e.target.value } : i))}
+                                                    placeholder={t('imageUploader.titleOptional')}
+                                                    className="w-full border-b border-slate-200 pb-1 text-slate-900 font-bold placeholder:font-normal focus:outline-none focus:border-teal-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <textarea
+                                                    value={item.description}
+                                                    onChange={(e) => {
+                                                        const words = e.target.value.trim().split(/\s+/).filter(w => w.length > 0);
+                                                        if (words.length <= 150) {
+                                                            setGalleryItems(prev => prev.map(i => i.id === item.id ? { ...i, description: e.target.value } : i));
+                                                        }
+                                                    }}
+                                                    placeholder={t('imageUploader.descOptional')}
+                                                    className="w-full h-16 md:h-20 text-sm !border-b !border-slate-200 !rounded-none pb-1 text-slate-600 focus:outline-none focus:border-teal-500 resize-none"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {galleryItems.length < 5 && (
+                                    <button
+                                        onClick={() => triggerImageSelect('gallery')}
+                                        className="w-full py-6 border-2 border-dashed border-slate-300 hover:border-teal-500 rounded-2xl flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-teal-600 hover:bg-teal-50/50 transition-colors"
+                                    >
+                                        <div className="bg-slate-100 p-3 rounded-full group-hover:bg-teal-100 transition-colors">
+                                            <Upload size={24} />
+                                        </div>
+                                        <span className="font-medium text-sm">{t('imageUploader.addPhoto')}</span>
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
                 );
@@ -744,6 +912,28 @@ export default function BusinessSetupPage() {
 
     return (
         <div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center p-4 md:p-8">
+
+            {/* Global Image Crop Modal for Setup */}
+            {cropModal.isOpen && (
+                <div className="fixed inset-0 z-[9999]">
+                    <ImageCropModal
+                        imageSrc={cropModal.imageSrc}
+                        aspectRatio={cropModal.type === 'cover' ? 3 / 1 : cropModal.type === 'logo' ? 1 : 1}
+                        freeCrop={cropModal.type === 'gallery'}
+                        onComplete={handleCropComplete}
+                        onClose={() => setCropModal({ isOpen: false, imageSrc: '', type: 'cover' })}
+                    />
+                </div>
+            )}
+
+            {/* Global Uploading Overlay */}
+            {isUploading && (
+                <div className="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-white">
+                    <div className="w-12 h-12 border-4 border-white/20 border-t-teal-400 rounded-full animate-spin mb-4" />
+                    <p className="font-bold tracking-wide">Procesando imagen...</p>
+                </div>
+            )}
+
             <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-slate-200 min-h-[600px]">
 
                 {/* ── LEFT SIDEBAR ── */}

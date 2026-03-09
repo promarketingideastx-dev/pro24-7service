@@ -75,11 +75,25 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
 
     // When user selects a suggestion from the dropdown
     const handleSelect = useCallback(async (description: string, placeId: string) => {
+        // Prevent generic blur overriding our selection
         setValue(description, false);
         clearSuggestions();
 
         try {
-            const results = await getGeocode({ placeId });
+            // Priority 1: Try by placeId
+            let results;
+            try {
+                results = await getGeocode({ placeId });
+            } catch (err) {
+                console.warn('Geocode by placeId failed, falling back to description:', err);
+                // Priority 2: Fallback to textual description
+                results = await getGeocode({ address: description });
+            }
+
+            if (!results || results.length === 0) {
+                throw new Error("No geocoding results found for this selection.");
+            }
+
             const { lat, lng } = await getLatLng(results[0]);
 
             // Extract city, department, country from address_components
@@ -94,10 +108,14 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
             }
 
             const pos = { lat, lng };
+            // Robust state update: Force the marker and center together
             setMarkerPos(pos);
             setMapCenter(pos);
-            mapRef.current?.panTo(pos);
-            mapRef.current?.setZoom(17);
+            // Pan smoothly and zoom deeply
+            if (mapRef.current) {
+                mapRef.current.panTo(pos);
+                mapRef.current.setZoom(17);
+            }
 
             const result: LocationResult = {
                 lat,
@@ -112,6 +130,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
             onLocationSelect(result);
         } catch (err) {
             console.error('PlacesLocationPicker geocode error:', err);
+            // If even fallback fails, we leave the picker untouched so they can manual drag.
         }
     }, [setValue, clearSuggestions, onLocationSelect]);
 
@@ -218,7 +237,10 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                         {data.map(({ place_id, description }) => (
                             <li
                                 key={place_id}
-                                onClick={() => handleSelect(description, place_id)}
+                                onMouseDown={(e) => {
+                                    e.preventDefault(); // Evita que el input pierda el focus antes de ejecutar la función
+                                    handleSelect(description, place_id);
+                                }}
                                 className="flex items-start gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition-colors"
                             >
                                 <MapPin size={14} className="text-teal-500 mt-0.5 shrink-0" />

@@ -49,3 +49,4 @@ next-env.d.ts
 .firebaserc
 .firebase/
 _legacy_backup
+.env*.local

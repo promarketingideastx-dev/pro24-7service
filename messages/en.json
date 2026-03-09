@@ -1156,6 +1156,16 @@
   },
   "setup": {
     "stepInfo": "Information",
+    "imageUploader": {
+      "tapToChange": "Tap to change",
+      "cropAndSave": "Adjust Image",
+      "takePhoto": "Take Photo",
+      "uploadGallery": "Upload from Gallery",
+      "titleOptional": "Title (Optional)",
+      "descOptional": "Short Description (Max 150 words)",
+      "savePhoto": "Save Photo",
+      "addPhoto": "Add work photo"
+    },
     "stepLocation": "Location",
     "stepCat": "Category",
     "stepGallery": "Gallery",

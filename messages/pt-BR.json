@@ -1154,6 +1154,16 @@
   },
   "setup": {
     "stepInfo": "Informações",
+    "imageUploader": {
+      "tapToChange": "Toque para alterar",
+      "cropAndSave": "Ajustar Imagem",
+      "takePhoto": "Tirar Foto",
+      "uploadGallery": "Enviar da Galeria",
+      "titleOptional": "Título (Opcional)",
+      "descOptional": "Descrição Curta (Máx 150 palavras)",
+      "savePhoto": "Guardar Foto",
+      "addPhoto": "Adicionar foto de trabalho"
+    },
     "stepLocation": "Localização",
     "stepCat": "Categoria",
     "stepGallery": "Galeria",
