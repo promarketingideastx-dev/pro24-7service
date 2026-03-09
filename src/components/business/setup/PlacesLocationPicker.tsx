@@ -124,12 +124,12 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
 
         try {
             const results = await getGeocode({ location: { lat, lng } });
-            const address = results[0]?.formatted_address || '';
+            const address = results[0]?.formatted_address || value || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
             const placeId = results[0]?.place_id || '';
 
-            let city = '';
-            let department = '';
-            let country = '';
+            let city = cityContext ? cityContext.split(',')[0] : '';
+            let department = cityContext ? cityContext.split(',')[1]?.trim() : '';
+            let country = countryCode || '';
             const comps = results[0]?.address_components || [];
             for (const comp of comps) {
                 if (comp.types.includes('locality')) city = comp.long_name;
@@ -137,7 +137,9 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 if (comp.types.includes('country')) country = comp.short_name;
             }
 
-            setValue(address, false);
+            if (!value || results[0]?.formatted_address) {
+                setValue(address, false);
+            }
 
             const result: LocationResult = {
                 lat,
@@ -153,20 +155,22 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
             };
             onLocationSelect(result);
         } catch (err) {
-            // No reverse geocode found, just save the lat/lng
+            const fallbackAddress = value || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
             const result: LocationResult = {
                 lat,
                 lng,
                 placeId: '',
-                formattedAddress: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+                formattedAddress: fallbackAddress,
                 googleMapsUrl: `https://maps.google.com/?q=${lat},${lng}`,
-                city: '',
-                department: '',
-                country: '',
+                city: cityContext ? cityContext.split(',')[0] : '',
+                department: cityContext ? cityContext.split(',')[1]?.trim() : '',
+                country: countryCode || '',
             };
             onLocationSelect(result);
-            setValue(result.formattedAddress, false);
-            console.error('Reverse geocode error:', err);
+            if (!value) {
+                setValue(fallbackAddress, false);
+            }
+            console.error('Reverse geocode fallback applied due to error:', err);
         }
     }, [setValue, onLocationSelect]);
 
@@ -180,7 +184,21 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 <input
                     type="text"
                     value={value}
-                    onChange={(e) => setValue(e.target.value)}
+                    onChange={(e) => {
+                        const newText = e.target.value;
+                        setValue(newText);
+                        // [ROBUST REPAIR] Keep parent synchronized so the manual text is never lost
+                        onLocationSelect({
+                            lat: markerPos.lat,
+                            lng: markerPos.lng,
+                            placeId: '', // Invalidated since it's a free-text typing
+                            formattedAddress: newText,
+                            googleMapsUrl: `https://maps.google.com/?q=${markerPos.lat},${markerPos.lng}`,
+                            city: cityContext ? cityContext.split(',')[0] : '',
+                            department: cityContext ? cityContext.split(',')[1]?.trim() : '',
+                            country: countryCode || '',
+                        });
+                    }}
                     disabled={!ready}
                     placeholder="Busca tu dirección exacta... ej: Multiplaza Tegucigalpa"
                     className="w-full h-12 bg-white border border-slate-200 rounded-lg pl-9 pr-9 text-slate-800 text-sm focus:outline-none focus:border-teal-500 placeholder:text-slate-400 disabled:opacity-50"

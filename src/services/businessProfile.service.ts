@@ -441,13 +441,20 @@ export const BusinessProfileService = {
                 ? Object.values(data.specialtiesBySubcategory).flat()
                 : (data.specialties || []);
 
-            // 2. Prepare location: use exact Google Places coords if available, else geocode
-            let location: { lat: number; lng: number };
+            // 2. Prepare location official structure
+            let baseCoords: { lat: number; lng: number };
             if (data.lat && data.lng) {
-                location = { lat: data.lat, lng: data.lng };
+                baseCoords = { lat: data.lat, lng: data.lng };
             } else {
-                location = await geocodeAddress(data.city, data.department, data.country, data.address);
+                baseCoords = await geocodeAddress(data.city, data.department, data.country, data.address);
             }
+
+            const officialLocation = {
+                address: data.address || '',
+                lat: baseCoords.lat,
+                lng: baseCoords.lng,
+                placeId: data.placeId || null
+            };
 
             // 3. Fetch user profile to verify VIP status and basic info
             const { UserService } = await import('@/services/user.service');
@@ -489,7 +496,13 @@ export const BusinessProfileService = {
                 website: data.website || '',
                 phone: data.phone || '',
                 socialMedia: data.socialMedia || { instagram: '', facebook: '', tiktok: '' },
-                location,
+
+                // --- NUEVA ESTRUCTURA OFICIAL ---
+                location: officialLocation,
+
+                // --- LEGACY FALLBACKS (Mantenidos por compatibilidad) ---
+                lat: baseCoords.lat,
+                lng: baseCoords.lng,
                 placeId: data.placeId || null,
                 googleMapsUrl: data.googleMapsUrl || null,
                 modality: data.modality,

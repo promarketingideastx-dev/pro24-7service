@@ -71,7 +71,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                         <div>
                             <span className="block text-white font-medium mb-1">{t('location')}</span>
                             <span className="text-slate-400 text-sm">
-                                {business.address ? business.address : `${business.city || ''}, ${business.department || 'Honduras'}`}
+                                {business.location?.address || business.address || `${business.city || ''}, ${business.department || 'Honduras'}`}
                             </span>
                         </div>
                     </div>
@@ -99,8 +99,8 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                     category: business.category,
                                     subcategory: business.subcategory || '',
                                     tags: business.tags || [],
-                                    lat: business.lat || business.location?.lat || 15.50417,
-                                    lng: business.lng || business.location?.lng || -88.02500,
+                                    lat: business.location?.lat || business.lat || 15.50417,
+                                    lng: business.location?.lng || business.lng || -88.02500,
                                     icon: '\uD83D\uDCCD',
                                     color: 'bg-brand-neon-cyan',
                                     description: business.description || '',
@@ -114,9 +114,11 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                     {(() => {
                         const lat = business.location?.lat || business.lat;
                         const lng = business.location?.lng || business.lng;
-                        const placeId = business.placeId;
+                        const placeId = business.location?.placeId || business.placeId;
                         const name = business.name;
-                        const city = business.city || business.department || '';
+                        const addressText = business.location?.address || business.address || '';
+                        const fallbackCity = business.city || business.department || '';
+                        const queryLocation = addressText ? `${name} ${addressText}` : `${name} ${fallbackCity}`;
 
                         const handleDirectionsClick = (e: React.MouseEvent) => {
                             e.preventDefault();
@@ -128,12 +130,12 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                 // Native Apple Maps schema
                                 url = (lat && lng)
                                     ? `http://maps.apple.com/?q=${lat},${lng}&ll=${lat},${lng}`
-                                    : `http://maps.apple.com/?q=${encodeURIComponent(`${name} ${city}`)}`;
+                                    : `http://maps.apple.com/?q=${encodeURIComponent(queryLocation)}`;
                             } else {
                                 // Google Maps Web / Deep Link (Official Universal Maps URL)
                                 if (placeId) url = `https://www.google.com/maps/search/?api=1&query=${lat || 0},${lng || 0}&query_place_id=${placeId}`;
                                 else if (lat && lng) url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-                                else url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name} ${city}`)}`;
+                                else url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryLocation)}`;
                             }
                             if (url) window.open(url, '_blank');
                         };
