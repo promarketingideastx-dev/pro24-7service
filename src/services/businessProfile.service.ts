@@ -490,7 +490,7 @@ export const BusinessProfileService = {
                 tags: allTags,
                 rating: 0,
                 reviewCount: 0,
-                coverImage: data.images[0] || null,
+                coverImage: data.coverImage || data.images[0] || null,
                 logoUrl: data.logoUrl || null,
                 shortDescription: data.description.substring(0, 150),
                 website: data.website || '',

@@ -75,6 +75,7 @@ export default function BusinessSetupPage() {
         additionalSpecialties: [], // New: Multi-select specialties (reserved if needed, but we use 'specialties' for chips)
         modality: 'local',
         images: [],
+        coverImage: '',
         logoUrl: '',
         socialMedia: { instagram: '', facebook: '', tiktok: '' }
     });
@@ -114,10 +115,10 @@ export default function BusinessSetupPage() {
     };
 
     const isStepValid = () => {
-        if (currentStep === 1) return !!formData.businessName;
+        if (currentStep === 1) return !!formData.businessName && !!formData.coverImage && !!formData.logoUrl;
         if (currentStep === 2) return !!formData.city && !!formData.department; // Validate Dept + City
         if (currentStep === 3) return !!formData.category;
-        if (currentStep === 4) return (formData.images?.length || 0) > 0 && !!formData.logoUrl; // Require 1 logo and 1 image
+        if (currentStep === 4) return true; // Gallery is optional now
         return true;
     };
 
@@ -145,7 +146,9 @@ export default function BusinessSetupPage() {
                 lng: formData.lng,
                 placeId: formData.placeId,
                 googleMapsUrl: formData.googleMapsUrl,
+                coverImage: formData.coverImage,
                 images: formData.images || [],
+                logoUrl: formData.logoUrl,
                 userId: user.uid,
                 email: formData.email!,
                 phone: formData.phone,
@@ -169,8 +172,37 @@ export default function BusinessSetupPage() {
             case 1:
                 return (
                     <div className="space-y-4">
+                        {/* Imágenes de Perfil */}
+                        <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-5 mb-8">
+                            <h3 className="text-slate-900 font-bold mb-2 flex items-center gap-2"><Camera size={18} className="text-teal-600" /> {t('profileImages')}</h3>
+
+                            <div>
+                                <label className="block text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">{t('coverImage')} *</label>
+                                <ImageUploader
+                                    images={formData.coverImage ? [formData.coverImage] : []}
+                                    onImagesChange={(urls) => setFormData({ ...formData, coverImage: urls[0] || '' })}
+                                    maxImages={1}
+                                />
+                                <p className="text-slate-500 text-xs mt-2">{t('coverHint')}</p>
+                            </div>
+
+                            <div className="h-px w-full bg-slate-200 my-4" />
+
+                            <div>
+                                <label className="block text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">{t('logoImage')} *</label>
+                                <div className="max-w-[200px]">
+                                    <ImageUploader
+                                        images={formData.logoUrl ? [formData.logoUrl] : []}
+                                        onImagesChange={(urls) => setFormData({ ...formData, logoUrl: urls[0] || '' })}
+                                        maxImages={1}
+                                    />
+                                </div>
+                                <p className="text-slate-500 text-xs mt-2">{t('logoHint')}</p>
+                            </div>
+                        </div>
+
                         <div>
-                            <label className="block text-slate-600 text-sm mb-1">Nombre del Negocio *</label>
+                            <label className="block text-slate-600 text-sm mb-1">{t('businessName')}</label>
                             <input
                                 type="text"
                                 value={formData.businessName}
@@ -628,29 +660,12 @@ export default function BusinessSetupPage() {
                     </div>
                 );
             case 4:
-                // New Galería Step with Split for Logo and Gallery
                 return (
                     <div className="space-y-6">
-                        {/* Logo / Foto de Perfil */}
                         <div>
-                            <h3 className="text-slate-900 font-bold mb-1">Foto de Perfil (Logo) *</h3>
+                            <h3 className="text-slate-900 font-bold mb-1">{t('galleryTitle')}</h3>
                             <p className="text-slate-600 text-sm mb-4">
-                                Esta imagen te representará de manera principal como proveedor (Recomendado 1:1).
-                            </p>
-                            <ImageUploader
-                                images={formData.logoUrl ? [formData.logoUrl] : []}
-                                onImagesChange={(urls) => setFormData({ ...formData, logoUrl: urls[0] || '' })}
-                                maxImages={1}
-                            />
-                        </div>
-
-                        <div className="h-px w-full bg-slate-200" />
-
-                        {/* Portada y Galería */}
-                        <div>
-                            <h3 className="text-slate-900 font-bold mb-1">Fotos Especiales / Portada *</h3>
-                            <p className="text-slate-600 text-sm mb-4">
-                                Sube hasta 5 fotos para mostrar un vistazo más amplio a tus clientes.
+                                {t('gallerySubtitle')}
                             </p>
 
                             <ImageUploader
