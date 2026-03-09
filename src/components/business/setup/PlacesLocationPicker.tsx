@@ -93,10 +93,6 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
 
     // When user selects a suggestion from the dropdown
     const handleSelect = useCallback(async (description: string, placeId: string) => {
-        // Prevent generic blur overriding our selection
-        setValue(description, false);
-        clearSuggestions();
-
         try {
             // Priority 1: Try by placeId
             let results;
@@ -125,16 +121,18 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 if (comp.types.includes('country')) country = comp.short_name;
             }
 
+            // Set local state forcefully and immediately
             const pos = { lat, lng };
-            // Robust state update: Force the marker and center together
             setMarkerPos(pos);
             setMapCenter(pos);
-            // Pan smoothly and zoom deeply
+
+            // Pan and zoom instantly
             if (mapRef.current) {
                 mapRef.current.panTo(pos);
                 mapRef.current.setZoom(17);
             }
 
+            // Sync with parent
             const result: LocationResult = {
                 lat,
                 lng,
@@ -146,6 +144,10 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 country,
             };
             onLocationSelect(result);
+
+            // Clean up UI state LAST to prevent React batching conflicts
+            setValue(description, false);
+            clearSuggestions();
         } catch (err) {
             console.error('PlacesLocationPicker geocode error:', err);
             // If even fallback fails, we leave the picker untouched so they can manual drag.
@@ -223,6 +225,11 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                     value={value}
                     onChange={(e) => {
                         setValue(e.target.value);
+                    }}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                        }
                     }}
                     onBlur={(e) => {
                         // When leaving input, keep text in parent but DO NOT invent fake coordinates
