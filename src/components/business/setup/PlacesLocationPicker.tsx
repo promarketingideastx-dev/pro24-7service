@@ -73,6 +73,21 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         }
     }, [cityContext, countryCode, initialLat, initialLng]);
 
+    // [CRITICAL FIX] Effect to synchronize the internal marker with parent formData changes.
+    // When the user selects a valid suggestion, the parent formData is updated. This ensures
+    // the map visually snaps to the new coordinates passed down as initialLat/Lng.
+    useEffect(() => {
+        if (initialLat && initialLng && (initialLat !== markerPos.lat || initialLng !== markerPos.lng)) {
+            const pos = { lat: initialLat, lng: initialLng };
+            setMarkerPos(pos);
+            setMapCenter(pos);
+            if (mapRef.current) {
+                mapRef.current.panTo(pos);
+                mapRef.current.setZoom(17);
+            }
+        }
+    }, [initialLat, initialLng]);
+
     // When user selects a suggestion from the dropdown
     const handleSelect = useCallback(async (description: string, placeId: string) => {
         // Prevent generic blur overriding our selection
@@ -207,12 +222,14 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                         const newText = e.target.value;
                         setValue(newText);
                         // [ROBUST REPAIR] Keep parent synchronized so the manual text is never lost
+                        // CRITICAL: We DO NOT wipe out the lat/lng here just because they typed.
+                        // We preserve the current markerPos so the pin doesn't snap back to default.
                         onLocationSelect({
-                            lat: markerPos.lat,
-                            lng: markerPos.lng,
+                            lat: initialLat || markerPos.lat,
+                            lng: initialLng || markerPos.lng,
                             placeId: '', // Invalidated since it's a free-text typing
                             formattedAddress: newText,
-                            googleMapsUrl: `https://maps.google.com/?q=${markerPos.lat},${markerPos.lng}`,
+                            googleMapsUrl: `https://maps.google.com/?q=${initialLat || markerPos.lat},${initialLng || markerPos.lng}`,
                             city: cityContext ? cityContext.split(',')[0] : '',
                             department: cityContext ? cityContext.split(',')[1]?.trim() : '',
                             country: countryCode || '',
