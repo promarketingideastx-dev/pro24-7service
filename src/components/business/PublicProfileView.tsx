@@ -4,6 +4,7 @@ import WeeklyScheduleView from './public/WeeklyScheduleView';
 import RequestAppointmentModal from '@/components/public/RequestAppointmentModal';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { TAXONOMY } from '@/lib/taxonomy';
 
 interface PublicProfileViewProps {
     business: any;
@@ -16,6 +17,20 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
     const [isBookingOpen, setIsBookingOpen] = useState(false);
 
     if (!business) return null;
+
+    // Resolve translated labels
+    const groupData: any = TAXONOMY[business.category as keyof typeof TAXONOMY];
+    const groupLabel = groupData?.label?.es || business.category;
+
+    let subLabelDisplay = business.subcategory || '';
+    if (business.subcategories && business.subcategories.length > 0) {
+        subLabelDisplay = business.subcategories
+            .map((subId: string) => groupData?.subcategories?.find((s: any) => s.id === subId)?.label?.es || subId)
+            .filter(Boolean)
+            .join(' • ');
+    } else if (business.subcategory) {
+        subLabelDisplay = groupData?.subcategories?.find((s: any) => s.id === business.subcategory)?.label?.es || business.subcategory;
+    }
 
     return (
         <div className="flex flex-col h-full bg-white text-white">
@@ -36,7 +51,7 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
                         <div>
                             <h2 className="text-2xl font-bold text-white mb-1 shadow-black drop-shadow-md">{business.name}</h2>
                             <p className="text-brand-neon-cyan font-medium text-sm flex items-center gap-1 shadow-black drop-shadow-md">
-                                {business.category} • {business.subcategory}
+                                {groupLabel} {subLabelDisplay ? `• ${subLabelDisplay}` : ''}
                             </p>
                         </div>
                         <div className="flex flex-col items-end">

@@ -225,10 +225,20 @@ export default function Home() {
             .map(tagText)
             .join(' ');
 
+        // Map category ID to multiple languages
+        const catData = TAXONOMY[b.category as keyof typeof TAXONOMY];
+        const catLabel = catData ? Object.values(catData.label).join(' ') : b.category;
+
+        // Map subcategories IDs to multiple languages
+        const subCatLabels = allSubcategories.map((subId: string) => {
+            const subData = catData?.subcategories.find((s: any) => s.id === subId);
+            return subData ? Object.values(subData.label).join(' ') : subId;
+        }).join(' ');
+
         const searchableText = [
             b.name,
-            b.category,
-            allSubcategories.join(' '),
+            catLabel,
+            subCatLabels,
             allTags.map(tagText).join(' '),
             allSpecialtyTexts,
             b.description || '',

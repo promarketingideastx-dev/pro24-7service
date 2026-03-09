@@ -89,6 +89,8 @@ export default function BusinessSetupPage() {
         googleMapsUrl: undefined,
         category: '',
         subcategory: '',
+        subcategories: [], // New: Multiple subcategories (max 3)
+        specialtiesBySubcategory: {}, // New: Maps subcatId -> string[]
         specialties: [],
         additionalCategories: [], // New: Multi-select areas
         additionalSpecialties: [], // New: Multi-select specialties (reserved if needed, but we use 'specialties' for chips)
@@ -183,7 +185,9 @@ export default function BusinessSetupPage() {
     const isStepValid = () => {
         if (currentStep === 1) return !!formData.businessName && !!formData.coverImage && !!formData.logoUrl;
         if (currentStep === 2) return !!formData.city && !!formData.department; // Validate Dept + City
-        if (currentStep === 3) return !!formData.category;
+        if (currentStep === 3) {
+            return !!formData.category && ((formData.subcategories && formData.subcategories.length > 0) || !!formData.subcategory);
+        }
         if (currentStep === 4) return true; // Gallery is optional now
         return true;
     };
@@ -197,10 +201,12 @@ export default function BusinessSetupPage() {
                 businessName: formData.businessName!,
                 description: formData.description || '',
                 category: formData.category!,
-                subcategory: formData.subcategory || '',
-                // Map Chips to additionalSpecialties as requested + keep in tags for search
-                additionalSpecialties: formData.specialties || [],
-                specialties: formData.specialties || [],
+                subcategory: formData.subcategories?.[0] || formData.subcategory || '',
+                subcategories: formData.subcategories || [],
+                specialtiesBySubcategory: formData.specialtiesBySubcategory || {},
+                // Flatten specialties from specialtiesBySubcategory map for legacy queries
+                additionalSpecialties: Object.values(formData.specialtiesBySubcategory || {}).flat(),
+                specialties: Object.values(formData.specialtiesBySubcategory || {}).flat(),
                 additionalCategories: formData.additionalCategories || [],
                 modality: formData.modality as any || 'local',
                 address: formData.address,
@@ -600,6 +606,8 @@ export default function BusinessSetupPage() {
                                                         ...formData,
                                                         category: cat.id,
                                                         subcategory: '',
+                                                        subcategories: [],
+                                                        specialtiesBySubcategory: {},
                                                         specialties: [],
                                                         additionalCategories: [], // Reset additional if executing primary switch in single mode
                                                         additionalSpecialties: []
@@ -648,10 +656,10 @@ export default function BusinessSetupPage() {
                         {/* 2. Subcategoría (Pills / Cards) - Only for Primary Category */}
                         {formData.category && (
                             <div className="animate-in fade-in slide-in-from-top-4 duration-300">
-                                <label className="block text-slate-600 text-sm mb-3">Selecciona tu especialidad principal:</label>
+                                <label className="block text-slate-600 text-sm mb-3">Selecciona tus especialidades principales (Máximo 3):</label>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                     {Object.values(TAXONOMY).find(c => c.id === formData.category)?.subcategories.map(sub => {
-                                        const isSelected = formData.subcategory === sub.id;
+                                        const isSelected = formData.subcategories?.includes(sub.id);
                                         // Simple Icon Logic based on ID keywords or generic
                                         let SubIcon = Tag;
                                         if (['photography', 'camera'].some(k => sub.id.includes(k))) SubIcon = Camera;
@@ -672,11 +680,28 @@ export default function BusinessSetupPage() {
                                         return (
                                             <button
                                                 key={sub.id}
-                                                onClick={() => setFormData({
-                                                    ...formData,
-                                                    subcategory: sub.id,
-                                                    specialties: []
-                                                })}
+                                                onClick={() => {
+                                                    const currentSubs = formData.subcategories || [];
+                                                    if (isSelected) {
+                                                        const newSubs = currentSubs.filter(id => id !== sub.id);
+                                                        const newMap = { ...(formData.specialtiesBySubcategory || {}) };
+                                                        delete newMap[sub.id]; // Remove specialties for deselected subcat
+                                                        setFormData({
+                                                            ...formData,
+                                                            subcategories: newSubs,
+                                                            specialtiesBySubcategory: newMap
+                                                        });
+                                                    } else {
+                                                        if (currentSubs.length < 3) {
+                                                            setFormData({
+                                                                ...formData,
+                                                                subcategories: [...currentSubs, sub.id]
+                                                            });
+                                                        } else {
+                                                            toast.error("Máximo 3 especialidades principales permitidas.");
+                                                        }
+                                                    }
+                                                }}
                                                 className={`
                                                     flex items-center gap-3 p-3 rounded-lg border text-left transition-all
                                                     ${isSelected
@@ -697,74 +722,69 @@ export default function BusinessSetupPage() {
                         )}
 
                         {/* 3. Especialidades (Chips) - Multi-select */}
-                        {formData.subcategory && (
-                            <div className="animate-in fade-in slide-in-from-top-4 duration-300">
-                                <label className="block text-slate-600 text-sm mb-3">Detalles específicos (Opcional):</label>
-
-                                {/* Logic to get available specialties */}
-                                {(() => {
+                        {formData.subcategories && formData.subcategories.length > 0 && (
+                            <div className="animate-in fade-in slide-in-from-top-4 duration-300 space-y-4 pt-2">
+                                {formData.subcategories.map(subId => {
                                     const categoryData = Object.values(TAXONOMY).find(c => c.id === formData.category);
-                                    let availableSpecialties: Array<{ es: string; en: string; pt: string }> = [];
+                                    const subData = categoryData?.subcategories.find(s => s.id === subId);
+                                    if (!subData) return null;
 
-                                    // Since we force subcategory selection above for flow, we just check subcategory here
-                                    if (categoryData && formData.subcategory) {
-                                        const subData = categoryData.subcategories.find(s => s.id === formData.subcategory);
-                                        availableSpecialties = (subData?.specialties || []).map(s =>
-                                            typeof s === 'string' ? { es: s, en: s, pt: s } : s as any
-                                        );
-                                    }
+                                    const availableSpecialties = (subData?.specialties || []).map(s =>
+                                        typeof s === 'string' ? { es: s, en: s, pt: s } : s as any
+                                    );
 
                                     return (
-                                        <div className="bg-white/30 border border-slate-200 rounded-xl p-4">
-                                            <div className="flex flex-wrap gap-2">
-                                                {availableSpecialties.map(spec => {
-                                                    const specKey = spec.es;
-                                                    const isSelected = formData.specialties?.includes(specKey);
-                                                    return (
-                                                        <button
-                                                            key={specKey}
-                                                            onClick={() => {
-                                                                const current = formData.specialties || [];
-                                                                // Toggle logic
-                                                                if (isSelected) {
-                                                                    setFormData({ ...formData, specialties: current.filter(t => t !== specKey) });
-                                                                } else {
-                                                                    // Check limit (Max 6)
-                                                                    if (current.length < 6) {
-                                                                        setFormData({ ...formData, specialties: [...current, specKey] });
+                                        <div key={subId}>
+                                            <label className="block text-slate-600 text-sm mb-2">Detalles para {subData.label.es} (Opcional):</label>
+                                            <div className="bg-white/30 border border-slate-200 rounded-xl p-4">
+                                                <div className="flex flex-wrap gap-2">
+                                                    {availableSpecialties.map(spec => {
+                                                        const specKey = spec.es;
+                                                        const currentSpecs = formData.specialtiesBySubcategory?.[subId] || [];
+                                                        const isSelected = currentSpecs.includes(specKey);
+                                                        return (
+                                                            <button
+                                                                key={specKey}
+                                                                onClick={() => {
+                                                                    if (isSelected) {
+                                                                        setFormData({
+                                                                            ...formData,
+                                                                            specialtiesBySubcategory: {
+                                                                                ...(formData.specialtiesBySubcategory || {}),
+                                                                                [subId]: currentSpecs.filter(t => t !== specKey)
+                                                                            }
+                                                                        });
                                                                     } else {
-                                                                        toast('Máximo 6 especialidades permitidas.', {
-                                                                            icon: '⚡',
-                                                                            style: {
-                                                                                background: '#0f1e2e',
-                                                                                border: '1px solid rgba(0,240,255,0.3)',
-                                                                                color: '#00f0ff',
-                                                                                fontWeight: '600',
-                                                                            },
+                                                                        setFormData({
+                                                                            ...formData,
+                                                                            specialtiesBySubcategory: {
+                                                                                ...(formData.specialtiesBySubcategory || {}),
+                                                                                [subId]: [...currentSpecs, specKey]
+                                                                            }
                                                                         });
                                                                     }
-                                                                }
-                                                            }}
-                                                            className={`
-                                                                text-sm px-3 py-1.5 rounded-full border transition-all flex items-center gap-1
-                                                                ${isSelected
-                                                                    ? 'bg-teal-500/10 border-teal-500 text-teal-600'
-                                                                    : 'bg-transparent border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-700'
-                                                                }
-                                                            `}
-                                                        >
-                                                            {isSelected && <Check size={14} />}
-                                                            {spec.es}
-                                                        </button>
-                                                    );
-                                                })}
+                                                                }}
+                                                                className={`
+                                                                    text-sm px-3 py-1.5 rounded-full border transition-all flex items-center gap-1
+                                                                    ${isSelected
+                                                                        ? 'bg-teal-500/10 border-teal-500 text-teal-600'
+                                                                        : 'bg-transparent border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-700'
+                                                                    }
+                                                                `}
+                                                            >
+                                                                {isSelected && <Check size={14} />}
+                                                                {specKey}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                                {availableSpecialties.length === 0 && (
+                                                    <p className="text-sm text-slate-400 italic">No hay especialidades adicionales.</p>
+                                                )}
                                             </div>
-                                            {availableSpecialties.length === 0 && (
-                                                <p className="text-sm text-slate-400 italic">No hay especialidades adicionales.</p>
-                                            )}
                                         </div>
                                     );
-                                })()}
+                                })}
                             </div>
                         )}
                     </div>
