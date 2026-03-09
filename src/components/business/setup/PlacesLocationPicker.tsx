@@ -74,19 +74,22 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
     }, [cityContext, countryCode, initialLat, initialLng]);
 
     // [CRITICAL FIX] Effect to synchronize the internal marker with parent formData changes.
-    // When the user selects a valid suggestion, the parent formData is updated. This ensures
-    // the map visually snaps to the new coordinates passed down as initialLat/Lng.
+    // Ensure that if the parent explicitly passes a truthy lat/lng that contradicts our internal marker, we sync it.
     useEffect(() => {
-        if (initialLat && initialLng && (initialLat !== markerPos.lat || initialLng !== markerPos.lng)) {
-            const pos = { lat: initialLat, lng: initialLng };
-            setMarkerPos(pos);
-            setMapCenter(pos);
-            if (mapRef.current) {
-                mapRef.current.panTo(pos);
-                mapRef.current.setZoom(17);
+        if (initialLat && initialLng) {
+            const diffLat = Math.abs(initialLat - markerPos.lat);
+            const diffLng = Math.abs(initialLng - markerPos.lng);
+            if (diffLat > 0.00001 || diffLng > 0.00001) {
+                const pos = { lat: initialLat, lng: initialLng };
+                setMarkerPos(pos);
+                setMapCenter(pos);
+                if (mapRef.current) {
+                    mapRef.current.panTo(pos);
+                    mapRef.current.setZoom(17);
+                }
             }
         }
-    }, [initialLat, initialLng]);
+    }, [initialLat, initialLng, markerPos.lat, markerPos.lng]);
 
     // When user selects a suggestion from the dropdown
     const handleSelect = useCallback(async (description: string, placeId: string) => {
@@ -219,21 +222,23 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                     type="text"
                     value={value}
                     onChange={(e) => {
-                        const newText = e.target.value;
-                        setValue(newText);
-                        // [ROBUST REPAIR] Keep parent synchronized so the manual text is never lost
-                        // CRITICAL: We DO NOT wipe out the lat/lng here just because they typed.
-                        // We preserve the current markerPos so the pin doesn't snap back to default.
-                        onLocationSelect({
-                            lat: initialLat || markerPos.lat,
-                            lng: initialLng || markerPos.lng,
-                            placeId: '', // Invalidated since it's a free-text typing
-                            formattedAddress: newText,
-                            googleMapsUrl: `https://maps.google.com/?q=${initialLat || markerPos.lat},${initialLng || markerPos.lng}`,
-                            city: cityContext ? cityContext.split(',')[0] : '',
-                            department: cityContext ? cityContext.split(',')[1]?.trim() : '',
-                            country: countryCode || '',
-                        });
+                        setValue(e.target.value);
+                    }}
+                    onBlur={(e) => {
+                        // When leaving input, keep text in parent but DO NOT invent fake coordinates
+                        // Only trigger if text actually changed from what the parent knows
+                        if (e.target.value && e.target.value !== initialAddress) {
+                            onLocationSelect({
+                                lat: initialLat || markerPos.lat,
+                                lng: initialLng || markerPos.lng,
+                                placeId: '',
+                                formattedAddress: e.target.value,
+                                googleMapsUrl: `https://maps.google.com/?q=${initialLat || markerPos.lat},${initialLng || markerPos.lng}`,
+                                city: cityContext ? cityContext.split(',')[0] : '',
+                                department: cityContext ? cityContext.split(',')[1]?.trim() : '',
+                                country: countryCode || '',
+                            });
+                        }
                     }}
                     disabled={!ready}
                     placeholder="Busca tu dirección exacta... ej: Multiplaza Tegucigalpa"
