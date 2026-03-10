@@ -215,6 +215,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 isConfirmed: true, // Habilita el botón "Continuar" sin errores falsos
             };
 
+            lastConfirmedPlaceIdRef.current = placeId;
             lastSentCoordsRef.current = pos;
             isInternalUpdateRef.current = true;
             onLocationSelect(result);
@@ -225,91 +226,67 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         }
     }, [setValue, clearSuggestions, onLocationSelect]);
 
-    // When user drags the marker to a new position
+        // When user drags the marker to a new position
     const handleMarkerDragEnd = useCallback(async (e: google.maps.MapMouseEvent) => {
         if (!e.latLng) return;
         const lat = e.latLng.lat();
         const lng = e.latLng.lng();
         setMarkerPos({ lat, lng });
 
-        try {
-            const results = await getGeocode({ location: { lat, lng } });
-            let address = '';
-            let city = '';
-            let department = '';
-            let country = '';
-            let placeId = '';
+        // User intent rule: Google sets initial address, drag refines pure lat/lng
+        const finalAddressText = value || initialAddress || '';
+        const finalPlaceId = lastConfirmedPlaceIdRef.current || '';
 
-            if (results && results.length > 0) {
-                address = results[0].formatted_address;
-                placeId = results[0].place_id;
+        let fallbackAddress = '';
+        let fallbackCity = '';
+        let fallbackDep = '';
+        let fallbackCountry = '';
+        let fallbackPlaceId = '';
 
-                const comps = results[0].address_components || [];
-                for (const comp of comps) {
-                    if (comp.types.includes('locality')) city = comp.long_name;
-                    if (comp.types.includes('administrative_area_level_1')) department = comp.long_name;
-                    if (comp.types.includes('country')) country = comp.short_name;
+        // Only do reverse geocode if the user dragged without *any* prior address text
+        if (!finalAddressText) {
+            try {
+                const geocoder = new window.google.maps.Geocoder();
+                const response = await geocoder.geocode({ location: { lat, lng } });
+                if (response.results && response.results.length > 0) {
+                    const resultGeocode = response.results[0];
+                    fallbackAddress = resultGeocode.formatted_address;
+                    fallbackPlaceId = resultGeocode.place_id;
+
+                    const comps = resultGeocode.address_components || [];
+                    for (const comp of comps) {
+                        if (comp.types.includes('locality')) fallbackCity = comp.long_name;
+                        if (comp.types.includes('administrative_area_level_1')) fallbackDep = comp.long_name;
+                        if (comp.types.includes('country')) fallbackCountry = comp.short_name;
+                    }
+                    setValue(fallbackAddress, false);
                 }
-            }
-
-            // [FIX] Priority hierarchy for text: User's Search Box > Parent's Manual Text > Google Reverse Geocode
-            const finalAddressText = value || initialAddress || address;
-
-            if (!value && !initialAddress) {
-                setValue(address, false);
-            }
-
-            const result: LocationResult = {
-                lat,
-                lng,
-                placeId,
-                // [NUEVO] La jerarquía dicta que si ya escribió algo (value o el padre), el marker NO puede pisotearlo.
-                formattedAddress: finalAddressText,
-                googleMapsUrl: placeId
-                    ? `https://www.google.com/maps/place/?q=place_id:${placeId}`
-                    : `https://maps.google.com/?q=${lat},${lng}`,
-                city,
-                department,
-                country,
-                source: 'manual',
-                isConfirmed: true,
-            };
-
-            // Registramos la voluntad interna del usuario antes de avisar al Padre
-            lastSentCoordsRef.current = { lat, lng };
-            isInternalUpdateRef.current = true;
-
-            onLocationSelect(result);
-            toast.success('Ubicación confirmada manualmente');
-        } catch (err) {
-            console.error('Reverse geocode error:', err);
-            // Fallback: update coords only but preserve known text
-            const fallbackAddr = value || initialAddress || '';
-            const result: LocationResult = {
-                lat,
-                lng,
-                placeId: '',
-                formattedAddress: fallbackAddr,
-                googleMapsUrl: `https://maps.google.com/?q=${lat},${lng}`,
-                city: '',
-                department: '',
-                country: '',
-                source: 'manual',
-                isConfirmed: true,
-            };
-
-            // Set flags
-            lastSentCoordsRef.current = { lat, lng };
-            isInternalUpdateRef.current = true;
-
-            onLocationSelect(result);
-            toast.success('Pin ajustado manualmente');
-
-            if (!value) {
-                setValue(fallbackAddr, false);
+            } catch (err) {
+                console.error('Reverse geocode error:', err);
             }
         }
-    }, [setValue, onLocationSelect, value, initialAddress]);
+
+        const result: LocationResult = {
+            lat,
+            lng,
+            placeId: finalAddressText ? finalPlaceId : fallbackPlaceId,
+            formattedAddress: finalAddressText || fallbackAddress,
+            googleMapsUrl: (finalAddressText && finalPlaceId)
+                ? `https://www.google.com/maps/place/?q=place_id:${finalPlaceId}`
+                : `https://maps.google.com/?q=${lat},${lng}`,
+            city: cityContext ? cityContext.split(',')[0] : fallbackCity,
+            department: cityContext ? cityContext.split(',')[1]?.trim() : fallbackDep,
+            country: countryCode || fallbackCountry,
+            source: 'manual',
+            isConfirmed: true,
+        };
+
+        lastSentCoordsRef.current = { lat, lng };
+        isInternalUpdateRef.current = true;
+        onLocationSelect(result);
+
+        toast.success('Precisión de ubicación ajustada manualmente.');
+    }, [value, initialAddress, cityContext, countryCode, onLocationSelect, setValue]);
 
     return (
         <div className="space-y-3">
@@ -458,8 +435,16 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 </button>
             </div>
 
+            {/* Helper visual para enfocar en la precisión manual */}
+            <div className="text-sm text-teal-800 bg-teal-50 border border-teal-200 p-3 rounded-lg flex items-center gap-3 font-medium shadow-sm transition-all animate-in fade-in zoom-in slide-in-from-bottom-2 duration-300">
+                <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center shrink-0">
+                    <MapPin size={18} className="text-teal-600" />
+                </div>
+                Arrastra el pin rojo exactamente al punto donde está tu negocio.
+            </div>
+
             {/* Map with draggable marker */}
-            <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm relative">
+            <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm relative mt-3">
                 <GoogleMap
                     mapContainerStyle={MAP_CONTAINER_STYLE}
                     center={mapCenter}
