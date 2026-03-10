@@ -735,14 +735,15 @@ export const BusinessProfileService = {
                 additionalCategories: publicData.additionalCategories || [],
                 additionalSpecialties: publicData.additionalSpecialties || [],
                 specialties: publicData.tags || [],
-                city: publicData.city,
-                department: publicData.department,
-                country: publicData.country,
+                // LECTURA ESTRICTA V2: Priorizar locationV2 si existe, de lo contrario legacy
+                city: publicData.locationV2?.city || publicData.city,
+                department: publicData.locationV2?.department || publicData.department,
+                country: publicData.locationV2?.country || publicData.country,
+                address: publicData.locationV2?.address || privateData.address || '',
                 modality: publicData.modality,
                 description: privateData.fullDescription || publicData.shortDescription,
                 phone: privateData.phone || '',
                 email: privateData.email || '',
-                address: privateData.address || '',
                 website: publicData.website || '',
                 socialMedia: privateData.socialMedia || { instagram: '', facebook: '', tiktok: '' },
                 images: privateData.gallery || (publicData.coverImage ? [publicData.coverImage] : []),
@@ -750,11 +751,12 @@ export const BusinessProfileService = {
                 logoUrl: publicData.logoUrl,
                 openingHours: publicData.openingHours || undefined,
                 paymentSettings: privateData.paymentSettings || undefined,
-                // Exact coordinates from Google Places (or stored location object as fallback)
-                lat: publicData.lat ?? publicData.location?.lat,
-                lng: publicData.lng ?? publicData.location?.lng,
-                placeId: publicData.placeId || undefined,
-                googleMapsUrl: publicData.googleMapsUrl || undefined,
+                // LECTURA ESTRICTA V2 para Coordenadas
+                lat: publicData.locationV2?.lat ?? publicData.lat ?? publicData.location?.lat,
+                lng: publicData.locationV2?.lng ?? publicData.lng ?? publicData.location?.lng,
+                placeId: (publicData.locationV2?.placeId ?? publicData.placeId) || undefined,
+                googleMapsUrl: (publicData.locationV2?.googleMapsUrl ?? publicData.googleMapsUrl) || undefined,
+                locationV2: publicData.locationV2 || undefined,
             };
         } catch (error) {
             console.error("Error getting profile:", error);
@@ -817,7 +819,10 @@ export const BusinessProfileService = {
 
         if (data.email) privateUpdate.email = data.email;
         if (data.phone) privateUpdate.phone = data.phone;
-        if (data.address) privateUpdate.address = data.address;
+        if (data.address) {
+            privateUpdate.address = data.address;
+            publicUpdate.address = data.address; // SINCRONIZACIÓN PÚBLICA ESTRICTA
+        }
         if (data.socialMedia !== undefined) privateUpdate.socialMedia = data.socialMedia;
         if (data.department) privateUpdate.department = data.department;
 

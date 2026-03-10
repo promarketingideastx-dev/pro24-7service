@@ -520,13 +520,14 @@ export default function BusinessProfilePage() {
                                                     googleMapsUrl: result.googleMapsUrl,
                                                     city: result.city || prev.city,
                                                     department: result.department || prev.department,
-                                                    // Auto-fill address prioritizing the new selection from Google Places
-                                                    address: result.formattedAddress || prev.address,
+                                                    // Priorizar siempre la dirección manual si el usuario ya escribió una.
+                                                    // El mapa autocompleta si está vacío, pero NO DEBE pisotear.
+                                                    address: prev.address || result.formattedAddress,
                                                     locationV2: {
                                                         country: result.country || prev.country || '',
                                                         department: result.department || prev.department || '',
                                                         city: result.city || prev.city || '',
-                                                        address: result.formattedAddress,
+                                                        address: prev.address || result.formattedAddress,
                                                         lat: result.lat,
                                                         lng: result.lng,
                                                         placeId: result.placeId,
