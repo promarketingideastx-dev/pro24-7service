@@ -21,6 +21,7 @@ import PortfolioManager from '@/components/business/profile/PortfolioManager';
 import { useTranslations, useLocale } from 'next-intl';
 import SpecialtyPicker from '@/components/business/SpecialtyPicker';
 import { useCountry } from '@/context/CountryContext';
+import { getCountryConfig } from '@/lib/locations';
 import PlacesLocationPicker, { LocationResult } from '@/components/business/setup/PlacesLocationPicker';
 import ImageCropModal from '@/components/ui/ImageCropModal';
 import SmartAddressInput from '@/components/ui/SmartAddressInput';
@@ -82,6 +83,13 @@ export default function BusinessProfilePage() {
 
     const handleSave = async () => {
         if (!user) return;
+
+        // [CRITICAL FIX] Strict Location Validation before save
+        if (!formData.department || !formData.city || !formData.address || !formData.lat || !formData.lng) {
+            toast.error(t('verifyLocationOnMap') || "Por favor, busque y verifique su ubicación en el mapa antes de guardar.");
+            return;
+        }
+
         setSaving(true);
         try {
             // Exclude images from general profile save to avoid overwriting PortfolioManager changes
@@ -399,114 +407,131 @@ export default function BusinessProfilePage() {
                             <MapPin size={20} />
                             <h2 className="font-bold text-slate-900">{t('location')}</h2>
                         </div>
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-slate-400 text-xs uppercase mb-1">{t('country')}</label>
-                                    {/* Country is locked — determined by the CountryContext selection at app start */}
-                                    <div className="w-full bg-[#F4F6F8] border border-[#E6E8EC] rounded-lg px-4 py-2 text-slate-900 flex items-center gap-2 opacity-70 select-none cursor-not-allowed" title="El país no puede cambiarse desde aquí">
-                                        <span>{selectedCountry?.flag || '🌍'}</span>
-                                        <span className="flex-1 font-medium">{selectedCountry?.name || formData.country}</span>
-                                        <svg className="w-3.5 h-3.5 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                                        </svg>
+                        {(() => {
+                            // [CRITICAL FIX] Ensure locations config is accessible
+                            const currentCountryConfig = getCountryConfig((formData.country as any) || 'HN');
+                            const regions = currentCountryConfig.states || [];
+
+                            return (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-slate-700 font-medium text-sm mb-1">{t('country')}</label>
+                                            <div className="w-full h-12 bg-[#F4F6F8] border border-[#E6E8EC] rounded-lg px-4 flex items-center text-slate-700 font-medium opacity-70 select-none cursor-not-allowed">
+                                                <span>{selectedCountry?.flag || '🌍'}</span>
+                                                <span className="flex-1 ml-2 font-medium">{selectedCountry?.name || formData.country}</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-slate-400 text-xs uppercase mb-1">{t('department')}</label>
+                                            {(formData.country === 'HN' || !formData.country) ? (
+                                                <select
+                                                    value={formData.department || ''}
+                                                    onChange={e => {
+                                                        const newDepartment = e.target.value;
+                                                        const selectedRegion = regions.find(l => l.name === newDepartment);
+                                                        setFormData({
+                                                            ...formData,
+                                                            department: newDepartment,
+                                                            // [CRITICAL FIX] Auto-assign default city of the new department to avoid floating desynced cities
+                                                            city: selectedRegion?.cities?.[0] || ''
+                                                        });
+                                                    }}
+                                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:border-brand-neon-cyan focus:outline-none"
+                                                >
+                                                    <option value="">-- Seleccionar --</option>
+                                                    {regions.map(reg => (
+                                                        <option key={reg.name} value={reg.name}>{reg.name}</option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <input
+                                                    type="text"
+                                                    value={formData.department || ''}
+                                                    onChange={e => setFormData({ ...formData, department: e.target.value })}
+                                                    placeholder="Estado / Provincia"
+                                                    className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:border-brand-neon-cyan focus:outline-none"
+                                                />
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-slate-400 text-xs uppercase mb-1">{t('city')}</label>
+                                            {(() => {
+                                                const selectedRegion = regions.find(l => l.name === formData.department);
+                                                const hasPredefinedCities = selectedRegion?.cities && selectedRegion.cities.length > 0;
+
+                                                return (
+                                                    <input
+                                                        type="text"
+                                                        value={formData.city || ''}
+                                                        readOnly={!!hasPredefinedCities}
+                                                        onChange={e => !hasPredefinedCities && setFormData({ ...formData, city: e.target.value })}
+                                                        className={`w-full bg-[#F4F6F8] rounded-lg px-4 py-3 focus:outline-none transition-colors
+                                                ${hasPredefinedCities
+                                                                ? 'border border-[#E6E8EC] text-slate-600 cursor-not-allowed opacity-80'
+                                                                : 'border border-slate-200 text-slate-900 focus:border-teal-500'
+                                                            }
+                                            `}
+                                                        placeholder={hasPredefinedCities ? "Se selecciona automáticamente" : "Escribe tu ciudad"}
+                                                    />
+                                                );
+                                            })()}
+                                            <p className="text-xs text-slate-500 mt-1">
+                                                {regions.find(l => l.name === formData.department)?.cities?.length
+                                                    ? `La cabecera se selecciona automáticamente según el ${currentCountryConfig.regionLabel?.toLowerCase() || 'departamento'}.`
+                                                    : "Ingresa el nombre de tu ciudad manualmente."
+                                                }
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Physical address — editable text, independent of GPS picker */}
+                                    <div>
+                                        <label className="block text-slate-400 text-xs uppercase mb-1">{t('address')}</label>
+                                        <SmartAddressInput
+                                            value={formData.address || ''}
+                                            onChange={(addr) => setFormData(prev => ({ ...prev, address: addr }))}
+                                            placeholder="Ej: Pasaje Valle Local #50, Edificio Central"
+                                        />
+                                        <p className="text-xs text-slate-400 mt-1">Dirección física que verán tus clientes.</p>
+                                    </div>
+
+                                    {/* Google Places Picker — only updates GPS pin */}
+                                    <div>
+                                        <label className="block text-slate-400 text-xs uppercase mb-2">
+                                            📍 Pin en el mapa (GPS)
+                                            {(formData as any).lat && (
+                                                <span className="ml-2 text-xs text-green-500 font-medium normal-case">✓ Ubicación exacta guardada</span>
+                                            )}
+                                        </label>
+                                        <PlacesLocationPicker
+                                            onLocationSelect={(result: LocationResult) => {
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    // [CRITICAL FIX] Trust the map over the old manual memory. Map selection replaces previous.
+                                                    lat: result.lat,
+                                                    lng: result.lng,
+                                                    placeId: result.placeId,
+                                                    googleMapsUrl: result.googleMapsUrl,
+                                                    city: result.city || prev.city,
+                                                    department: result.department || prev.department,
+                                                    // Auto-fill address prioritizing the new selection from Google Places
+                                                    address: result.formattedAddress || prev.address,
+                                                }));
+                                            }}
+                                            initialAddress={formData.address || ''}
+                                            initialLat={(formData as any).lat}
+                                            initialLng={(formData as any).lng}
+                                        />
+                                        <p className="text-xs text-slate-400 mt-2">
+                                            Busca tu negocio para actualizar el pin en el mapa y el botón &quot;Cómo llegar&quot; de tu perfil público.
+                                        </p>
                                     </div>
                                 </div>
-                                <div>
-                                    <label className="block text-slate-400 text-xs uppercase mb-1">{t('department')}</label>
-                                    {(formData.country === 'HN' || !formData.country) ? (
-                                        <select
-                                            value={formData.department || ''}
-                                            onChange={e => setFormData({ ...formData, department: e.target.value })}
-                                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-slate-900 focus:border-brand-neon-cyan focus:outline-none"
-                                        >
-                                            <option value="">-- Seleccionar departamento --</option>
-                                            <option>Atlántida</option>
-                                            <option>Choluteca</option>
-                                            <option>Colón</option>
-                                            <option>Comayagua</option>
-                                            <option>Copán</option>
-                                            <option>Cortés</option>
-                                            <option>El Paraíso</option>
-                                            <option>Francisco Morazán</option>
-                                            <option>Gracias a Dios</option>
-                                            <option>Intibucá</option>
-                                            <option>Islas de la Bahía</option>
-                                            <option>La Paz</option>
-                                            <option>Lempira</option>
-                                            <option>Ocotepeque</option>
-                                            <option>Olancho</option>
-                                            <option>Santa Bárbara</option>
-                                            <option>Valle</option>
-                                            <option>Yoro</option>
-                                        </select>
-                                    ) : (
-                                        <input
-                                            type="text"
-                                            value={formData.department || ''}
-                                            onChange={e => setFormData({ ...formData, department: e.target.value })}
-                                            placeholder="Estado / Provincia"
-                                            className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-slate-900 focus:border-brand-neon-cyan focus:outline-none"
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-slate-400 text-xs uppercase mb-1">{t('city')}</label>
-                                    <input
-                                        type="text"
-                                        value={formData.city || ''}
-                                        onChange={e => setFormData({ ...formData, city: e.target.value })}
-                                        placeholder="Ej: San Pedro Sula"
-                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-2 text-slate-900 focus:border-brand-neon-cyan focus:outline-none"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Physical address — editable text, independent of GPS picker */}
-                            <div>
-                                <label className="block text-slate-400 text-xs uppercase mb-1">{t('address')}</label>
-                                <SmartAddressInput
-                                    value={formData.address || ''}
-                                    onChange={(addr) => setFormData(prev => ({ ...prev, address: addr }))}
-                                    placeholder="Ej: Pasaje Valle Local #50, Edificio Central"
-                                />
-                                <p className="text-xs text-slate-400 mt-1">Dirección física que verán tus clientes.</p>
-                            </div>
-
-                            {/* Google Places Picker — only updates GPS pin */}
-                            <div>
-                                <label className="block text-slate-400 text-xs uppercase mb-2">
-                                    📍 Pin en el mapa (GPS)
-                                    {(formData as any).lat && (
-                                        <span className="ml-2 text-xs text-green-500 font-medium normal-case">✓ Ubicación exacta guardada</span>
-                                    )}
-                                </label>
-                                <PlacesLocationPicker
-                                    onLocationSelect={(result: LocationResult) => {
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            // Only update GPS fields — do NOT overwrite the user's manual address
-                                            lat: result.lat,
-                                            lng: result.lng,
-                                            placeId: result.placeId,
-                                            googleMapsUrl: result.googleMapsUrl,
-                                            city: result.city || prev.city,
-                                            department: result.department || prev.department,
-                                            // Auto-fill address ONLY if it's currently empty
-                                            address: prev.address || result.formattedAddress,
-                                        }));
-                                    }}
-                                    initialAddress={(formData as any).googleMapsUrl ? formData.address : ''}
-                                    initialLat={(formData as any).lat}
-                                    initialLng={(formData as any).lng}
-                                />
-                                <p className="text-xs text-slate-400 mt-2">
-                                    Busca tu negocio para actualizar el pin en el mapa y el botón &quot;Cómo llegar&quot; de tu perfil público.
-                                </p>
-                            </div>
-                        </div>
+                            );
+                        })()}
                     </GlassPanel>
                 </div>
 
@@ -618,17 +643,19 @@ export default function BusinessProfilePage() {
             />
 
             {/* Cover image crop modal */}
-            {cropModal && (
-                <ImageCropModal
-                    imageSrc={cropModal.src}
-                    aspectRatio={16 / 9}
-                    onComplete={handleCropComplete}
-                    onClose={() => {
-                        URL.revokeObjectURL(cropModal.src);
-                        setCropModal(null);
-                    }}
-                />
-            )}
-        </div>
+            {
+                cropModal && (
+                    <ImageCropModal
+                        imageSrc={cropModal.src}
+                        aspectRatio={16 / 9}
+                        onComplete={handleCropComplete}
+                        onClose={() => {
+                            URL.revokeObjectURL(cropModal.src);
+                            setCropModal(null);
+                        }}
+                    />
+                )
+            }
+        </div >
     );
 }
