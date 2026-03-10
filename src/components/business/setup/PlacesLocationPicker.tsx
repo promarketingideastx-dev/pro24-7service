@@ -140,6 +140,10 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
     // When user selects a suggestion from the dropdown
     const handleSelect = useCallback(async (description: string, placeId: string) => {
         try {
+            // Instantly update UI for immediate UX feedback
+            setValue(description, false);
+            clearSuggestions();
+
             // Priority 1: Try by placeId
             let results;
             try {
@@ -189,7 +193,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 department,
                 country,
                 source: 'google',
-                isConfirmed: true,
+                isConfirmed: true, // This enables the Continua button
             };
 
             // Registramos la voluntad interna del usuario antes de avisar al Padre
@@ -197,16 +201,30 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
             isInternalUpdateRef.current = true;
 
             onLocationSelect(result);
-            toast.success('Ubicación actualizada correctamente');
-
-            // Clean up UI state LAST to prevent React batching conflicts
-            setValue(description, false);
-            clearSuggestions();
-        } catch (err) {
+            toast.success('Ubicación confirmada y guardada.');
+        } catch (err: any) {
             console.error('PlacesLocationPicker geocode error:', err);
-            // If even fallback fails, we leave the picker untouched so they can manual drag.
+            toast.error('Ocurrió un error al cargar la dirección exacta. Asegúrate de revisarla.');
+
+            // Si todo geocoding de Google falla, forzamos un commit textual para que el usuario NO quede bloqueado
+            // Y habilitar el botón continuar, pidiendo que arrastren el marker.
+            const result: LocationResult = {
+                lat: markerPos.lat,
+                lng: markerPos.lng,
+                placeId: placeId || '',
+                formattedAddress: description,
+                googleMapsUrl: `https://maps.google.com/?q=${markerPos.lat},${markerPos.lng}`,
+                city: cityContext ? cityContext.split(',')[0] : '',
+                department: cityContext ? cityContext.split(',')[1]?.trim() : '',
+                country: countryCode || '',
+                source: 'google',
+                isConfirmed: true,
+            };
+            lastSentCoordsRef.current = markerPos;
+            isInternalUpdateRef.current = true;
+            onLocationSelect(result);
         }
-    }, [setValue, clearSuggestions, onLocationSelect]);
+    }, [setValue, clearSuggestions, onLocationSelect, markerPos, cityContext, countryCode]);
 
     // When user drags the marker to a new position
     const handleMarkerDragEnd = useCallback(async (e: google.maps.MapMouseEvent) => {
@@ -372,11 +390,38 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 )}
             </div>
 
-            {/* Helper text */}
-            <p className="text-xs text-slate-500 flex items-center gap-1">
-                <MapPin size={11} />
-                Si el pin no cayó exacto, arrástralo a la ubicación correcta.
-            </p>
+            {/* Botón de Confirmación Manual (Respuesta directa al bloqueo de UX) */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-teal-50/50 p-3 rounded-xl border border-teal-100">
+                <p className="text-xs text-slate-600 flex items-center gap-1.5 flex-1">
+                    <MapPin size={14} className="text-teal-600 shrink-0" />
+                    <span>Arrastra el pin rojo al punto exacto, o confirma tu búsqueda manual:</span>
+                </p>
+                <button
+                    type="button"
+                    onClick={() => {
+                        // Force manual commit explicitly
+                        const result: LocationResult = {
+                            lat: markerPos.lat,
+                            lng: markerPos.lng,
+                            placeId: '',
+                            formattedAddress: value || initialAddress || '',
+                            googleMapsUrl: `https://maps.google.com/?q=${markerPos.lat},${markerPos.lng}`,
+                            city: cityContext ? cityContext.split(',')[0] : '',
+                            department: cityContext ? cityContext.split(',')[1]?.trim() : '',
+                            country: countryCode || '',
+                            source: 'manual',
+                            isConfirmed: true, // UNBLOCK CONTINUAR
+                        };
+                        lastSentCoordsRef.current = markerPos;
+                        isInternalUpdateRef.current = true;
+                        onLocationSelect(result);
+                        toast.success('Ubicación confirmada manualmente');
+                    }}
+                    className="shrink-0 bg-teal-600 hover:bg-teal-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium shadow-sm transition-colors active:scale-95 flex items-center gap-1.5"
+                >
+                    <Check size={14} /> Usar esta ubicación
+                </button>
+            </div>
 
             {/* Map with draggable marker */}
             <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm relative">
