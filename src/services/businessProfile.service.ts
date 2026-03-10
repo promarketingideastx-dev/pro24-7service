@@ -93,6 +93,19 @@ async function geocodeAddress(
     return fallback;
 }
 
+export interface BusinessLocationV2 {
+    country: string;
+    department: string;
+    city: string;
+    address: string;
+    lat: number;
+    lng: number;
+    placeId?: string;
+    googleMapsUrl?: string;
+    source: 'google' | 'manual' | 'legacy';
+    isConfirmed: boolean;
+    updatedAt: any;
+}
 
 export interface BusinessProfileData {
     businessName: string;
@@ -118,6 +131,8 @@ export interface BusinessProfileData {
     lng?: number;
     placeId?: string;           // Google Place ID for navigation link
     googleMapsUrl?: string;      // Direct "Cómo llegar" URL
+    // NEW LOCATION V2
+    locationV2?: BusinessLocationV2;
     images: string[];
     coverImage?: string;
     logoUrl?: string;
@@ -499,6 +514,7 @@ export const BusinessProfileService = {
 
                 // --- NUEVA ESTRUCTURA OFICIAL ---
                 location: officialLocation,
+                locationV2: data.locationV2 || null, // LOCATION V2 PARALLEL LAYER
 
                 // --- LEGACY FALLBACKS (Mantenidos por compatibilidad) ---
                 lat: baseCoords.lat,
@@ -845,6 +861,11 @@ export const BusinessProfileService = {
             }
         }
         // ──────────────────────────────────────────────────────────────────
+
+        // --- LOCATION V2 PARALLEL LAYER ---
+        if (data.locationV2) {
+            publicUpdate.locationV2 = data.locationV2;
+        }
 
         batch.update(publicRef, publicUpdate);
         batch.update(privateRef, privateUpdate);

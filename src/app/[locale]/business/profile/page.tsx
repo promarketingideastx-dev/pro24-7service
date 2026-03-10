@@ -85,8 +85,9 @@ export default function BusinessProfilePage() {
         if (!user) return;
 
         // [CRITICAL FIX] Strict Location Validation before save
-        if (!formData.department || !formData.city || !formData.address || !formData.lat || !formData.lng) {
-            toast.error(t('verifyLocationOnMap') || "Por favor, busque y verifique su ubicación en el mapa antes de guardar.");
+        // In V2, we require at least an intent to confirm or strict backward compatible legacy if they didn't touch it.
+        if (!formData.department || !formData.city || !formData.address || !formData.lat || !formData.lng || (formData.locationV2 && !formData.locationV2.isConfirmed)) {
+            toast.error(t('verifyLocationOnMap') || "Por favor, re-confirme la ubicación exacta en el mapa antes de guardar.");
             return;
         }
 
@@ -100,6 +101,7 @@ export default function BusinessProfilePage() {
             const safeData = {
                 ...dataToSave,
                 country: selectedCountry?.code || formData.country || 'HN',
+                locationV2: formData.locationV2 // V2 PARALLEL LAYER
             };
 
             await BusinessProfileService.updateProfile(user.uid, safeData);
@@ -434,7 +436,8 @@ export default function BusinessProfilePage() {
                                                             ...formData,
                                                             department: newDepartment,
                                                             // [CRITICAL FIX] Auto-assign default city of the new department to avoid floating desynced cities
-                                                            city: selectedRegion?.cities?.[0] || ''
+                                                            city: selectedRegion?.cities?.[0] || '',
+                                                            locationV2: formData.locationV2 ? { ...formData.locationV2, isConfirmed: false } : undefined
                                                         });
                                                     }}
                                                     className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:border-brand-neon-cyan focus:outline-none"
@@ -519,6 +522,19 @@ export default function BusinessProfilePage() {
                                                     department: result.department || prev.department,
                                                     // Auto-fill address prioritizing the new selection from Google Places
                                                     address: result.formattedAddress || prev.address,
+                                                    locationV2: {
+                                                        country: result.country || prev.country || '',
+                                                        department: result.department || prev.department || '',
+                                                        city: result.city || prev.city || '',
+                                                        address: result.formattedAddress,
+                                                        lat: result.lat,
+                                                        lng: result.lng,
+                                                        placeId: result.placeId,
+                                                        googleMapsUrl: result.googleMapsUrl,
+                                                        source: result.source,
+                                                        isConfirmed: result.isConfirmed,
+                                                        updatedAt: new Date()
+                                                    }
                                                 }));
                                             }}
                                             initialAddress={formData.address || ''}

@@ -20,6 +20,8 @@ export interface LocationResult {
     city?: string;
     department?: string;
     country?: string;
+    source: 'google' | 'manual' | 'legacy';
+    isConfirmed: boolean;
 }
 
 interface Props {
@@ -163,6 +165,8 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 city,
                 department,
                 country,
+                source: 'google',
+                isConfirmed: true,
             };
 
             // Registramos la voluntad interna del usuario antes de avisar al Padre
@@ -218,6 +222,8 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 city,
                 department,
                 country,
+                source: 'manual',
+                isConfirmed: true,
             };
 
             // Registramos la voluntad interna del usuario antes de avisar al Padre
@@ -237,6 +243,8 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 city: cityContext ? cityContext.split(',')[0] : '',
                 department: cityContext ? cityContext.split(',')[1]?.trim() : '',
                 country: countryCode || '',
+                source: 'manual',
+                isConfirmed: true,
             };
 
             // Set flags
@@ -287,6 +295,8 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                                 city: cityContext ? cityContext.split(',')[0] : '',
                                 department: cityContext ? cityContext.split(',')[1]?.trim() : '',
                                 country: countryCode || '',
+                                source: 'manual',
+                                isConfirmed: false, // Requiere confirmación por marker o google drop
                             });
                         }
                     }}

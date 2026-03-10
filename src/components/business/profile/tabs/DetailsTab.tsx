@@ -71,7 +71,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                         <div>
                             <span className="block text-white font-medium mb-1">{t('location')}</span>
                             <span className="text-slate-400 text-sm">
-                                {business.location?.address || business.address || `${business.city || ''}, ${business.department || 'Honduras'}`}
+                                {business.locationV2?.address || business.location?.address || business.address || `${business.city || ''}, ${business.department || 'Honduras'}`}
                             </span>
                         </div>
                     </div>
@@ -99,8 +99,8 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                     category: business.category,
                                     subcategory: business.subcategory || '',
                                     tags: business.tags || [],
-                                    lat: business.location?.lat || business.lat || 15.50417,
-                                    lng: business.location?.lng || business.lng || -88.02500,
+                                    lat: business.locationV2?.lat || business.location?.lat || business.lat || 15.50417,
+                                    lng: business.locationV2?.lng || business.location?.lng || business.lng || -88.02500,
                                     icon: '\uD83D\uDCCD',
                                     color: 'bg-brand-neon-cyan',
                                     description: business.description || '',
@@ -112,11 +112,11 @@ export default function DetailsTab({ business }: DetailsTabProps) {
 
                     {/* Cómo llegar button */}
                     {(() => {
-                        const lat = business.location?.lat || business.lat;
-                        const lng = business.location?.lng || business.lng;
-                        const placeId = business.location?.placeId || business.placeId;
+                        const lat = business.locationV2?.lat || business.location?.lat || business.lat;
+                        const lng = business.locationV2?.lng || business.location?.lng || business.lng;
+                        const placeId = business.locationV2?.placeId || business.location?.placeId || business.placeId;
                         const name = business.name;
-                        const addressText = business.location?.address || business.address || '';
+                        const addressText = business.locationV2?.address || business.location?.address || business.address || '';
                         const fallbackCity = business.city || business.department || '';
                         const queryLocation = addressText ? `${name} ${addressText}` : `${name} ${fallbackCity}`;
 

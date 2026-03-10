@@ -184,7 +184,7 @@ export default function BusinessSetupPage() {
 
     const isStepValid = () => {
         if (currentStep === 1) return !!formData.businessName && !!formData.coverImage && !!formData.logoUrl;
-        if (currentStep === 2) return !!formData.city && !!formData.department; // Validate Dept + City
+        if (currentStep === 2) return !!formData.city && !!formData.department && (formData.locationV2?.isConfirmed === true); // Validate strict Location V2
         if (currentStep === 3) {
             return !!formData.category && ((formData.subcategories && formData.subcategories.length > 0) || !!formData.subcategory);
         }
@@ -218,6 +218,7 @@ export default function BusinessSetupPage() {
                 lng: formData.lng,
                 placeId: formData.placeId,
                 googleMapsUrl: formData.googleMapsUrl,
+                locationV2: formData.locationV2,
                 coverImage: formData.coverImage,
                 images: galleryItems.map(item => item.url) || [], // Sync URLs
                 logoUrl: formData.logoUrl,
@@ -445,7 +446,9 @@ export default function BusinessSetupPage() {
                                             ...formData,
                                             department: e.target.value,
                                             // Auto-capital logic is valid for HN, can be adjusted for others later
-                                            city: selectedRegion?.cities?.[0] || ''
+                                            city: selectedRegion?.cities?.[0] || '',
+                                            // Invalidar la ubicación V2 si cambian el departamento a mano
+                                            locationV2: formData.locationV2 ? { ...formData.locationV2, isConfirmed: false } : undefined
                                         });
                                     }}
                                     className="w-full h-12 bg-white border border-slate-200 rounded-lg px-4 text-slate-900 focus:outline-none focus:border-teal-500"
@@ -508,6 +511,19 @@ export default function BusinessSetupPage() {
                                         // Auto-fill city/department if not already set
                                         city: prev.city || result.city || prev.city,
                                         department: prev.department || result.department || prev.department,
+                                        locationV2: {
+                                            country: result.country || prev.country || '',
+                                            department: result.department || prev.department || '',
+                                            city: result.city || prev.city || '',
+                                            address: result.formattedAddress,
+                                            lat: result.lat,
+                                            lng: result.lng,
+                                            placeId: result.placeId,
+                                            googleMapsUrl: result.googleMapsUrl,
+                                            source: result.source,
+                                            isConfirmed: result.isConfirmed,
+                                            updatedAt: new Date()
+                                        }
                                     }));
                                 }}
                                 initialAddress={formData.address}
