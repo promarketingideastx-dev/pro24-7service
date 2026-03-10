@@ -4,7 +4,8 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocomplete';
-import { MapPin, Loader2, Search, X } from 'lucide-react';
+import { MapPin, Loader2, Search, X, Check } from 'lucide-react';
+import { toast } from 'sonner';
 
 const LIBRARIES: ('places')[] = ['places'];
 const MAP_CONTAINER_STYLE = { width: '100%', height: '220px' };
@@ -38,6 +39,11 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         initialLat && initialLng ? { lat: initialLat, lng: initialLng } : DEFAULT_CENTER
     );
     const mapRef = useRef<google.maps.Map | null>(null);
+    const isSelectingRef = useRef(false);
+
+    // Controles de una sola vía (Single Source of Truth fix)
+    const isInternalUpdateRef = useRef(false);
+    const lastSentCoordsRef = useRef<{ lat: number, lng: number } | null>(null);
 
     const {
         ready,
@@ -74,22 +80,37 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
     }, [cityContext, countryCode, initialLat, initialLng]);
 
     // [CRITICAL FIX] Effect to synchronize the internal marker with parent formData changes.
-    // Ensure that if the parent explicitly passes a truthy lat/lng that contradicts our internal marker, we sync it.
+    // Ensure we only listen to external resets, and completely ignore the "echoes" of our own updates.
     useEffect(() => {
         if (initialLat && initialLng) {
-            const diffLat = Math.abs(initialLat - markerPos.lat);
-            const diffLng = Math.abs(initialLng - markerPos.lng);
-            if (diffLat > 0.00001 || diffLng > 0.00001) {
-                const pos = { lat: initialLat, lng: initialLng };
-                setMarkerPos(pos);
-                setMapCenter(pos);
-                if (mapRef.current) {
-                    mapRef.current.panTo(pos);
-                    mapRef.current.setZoom(17);
+            // 1. Si el padre nos manda las mismas coordenadas que le acabamos de mandar, es un Eco del estado.
+            // Lo ignoramos para que el mapa no tartamudee ni haga "efecto rebote".
+            if (isInternalUpdateRef.current && lastSentCoordsRef.current) {
+                const isEcho = Math.abs(lastSentCoordsRef.current.lat - initialLat) < 0.00001 &&
+                    Math.abs(lastSentCoordsRef.current.lng - initialLng) < 0.00001;
+                if (isEcho) {
+                    isInternalUpdateRef.current = false; // Apagamos bandera, eco consumido y evadido
+                    return;
                 }
             }
+
+            // 2. Si es distinto (el padre cambió de idea, o es on-load), cambiamos todo de forma segura
+            setMarkerPos((currentPos) => {
+                const diffLat = Math.abs(initialLat - currentPos.lat);
+                const diffLng = Math.abs(initialLng - currentPos.lng);
+                if (diffLat > 0.00001 || diffLng > 0.00001) {
+                    const pos = { lat: initialLat, lng: initialLng };
+                    setMapCenter(pos);
+                    if (mapRef.current) {
+                        mapRef.current.panTo(pos);
+                        mapRef.current.setZoom(17);
+                    }
+                    return pos;
+                }
+                return currentPos;
+            });
         }
-    }, [initialLat, initialLng, markerPos.lat, markerPos.lng]);
+    }, [initialLat, initialLng]); // Ya NO dependen de markerPos, cero ciclos infinitos
 
     // When user selects a suggestion from the dropdown
     const handleSelect = useCallback(async (description: string, placeId: string) => {
@@ -143,7 +164,13 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 department,
                 country,
             };
+
+            // Registramos la voluntad interna del usuario antes de avisar al Padre
+            lastSentCoordsRef.current = pos;
+            isInternalUpdateRef.current = true;
+
             onLocationSelect(result);
+            toast.success('Ubicación actualizada correctamente');
 
             // Clean up UI state LAST to prevent React batching conflicts
             setValue(description, false);
@@ -192,7 +219,13 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 department,
                 country,
             };
+
+            // Registramos la voluntad interna del usuario antes de avisar al Padre
+            lastSentCoordsRef.current = { lat, lng };
+            isInternalUpdateRef.current = true;
+
             onLocationSelect(result);
+            toast.success('Ubicación confirmada manualmente');
         } catch (err) {
             const fallbackAddress = value || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
             const result: LocationResult = {
@@ -205,7 +238,13 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 department: cityContext ? cityContext.split(',')[1]?.trim() : '',
                 country: countryCode || '',
             };
+
+            // Set flags
+            lastSentCoordsRef.current = { lat, lng };
+            isInternalUpdateRef.current = true;
+
             onLocationSelect(result);
+            toast.success('Ubicación confirmada manualmente');
             if (!value) {
                 setValue(fallbackAddress, false);
             }
@@ -232,15 +271,19 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                         }
                     }}
                     onBlur={(e) => {
+                        // Prevent race condition: if user is selecting a suggestion, don't trigger blur logic
+                        // which might hold stale coordinates and overwrite the newly fetched ones in the parent.
+                        if (isSelectingRef.current) return;
+
                         // When leaving input, keep text in parent but DO NOT invent fake coordinates
                         // Only trigger if text actually changed from what the parent knows
                         if (e.target.value && e.target.value !== initialAddress) {
                             onLocationSelect({
-                                lat: initialLat || markerPos.lat,
-                                lng: initialLng || markerPos.lng,
+                                lat: markerPos.lat, // markerPos is always the internal source of truth
+                                lng: markerPos.lng,
                                 placeId: '',
                                 formattedAddress: e.target.value,
-                                googleMapsUrl: `https://maps.google.com/?q=${initialLat || markerPos.lat},${initialLng || markerPos.lng}`,
+                                googleMapsUrl: `https://maps.google.com/?q=${markerPos.lat},${markerPos.lng}`,
                                 city: cityContext ? cityContext.split(',')[0] : '',
                                 department: cityContext ? cityContext.split(',')[1]?.trim() : '',
                                 country: countryCode || '',
@@ -266,9 +309,14 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                         {data.map(({ place_id, description }) => (
                             <li
                                 key={place_id}
-                                onMouseDown={(e) => {
-                                    e.preventDefault(); // Evita que el input pierda el focus antes de ejecutar la función
-                                    handleSelect(description, place_id);
+                                onPointerDown={() => {
+                                    isSelectingRef.current = true; // Bloquea onBlur prematuro en móviles al tocar
+                                }}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handleSelect(description, place_id).finally(() => {
+                                        setTimeout(() => { isSelectingRef.current = false; }, 300);
+                                    });
                                 }}
                                 className="flex items-start gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition-colors"
                             >
@@ -312,7 +360,22 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                     />
                 </GoogleMap>
             </div>
-        </div>
+
+            {/* Confirmación Visual Persistente */}
+            {
+                initialLat && initialLng && (
+                    <div className="mt-4 flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl text-green-800 text-sm animate-in fade-in slide-in-from-bottom-2">
+                        <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center shrink-0 shadow-sm shadow-green-500/30">
+                            <Check size={16} strokeWidth={3} />
+                        </div>
+                        <div>
+                            <p className="font-bold">Ubicación lista y guardada</p>
+                            <p className="text-xs text-green-600/90 mt-0.5">Esta será la ubicación oficial para tus clientes.</p>
+                        </div>
+                    </div>
+                )
+            }
+        </div >
     );
 }
 
