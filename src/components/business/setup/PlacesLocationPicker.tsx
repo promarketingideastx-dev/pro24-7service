@@ -128,6 +128,12 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 }
                 return currentPos;
             });
+        } else {
+            // 3. Si el padre manda undefined (p. ej. cambio de departamento), el marker DEBE reiniciarse visualmente.
+            // En vez de quedarse en Tegucigalpa, esperamos que cityContext responda.
+            // Si no hay coords explícitas, obligamos al estado local a re-sincronizar después.
+            // No hacemos nada activo de Panning aquí para evitar romper la animación de cityContext.
+            isInternalUpdateRef.current = false;
         }
     }, [initialLat, initialLng]); // Ya NO dependen de markerPos, cero ciclos infinitos
 
@@ -211,21 +217,28 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
 
         try {
             const results = await getGeocode({ location: { lat, lng } });
-            const address = results[0]?.formatted_address || value || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-            const placeId = results[0]?.place_id || '';
+            let address = '';
+            let city = '';
+            let department = '';
+            let country = '';
+            let placeId = '';
 
-            let city = cityContext ? cityContext.split(',')[0] : '';
-            let department = cityContext ? cityContext.split(',')[1]?.trim() : '';
-            let country = countryCode || '';
-            const comps = results[0]?.address_components || [];
-            for (const comp of comps) {
-                if (comp.types.includes('locality')) city = comp.long_name;
-                if (comp.types.includes('administrative_area_level_1')) department = comp.long_name;
-                if (comp.types.includes('country')) country = comp.short_name;
+            if (results && results.length > 0) {
+                address = results[0].formatted_address;
+                placeId = results[0].place_id;
+
+                const comps = results[0].address_components || [];
+                for (const comp of comps) {
+                    if (comp.types.includes('locality')) city = comp.long_name;
+                    if (comp.types.includes('administrative_area_level_1')) department = comp.long_name;
+                    if (comp.types.includes('country')) country = comp.short_name;
+                }
             }
 
-            // [FIX] Eliminar el OR results[0]. Si el usuario ya escribió texto, no lo pisoteamos con la dirección física
-            if (!value) {
+            // [FIX] Priority hierarchy for text: User's Search Box > Parent's Manual Text > Google Reverse Geocode
+            const finalAddressText = value || initialAddress || address;
+
+            if (!value && !initialAddress) {
                 setValue(address, false);
             }
 
@@ -233,8 +246,8 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 lat,
                 lng,
                 placeId,
-                // [NUEVO] La jerarquía dicta que si ya escribió algo (value), el marker NO puede pisotearlo.
-                formattedAddress: value || address,
+                // [NUEVO] La jerarquía dicta que si ya escribió algo (value o el padre), el marker NO puede pisotearlo.
+                formattedAddress: finalAddressText,
                 googleMapsUrl: placeId
                     ? `https://www.google.com/maps/place/?q=place_id:${placeId}`
                     : `https://maps.google.com/?q=${lat},${lng}`,
@@ -252,16 +265,18 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
             onLocationSelect(result);
             toast.success('Ubicación confirmada manualmente');
         } catch (err) {
-            const fallbackAddress = value || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+            console.error('Reverse geocode error:', err);
+            // Fallback: update coords only but preserve known text
+            const fallbackAddr = value || initialAddress || '';
             const result: LocationResult = {
                 lat,
                 lng,
                 placeId: '',
-                formattedAddress: fallbackAddress,
+                formattedAddress: fallbackAddr,
                 googleMapsUrl: `https://maps.google.com/?q=${lat},${lng}`,
-                city: cityContext ? cityContext.split(',')[0] : '',
-                department: cityContext ? cityContext.split(',')[1]?.trim() : '',
-                country: countryCode || '',
+                city: '',
+                department: '',
+                country: '',
                 source: 'manual',
                 isConfirmed: true,
             };
@@ -271,13 +286,13 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
             isInternalUpdateRef.current = true;
 
             onLocationSelect(result);
-            toast.success('Ubicación confirmada manualmente');
+            toast.success('Pin ajustado manualmente');
+
             if (!value) {
-                setValue(fallbackAddress, false);
+                setValue(fallbackAddr, false);
             }
-            console.error('Reverse geocode fallback applied due to error:', err);
         }
-    }, [setValue, onLocationSelect]);
+    }, [setValue, onLocationSelect, value, initialAddress]);
 
     return (
         <div className="space-y-3">

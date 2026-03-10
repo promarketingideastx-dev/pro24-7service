@@ -751,9 +751,9 @@ export const BusinessProfileService = {
                 logoUrl: publicData.logoUrl,
                 openingHours: publicData.openingHours || undefined,
                 paymentSettings: privateData.paymentSettings || undefined,
-                // LECTURA ESTRICTA V2 para Coordenadas
-                lat: publicData.locationV2?.lat ?? publicData.lat ?? publicData.location?.lat,
-                lng: publicData.locationV2?.lng ?? publicData.lng ?? publicData.location?.lng,
+                // LECTURA ESTRICTA V2 para Coordenadas: Si locationV2 existe, MANDA, incluso si está vacío (para destruir zombies legacy)
+                lat: publicData.locationV2 ? publicData.locationV2.lat : (publicData.lat ?? publicData.location?.lat),
+                lng: publicData.locationV2 ? publicData.locationV2.lng : (publicData.lng ?? publicData.location?.lng),
                 placeId: (publicData.locationV2?.placeId ?? publicData.placeId) || undefined,
                 googleMapsUrl: (publicData.locationV2?.googleMapsUrl ?? publicData.googleMapsUrl) || undefined,
                 locationV2: publicData.locationV2 || undefined,

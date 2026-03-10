@@ -513,7 +513,9 @@ export default function BusinessSetupPage() {
                                 onLocationSelect={(result: LocationResult) => {
                                     setFormData(prev => ({
                                         ...prev,
-                                        address: prev.address || result.formattedAddress, // [FIX] Evitar pisotear la dirección manual si ya existe
+                                        // [FIX] Confiar ciegamente en el mapa. El mapa ya protege el texto escrito (value || initial). 
+                                        // Si es una búsqueda nueva, DEBE pisotear.
+                                        address: result.formattedAddress,
                                         lat: result.lat,
                                         lng: result.lng,
                                         placeId: result.placeId,
@@ -525,7 +527,7 @@ export default function BusinessSetupPage() {
                                             country: result.country || prev.country || '',
                                             department: result.department || prev.department || '',
                                             city: result.city || prev.city || '',
-                                            address: prev.address || result.formattedAddress, // [FIX] Mantener sincronizada la dirección en V2
+                                            address: result.formattedAddress,
                                             lat: result.lat,
                                             lng: result.lng,
                                             placeId: result.placeId,

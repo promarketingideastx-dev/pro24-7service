@@ -523,21 +523,21 @@ export default function BusinessProfilePage() {
                                             onLocationSelect={(result: LocationResult) => {
                                                 setFormData(prev => ({
                                                     ...prev,
-                                                    // [CRITICAL FIX] Trust the map over the old manual memory. Map selection replaces previous.
+                                                    // [CRITICAL FIX] Trust the map unconditionally over the old manual memory. Map selection replaces previous.
                                                     lat: result.lat,
                                                     lng: result.lng,
                                                     placeId: result.placeId,
                                                     googleMapsUrl: result.googleMapsUrl,
                                                     city: result.city || prev.city,
                                                     department: result.department || prev.department,
-                                                    // Priorizar siempre la dirección manual si el usuario ya escribió una.
-                                                    // El mapa autocompleta si está vacío, pero NO DEBE pisotear.
-                                                    address: prev.address || result.formattedAddress,
+                                                    // [FIX] Confiar ciegamente en la dirección formateada retornada por el picker.
+                                                    // El picker ya se encarga de proteger el texto manual en dragend (FASE 4).
+                                                    address: result.formattedAddress,
                                                     locationV2: {
                                                         country: result.country || prev.country || '',
                                                         department: result.department || prev.department || '',
                                                         city: result.city || prev.city || '',
-                                                        address: prev.address || result.formattedAddress,
+                                                        address: result.formattedAddress,
                                                         lat: result.lat,
                                                         lng: result.lng,
                                                         placeId: result.placeId,
