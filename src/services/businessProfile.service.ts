@@ -98,6 +98,8 @@ export interface BusinessLocationV2 {
     department: string;
     city: string;
     address: string;
+    displayAddress?: string;
+    plusCode?: string;
     lat: number;
     lng: number;
     placeId?: string;

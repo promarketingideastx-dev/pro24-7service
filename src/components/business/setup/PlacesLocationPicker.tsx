@@ -16,6 +16,8 @@ export interface LocationResult {
     lng: number;
     placeId: string;
     formattedAddress: string;
+    displayAddress?: string;
+    plusCode?: string;
     googleMapsUrl: string;
     city?: string;
     department?: string;
@@ -137,7 +139,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         }
     }, [initialLat, initialLng]); // Ya NO dependen de markerPos, cero ciclos infinitos
 
-            // When user selects a suggestion from the dropdown
+                // When user selects a suggestion from the dropdown
     const handleSelect = useCallback(async (description: string, placeId: string) => {
         try {
             // Instantly update UI for immediate UX feedback
@@ -148,7 +150,8 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 return new Promise((resolve, reject) => {
                     const dmy = document.createElement('div');
                     const service = new window.google.maps.places.PlacesService(mapRef.current ? (mapRef.current.getDiv() as HTMLDivElement) : dmy);
-                    service.getDetails({ placeId: pId, fields: ['geometry', 'address_components'] }, (place, status) => {
+                    // Solicitamos plus_code y formatted_address
+                    service.getDetails({ placeId: pId, fields: ['geometry', 'address_components', 'plus_code', 'formatted_address'] }, (place, status) => {
                         if (status === window.google.maps.places.PlacesServiceStatus.OK && place) resolve(place);
                         else reject(new Error('PlacesService failed with status: ' + status));
                     });
@@ -158,6 +161,8 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
             let lat: number;
             let lng: number;
             let comps: any[] = [];
+            let plusCode = '';
+            let formattedAddress = '';
 
             try {
                 // PRIMARIO: Usar directamente la geometría proveída por Places API sin llamar a Geocoder
@@ -168,6 +173,8 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 lat = place.geometry.location.lat();
                 lng = place.geometry.location.lng();
                 comps = place.address_components || [];
+                if (place.plus_code && place.plus_code.global_code) plusCode = place.plus_code.global_code;
+                if (place.formatted_address) formattedAddress = place.formatted_address;
             } catch (err) {
                 console.warn('Obtener geometry desde Places falló, usando native Geocoder como fallback manual:', err);
                 
@@ -181,6 +188,8 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 lat = resultGeocode.geometry.location.lat();
                 lng = resultGeocode.geometry.location.lng();
                 comps = resultGeocode.address_components || [];
+                if (resultGeocode.plus_code && resultGeocode.plus_code.global_code) plusCode = resultGeocode.plus_code.global_code;
+                if (resultGeocode.formatted_address) formattedAddress = resultGeocode.formatted_address;
             }
 
             let city = '';
@@ -206,7 +215,9 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 lat,
                 lng,
                 placeId,
-                formattedAddress: description,
+                displayAddress: description, // Lo que vio el usuario y dio click
+                formattedAddress: formattedAddress || description, // El real de Google
+                plusCode, // Se guarda pero no se muestra de adorno principal
                 googleMapsUrl: `https://www.google.com/maps/place/?q=place_id:${placeId}`,
                 city,
                 department,
@@ -226,7 +237,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         }
     }, [setValue, clearSuggestions, onLocationSelect]);
 
-        // When user drags the marker to a new position
+            // When user drags the marker to a new position
     const handleMarkerDragEnd = useCallback(async (e: google.maps.MapMouseEvent) => {
         if (!e.latLng) return;
         const lat = e.latLng.lat();
@@ -242,6 +253,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         let fallbackDep = '';
         let fallbackCountry = '';
         let fallbackPlaceId = '';
+        let fallbackPlusCode = '';
 
         // Only do reverse geocode if the user dragged without *any* prior address text
         if (!finalAddressText) {
@@ -252,6 +264,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                     const resultGeocode = response.results[0];
                     fallbackAddress = resultGeocode.formatted_address;
                     fallbackPlaceId = resultGeocode.place_id;
+                    if (resultGeocode.plus_code && resultGeocode.plus_code.global_code) fallbackPlusCode = resultGeocode.plus_code.global_code;
 
                     const comps = resultGeocode.address_components || [];
                     for (const comp of comps) {
@@ -270,7 +283,10 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
             lat,
             lng,
             placeId: finalAddressText ? finalPlaceId : fallbackPlaceId,
-            formattedAddress: finalAddressText || fallbackAddress,
+            displayAddress: finalAddressText || fallbackAddress,
+            // we send finalAddressText as formattedAddress as fallback, if it was already selected it stays
+            formattedAddress: finalAddressText || fallbackAddress, 
+            plusCode: fallbackPlusCode, // Si había una previa, backend mantendrá la previa o nullificará si se movió mucho.
             googleMapsUrl: (finalAddressText && finalPlaceId)
                 ? `https://www.google.com/maps/place/?q=place_id:${finalPlaceId}`
                 : `https://maps.google.com/?q=${lat},${lng}`,
@@ -416,7 +432,9 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                             lat: finalLat,
                             lng: finalLng,
                             placeId: '',
+                            displayAddress: targetAddress,
                             formattedAddress: targetAddress,
+                            plusCode: '',
                             googleMapsUrl: `https://maps.google.com/?q=${finalLat},${finalLng}`,
                             city: finalCity,
                             department: finalDepartment,

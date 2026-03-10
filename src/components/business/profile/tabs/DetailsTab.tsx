@@ -71,7 +71,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                         <div>
                             <span className="block text-white font-medium mb-1">{t('location')}</span>
                             <span className="text-slate-400 text-sm">
-                                {business.locationV2?.address || business.location?.address || business.address || `${business.city || ''}, ${business.department || 'Honduras'}`}
+                                {business.locationV2?.displayAddress || business.locationV2?.address || business.location?.address || business.address || `${business.city || ''}, ${business.department || 'Honduras'}`}
                             </span>
                         </div>
                     </div>
@@ -116,7 +116,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                         const lng = business.locationV2?.lng || business.location?.lng || business.lng;
                         const placeId = business.locationV2?.placeId || business.location?.placeId || business.placeId;
                         const name = business.name;
-                        const addressText = business.locationV2?.address || business.location?.address || business.address || '';
+                        const addressText = business.locationV2?.displayAddress || business.locationV2?.address || business.location?.address || business.address || '';
                         const fallbackCity = business.city || business.department || '';
                         const queryLocation = addressText ? `${name} ${addressText}` : `${name} ${fallbackCity}`;
 
