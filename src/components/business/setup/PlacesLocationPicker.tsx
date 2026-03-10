@@ -4,7 +4,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocomplete';
-import { MapPin, Loader2, Search, X, Check } from 'lucide-react';
+import { MapPin, Loader2, Search, X, Check, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const LIBRARIES: ('places')[] = ['places'];
@@ -46,6 +46,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
     const isSelectingRef = useRef(false);
 
     // Controles de una sola vía (Single Source of Truth fix)
+    const isMapReady = Boolean(cityContext || initialLat || value);
     const isInternalUpdateRef = useRef(false);
     const lastSentCoordsRef = useRef<{ lat: number, lng: number } | null>(null);
 
@@ -382,7 +383,9 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 )}
             </div>
 
-            {/* Botón de Confirmación Manual (Respuesta directa al bloqueo de UX) */}
+                        {isMapReady && (
+                <div className="space-y-3 mt-4">
+        {/* Botón de Confirmación Manual (Respuesta directa al bloqueo de UX) */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-teal-50/50 p-3 rounded-xl border border-teal-100">
                 <p className="text-xs text-slate-600 flex items-center gap-1.5 flex-1">
                     <MapPin size={14} className="text-teal-600 shrink-0" />
@@ -461,8 +464,11 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 Arrastra el pin rojo exactamente al punto donde está tu negocio.
             </div>
 
+
+                </div>
+            )}
             {/* Map with draggable marker */}
-            <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm relative mt-3">
+            <div className={`rounded-xl overflow-hidden border border-slate-200 shadow-sm relative mt-4 transition-opacity ${!isMapReady ? 'opacity-40 grayscale pointer-events-none' : 'opacity-100'}`}>
                 <GoogleMap
                     mapContainerStyle={MAP_CONTAINER_STYLE}
                     center={mapCenter}
@@ -516,8 +522,12 @@ export default function PlacesLocationPicker(props: Props) {
 
     if (loadError) {
         return (
-            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-500 text-sm">
-                Error al cargar Google Maps. Verifica tu API Key o conexión: {loadError.message}
+            <div className="rounded-xl border border-red-200 bg-red-50 p-4 flex items-start gap-3 shadow-sm">
+                <AlertTriangle size={20} className="text-red-500 shrink-0 mt-0.5" />
+                <div>
+                    <h3 className="text-red-800 font-medium text-sm">Error al cargar mapas de Google</h3>
+                    <p className="text-red-600/90 text-xs mt-1 leading-relaxed">Verifica tu conexión a internet o contacta a soporte técnico si este problema persiste. ({loadError.message})</p>
+                </div>
             </div>
         );
     }
