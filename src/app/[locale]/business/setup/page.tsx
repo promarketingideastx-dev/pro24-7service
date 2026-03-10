@@ -447,6 +447,10 @@ export default function BusinessSetupPage() {
                                             department: e.target.value,
                                             // Auto-capital logic is valid for HN, can be adjusted for others later
                                             city: selectedRegion?.cities?.[0] || '',
+                                            // [FIX] Limpiar coords al cambiar departamento para forzar re-centrado del mapa a la cabecera
+                                            lat: undefined,
+                                            lng: undefined,
+                                            address: '',
                                             // Invalidar la ubicación V2 si cambian el departamento a mano
                                             locationV2: formData.locationV2 ? { ...formData.locationV2, isConfirmed: false } : undefined
                                         });
@@ -503,7 +507,7 @@ export default function BusinessSetupPage() {
                                 onLocationSelect={(result: LocationResult) => {
                                     setFormData(prev => ({
                                         ...prev,
-                                        address: result.formattedAddress,
+                                        address: prev.address || result.formattedAddress, // [FIX] Evitar pisotear la dirección manual si ya existe
                                         lat: result.lat,
                                         lng: result.lng,
                                         placeId: result.placeId,
@@ -515,7 +519,7 @@ export default function BusinessSetupPage() {
                                             country: result.country || prev.country || '',
                                             department: result.department || prev.department || '',
                                             city: result.city || prev.city || '',
-                                            address: result.formattedAddress,
+                                            address: prev.address || result.formattedAddress, // [FIX] Mantener sincronizada la dirección en V2
                                             lat: result.lat,
                                             lng: result.lng,
                                             placeId: result.placeId,

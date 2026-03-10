@@ -437,6 +437,9 @@ export default function BusinessProfilePage() {
                                                             department: newDepartment,
                                                             // [CRITICAL FIX] Auto-assign default city of the new department to avoid floating desynced cities
                                                             city: selectedRegion?.cities?.[0] || '',
+                                                            lat: undefined,
+                                                            lng: undefined,
+                                                            address: '', // Limpia dirección manual por cambio de contexto mayor
                                                             locationV2: formData.locationV2 ? { ...formData.locationV2, isConfirmed: false } : undefined
                                                         });
                                                     }}

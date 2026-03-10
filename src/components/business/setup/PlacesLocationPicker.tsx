@@ -207,7 +207,8 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 if (comp.types.includes('country')) country = comp.short_name;
             }
 
-            if (!value || results[0]?.formatted_address) {
+            // [FIX] Eliminar el OR results[0]. Si el usuario ya escribió texto, no lo pisoteamos con la dirección física
+            if (!value) {
                 setValue(address, false);
             }
 
