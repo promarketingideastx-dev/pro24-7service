@@ -137,52 +137,61 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         }
     }, [initialLat, initialLng]); // Ya NO dependen de markerPos, cero ciclos infinitos
 
-    // When user selects a suggestion from the dropdown
+        // When user selects a suggestion from the dropdown
     const handleSelect = useCallback(async (description: string, placeId: string) => {
         try {
             // Instantly update UI for immediate UX feedback
             setValue(description, false);
             clearSuggestions();
 
-            // Priority 1: Try by placeId
-            let results;
+            // Usamos el Geocoder nativo para evitar fallas silenciosas de la librería use-places-autocomplete en regiones ambiguas
+            const geocoder = new window.google.maps.Geocoder();
+            let resultGeocode: google.maps.GeocoderResult | null = null;
+
             try {
-                results = await getGeocode({ placeId });
+                const response = await geocoder.geocode({ placeId: placeId });
+                if (response.results && response.results.length > 0) {
+                    resultGeocode = response.results[0];
+                }
             } catch (err) {
-                console.warn('Geocode by placeId failed, falling back to description:', err);
-                // Priority 2: Fallback to textual description
-                results = await getGeocode({ address: description });
+                console.warn('Native Geocode by placeId failed, falling back to description:', err);
+                try {
+                    const response = await geocoder.geocode({ address: description });
+                    if (response.results && response.results.length > 0) {
+                        resultGeocode = response.results[0];
+                    }
+                } catch (fallbackErr) {
+                    throw new Error("Geocoding API falló en resolver esta dirección.");
+                }
             }
 
-            if (!results || results.length === 0) {
-                throw new Error("No geocoding results found for this selection.");
+            if (!resultGeocode) {
+                throw new Error("No se obtuvieron resultados geográficos válidos.");
             }
 
-            const { lat, lng } = await getLatLng(results[0]);
+            const lat = resultGeocode.geometry.location.lat();
+            const lng = resultGeocode.geometry.location.lng();
 
-            // Extract city, department, country from address_components
             let city = '';
             let department = '';
             let country = '';
-            const comps = results[0].address_components || [];
+            const comps = resultGeocode.address_components || [];
             for (const comp of comps) {
                 if (comp.types.includes('locality')) city = comp.long_name;
                 if (comp.types.includes('administrative_area_level_1')) department = comp.long_name;
                 if (comp.types.includes('country')) country = comp.short_name;
             }
 
-            // Set local state forcefully and immediately
+            // [FUNDAMENTAL FIX]: La dirección resuelta se vuelve la FUENTE DE VERDAD ABSOLUTA
             const pos = { lat, lng };
             setMarkerPos(pos);
             setMapCenter(pos);
 
-            // Pan and zoom instantly
             if (mapRef.current) {
                 mapRef.current.panTo(pos);
                 mapRef.current.setZoom(17);
             }
 
-            // Sync with parent
             const result: LocationResult = {
                 lat,
                 lng,
@@ -193,36 +202,19 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 department,
                 country,
                 source: 'google',
-                isConfirmed: true, // This enables the Continua button
+                isConfirmed: true, // Habilita el botón "Continuar"
             };
 
-            // Registramos la voluntad interna del usuario antes de avisar al Padre
             lastSentCoordsRef.current = pos;
             isInternalUpdateRef.current = true;
-
             onLocationSelect(result);
-            toast.success('Ubicación confirmada y guardada.');
+
+            toast.success('Ubicación confirmada automáticamente por Google.');
+
         } catch (err: any) {
-            console.error('PlacesLocationPicker geocode error:', err);
-            toast.error('Ocurrió un error al cargar la dirección exacta. Asegúrate de revisarla.');
-
-            // Si todo geocoding de Google falla, forzamos un commit textual para que el usuario NO quede bloqueado
-            // Y habilitar el botón continuar, pidiendo que arrastren el marker.
-            const result: LocationResult = {
-                lat: markerPos.lat,
-                lng: markerPos.lng,
-                placeId: placeId || '',
-                formattedAddress: description,
-                googleMapsUrl: `https://maps.google.com/?q=${markerPos.lat},${markerPos.lng}`,
-                city: cityContext ? cityContext.split(',')[0] : '',
-                department: cityContext ? cityContext.split(',')[1]?.trim() : '',
-                country: countryCode || '',
-                source: 'google',
-                isConfirmed: true,
-            };
-            lastSentCoordsRef.current = markerPos;
-            isInternalUpdateRef.current = true;
-            onLocationSelect(result);
+            console.error('PlacesLocationPicker native geocode error:', err);
+            // [CAMBIO CRÍTICO]: Si no hay resolución válida, NO hacemos commit silencioso con coordenadas viejas.
+            toast.error('Google no pudo resolver la coordenada exacta. Por favor arrastra el pin manualmente o usa el botón "Usar esta ubicación".');
         }
     }, [setValue, clearSuggestions, onLocationSelect, markerPos, cityContext, countryCode]);
 
