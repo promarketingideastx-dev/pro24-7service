@@ -49,6 +49,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
     const isMapReady = Boolean(cityContext || initialLat || value);
     const isInternalUpdateRef = useRef(false);
     const lastSentCoordsRef = useRef<{ lat: number, lng: number } | null>(null);
+    const lastConfirmedTextRef = useRef<string>(initialAddress || '');
 
     const {
         ready,
@@ -228,6 +229,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
             };
 
             lastConfirmedPlaceIdRef.current = placeId;
+            lastConfirmedTextRef.current = description;
             lastSentCoordsRef.current = pos;
             isInternalUpdateRef.current = true;
             onLocationSelect(result);
@@ -330,7 +332,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
 
                         // When leaving input, keep text in parent but DO NOT invent fake coordinates
                         // Only trigger if text actually changed from what the parent knows
-                        if (e.target.value && e.target.value !== initialAddress) {
+                        if (e.target.value && e.target.value !== initialAddress && e.target.value !== lastConfirmedTextRef.current) {
                             onLocationSelect({
                                 lat: markerPos.lat, // markerPos is always the internal source of truth
                                 lng: markerPos.lng,
@@ -446,6 +448,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                                 isConfirmed: true, // UNBLOCK CONTINUAR
                             };
                             lastSentCoordsRef.current = { lat: finalLat, lng: finalLng };
+                                lastConfirmedTextRef.current = targetAddress;
                             isInternalUpdateRef.current = true;
                             onLocationSelect(result);
                             toast.success('Ubicación confirmada manualmente');

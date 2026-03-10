@@ -516,8 +516,10 @@ export default function BusinessSetupPage() {
                                         // [FIX] Confiar ciegamente en el mapa. El mapa ya protege el texto escrito (value || initial). 
                                         // Si es una búsqueda nueva, DEBE pisotear.
                                         address: result.formattedAddress,
-                                        lat: result.lat,
-                                        lng: result.lng,
+                                            displayAddress: result.displayAddress || result.formattedAddress,
+                                            plusCode: result.plusCode || '',
+                                            lat: result.lat,
+                                            lng: result.lng,
                                         placeId: result.placeId,
                                         googleMapsUrl: result.googleMapsUrl,
                                         // Auto-fill city/department if not already set
@@ -528,6 +530,8 @@ export default function BusinessSetupPage() {
                                             department: result.department || prev.department || '',
                                             city: result.city || prev.city || '',
                                             address: result.formattedAddress,
+                                            displayAddress: result.displayAddress || result.formattedAddress,
+                                            plusCode: result.plusCode || '',
                                             lat: result.lat,
                                             lng: result.lng,
                                             placeId: result.placeId,
