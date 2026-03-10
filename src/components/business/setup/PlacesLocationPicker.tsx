@@ -73,6 +73,23 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                         setMarkerPos({ lat, lng });
                         mapRef.current?.panTo({ lat, lng });
                         mapRef.current?.setZoom(13);
+
+                        // [NUEVO] Informar al padre de la coordenada de la ciudad, para anular la coordenada vieja.
+                        const result: LocationResult = {
+                            lat,
+                            lng,
+                            placeId: results[0].place_id || '',
+                            formattedAddress: initialAddress || '', // Preservar texto escrito
+                            googleMapsUrl: results[0].place_id ? `https://www.google.com/maps/place/?q=place_id:${results[0].place_id}` : '',
+                            city: cityContext.split(',')[0],
+                            department: cityContext.split(',')[1]?.trim(),
+                            country: countryCode,
+                            source: 'google',
+                            isConfirmed: false, // NO es final, requiere selección de calle real
+                        };
+                        isInternalUpdateRef.current = true;
+                        lastSentCoordsRef.current = { lat, lng };
+                        onLocationSelect(result);
                     } catch (e) {
                         console.error("getLatLng error:", e);
                     }
@@ -216,7 +233,8 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 lat,
                 lng,
                 placeId,
-                formattedAddress: address,
+                // [NUEVO] La jerarquía dicta que si ya escribió algo (value), el marker NO puede pisotearlo.
+                formattedAddress: value || address,
                 googleMapsUrl: placeId
                     ? `https://www.google.com/maps/place/?q=place_id:${placeId}`
                     : `https://maps.google.com/?q=${lat},${lng}`,

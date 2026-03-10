@@ -440,7 +440,14 @@ export default function BusinessProfilePage() {
                                                             lat: undefined,
                                                             lng: undefined,
                                                             address: '', // Limpia dirección manual por cambio de contexto mayor
-                                                            locationV2: formData.locationV2 ? { ...formData.locationV2, isConfirmed: false } : undefined
+                                                            // [FIX] Destruir por completo la memoria de las viejas coordenadas en V2
+                                                            locationV2: formData.locationV2 ? {
+                                                                ...formData.locationV2,
+                                                                isConfirmed: false,
+                                                                lat: undefined as any,
+                                                                lng: undefined as any,
+                                                                address: ''
+                                                            } : undefined
                                                         });
                                                     }}
                                                     className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:border-brand-neon-cyan focus:outline-none"

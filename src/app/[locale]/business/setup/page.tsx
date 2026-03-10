@@ -451,8 +451,14 @@ export default function BusinessSetupPage() {
                                             lat: undefined,
                                             lng: undefined,
                                             address: '',
-                                            // Invalidar la ubicación V2 si cambian el departamento a mano
-                                            locationV2: formData.locationV2 ? { ...formData.locationV2, isConfirmed: false } : undefined
+                                            // [FIX] Destruir por completo la memoria de las viejas coordenadas en V2
+                                            locationV2: formData.locationV2 ? {
+                                                ...formData.locationV2,
+                                                isConfirmed: false,
+                                                lat: undefined as any,
+                                                lng: undefined as any,
+                                                address: ''
+                                            } : undefined
                                         });
                                     }}
                                     className="w-full h-12 bg-white border border-slate-200 rounded-lg px-4 text-slate-900 focus:outline-none focus:border-teal-500"
