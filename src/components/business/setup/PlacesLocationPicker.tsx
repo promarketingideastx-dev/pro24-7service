@@ -398,21 +398,57 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 </p>
                 <button
                     type="button"
-                    onClick={() => {
-                        // Force manual commit explicitly
+                    onClick={async () => {
+                        const targetAddress = value || initialAddress || cityContext || '';
+                        let finalLat = markerPos.lat;
+                        let finalLng = markerPos.lng;
+                        let finalCity = cityContext ? cityContext.split(',')[0] : '';
+                        let finalDepartment = cityContext ? cityContext.split(',')[1]?.trim() : '';
+                        let finalCountry = countryCode || '';
+
+                        // 1. Intentar validar y anclar la coordenada geográficamente
+                        if (targetAddress) {
+                            try {
+                                const results = await getGeocode({ address: targetAddress });
+                                if (results && results.length > 0) {
+                                    const coords = await getLatLng(results[0]);
+                                    finalLat = coords.lat;
+                                    finalLng = coords.lng;
+
+                                    const comps = results[0].address_components || [];
+                                    for (const comp of comps) {
+                                        if (comp.types.includes('locality')) finalCity = comp.long_name;
+                                        if (comp.types.includes('administrative_area_level_1')) finalDepartment = comp.long_name;
+                                        if (comp.types.includes('country')) finalCountry = comp.short_name;
+                                    }
+
+                                    // 2. Anclar visualmente el mapa y el marker a las verdaderas coordenadas
+                                    setMarkerPos({ lat: finalLat, lng: finalLng });
+                                    setMapCenter({ lat: finalLat, lng: finalLng });
+                                    if (mapRef.current) {
+                                        mapRef.current.panTo({ lat: finalLat, lng: finalLng });
+                                        mapRef.current.setZoom(17);
+                                    }
+                                }
+                            } catch (e) {
+                                console.warn('Silently falling back to current marker pos for manual confirm:', e);
+                            }
+                        }
+
+                        // 3. Force manual commit explicitly con las coordenadas validadas
                         const result: LocationResult = {
-                            lat: markerPos.lat,
-                            lng: markerPos.lng,
+                            lat: finalLat,
+                            lng: finalLng,
                             placeId: '',
-                            formattedAddress: value || initialAddress || '',
-                            googleMapsUrl: `https://maps.google.com/?q=${markerPos.lat},${markerPos.lng}`,
-                            city: cityContext ? cityContext.split(',')[0] : '',
-                            department: cityContext ? cityContext.split(',')[1]?.trim() : '',
-                            country: countryCode || '',
+                            formattedAddress: targetAddress,
+                            googleMapsUrl: `https://maps.google.com/?q=${finalLat},${finalLng}`,
+                            city: finalCity,
+                            department: finalDepartment,
+                            country: finalCountry,
                             source: 'manual',
                             isConfirmed: true, // UNBLOCK CONTINUAR
                         };
-                        lastSentCoordsRef.current = markerPos;
+                        lastSentCoordsRef.current = { lat: finalLat, lng: finalLng };
                         isInternalUpdateRef.current = true;
                         onLocationSelect(result);
                         toast.success('Ubicación confirmada manualmente');
