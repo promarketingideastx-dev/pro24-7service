@@ -72,7 +72,11 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
     useEffect(() => {
         if (!initialLat && !initialLng && cityContext) {
             const query = `${cityContext}${countryCode ? `, ${countryCode}` : ''}`;
-            getGeocode({ address: query }).then(async results => {
+            const geocodeReq: google.maps.GeocoderRequest = { address: query };
+            if (countryCode) {
+                geocodeReq.componentRestrictions = { country: countryCode };
+            }
+            getGeocode(geocodeReq as any).then(async results => {
                 if (results && results.length > 0) {
                     try {
                         const { lat, lng } = await getLatLng(results[0]);
@@ -191,7 +195,11 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 console.warn('Obtener geometry desde Places falló, usando native Geocoder con texto:', err);
 
                 const geocoder = new window.google.maps.Geocoder();
-                const response = await geocoder.geocode({ address: description });
+                const geocodeOptions: google.maps.GeocoderRequest = { address: description };
+                if (countryCode) {
+                    geocodeOptions.componentRestrictions = { country: countryCode };
+                }
+                const response = await geocoder.geocode(geocodeOptions);
                 if (!response.results || response.results.length === 0) {
                     throw new Error("Geocoding API falló en resolver esta dirección como fallback.");
                 }
