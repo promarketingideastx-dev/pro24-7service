@@ -253,9 +253,9 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
 
         } catch (err: any) {
             console.error('PlacesLocationPicker handleSelect error:', err);
-            toast.error('Google no pudo confirmar la coordenada visualmente. Asegúrate de que el pin esté correcto.');
+            toast.error('Ocurrió un error consultando a Google. Por favor, intenta de nuevo o mueve el pin manualmente.');
         }
-    }, [setValue, clearSuggestions, onLocationSelect]);
+    }, [setValue, clearSuggestions, onLocationSelect, countryCode]);
 
     // When user drags the marker to a new position
     const handleMarkerDragEnd = useCallback(async (e: google.maps.MapMouseEvent) => {
@@ -264,10 +264,6 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         const lng = e.latLng.lng();
         setMarkerPos({ lat, lng });
 
-        // User intent rule: Google sets initial address, drag refines pure lat/lng
-        const finalAddressText = value || initialAddress || '';
-        const finalPlaceId = lastConfirmedPlaceIdRef.current || '';
-
         let fallbackAddress = '';
         let fallbackCity = '';
         let fallbackDep = '';
@@ -275,53 +271,54 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         let fallbackPlaceId = '';
         let fallbackPlusCode = '';
 
-        // Only do reverse geocode if the user dragged without *any* prior address text
-        if (!finalAddressText) {
-            try {
-                const geocoder = new window.google.maps.Geocoder();
-                const response = await geocoder.geocode({ location: { lat, lng } });
-                if (response.results && response.results.length > 0) {
-                    const resultGeocode = response.results[0];
-                    fallbackAddress = resultGeocode.formatted_address;
-                    fallbackPlaceId = resultGeocode.place_id;
-                    if (resultGeocode.plus_code && resultGeocode.plus_code.global_code) fallbackPlusCode = resultGeocode.plus_code.global_code;
+        try {
+            const geocoder = new window.google.maps.Geocoder();
+            const response = await geocoder.geocode({ location: { lat, lng } });
+            if (response.results && response.results.length > 0) {
+                const resultGeocode = response.results[0];
+                fallbackAddress = resultGeocode.formatted_address;
+                fallbackPlaceId = resultGeocode.place_id;
+                if (resultGeocode.plus_code && resultGeocode.plus_code.global_code) fallbackPlusCode = resultGeocode.plus_code.global_code;
 
-                    const comps = resultGeocode.address_components || [];
-                    for (const comp of comps) {
-                        if (comp.types.includes('locality')) fallbackCity = comp.long_name;
-                        if (comp.types.includes('administrative_area_level_1')) fallbackDep = comp.long_name;
-                        if (comp.types.includes('country')) fallbackCountry = comp.short_name;
-                    }
-                    setValue(fallbackAddress, false);
+                const comps = resultGeocode.address_components || [];
+                for (const comp of comps) {
+                    if (comp.types.includes('locality')) fallbackCity = comp.long_name;
+                    if (comp.types.includes('administrative_area_level_1')) fallbackDep = comp.long_name;
+                    if (comp.types.includes('country')) fallbackCountry = comp.short_name;
                 }
-            } catch (err) {
-                console.error('Reverse geocode error:', err);
+
+                // REGLA: El pin siempre actualiza la dirección (reverse geocoding como fuente de verdad del pin)
+                setValue(fallbackAddress, false);
             }
+        } catch (err) {
+            console.error('Reverse geocode error:', err);
         }
+
+        const finalAddressText = fallbackAddress || value || initialAddress || '';
+        const finalPlaceId = fallbackPlaceId || lastConfirmedPlaceIdRef.current || '';
 
         const result: LocationResult = {
             lat,
             lng,
-            placeId: finalAddressText ? finalPlaceId : fallbackPlaceId,
-            displayAddress: finalAddressText || fallbackAddress,
-            // we send finalAddressText as formattedAddress as fallback, if it was already selected it stays
-            formattedAddress: finalAddressText || fallbackAddress,
-            plusCode: fallbackPlusCode, // Si había una previa, backend mantendrá la previa o nullificará si se movió mucho.
-            googleMapsUrl: (finalAddressText && finalPlaceId)
-                ? `https://www.google.com/maps/place/?q=place_id:${finalPlaceId}`
-                : `https://maps.google.com/?q=${lat},${lng}`,
-            city: cityContext ? cityContext.split(',')[0] : fallbackCity,
-            department: cityContext ? cityContext.split(',')[1]?.trim() : fallbackDep,
-            country: countryCode || fallbackCountry,
+            placeId: finalPlaceId,
+            displayAddress: finalAddressText,
+            formattedAddress: finalAddressText,
+            plusCode: fallbackPlusCode,
+            googleMapsUrl: `https://maps.google.com/?q=${lat},${lng}`,
+            city: fallbackCity || (cityContext ? cityContext.split(',')[0] : ''),
+            department: fallbackDep || (cityContext ? cityContext.split(',')[1]?.trim() : ''),
+            country: fallbackCountry || countryCode || '',
             source: 'manual',
             isConfirmed: true,
         };
 
         lastSentCoordsRef.current = { lat, lng };
+        lastConfirmedTextRef.current = finalAddressText;
+        lastConfirmedPlaceIdRef.current = finalPlaceId;
         isInternalUpdateRef.current = true;
         onLocationSelect(result);
 
-        toast.success('Precisión de ubicación ajustada manualmente.');
+        toast.success('Dirección actualizada basada en el pin.');
     }, [value, initialAddress, cityContext, countryCode, onLocationSelect, setValue]);
 
     return (
