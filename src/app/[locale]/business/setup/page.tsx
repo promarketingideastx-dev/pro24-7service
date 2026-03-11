@@ -29,7 +29,7 @@ import PlacesLocationPicker, { LocationResult } from '@/components/business/setu
 
 export default function BusinessSetupPage() {
     const { user, userProfile, loading: authLoading } = useAuth();
-    // const { selectedCountry } = useCountry(); // Remove direct context usage if we want strict ActiveCountry
+    const { selectedCountry } = useCountry();
     const t = useTranslations('setup');
     const router = useRouter();
     const STEPS = [
@@ -149,30 +149,24 @@ export default function BusinessSetupPage() {
         }
     };
 
-    // Effect: Enforce Active Country alignment on mount
+    // Effect: Enforce Active Country alignment on mount and listen strictly to context changes
     useEffect(() => {
-        const current = ActiveCountry.get();
-        if (formData.country !== current) {
-            setFormData(prev => ({
-                ...prev,
-                country: current
-            }));
-        }
-    }, []);
-
-    // Effect: Enforce Active Country alignment on mount (or if user changes context outside)
-    // Also handles "Editing" mode if we were to support it later (syncing profile country to active)
-    useEffect(() => {
-        const current = ActiveCountry.get();
-        if (formData.country !== current) {
+        const current = selectedCountry?.code || ActiveCountry.get();
+        if (current && formData.country !== current) {
             setFormData(prev => ({
                 ...prev,
                 country: current,
-                department: '', // Reset geo dependants
-                city: ''
+                department: '', // Reset geo dependants completely
+                city: '',
+                address: '',
+                lat: undefined,
+                lng: undefined,
+                placeId: undefined,
+                googleMapsUrl: undefined,
+                locationV2: undefined
             }));
         }
-    }, []);
+    }, [selectedCountry?.code]);
 
     const handleNext = () => {
         if (currentStep < 5) setCurrentStep(c => c + 1);

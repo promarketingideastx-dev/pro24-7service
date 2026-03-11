@@ -103,6 +103,17 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         }
     }, [cityContext, countryCode, initialLat, initialLng]);
 
+    // [CRITICAL FIX] Reset internal autocomplete and marker cache when countryCode changes globally
+    useEffect(() => {
+        if (countryCode) {
+            setValue('', false);
+            clearSuggestions();
+            lastConfirmedTextRef.current = '';
+            lastConfirmedPlaceIdRef.current = '';
+            lastSentCoordsRef.current = null;
+        }
+    }, [countryCode, setValue, clearSuggestions]);
+
     // [CRITICAL FIX] Effect to synchronize the internal marker with parent formData changes.
     // Ensure we only listen to external resets, and completely ignore the "echoes" of our own updates.
     useEffect(() => {
