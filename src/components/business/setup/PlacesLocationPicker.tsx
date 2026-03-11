@@ -173,10 +173,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 if (resultGeocode.plus_code && resultGeocode.plus_code.global_code) plusCode = resultGeocode.plus_code.global_code;
                 if (resultGeocode.formatted_address) formattedAddress = resultGeocode.formatted_address;
 
-                // Validación de precisión (ROOFTOP vs APPROXIMATE)
-                if (resultGeocode.geometry.location_type === 'APPROXIMATE' || resultGeocode.geometry.location_type === 'GEOMETRIC_CENTER') {
-                    toast.info('La ubicación de Google es aproximada. Por favor, arrastra el pin rojo al punto exacto.', { duration: 6000 });
-                }
+                // Validación de precisión (ROOFTOP vs APPROXIMATE) - Removida por nueva regla UI
             } catch (err) {
                 console.warn('Obtener geometry desde Places falló, usando native Geocoder con texto:', err);
 
@@ -384,66 +381,6 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 )}
             </div>
 
-            {isMapReady && (
-                <div className="space-y-3 mt-4">
-                    {/* Botón de Confirmación Manual */}
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-teal-50/50 p-3 rounded-xl border border-teal-100">
-                        <p className="text-xs text-slate-600 flex items-center gap-1.5 flex-1">
-                            <MapPin size={14} className="text-teal-600 shrink-0" />
-                            <span>Arrastra el pin rojo al punto exacto, o confirma tu búsqueda manual:</span>
-                        </p>
-                        <button
-                            type="button"
-                            onClick={async () => {
-                                const targetAddress = value || initialAddress || cityContext || '';
-
-                                let finalLat = markerPos.lat;
-                                let finalLng = markerPos.lng;
-                                let finalCity = cityContext ? cityContext.split(',')[0] : '';
-                                let finalDepartment = cityContext ? cityContext.split(',')[1]?.trim() : '';
-                                let finalCountry = countryCode || '';
-                                let finalPlaceId = lastConfirmedPlaceIdRef.current || '';
-
-                                // 3. Confirmar la ubicación EXACTA usando markerPos y validaciones previas (Jerarquía estricta)
-                                const result: LocationResult = {
-                                    lat: finalLat,
-                                    lng: finalLng,
-                                    placeId: finalPlaceId,
-                                    displayAddress: targetAddress,
-                                    formattedAddress: targetAddress, // El texto ya está validado o provisto por el usuario
-                                    plusCode: '',
-                                    googleMapsUrl: finalPlaceId
-                                        ? `https://www.google.com/maps/place/?q=place_id:${finalPlaceId}`
-                                        : `https://maps.google.com/?q=${finalLat},${finalLng}`,
-                                    city: finalCity,
-                                    department: finalDepartment,
-                                    country: finalCountry,
-                                    source: finalPlaceId ? 'google' : 'manual',
-                                    isConfirmed: true, // UNBLOCK CONTINUAR
-                                };
-
-                                lastSentCoordsRef.current = { lat: finalLat, lng: finalLng };
-                                lastConfirmedTextRef.current = targetAddress;
-                                isInternalUpdateRef.current = true;
-
-                                onLocationSelect(result);
-                                toast.success('Ubicación confirmada exitosamente');
-                            }}
-                            className="shrink-0 bg-teal-600 hover:bg-teal-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium shadow-sm transition-colors active:scale-95 flex items-center gap-1.5"
-                        >
-                            <Check size={14} /> Usar esta ubicación
-                        </button>
-                    </div>
-
-                    {/* Helper visual para enfocar en la precisión manual */}
-                    <div className="text-sm text-teal-800 bg-teal-50 border border-teal-200 p-3 rounded-lg flex items-center gap-3 font-medium shadow-sm transition-all animate-in fade-in zoom-in slide-in-from-bottom-2 duration-300">
-                        <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center shrink-0">
-                            <MapPin size={18} className="text-teal-600" />
-                        </div>
-                        Arrastra el pin rojo exactamente al punto donde está tu negocio.
-                    </div>
-                </div>
-            )}
             {/* Map with draggable marker */}
             <div className={`rounded-xl overflow-hidden border border-slate-200 shadow-sm relative mt-4 transition-opacity ${!isMapReady ? 'opacity-40 grayscale pointer-events-none' : 'opacity-100'}`}>
                 <GoogleMap
