@@ -396,64 +396,29 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                             type="button"
                             onClick={async () => {
                                 const targetAddress = value || initialAddress || cityContext || '';
-                                const isTextNew = value && value !== lastConfirmedTextRef.current;
 
                                 let finalLat = markerPos.lat;
                                 let finalLng = markerPos.lng;
                                 let finalCity = cityContext ? cityContext.split(',')[0] : '';
                                 let finalDepartment = cityContext ? cityContext.split(',')[1]?.trim() : '';
                                 let finalCountry = countryCode || '';
+                                let finalPlaceId = lastConfirmedPlaceIdRef.current || '';
 
-                                // 1. Intentar validar mediante Geocoder SOLO si el texto es NUEVO y no se ha resuelto.
-                                // Si isTextNew es falso, el usuario solo está confirmando el drag del marker
-                                // o la sugerencia de Autocomplete ya procesada. ¡NO SOBRESCRIBIR con Geocoder de texto!
-                                if (targetAddress && isTextNew) {
-                                    try {
-                                        const results = await getGeocode({ address: targetAddress });
-                                        if (results && results.length > 0) {
-                                            const exactGeometry = results[0].geometry.location;
-                                            finalLat = exactGeometry.lat();
-                                            finalLng = exactGeometry.lng();
-
-                                            const comps = results[0].address_components || [];
-                                            for (const comp of comps) {
-                                                if (comp.types.includes('locality')) finalCity = comp.long_name;
-                                                if (comp.types.includes('administrative_area_level_1')) finalDepartment = comp.long_name;
-                                                if (comp.types.includes('country')) finalCountry = comp.short_name;
-                                            }
-
-                                            // 2. Anclar visualmente el mapa a la nueva geocodificación
-                                            setMarkerPos({ lat: finalLat, lng: finalLng });
-                                            setMapCenter({ lat: finalLat, lng: finalLng });
-                                            if (mapRef.current) {
-                                                mapRef.current.panTo({ lat: finalLat, lng: finalLng });
-                                                mapRef.current.setZoom(17);
-                                            }
-
-                                            if (results[0].geometry?.location_type === 'APPROXIMATE' || results[0].geometry?.location_type === 'GEOMETRIC_CENTER') {
-                                                toast.info('Ubicación aproximada. Arrastra el pin rojo al punto exacto.', { duration: 6000 });
-                                            }
-                                        }
-                                    } catch (e) {
-                                        console.warn('Fallback: geocoding failed', e);
-                                        toast.error('No pudimos encontrar esta dirección exacta. Por favor arrastra el pin.');
-                                        return; // Bloquear si el nuevo texto no sirve, para obligar a hacerlo bien
-                                    }
-                                }
-
-                                // 3. Confirmar la ubicación EXACTA
+                                // 3. Confirmar la ubicación EXACTA usando markerPos y validaciones previas (Jerarquía estricta)
                                 const result: LocationResult = {
                                     lat: finalLat,
                                     lng: finalLng,
-                                    placeId: '',
+                                    placeId: finalPlaceId,
                                     displayAddress: targetAddress,
-                                    formattedAddress: targetAddress,
+                                    formattedAddress: targetAddress, // El texto ya está validado o provisto por el usuario
                                     plusCode: '',
-                                    googleMapsUrl: `https://maps.google.com/?q=${finalLat},${finalLng}`,
+                                    googleMapsUrl: finalPlaceId
+                                        ? `https://www.google.com/maps/place/?q=place_id:${finalPlaceId}`
+                                        : `https://maps.google.com/?q=${finalLat},${finalLng}`,
                                     city: finalCity,
                                     department: finalDepartment,
                                     country: finalCountry,
-                                    source: 'manual',
+                                    source: finalPlaceId ? 'google' : 'manual',
                                     isConfirmed: true, // UNBLOCK CONTINUAR
                                 };
 
