@@ -539,18 +539,9 @@ export default function BusinessSetupPage() {
                                 initialAddress={formData.address}
                                 initialLat={formData.lat}
                                 initialLng={formData.lng}
-                                countryCode={(() => {
-                                    const codeMap: Record<string, string> = {
-                                        'Honduras': 'HN', 'México': 'MX', 'Mexico': 'MX',
-                                        'Guatemala': 'GT', 'El Salvador': 'SV', 'Nicaragua': 'NI',
-                                        'Costa Rica': 'CR', 'Panamá': 'PA', 'Panama': 'PA',
-                                        'Colombia': 'CO', 'Venezuela': 'VE', 'Perú': 'PE', 'Peru': 'PE',
-                                        'Brasil': 'BR', 'Brazil': 'BR', 'Argentina': 'AR', 'Chile': 'CL',
-                                        'España': 'ES', 'Spain': 'ES', 'Estados Unidos': 'US', 'United States': 'US'
-                                    };
-                                    return codeMap[formData.country as string] || 'HN';
-                                })()}
-                                cityContext={formData.city && formData.department ? `${formData.city}, ${formData.department}` : undefined}
+                                countryCode={formData.country || 'HN'}
+                                cityContext={formData.city ? `${formData.city}, ${formData.department}` : (formData.department || undefined)}
+                                defaultMapCenter={currentCountryConfig.coordinates}
                             />
                         </div>
 

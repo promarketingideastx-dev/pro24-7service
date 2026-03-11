@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 
 const LIBRARIES: ('places')[] = ['places'];
 const MAP_CONTAINER_STYLE = { width: '100%', height: '220px' };
-const DEFAULT_CENTER = { lat: 14.0818, lng: -87.2068 }; // Tegucigalpa
 
 export interface LocationResult {
     lat: number;
@@ -33,14 +32,17 @@ interface Props {
     initialLng?: number;
     countryCode?: string;
     cityContext?: string;
+    defaultMapCenter?: { lat: number; lng: number };
 }
 
-function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLat, initialLng, countryCode, cityContext }: Props) {
+function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLat, initialLng, countryCode, cityContext, defaultMapCenter }: Props) {
+    const defaultCenter = defaultMapCenter || { lat: 14.0818, lng: -87.2068 }; // Fallback to Tegucigalpa only if defaultMapCenter is entirely missing
+
     const [markerPos, setMarkerPos] = useState<{ lat: number; lng: number }>(
-        initialLat && initialLng ? { lat: initialLat, lng: initialLng } : DEFAULT_CENTER
+        initialLat && initialLng ? { lat: initialLat, lng: initialLng } : defaultCenter
     );
     const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>(
-        initialLat && initialLng ? { lat: initialLat, lng: initialLng } : DEFAULT_CENTER
+        initialLat && initialLng ? { lat: initialLat, lng: initialLng } : defaultCenter
     );
     const mapRef = useRef<google.maps.Map | null>(null);
     const isSelectingRef = useRef(false);
