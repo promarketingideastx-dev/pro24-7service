@@ -45,12 +45,6 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
     const mapRef = useRef<google.maps.Map | null>(null);
     const isSelectingRef = useRef(false);
 
-    // Controles de una sola vía (Single Source of Truth fix)
-    const isMapReady = Boolean(cityContext || initialLat || value);
-    const isInternalUpdateRef = useRef(false);
-    const lastSentCoordsRef = useRef<{ lat: number, lng: number } | null>(null);
-    const lastConfirmedTextRef = useRef<string>(initialAddress || '');
-
     const {
         ready,
         value,
@@ -64,6 +58,13 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         debounce: 300,
         defaultValue: initialAddress || '',
     });
+
+    // Controles de una sola vía (Single Source of Truth fix)
+    const isMapReady = Boolean(cityContext || initialLat || value);
+    const isInternalUpdateRef = useRef(false);
+    const lastSentCoordsRef = useRef<{ lat: number, lng: number } | null>(null);
+    const lastConfirmedTextRef = useRef<string>(initialAddress || '');
+    const lastConfirmedPlaceIdRef = useRef<string>('');
 
     // Effect to center map on the selected city context if no initial coords were passed
     useEffect(() => {
@@ -141,24 +142,12 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         }
     }, [initialLat, initialLng]); // Ya NO dependen de markerPos, cero ciclos infinitos
 
-                // When user selects a suggestion from the dropdown
+    // When user selects a suggestion from the dropdown
     const handleSelect = useCallback(async (description: string, placeId: string) => {
         try {
             // Instantly update UI for immediate UX feedback
             setValue(description, false);
             clearSuggestions();
-
-            const getPlaceDetails = (pId: string): Promise<google.maps.places.PlaceResult> => {
-                return new Promise((resolve, reject) => {
-                    const dmy = document.createElement('div');
-                    const service = new window.google.maps.places.PlacesService(mapRef.current ? (mapRef.current.getDiv() as HTMLDivElement) : dmy);
-                    // Solicitamos plus_code y formatted_address
-                    service.getDetails({ placeId: pId, fields: ['geometry', 'address_components', 'plus_code', 'formatted_address'] }, (place, status) => {
-                        if (status === window.google.maps.places.PlacesServiceStatus.OK && place) resolve(place);
-                        else reject(new Error('PlacesService failed with status: ' + status));
-                    });
-                });
-            };
 
             let lat: number;
             let lng: number;
@@ -167,20 +156,30 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
             let formattedAddress = '';
 
             try {
-                // PRIMARIO: Usar directamente la geometría proveída por Places API sin llamar a Geocoder
                 if (!placeId) throw new Error("No placeId provided");
-                const place = await getPlaceDetails(placeId);
-                if (!place.geometry || !place.geometry.location) throw new Error("Place object has no geometry");
 
-                lat = place.geometry.location.lat();
-                lng = place.geometry.location.lng();
-                comps = place.address_components || [];
-                if (place.plus_code && place.plus_code.global_code) plusCode = place.plus_code.global_code;
-                if (place.formatted_address) formattedAddress = place.formatted_address;
+                // Usar Geocoder nativo para resolver el placeId a una geometría exacta con precision
+                const geocoder = new window.google.maps.Geocoder();
+                const response = await geocoder.geocode({ placeId: placeId });
+
+                if (!response.results || response.results.length === 0) {
+                    throw new Error("Geocoding API falló en resolver este placeId.");
+                }
+
+                const resultGeocode = response.results[0];
+                lat = resultGeocode.geometry.location.lat();
+                lng = resultGeocode.geometry.location.lng();
+                comps = resultGeocode.address_components || [];
+                if (resultGeocode.plus_code && resultGeocode.plus_code.global_code) plusCode = resultGeocode.plus_code.global_code;
+                if (resultGeocode.formatted_address) formattedAddress = resultGeocode.formatted_address;
+
+                // Validación de precisión (ROOFTOP vs APPROXIMATE)
+                if (resultGeocode.geometry.location_type === 'APPROXIMATE' || resultGeocode.geometry.location_type === 'GEOMETRIC_CENTER') {
+                    toast.info('La ubicación de Google es aproximada. Por favor, arrastra el pin rojo al punto exacto.', { duration: 6000 });
+                }
             } catch (err) {
-                console.warn('Obtener geometry desde Places falló, usando native Geocoder como fallback manual:', err);
-                
-                // FALLBACK SOLO PARA DIRECCIONES MANUALES SIN SUGERENCIA GOOGLE O FALLAS DE PLACES
+                console.warn('Obtener geometry desde Places falló, usando native Geocoder con texto:', err);
+
                 const geocoder = new window.google.maps.Geocoder();
                 const response = await geocoder.geocode({ address: description });
                 if (!response.results || response.results.length === 0) {
@@ -240,7 +239,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         }
     }, [setValue, clearSuggestions, onLocationSelect]);
 
-            // When user drags the marker to a new position
+    // When user drags the marker to a new position
     const handleMarkerDragEnd = useCallback(async (e: google.maps.MapMouseEvent) => {
         if (!e.latLng) return;
         const lat = e.latLng.lat();
@@ -288,7 +287,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
             placeId: finalAddressText ? finalPlaceId : fallbackPlaceId,
             displayAddress: finalAddressText || fallbackAddress,
             // we send finalAddressText as formattedAddress as fallback, if it was already selected it stays
-            formattedAddress: finalAddressText || fallbackAddress, 
+            formattedAddress: finalAddressText || fallbackAddress,
             plusCode: fallbackPlusCode, // Si había una previa, backend mantendrá la previa o nullificará si se movió mucho.
             googleMapsUrl: (finalAddressText && finalPlaceId)
                 ? `https://www.google.com/maps/place/?q=place_id:${finalPlaceId}`
@@ -385,89 +384,101 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 )}
             </div>
 
-        {isMapReady && (
-            <div className="space-y-3 mt-4">
-                {/* Botón de Confirmación Manual */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-teal-50/50 p-3 rounded-xl border border-teal-100">
-                    <p className="text-xs text-slate-600 flex items-center gap-1.5 flex-1">
-                        <MapPin size={14} className="text-teal-600 shrink-0" />
-                        <span>Arrastra el pin rojo al punto exacto, o confirma tu búsqueda manual:</span>
-                    </p>
-                    <button
-                        type="button"
-                        onClick={async () => {
-                            const targetAddress = value || initialAddress || cityContext || '';
-                            let finalLat = markerPos.lat;
-                            let finalLng = markerPos.lng;
-                            let finalCity = cityContext ? cityContext.split(',')[0] : '';
-                            let finalDepartment = cityContext ? cityContext.split(',')[1]?.trim() : '';
-                            let finalCountry = countryCode || '';
+            {isMapReady && (
+                <div className="space-y-3 mt-4">
+                    {/* Botón de Confirmación Manual */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-teal-50/50 p-3 rounded-xl border border-teal-100">
+                        <p className="text-xs text-slate-600 flex items-center gap-1.5 flex-1">
+                            <MapPin size={14} className="text-teal-600 shrink-0" />
+                            <span>Arrastra el pin rojo al punto exacto, o confirma tu búsqueda manual:</span>
+                        </p>
+                        <button
+                            type="button"
+                            onClick={async () => {
+                                const targetAddress = value || initialAddress || cityContext || '';
+                                const isTextNew = value && value !== lastConfirmedTextRef.current;
 
-                            // 1. Intentar validar y anclar la coordenada geográficamente
-                            if (targetAddress) {
-                                try {
-                                    const results = await getGeocode({ address: targetAddress });
-                                    if (results && results.length > 0) {
-                                        const coords = await getLatLng(results[0]);
-                                        finalLat = coords.lat;
-                                        finalLng = coords.lng;
+                                let finalLat = markerPos.lat;
+                                let finalLng = markerPos.lng;
+                                let finalCity = cityContext ? cityContext.split(',')[0] : '';
+                                let finalDepartment = cityContext ? cityContext.split(',')[1]?.trim() : '';
+                                let finalCountry = countryCode || '';
 
-                                        const comps = results[0].address_components || [];
-                                        for (const comp of comps) {
-                                            if (comp.types.includes('locality')) finalCity = comp.long_name;
-                                            if (comp.types.includes('administrative_area_level_1')) finalDepartment = comp.long_name;
-                                            if (comp.types.includes('country')) finalCountry = comp.short_name;
+                                // 1. Intentar validar mediante Geocoder SOLO si el texto es NUEVO y no se ha resuelto.
+                                // Si isTextNew es falso, el usuario solo está confirmando el drag del marker
+                                // o la sugerencia de Autocomplete ya procesada. ¡NO SOBRESCRIBIR con Geocoder de texto!
+                                if (targetAddress && isTextNew) {
+                                    try {
+                                        const results = await getGeocode({ address: targetAddress });
+                                        if (results && results.length > 0) {
+                                            const exactGeometry = results[0].geometry.location;
+                                            finalLat = exactGeometry.lat();
+                                            finalLng = exactGeometry.lng();
+
+                                            const comps = results[0].address_components || [];
+                                            for (const comp of comps) {
+                                                if (comp.types.includes('locality')) finalCity = comp.long_name;
+                                                if (comp.types.includes('administrative_area_level_1')) finalDepartment = comp.long_name;
+                                                if (comp.types.includes('country')) finalCountry = comp.short_name;
+                                            }
+
+                                            // 2. Anclar visualmente el mapa a la nueva geocodificación
+                                            setMarkerPos({ lat: finalLat, lng: finalLng });
+                                            setMapCenter({ lat: finalLat, lng: finalLng });
+                                            if (mapRef.current) {
+                                                mapRef.current.panTo({ lat: finalLat, lng: finalLng });
+                                                mapRef.current.setZoom(17);
+                                            }
+
+                                            if (results[0].geometry?.location_type === 'APPROXIMATE' || results[0].geometry?.location_type === 'GEOMETRIC_CENTER') {
+                                                toast.info('Ubicación aproximada. Arrastra el pin rojo al punto exacto.', { duration: 6000 });
+                                            }
                                         }
-
-                                        // 2. Anclar visualmente el mapa y el marker a las verdaderas coordenadas
-                                        setMarkerPos({ lat: finalLat, lng: finalLng });
-                                        setMapCenter({ lat: finalLat, lng: finalLng });
-                                        if (mapRef.current) {
-                                            mapRef.current.panTo({ lat: finalLat, lng: finalLng });
-                                            mapRef.current.setZoom(17);
-                                        }
+                                    } catch (e) {
+                                        console.warn('Fallback: geocoding failed', e);
+                                        toast.error('No pudimos encontrar esta dirección exacta. Por favor arrastra el pin.');
+                                        return; // Bloquear si el nuevo texto no sirve, para obligar a hacerlo bien
                                     }
-                                } catch (e) {
-                                    console.warn('Silently falling back to current marker pos for manual confirm:', e);
                                 }
-                            }
 
-                            // 3. Force manual commit explicitly con las coordenadas validadas
-                            const result: LocationResult = {
-                                lat: finalLat,
-                                lng: finalLng,
-                                placeId: '',
-                                displayAddress: targetAddress,
-                                formattedAddress: targetAddress,
-                                plusCode: '',
-                                googleMapsUrl: `https://maps.google.com/?q=${finalLat},${finalLng}`,
-                                city: finalCity,
-                                department: finalDepartment,
-                                country: finalCountry,
-                                source: 'manual',
-                                isConfirmed: true, // UNBLOCK CONTINUAR
-                            };
-                            lastSentCoordsRef.current = { lat: finalLat, lng: finalLng };
+                                // 3. Confirmar la ubicación EXACTA
+                                const result: LocationResult = {
+                                    lat: finalLat,
+                                    lng: finalLng,
+                                    placeId: '',
+                                    displayAddress: targetAddress,
+                                    formattedAddress: targetAddress,
+                                    plusCode: '',
+                                    googleMapsUrl: `https://maps.google.com/?q=${finalLat},${finalLng}`,
+                                    city: finalCity,
+                                    department: finalDepartment,
+                                    country: finalCountry,
+                                    source: 'manual',
+                                    isConfirmed: true, // UNBLOCK CONTINUAR
+                                };
+
+                                lastSentCoordsRef.current = { lat: finalLat, lng: finalLng };
                                 lastConfirmedTextRef.current = targetAddress;
-                            isInternalUpdateRef.current = true;
-                            onLocationSelect(result);
-                            toast.success('Ubicación confirmada manualmente');
-                        }}
-                        className="shrink-0 bg-teal-600 hover:bg-teal-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium shadow-sm transition-colors active:scale-95 flex items-center gap-1.5"
-                    >
-                        <Check size={14} /> Usar esta ubicación
-                    </button>
-                </div>
+                                isInternalUpdateRef.current = true;
 
-                {/* Helper visual para enfocar en la precisión manual */}
-                <div className="text-sm text-teal-800 bg-teal-50 border border-teal-200 p-3 rounded-lg flex items-center gap-3 font-medium shadow-sm transition-all animate-in fade-in zoom-in slide-in-from-bottom-2 duration-300">
-                    <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center shrink-0">
-                        <MapPin size={18} className="text-teal-600" />
+                                onLocationSelect(result);
+                                toast.success('Ubicación confirmada exitosamente');
+                            }}
+                            className="shrink-0 bg-teal-600 hover:bg-teal-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium shadow-sm transition-colors active:scale-95 flex items-center gap-1.5"
+                        >
+                            <Check size={14} /> Usar esta ubicación
+                        </button>
                     </div>
-                    Arrastra el pin rojo exactamente al punto donde está tu negocio.
+
+                    {/* Helper visual para enfocar en la precisión manual */}
+                    <div className="text-sm text-teal-800 bg-teal-50 border border-teal-200 p-3 rounded-lg flex items-center gap-3 font-medium shadow-sm transition-all animate-in fade-in zoom-in slide-in-from-bottom-2 duration-300">
+                        <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center shrink-0">
+                            <MapPin size={18} className="text-teal-600" />
+                        </div>
+                        Arrastra el pin rojo exactamente al punto donde está tu negocio.
+                    </div>
                 </div>
-            </div>
-        )}
+            )}
             {/* Map with draggable marker */}
             <div className={`rounded-xl overflow-hidden border border-slate-200 shadow-sm relative mt-4 transition-opacity ${!isMapReady ? 'opacity-40 grayscale pointer-events-none' : 'opacity-100'}`}>
                 <GoogleMap

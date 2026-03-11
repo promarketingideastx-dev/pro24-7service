@@ -516,10 +516,10 @@ export default function BusinessSetupPage() {
                                         // [FIX] Confiar ciegamente en el mapa. El mapa ya protege el texto escrito (value || initial). 
                                         // Si es una búsqueda nueva, DEBE pisotear.
                                         address: result.formattedAddress,
-                                            displayAddress: result.displayAddress || result.formattedAddress,
-                                            plusCode: result.plusCode || '',
-                                            lat: result.lat,
-                                            lng: result.lng,
+                                        displayAddress: result.displayAddress || result.formattedAddress,
+                                        plusCode: result.plusCode || '',
+                                        lat: result.lat,
+                                        lng: result.lng,
                                         placeId: result.placeId,
                                         googleMapsUrl: result.googleMapsUrl,
                                         // Auto-fill city/department if not already set
@@ -564,7 +564,7 @@ export default function BusinessSetupPage() {
                             <label className="block text-slate-600 text-sm mb-1">Modalidad</label>
                             <div className="grid grid-cols-3 gap-2">
                                 {['local', 'home', 'both'].map((m) => (
-                                                                        <button
+                                    <button
                                         key={m}
                                         onClick={() => setFormData({ ...formData, modality: m as any })}
                                         className={`h-11 rounded-lg border text-sm font-medium transition-all duration-200 active:scale-95
@@ -588,18 +588,165 @@ export default function BusinessSetupPage() {
                         <div>
                             <div className="flex items-center justify-between mb-3">
                                 <label className="block text-slate-600 text-sm">¿En qué área trabajas? *</label>
-                                                                    <button
-                                        key={m}
-                                        onClick={() => setFormData({ ...formData, modality: m as any })}
-                                        className={`h-11 rounded-lg border text-sm font-medium transition-all duration-200 active:scale-95
-                                            ${formData.modality === m
-                                                ? 'bg-teal-600 border-teal-600 text-white shadow-sm shadow-teal-500/20'
-                                                : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
-                                            }
-                                        `}
-                                    >
-                                        {m === 'local' ? 'En Local' : m === 'home' ? 'A Domicilio' : 'Ambas'}
-                                    </button>
+                                <button
+                                    onClick={() => setShowMultiArea(!showMultiArea)}
+                                    className={`text-xs px-2 py-1 rounded border transition-colors ${showMultiArea ? 'bg-teal-500/10 border-teal-500 text-teal-600' : 'border-slate-200 text-slate-500'}`}
+                                >
+                                    {showMultiArea ? 'Modo Simple' : 'Agregar otra área (Opcional)'}
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                {Object.values(TAXONOMY).map(cat => {
+                                    // Icon Mapping
+                                    let Icon = Tag;
+                                    if (cat.id === 'art_design') Icon = Palette;
+                                    if (cat.id === 'general_services') Icon = Wrench;
+                                    if (cat.id === 'beauty_wellness') Icon = Sparkles;
+
+                                    const isPrimary = formData.category === cat.id;
+                                    const isAdditional = formData.additionalCategories?.includes(cat.id);
+                                    const isSelected = isPrimary || isAdditional;
+
+                                    return (
+                                        <button
+                                            key={cat.id}
+                                            onClick={() => {
+                                                if (showMultiArea) {
+                                                    // Multi-select Logic
+                                                    if (isPrimary) return; // Can't deselect primary directly here, user should switch mode or pick another primary first?
+                                                    // Actually, just toggle Additional
+                                                    const currentAdditional = formData.additionalCategories || [];
+                                                    if (isAdditional) {
+                                                        setFormData({
+                                                            ...formData,
+                                                            additionalCategories: currentAdditional.filter(id => id !== cat.id)
+                                                        });
+                                                    } else {
+                                                        if (currentAdditional.length < 2) {
+                                                            setFormData({
+                                                                ...formData,
+                                                                additionalCategories: [...currentAdditional, cat.id]
+                                                            });
+                                                        } else {
+                                                            toast.error("Máximo 2 áreas adicionales permitidas.");
+                                                        }
+                                                    }
+                                                } else {
+                                                    // Single Select Logic (Standard)
+                                                    setFormData({
+                                                        ...formData,
+                                                        category: cat.id,
+                                                        subcategory: '',
+                                                        subcategories: [],
+                                                        specialtiesBySubcategory: {},
+                                                        specialties: [],
+                                                        additionalCategories: [], // Reset additional if executing primary switch in single mode
+                                                        additionalSpecialties: []
+                                                    });
+                                                }
+                                            }}
+                                            className={`
+                                                flex flex-col items-center justify-center p-4 rounded-xl border transition-all duration-200 relative
+                                                ${isPrimary
+                                                    ? 'bg-teal-500/10 border-teal-500 text-slate-900 shadow-[0_0_15px_rgba(0,240,255,0.15)] ring-1 ring-brand-neon-cyan'
+                                                    : isAdditional
+                                                        ? 'bg-teal-500/5 border-teal-500/50 text-slate-700'
+                                                        : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-[#1a233b]'
+                                                }
+                                            `}
+                                        >
+                                            {isPrimary && <div className="absolute top-2 right-2 text-xs bg-teal-500 text-black px-1.5 rounded font-bold">Principal</div>}
+                                            {isAdditional && <div className="absolute top-2 right-2 text-xs bg-slate-100 text-slate-500 px-1.5 rounded">Adicional</div>}
+
+                                            <Icon size={32} className={`mb-3 ${isSelected ? 'text-teal-600' : 'text-slate-500'}`} />
+                                            <span className="font-medium text-center">{cat.label.es}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            {/* Chips for Additional Areas */}
+                            {formData.additionalCategories && formData.additionalCategories.length > 0 && (
+                                <div className="mt-2 flex flex-wrap gap-2 animate-in fade-in">
+                                    <span className="text-xs text-slate-500 mr-2 self-center">Áreas adicionales:</span>
+                                    {formData.additionalCategories.map(catId => {
+                                        const catLabel = Object.values(TAXONOMY).find(c => c.id === catId)?.label.es;
+                                        return (
+                                            <span key={catId} className="bg-slate-50 border border-slate-200 text-slate-500 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                                                {catLabel}
+                                                <button onClick={() => setFormData({
+                                                    ...formData,
+                                                    additionalCategories: formData.additionalCategories?.filter(id => id !== catId)
+                                                })} className="hover:text-slate-800">×</button>
+                                            </span>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* 2. Subcategoría (Pills / Cards) - Only for Primary Category */}
+                        {formData.category && (
+                            <div className="animate-in fade-in slide-in-from-top-4 duration-300">
+                                <label className="block text-slate-600 text-sm mb-3">Selecciona tus especialidades principales (Máximo 3):</label>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                    {Object.values(TAXONOMY).find(c => c.id === formData.category)?.subcategories.map(sub => {
+                                        const isSelected = formData.subcategories?.includes(sub.id);
+                                        // Simple Icon Logic based on ID keywords or generic
+                                        let SubIcon = Tag;
+                                        if (['photography', 'camera'].some(k => sub.id.includes(k))) SubIcon = Camera;
+                                        if (sub.id === 'videography') SubIcon = MonitorPlay;
+                                        if (sub.id === 'music') SubIcon = Music;
+                                        if (sub.id === 'hair') SubIcon = Sparkles; // Generic Replacement
+                                        if (sub.id === 'self_defense') SubIcon = Shield;
+                                        if (['electrical', 'electric'].some(k => sub.id.includes(k))) SubIcon = Zap;
+                                        if (['plumbing', 'water'].some(k => sub.id.includes(k))) SubIcon = Droplets;
+                                        if (sub.id === 'painting') SubIcon = PaintBucket;
+                                        if (sub.id === 'moving') SubIcon = Truck;
+                                        if (sub.id === 'locksmith') SubIcon = Key;
+                                        if (sub.id.includes('mechanic')) SubIcon = Car; // Default car
+                                        if (sub.id === 'moto_mechanic') SubIcon = Bike;
+                                        if (sub.id === 'gardening') SubIcon = Leaf;
+                                        if (['nails', 'massage', 'skincare'].some(k => sub.id.includes(k))) SubIcon = Sparkles; // Generic beauty
+
+                                        return (
+                                            <button
+                                                key={sub.id}
+                                                onClick={() => {
+                                                    const currentSubs = formData.subcategories || [];
+                                                    if (isSelected) {
+                                                        const newSubs = currentSubs.filter(id => id !== sub.id);
+                                                        const newMap = { ...(formData.specialtiesBySubcategory || {}) };
+                                                        delete newMap[sub.id]; // Remove specialties for deselected subcat
+                                                        setFormData({
+                                                            ...formData,
+                                                            subcategories: newSubs,
+                                                            specialtiesBySubcategory: newMap
+                                                        });
+                                                    } else {
+                                                        if (currentSubs.length < 3) {
+                                                            setFormData({
+                                                                ...formData,
+                                                                subcategories: [...currentSubs, sub.id]
+                                                            });
+                                                        } else {
+                                                            toast.error("Máximo 3 especialidades principales permitidas.");
+                                                        }
+                                                    }
+                                                }}
+                                                className={`
+                                                    flex items-center gap-3 p-3 rounded-lg border text-left transition-all
+                                                    ${isSelected
+                                                        ? 'bg-teal-500/20 border-teal-500 text-white'
+                                                        : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-700'
+                                                    }
+                                                `}
+                                            >
+                                                <div className={`p-2 rounded-full ${isSelected ? 'bg-teal-500/20' : 'bg-slate-50'}`}>
+                                                    <SubIcon size={18} className={isSelected ? 'text-teal-600' : 'text-slate-500'} />
+                                                </div>
+                                                <span className="text-sm font-medium leading-tight">{sub.label.es}</span>
+                                            </button>
                                         );
                                     })}
                                 </div>
