@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import { Search, MapPin, Star, Bell, Filter, Grid, Zap, User, X, ChevronRight, Store, Share2, Navigation } from 'lucide-react';
 import { haversineKm, formatDistance } from '@/lib/geoUtils';
@@ -160,6 +160,20 @@ export default function Home() {
     // Derived State: Intelligent Search Logic
     const [suggestion, setSuggestion] = useState<string | null>(null);
 
+    // Option A: Determine if user is exploring locally (within 2000km of the country's center)
+    const isLocalContext = useMemo(() => {
+        if (!userSearchLocationGPS || !selectedCountry) return false;
+        const distToCenter = haversineKm(
+            Number(userSearchLocationGPS.lat),
+            Number(userSearchLocationGPS.lng),
+            Number(selectedCountry.coordinates.lat),
+            Number(selectedCountry.coordinates.lng)
+        );
+        // If GPS is within 2000 km of the center of the country, we consider it local enough.
+        // If they are searching Honduras from USA, it will be > 3000 km.
+        return distToCenter < 2000;
+    }, [userSearchLocationGPS, selectedCountry]);
+
     const filteredBusinesses = businesses.filter(b => {
         // 0. Filter by Country Code (Strict)
         if (selectedCountry) {
@@ -230,23 +244,38 @@ export default function Home() {
         // Distance filter (Ephemeral ONLY)
         const referenceCoords = userSearchLocationGPS || (selectedCountry ? { lat: selectedCountry.coordinates.lat, lng: selectedCountry.coordinates.lng } : null);
         if (!referenceCoords || filterMaxKm === 0) return true;
-        const bizLat = (b as any).location?.lat ?? b.lat;
-        const bizLng = (b as any).location?.lng ?? b.lng;
-        if (bizLat == null || bizLng == null) return true; // no coords → include
+
+        // OPTION A: If user is exploring a country remotely, DO NOT apply destructive distance filters
+        if (userSearchLocationGPS && !isLocalContext) return true;
+
+        const bizLat = (b as any).location?.lat ?? b.lat ?? 0;
+        const bizLng = (b as any).location?.lng ?? b.lng ?? 0;
+        if (!bizLat || !bizLng) return true; // no coords → include safely
+
         const dist = haversineKm(Number(referenceCoords.lat), Number(referenceCoords.lng), Number(bizLat), Number(bizLng));
+        // Protect against NaN corruptions
+        if (isNaN(dist)) return true;
+
         return dist <= filterMaxKm;
     }).sort((a, b) => {
         // Sort by distance when user location OR country location is known
         const referenceCoords = userSearchLocationGPS || (selectedCountry ? { lat: selectedCountry.coordinates.lat, lng: selectedCountry.coordinates.lng } : null);
         if (!referenceCoords) return 0;
-        const aLat = (a as any).location?.lat ?? a.lat;
-        const aLng = (a as any).location?.lng ?? a.lng;
-        const bLat = (b as any).location?.lat ?? b.lat;
-        const bLng = (b as any).location?.lng ?? b.lng;
-        if (aLat == null || bLat == null) return 0;
+
+        const aLat = (a as any).location?.lat ?? a.lat ?? 0;
+        const aLng = (a as any).location?.lng ?? a.lng ?? 0;
+        const bLat = (b as any).location?.lat ?? b.lat ?? 0;
+        const bLng = (b as any).location?.lng ?? b.lng ?? 0;
+
+        if (!aLat || !bLat) return 0;
+
         const distA = haversineKm(Number(referenceCoords.lat), Number(referenceCoords.lng), Number(aLat), Number(aLng));
         const distB = haversineKm(Number(referenceCoords.lat), Number(referenceCoords.lng), Number(bLat), Number(bLng));
-        return distA - distB;
+
+        const validA = !isNaN(distA) ? distA : 999999;
+        const validB = !isNaN(distB) ? distB : 999999;
+
+        return validA - validB;
     });
 
     // Effect: Suggestions mechanism (Run when results are empty)
@@ -1181,20 +1210,32 @@ export default function Home() {
 
                                 {/* Distance options */}
                                 <div className="flex flex-wrap gap-2">
-                                    {[{ val: 0, label: t('filters.noLimit') }, { val: 5, label: '5 km' }, { val: 10, label: '10 km' }, { val: 25, label: '25 km' }, { val: 50, label: '50 km' }].map(opt => (
-                                        <button
-                                            key={opt.val}
-                                            disabled={!userSearchLocationGPS && opt.val > 0}
-                                            onClick={() => setFilterMaxKm(opt.val)}
-                                            className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${!userSearchLocationGPS && opt.val > 0 ? 'opacity-40 cursor-not-allowed bg-slate-50 text-slate-400 border-slate-200' : filterMaxKm === opt.val
-                                                ? 'bg-[#14B8A6] text-white border-[#14B8A6]'
-                                                : 'bg-white text-slate-700 border-slate-200 hover:border-[#14B8A6]/50'
-                                                }`}
-                                        >
-                                            {opt.label}
-                                        </button>
-                                    ))}
+                                    {[{ val: 0, label: t('filters.noLimit') }, { val: 5, label: '5 km' }, { val: 10, label: '10 km' }, { val: 25, label: '25 km' }, { val: 50, label: '50 km' }].map(opt => {
+                                        // Option A Rule: Disable strict radius if no GPS OR if exploring a distant country
+                                        const isStrictRadiusDisabled = (!userSearchLocationGPS || (userSearchLocationGPS && !isLocalContext)) && opt.val > 0;
+
+                                        return (
+                                            <button
+                                                key={opt.val}
+                                                disabled={isStrictRadiusDisabled}
+                                                onClick={() => setFilterMaxKm(opt.val)}
+                                                className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${isStrictRadiusDisabled
+                                                    ? 'opacity-40 cursor-not-allowed bg-slate-50 text-slate-400 border-slate-200'
+                                                    : filterMaxKm === opt.val
+                                                        ? 'bg-[#14B8A6] text-white border-[#14B8A6]'
+                                                        : 'bg-white text-slate-700 border-slate-200 hover:border-[#14B8A6]/50'
+                                                    }`}
+                                            >
+                                                {opt.label}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
+                                {userSearchLocationGPS && !isLocalContext && (
+                                    <p className="text-[11px] text-amber-600 mt-2.5 font-medium leading-tight px-1">
+                                        ⚠️ {localeKey === 'en' ? 'Remote exploration. Short distance filters disabled to show full country results.' : localeKey === 'pt' ? 'Exploração remota. Filtros curtos desabilitados para mostrar todo o país.' : 'Exploración remota. Filtros cortos deshabilitados para no ocultar resultados del país.'}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Section: Con Agenda */}

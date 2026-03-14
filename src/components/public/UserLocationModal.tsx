@@ -54,6 +54,22 @@ export default function UserLocationModal({ isOpen, onClose, onLocationGranted }
                 return;
             }
 
+            try {
+                // Check if explicitly denied
+                // Ignore typescript error if it occurs for permissions.query because some old browsers don't have it
+                if (navigator.permissions && navigator.permissions.query) {
+                    const perm = await navigator.permissions.query({ name: 'geolocation' });
+                    if (perm.state === 'denied') {
+                        toast.error("Permiso de ubicación denegado. Habilítalo en tu navegador.");
+                        setIsRequesting(false);
+                        onClose();
+                        return;
+                    }
+                }
+            } catch (ignored) {
+                // Safari might throw on unsupported permission names, safely ignore
+            }
+
             navigator.geolocation.getCurrentPosition(
                 async (pos) => {
                     onLocationGranted({ lat: pos.coords.latitude, lng: pos.coords.longitude });
@@ -61,10 +77,22 @@ export default function UserLocationModal({ isOpen, onClose, onLocationGranted }
                 },
                 async (err) => {
                     console.warn("User geolocation denied or failed", err);
-                    toast.error("No se pudo obtener la ubicación o se denegó el permiso.");
+
+                    if (err.code === err.TIMEOUT) {
+                        // Fue un timeout. El usuario probablemente tardó en pulsar "Aceptar" en el prompt del navegador.
+                        // No lanzamos un toast rojo frustrante. Solo cerramos para que pueda reintentar de manera natural.
+                        console.warn("Geolocation timeout. Suprimido banner rojo.");
+                    } else if (err.code === err.PERMISSION_DENIED) {
+                        toast.error("Permiso de ubicación denegado. Habilítalo en tu navegador.");
+                    } else {
+                        toast.error("No se pudo obtener la ubicación.");
+                    }
+
+                    setIsRequesting(false);
                     onClose();
                 },
-                { timeout: 10000 }
+                // Aumentar el timeout y permitir caché (maximumAge) para acelerar respuesta web
+                { timeout: 15000, enableHighAccuracy: false, maximumAge: 60000 }
             );
         } catch (error) {
             console.error("Error requesting location:", error);
