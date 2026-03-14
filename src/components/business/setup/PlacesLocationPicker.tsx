@@ -309,28 +309,14 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
             }
         } catch (err) {
             console.error('Reverse geocode error or ZERO_RESULTS:', err);
-            // Si el geocoding explota (ej: zona rural sin calle, montaña),
-            // revisamos matemáticamente si la lat/lng cae dentro de la caja delimitadora (bounds) del país.
-            if (countryCode) {
-                const config = getCountryConfig(countryCode as CountryCode);
-                if (config && config.bounds) {
-                    const [minLat, minLng, maxLat, maxLng] = config.bounds;
-                    if (lat >= minLat && lat <= maxLat && lng >= minLng && lng <= maxLng) {
-                        isInsideCountry = true;
-                        fallbackAddress = `Punto fijado en el mapa (${config.name})`;
-                    } else {
-                        isInsideCountry = false;
-                    }
-                } else {
-                    // Si el país no tiene bounds en config, le damos el beneficio de la duda para no bloquear
-                    isInsideCountry = true;
-                    fallbackAddress = "Punto fijado en el mapa";
-                }
-            }
+            // ZERO_RESULTS o error de API: No podemos certificar de qué país es.
+            // Rechazamos por seguridad en vez de usar Caja Limítrofe (Area) que sangra hacia otros países.
+            isInsideCountry = false;
         }
 
         if (!isInsideCountry) {
-            toast.error(`La ubicación soltada debe pertenecer a los límites geográficos de registro (${countryCode?.toUpperCase()}).`);
+            const detected = fallbackCountry ? fallbackCountry.toUpperCase() : 'Área no mapeada';
+            toast.error(`Esta ubicación (${detected}) está fuera de las fronteras exactas de tu país (${countryCode?.toUpperCase()}).`);
             const revertPos = lastSentCoordsRef.current || defaultCenter;
             setMarkerPos(revertPos);
             setMapCenter(revertPos);
