@@ -94,15 +94,18 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 // para que la reversión subsiguiente obligue al pin a saltar visualmente.
                 setMarkerPos({ lat, lng });
 
+                let fallbackAddress = '';
+                let fallbackCity = '';
+                let fallbackDep = '';
+                let fallbackCountry = '';
+                let fallbackPlaceId = '';
+
+                let isInsideCountry = true;
+                let needsNominatim = false;
+
                 try {
                     const geocoder = new window.google.maps.Geocoder();
                     const response = await geocoder.geocode({ location: { lat, lng } });
-
-                    let fallbackAddress = '';
-                    let fallbackCity = '';
-                    let fallbackDep = '';
-                    let fallbackCountry = '';
-                    let fallbackPlaceId = '';
 
                     if (response.results && response.results.length > 0) {
                         const resultGeocode = response.results[0];
@@ -119,58 +122,87 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                             }
                         }
 
-                        if (countryCode && fallbackCountry && fallbackCountry.toUpperCase() !== countryCode.toUpperCase()) {
-                            toast.success(`Tu ubicación detectada (${fallbackCountry.toUpperCase()}) debe coincidir con el país de registro (${countryCode.toUpperCase()}).`, {
-                                icon: '📍',
-                                style: { background: '#F0FDF4', color: '#166534', borderColor: '#BBF7D0' }
-                            });
-                            // We do NOT update mapCenter or markerPos here. It reverts.
-                            const revertPos = lastSentCoordsRef.current || defaultCenter;
-                            setMarkerPos(revertPos);
-                            setMapCenter(revertPos);
-                            mapRef.current?.panTo(revertPos);
-                            return;
+                        if (countryCode && fallbackCountry) {
+                            if (fallbackCountry.toUpperCase() !== countryCode.toUpperCase()) {
+                                isInsideCountry = false;
+                            }
+                        } else {
+                            needsNominatim = true;
                         }
-
-                        setValue(fallbackAddress, false);
+                    } else {
+                        needsNominatim = true;
                     }
-
-                    // Only update UI if validation passed (or if no results, we assume it's okay for now)
-                    setMapCenter({ lat, lng });
-                    setMarkerPos({ lat, lng });
-                    if (mapRef.current) {
-                        mapRef.current.panTo({ lat, lng });
-                        mapRef.current.setZoom(17);
-                    }
-
-                    const result: LocationResult = {
-                        lat,
-                        lng,
-                        placeId: fallbackPlaceId,
-                        formattedAddress: fallbackAddress,
-                        displayAddress: fallbackAddress,
-                        googleMapsUrl: `https://maps.google.com/?q=${lat},${lng}`,
-                        city: fallbackCity,
-                        department: fallbackDep,
-                        country: fallbackCountry || countryCode,
-                        source: 'manual',
-                        isConfirmed: true,
-                    };
-
-                    lastSentCoordsRef.current = { lat, lng };
-                    onLocationSelect(result);
-                    toast.success('Ubicación actualizada correctamente.');
-
                 } catch (err) {
                     console.error('Reverse geocode from GPS error:', err);
-                    toast.error("No pudimos verificar a qué país pertenece tu ubicación actual. Intenta nuevamente.");
-                    // Revertimos a lo seguro, no guardamos un punto no validado
+                    needsNominatim = true;
+                }
+
+                if (needsNominatim && countryCode) {
+                    try {
+                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=3`);
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data && data.address && data.address.country_code) {
+                                const osmCountry = data.address.country_code.toUpperCase();
+                                if (osmCountry !== countryCode.toUpperCase()) {
+                                    isInsideCountry = false;
+                                    fallbackCountry = osmCountry;
+                                } else {
+                                    isInsideCountry = true;
+                                    fallbackAddress = fallbackAddress || "Área rural (Pin GPS)";
+                                }
+                            } else {
+                                isInsideCountry = false;
+                            }
+                        } else {
+                            isInsideCountry = false;
+                        }
+                    } catch (nomErr) {
+                        console.error("Nominatim fallback error:", nomErr);
+                        isInsideCountry = false;
+                    }
+                }
+
+                if (!isInsideCountry) {
+                    const detected = fallbackCountry ? fallbackCountry.toUpperCase() : 'Área no mapeada';
+                    toast.success(`Tu ubicación GPS (${detected}) limita fuera de tu país de registro (${countryCode?.toUpperCase()}).`, {
+                        icon: '📍',
+                        style: { background: '#F0FDF4', color: '#166534', borderColor: '#BBF7D0' }
+                    });
+
                     const revertPos = lastSentCoordsRef.current || defaultCenter;
                     setMarkerPos(revertPos);
                     setMapCenter(revertPos);
                     mapRef.current?.panTo(revertPos);
                     return;
                 }
+
+                // If perfectly inside country, save UI states
+                setValue(fallbackAddress || "Ubicación GPS (Área rural)", false);
+                setMapCenter({ lat, lng });
+                setMarkerPos({ lat, lng });
+                if (mapRef.current) {
+                    mapRef.current.panTo({ lat, lng });
+                    mapRef.current.setZoom(17);
+                }
+
+                const result: LocationResult = {
+                    lat,
+                    lng,
+                    placeId: fallbackPlaceId,
+                    formattedAddress: fallbackAddress || "Ubicación GPS (Área rural)",
+                    displayAddress: fallbackAddress || "Ubicación GPS (Área rural)",
+                    googleMapsUrl: `https://maps.google.com/?q=${lat},${lng}`,
+                    city: fallbackCity,
+                    department: fallbackDep,
+                    country: fallbackCountry || countryCode || '',
+                    source: 'manual',
+                    isConfirmed: true,
+                };
+
+                lastSentCoordsRef.current = { lat, lng };
+                onLocationSelect(result);
+                toast.success('Ubicación capturada correctamente por GPS.');
             },
             (error) => {
                 toast.dismiss(toastId);
