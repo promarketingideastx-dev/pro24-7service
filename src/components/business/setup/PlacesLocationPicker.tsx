@@ -86,6 +86,10 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 const lng = position.coords.longitude;
                 toast.dismiss(toastId);
 
+                // FORZAMOS a React a registrar la posición ilegal primero
+                // para que la reversión subsiguiente obligue al pin a saltar visualmente.
+                setMarkerPos({ lat, lng });
+
                 try {
                     const geocoder = new window.google.maps.Geocoder();
                     const response = await geocoder.geocode({ location: { lat, lng } });
@@ -110,7 +114,11 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
 
                         if (countryCode && fallbackCountry && fallbackCountry.toUpperCase() !== countryCode.toUpperCase()) {
                             toast.error(`Tu ubicación detectada (${fallbackCountry.toUpperCase()}) debe coincidir con el país de registro (${countryCode.toUpperCase()}).`);
-                            // We do NOT update mapCenter or markerPos here.
+                            // We do NOT update mapCenter or markerPos here. It reverts.
+                            const revertPos = lastSentCoordsRef.current || defaultCenter;
+                            setMarkerPos(revertPos);
+                            setMapCenter(revertPos);
+                            mapRef.current?.panTo(revertPos);
                             return;
                         }
 
@@ -145,23 +153,13 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
 
                 } catch (err) {
                     console.error('Reverse geocode from GPS error:', err);
-                    const result: LocationResult = {
-                        lat,
-                        lng,
-                        placeId: "",
-                        formattedAddress: "Ubicación GPS (Sin dirección exacta)",
-                        displayAddress: "Ubicación GPS",
-                        googleMapsUrl: `https://maps.google.com/?q=${lat},${lng}`,
-                        city: "",
-                        department: "",
-                        country: countryCode || "",
-                        source: 'manual',
-                        isConfirmed: true,
-                    };
-                    setValue("", false);
-                    lastSentCoordsRef.current = { lat, lng };
-                    onLocationSelect(result);
-                    toast.success('Ubicación ajustada (ver en el mapa).');
+                    toast.error("No pudimos verificar a qué país pertenece tu ubicación actual. Intenta nuevamente.");
+                    // Revertimos a lo seguro, no guardamos un punto no validado
+                    const revertPos = lastSentCoordsRef.current || defaultCenter;
+                    setMarkerPos(revertPos);
+                    setMapCenter(revertPos);
+                    mapRef.current?.panTo(revertPos);
+                    return;
                 }
             },
             (error) => {
@@ -230,6 +228,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 setMarkerPos(revertPos);
                 setMapCenter(revertPos);
                 mapRef.current?.panTo(revertPos);
+                setValue("", false);
                 return;
             }
 
@@ -271,6 +270,10 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         const lat = e.latLng.lat();
         const lng = e.latLng.lng();
 
+        // FORZAMOS a React a registrar la posición ilegal primero
+        // para que la reversión subsiguiente sea un cambio de estado y el pin salte visualmente.
+        setMarkerPos({ lat, lng });
+
         let fallbackAddress = '';
         let fallbackCity = '';
         let fallbackDep = '';
@@ -309,12 +312,18 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 setValue(fallbackAddress, false);
             } else {
                 // Si no hay resultados de geocoding, asumimos que es un punto raro y permitimos el movimiento de momento.
-                setMarkerPos({ lat, lng });
+                throw new Error("No se encontraron resultados de geocoding en esta área.");
             }
         } catch (err) {
             console.error('Reverse geocode error:', err);
-            // Ante un error de red, permitimos el arrastre
-            setMarkerPos({ lat, lng });
+            toast.error("No pudimos validar esta ubicación. Asegúrate de colocar el pin en una zona reconocible dentro de tu país.");
+
+            // Revertir el pin a su posición autorizada anterior
+            const revertPos = lastSentCoordsRef.current || defaultCenter;
+            setMarkerPos(revertPos);
+            setMapCenter(revertPos);
+            mapRef.current?.panTo(revertPos);
+            return;
         }
 
         const finalAddressText = fallbackAddress || "Ubicación marcada en el mapa";
