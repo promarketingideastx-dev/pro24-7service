@@ -295,6 +295,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         let fallbackPlaceId = '';
 
         let isInsideCountry = true;
+        let needsNominatim = false;
 
         try {
             const geocoder = new window.google.maps.Geocoder();
@@ -314,17 +315,47 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                     }
                 }
 
-                if (countryCode && fallbackCountry && fallbackCountry.toUpperCase() !== countryCode.toUpperCase()) {
-                    isInsideCountry = false;
+                if (countryCode && fallbackCountry) {
+                    if (fallbackCountry.toUpperCase() !== countryCode.toUpperCase()) {
+                        isInsideCountry = false;
+                    }
+                } else {
+                    needsNominatim = true;
                 }
             } else {
-                throw new Error("ZERO_RESULTS");
+                needsNominatim = true;
             }
         } catch (err) {
             console.error('Reverse geocode error or ZERO_RESULTS:', err);
-            // ZERO_RESULTS o error de API: No podemos certificar de qué país es.
-            // Rechazamos por seguridad en vez de usar Caja Limítrofe (Area) que sangra hacia otros países.
-            isInsideCountry = false;
+            needsNominatim = true;
+        }
+
+        // Si Google Maps falló o no devolvió país (área rural extrema o error de API temporal), 
+        // usamos OSM Nominatim como juez final estricto. (No sangra polígonos).
+        if (needsNominatim && countryCode) {
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=3`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.address && data.address.country_code) {
+                        const osmCountry = data.address.country_code.toUpperCase();
+                        if (osmCountry !== countryCode.toUpperCase()) {
+                            isInsideCountry = false;
+                            fallbackCountry = osmCountry;
+                        } else {
+                            isInsideCountry = true;
+                            fallbackAddress = fallbackAddress || "Área rural (Pin en el mapa)";
+                        }
+                    } else {
+                        isInsideCountry = false;
+                    }
+                } else {
+                    isInsideCountry = false;
+                }
+            } catch (nomErr) {
+                console.error("Nominatim fallback error:", nomErr);
+                isInsideCountry = false;
+            }
         }
 
         if (!isInsideCountry) {
