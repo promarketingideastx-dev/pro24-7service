@@ -439,6 +439,8 @@ export default function BusinessSetupPage() {
                                 )}
                             </label>
                             <PlacesLocationPicker
+                                countryCode={formData.country || 'HN'}
+                                defaultMapCenter={getCountryConfig((formData.country as any) || 'HN').coordinates}
                                 onLocationSelect={(result: LocationResult) => {
                                     setFormData(prev => ({
                                         ...prev,
@@ -471,8 +473,6 @@ export default function BusinessSetupPage() {
                                 initialAddress={formData.address}
                                 initialLat={formData.lat}
                                 initialLng={formData.lng}
-                                countryCode={formData.country || 'HN'}
-                                defaultMapCenter={currentCountryConfig.coordinates}
                             />
                         </div>
 

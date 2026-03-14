@@ -520,6 +520,8 @@ export default function BusinessProfilePage() {
                                             )}
                                         </label>
                                         <PlacesLocationPicker
+                                            countryCode={formData.country || 'HN'}
+                                            defaultMapCenter={getCountryConfig((formData.country as any) || 'HN').coordinates}
                                             onLocationSelect={(result: LocationResult) => {
                                                 setFormData(prev => ({
                                                     ...prev,
