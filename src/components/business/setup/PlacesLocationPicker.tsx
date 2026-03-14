@@ -109,15 +109,21 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                         fallbackAddress = resultGeocode.formatted_address;
                         fallbackPlaceId = resultGeocode.place_id;
 
-                        const comps = resultGeocode.address_components || [];
-                        for (const comp of comps) {
-                            if (comp.types.includes('locality')) fallbackCity = comp.long_name;
-                            if (comp.types.includes('administrative_area_level_1')) fallbackDep = comp.long_name;
-                            if (comp.types.includes('country')) fallbackCountry = comp.short_name;
+                        // Search more broadly for country in case results[0] lacks it
+                        for (const res of response.results) {
+                            const comps = res.address_components || [];
+                            for (const comp of comps) {
+                                if (comp.types.includes('locality') && !fallbackCity) fallbackCity = comp.long_name;
+                                if (comp.types.includes('administrative_area_level_1') && !fallbackDep) fallbackDep = comp.long_name;
+                                if (comp.types.includes('country') && !fallbackCountry) fallbackCountry = comp.short_name;
+                            }
                         }
 
                         if (countryCode && fallbackCountry && fallbackCountry.toUpperCase() !== countryCode.toUpperCase()) {
-                            toast.error(`Tu ubicación detectada (${fallbackCountry.toUpperCase()}) debe coincidir con el país de registro (${countryCode.toUpperCase()}).`);
+                            toast.success(`Tu ubicación detectada (${fallbackCountry.toUpperCase()}) debe coincidir con el país de registro (${countryCode.toUpperCase()}).`, {
+                                icon: '📍',
+                                style: { background: '#F0FDF4', color: '#166534', borderColor: '#BBF7D0' }
+                            });
                             // We do NOT update mapCenter or markerPos here. It reverts.
                             const revertPos = lastSentCoordsRef.current || defaultCenter;
                             setMarkerPos(revertPos);
@@ -220,14 +226,18 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
             let city = '';
             let department = '';
             let country = '';
+            // Extraer componentes
             for (const comp of comps) {
-                if (comp.types.includes('locality')) city = comp.long_name;
-                if (comp.types.includes('administrative_area_level_1')) department = comp.long_name;
-                if (comp.types.includes('country')) country = comp.short_name;
+                if (comp.types.includes('locality') && !city) city = comp.long_name;
+                if (comp.types.includes('administrative_area_level_1') && !department) department = comp.long_name;
+                if (comp.types.includes('country') && !country) country = comp.short_name;
             }
 
             if (countryCode && country && country.toUpperCase() !== countryCode.toUpperCase()) {
-                toast.error(`La ubicación sugerida (${country.toUpperCase()}) debe pertenecer al país de registro (${countryCode.toUpperCase()}).`);
+                toast.success(`La ubicación sugerida (${country.toUpperCase()}) debe pertenecer al país de registro (${countryCode.toUpperCase()}).`, {
+                    icon: '📍',
+                    style: { background: '#F0FDF4', color: '#166534', borderColor: '#BBF7D0' }
+                });
                 const revertPos = lastSentCoordsRef.current || defaultCenter;
                 setMarkerPos(revertPos);
                 setMapCenter(revertPos);
@@ -294,11 +304,14 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 fallbackAddress = resultGeocode.formatted_address;
                 fallbackPlaceId = resultGeocode.place_id;
 
-                const comps = resultGeocode.address_components || [];
-                for (const comp of comps) {
-                    if (comp.types.includes('locality')) fallbackCity = comp.long_name;
-                    if (comp.types.includes('administrative_area_level_1')) fallbackDep = comp.long_name;
-                    if (comp.types.includes('country')) fallbackCountry = comp.short_name;
+                // TO FIND CITY/DEP/COUNTRY, search across ALL results 
+                for (const res of response.results) {
+                    const comps = res.address_components || [];
+                    for (const comp of comps) {
+                        if (comp.types.includes('locality') && !fallbackCity) fallbackCity = comp.long_name;
+                        if (comp.types.includes('administrative_area_level_1') && !fallbackDep) fallbackDep = comp.long_name;
+                        if (comp.types.includes('country') && !fallbackCountry) fallbackCountry = comp.short_name;
+                    }
                 }
 
                 if (countryCode && fallbackCountry && fallbackCountry.toUpperCase() !== countryCode.toUpperCase()) {
@@ -316,7 +329,10 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
 
         if (!isInsideCountry) {
             const detected = fallbackCountry ? fallbackCountry.toUpperCase() : 'Área no mapeada';
-            toast.error(`Esta ubicación (${detected}) está fuera de las fronteras exactas de tu país (${countryCode?.toUpperCase()}).`);
+            toast.success(`La ubicación (${detected}) limita fuera de tu país (${countryCode?.toUpperCase()}).`, {
+                icon: '📍',
+                style: { background: '#F0FDF4', color: '#166534', borderColor: '#BBF7D0' }
+            });
             const revertPos = lastSentCoordsRef.current || defaultCenter;
             setMarkerPos(revertPos);
             setMapCenter(revertPos);
