@@ -614,7 +614,8 @@
       "paymentWallet": "Digital Wallet",
       "bankDetails": "Bank Details",
       "walletDetails": "Wallet Details",
-      "requiresDeposit": "Requires deposit"
+      "requiresDeposit": "Requires deposit",
+      "authRequired": "Create your free account to contact businesses, book appointments, save favorites, and leave reviews."
     },
     "profile": {
       "title": "Edit Business Profile",
@@ -1203,5 +1204,20 @@
     "summary": "Business Summary",
     "finishDesc": "By clicking 'Create Business', your profile will be activated as a Provider and you can start managing your services.",
     "headerTitle": "Business Setup"
+  },
+  "curiousMode": {
+    "limitReachedTitle": "Keep exploring businesses near you",
+    "limitReachedDesc": "Create your free account to continue viewing businesses, contacting services, and receiving recommendations near you.",
+    "createAccount": "Create account",
+    "login": "Log in",
+    "backToHome": "Back to Home",
+    "bannerText": "You have seen {current} of {max} available businesses",
+    "bannerAction": "Sign up here for free"
+  },
+  "userLocation": {
+    "title": "Find businesses near you",
+    "message": "Enable your location to show you nearby businesses and improve your search results.",
+    "grantBtn": "Enable location",
+    "denyBtn": "Not now"
   }
 }

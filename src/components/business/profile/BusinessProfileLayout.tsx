@@ -54,59 +54,50 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
         loadFav();
     }, [user, business?.id]);
 
+    function handleRestrictedAction(e?: React.MouseEvent) {
+        if (e) e.preventDefault();
+        toast(t('authRequired'), {
+            icon: '👋',
+            duration: 5000,
+            className: 'bg-teal-50 text-teal-900 border border-teal-200'
+        });
+    }
+
     const handleFavorite = async () => {
+        if (!user) return handleRestrictedAction();
         if (!business?.id || favProcessing) return;
         setFavProcessing(true);
 
-        if (user) {
-            // — Optimistic UI —
-            const wasAlreadyFav = isFavorited;
-            setIsFavorited(!wasAlreadyFav);
-            setHeartAnim(true);
-            setTimeout(() => setHeartAnim(false), 400);
+        // — Optimistic UI —
+        const wasAlreadyFav = isFavorited;
+        setIsFavorited(!wasAlreadyFav);
+        setHeartAnim(true);
+        setTimeout(() => setHeartAnim(false), 400);
 
-            try {
-                const added = await FavoritesService.toggle(
-                    user.uid,
-                    { name: user.displayName || undefined, email: user.email || undefined },
-                    {
-                        id: business.id,
-                        name: business.name,
-                        category: business.category,
-                        city: business.city,
-                        logoUrl: business.logoUrl,
-                    }
-                );
-                // Sync with real server response
-                setIsFavorited(added);
-                if (added) {
-                    toast.success(t('favAdded'), { description: t('favAddedDesc') });
-                } else {
-                    toast(t('favRemoved'), { icon: '💔' });
+        try {
+            const added = await FavoritesService.toggle(
+                user.uid,
+                { name: user.displayName || undefined, email: user.email || undefined },
+                {
+                    id: business.id,
+                    name: business.name,
+                    category: business.category,
+                    city: business.city,
+                    logoUrl: business.logoUrl,
                 }
-            } catch (err) {
-                // Revert optimistic update on error
-                setIsFavorited(wasAlreadyFav);
-                console.error('Error toggling favorite:', err);
-                toast.error(t('favError') ?? 'Error al guardar favorito');
+            );
+            // Sync with real server response
+            setIsFavorited(added);
+            if (added) {
+                toast.success(t('favAdded'), { description: t('favAddedDesc') });
+            } else {
+                toast(t('favRemoved'), { icon: '💔' });
             }
-        } else {
-            // — Guest: localStorage only —
-            try {
-                const stored = JSON.parse(localStorage.getItem(favKey) || '[]') as string[];
-                let updated: string[];
-                if (isFavorited) {
-                    updated = stored.filter((id) => id !== business.id);
-                    toast(t('favRemoved'), { icon: '💔' });
-                } else {
-                    updated = Array.from(new Set([...stored, business.id]));
-                    toast.success(t('favSaved'), { icon: '❤️' });
-                }
-                localStorage.setItem(favKey, JSON.stringify(updated));
-                setIsFavorited(!isFavorited);
-                setHeartAnim(true);
-                setTimeout(() => setHeartAnim(false), 400);
-            } catch { /* ignore */ }
+        } catch (err) {
+            // Revert optimistic update on error
+            setIsFavorited(wasAlreadyFav);
+            console.error('Error toggling favorite:', err);
+            toast.error(t('favError') ?? 'Error al guardar favorito');
         }
 
         setFavProcessing(false);
@@ -164,7 +155,14 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
         ...(showTeamTab ? [{ id: 'team', label: `👥 ${t('tabTeam')}` }] : []),
     ];
 
+
+    const handleBookClick = (e: React.MouseEvent) => {
+        if (!user) return handleRestrictedAction(e);
+        onBookClick();
+    };
+
     const handleWhatsApp = () => {
+        if (!user) return handleRestrictedAction();
         if (business.phone) {
             const phone = business.phone.replace(/\D/g, ''); // Remove non-digits
             window.open(`https://wa.me/${phone}`, '_blank');
@@ -172,6 +170,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     };
 
     const handleCall = () => {
+        if (!user) return handleRestrictedAction();
         if (business.phone) {
             window.open(`tel:${business.phone}`, '_self');
         }
@@ -216,7 +215,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                         {!isOwner && (
                             <>
                                 <button
-                                    onClick={onBookClick}
+                                    onClick={handleBookClick}
                                     className="hidden md:flex bg-[#14B8A6] hover:bg-[#0F9488] text-white px-4 py-2 rounded-full text-sm font-bold backdrop-blur-md transition-all shadow-lg shadow-teal-500/30 items-center gap-2 border border-teal-400 hover:scale-105 active:scale-95"
                                 >
                                     <Calendar className="w-4 h-4" />
@@ -317,7 +316,13 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
-                            onClick={() => onTabChange(tab.id)}
+                            onClick={(e) => {
+                                if (tab.id === 'details' && !user) {
+                                    handleRestrictedAction(e);
+                                    return;
+                                }
+                                onTabChange(tab.id);
+                            }}
                             className={`px-6 py-4 font-medium text-sm whitespace-nowrap border-b-2 transition-all ${activeTab === tab.id
                                 ? 'border-[#14B8A6] text-[#0F766E]'
                                 : 'border-transparent text-slate-400 hover:text-slate-800'
@@ -355,7 +360,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
 
                     {/* Book Action - Main */}
                     <button
-                        onClick={onBookClick}
+                        onClick={handleBookClick}
                         className="flex-1 bg-[#14B8A6] hover:bg-[#0F9488] text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-teal-500/20 active:scale-95 transition-all"
                     >
                         <Calendar className="w-5 h-5" />

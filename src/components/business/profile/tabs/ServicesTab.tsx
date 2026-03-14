@@ -4,6 +4,8 @@ import { useEffect, useState, useRef } from 'react';
 import { Camera, ChevronLeft, ChevronRight, Star, Zap } from 'lucide-react';
 import { ServicesService, getServiceName } from '@/services/businessProfile.service';
 import { useTranslations, useLocale } from 'next-intl';
+import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
 interface ServicesTabProps {
     businessId: string;
@@ -89,6 +91,7 @@ function FotoCarrusel({ images, nombre }: { images: string[]; nombre: string }) 
 export default function ServicesTab({ businessId, services: initialServices, onBook, rating, reviewCount }: ServicesTabProps) {
     const t = useTranslations('business.publicProfile');
     const locale = useLocale();
+    const { user } = useAuth();
     const [services, setServices] = useState<any[]>(initialServices || []);
     const [loading, setLoading] = useState(!initialServices);
 
@@ -161,7 +164,18 @@ export default function ServicesTab({ businessId, services: initialServices, onB
                 return (
                     <div
                         key={service.id}
-                        onClick={() => onBook(service)}
+                        onClick={(e) => {
+                            if (!user) {
+                                e.preventDefault();
+                                toast(t('authRequired'), {
+                                    icon: '👋',
+                                    duration: 5000,
+                                    className: 'bg-teal-50 text-teal-900 border border-teal-200'
+                                });
+                                return;
+                            }
+                            onBook(service);
+                        }}
                         className="group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-[#14B8A6]/40 hover:shadow-md transition-all cursor-pointer flex flex-col"
                     >
                         {/* ── Marco de foto (proporciones 16:9) ── */}

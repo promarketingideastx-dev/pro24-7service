@@ -18,6 +18,7 @@ import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import ShareAppModal from '@/components/ui/ShareAppModal';
 import SearchAutocomplete from '@/components/ui/SearchAutocomplete';
 import ClientNotifBell from '@/components/ui/ClientNotifBell';
+import UserLocationModal from '@/components/public/UserLocationModal';
 
 export default function Home() {
     const [showShare, setShowShare] = useState(false);
@@ -188,12 +189,7 @@ export default function Home() {
     }, [selectedCountry?.code, isCountryLoading]);
 
     const handleNavigate = (biz: BusinessMock) => {
-        if (!user) {
-            setPendingBusiness(biz);
-            setShowAuthModal(true);
-        } else {
-            router.push(lp(`/negocio/perfil?id=${biz.id}`));
-        }
+        router.push(lp(`/negocio/perfil?id=${biz.id}`));
     };
 
     const handleBusinessClick = (biz: BusinessMock) => {
@@ -272,24 +268,30 @@ export default function Home() {
         return true;
     }).filter(b => {
         // Distance filter
-        const referenceCoords = userCoords || (selectedCountry ? { lat: selectedCountry.coordinates.lat, lng: selectedCountry.coordinates.lng } : null);
+        const profileCoords = userProfile?.userLocation?.lat != null && !userProfile.userLocation.denied
+            ? { lat: Number(userProfile.userLocation.lat), lng: Number(userProfile.userLocation.lng) }
+            : null;
+        const referenceCoords = userCoords || profileCoords || (selectedCountry ? { lat: selectedCountry.coordinates.lat, lng: selectedCountry.coordinates.lng } : null);
         if (!referenceCoords || filterMaxKm === 0) return true;
         const bizLat = (b as any).location?.lat ?? b.lat;
         const bizLng = (b as any).location?.lng ?? b.lng;
         if (bizLat == null || bizLng == null) return true; // no coords → include
-        const dist = haversineKm(referenceCoords.lat, referenceCoords.lng, bizLat, bizLng);
+        const dist = haversineKm(Number(referenceCoords.lat), Number(referenceCoords.lng), Number(bizLat), Number(bizLng));
         return dist <= filterMaxKm;
     }).sort((a, b) => {
         // Sort by distance when user location OR country location is known
-        const referenceCoords = userCoords || (selectedCountry ? { lat: selectedCountry.coordinates.lat, lng: selectedCountry.coordinates.lng } : null);
+        const profileCoords = userProfile?.userLocation?.lat != null && !userProfile.userLocation.denied
+            ? { lat: Number(userProfile.userLocation.lat), lng: Number(userProfile.userLocation.lng) }
+            : null;
+        const referenceCoords = userCoords || profileCoords || (selectedCountry ? { lat: selectedCountry.coordinates.lat, lng: selectedCountry.coordinates.lng } : null);
         if (!referenceCoords) return 0;
         const aLat = (a as any).location?.lat ?? a.lat;
         const aLng = (a as any).location?.lng ?? a.lng;
         const bLat = (b as any).location?.lat ?? b.lat;
         const bLng = (b as any).location?.lng ?? b.lng;
         if (aLat == null || bLat == null) return 0;
-        const distA = haversineKm(referenceCoords.lat, referenceCoords.lng, aLat, aLng);
-        const distB = haversineKm(referenceCoords.lat, referenceCoords.lng, bLat, bLng);
+        const distA = haversineKm(Number(referenceCoords.lat), Number(referenceCoords.lng), Number(aLat), Number(aLng));
+        const distB = haversineKm(Number(referenceCoords.lat), Number(referenceCoords.lng), Number(bLat), Number(bLng));
         return distA - distB;
     });
 
@@ -317,6 +319,7 @@ export default function Home() {
     return (
         <>
             <main className="h-dvh bg-[#F4F6F8] text-slate-900 overflow-hidden font-sans flex flex-col" style={{ height: '100dvh' }}>
+                <UserLocationModal />
                 {/* ── Header ── */}
                 <header
                     className="shrink-0 bg-gradient-to-br from-slate-800 to-slate-900 px-4 pb-3 sm:px-5 sm:pb-5 z-50 sticky top-0 shadow-xl"

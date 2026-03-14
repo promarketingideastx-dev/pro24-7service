@@ -7,6 +7,7 @@ import { auth, db } from '@/lib/firebase';
 import { Capacitor } from '@capacitor/core';
 import { UserDocument } from '@/types/firestore-schema';
 import { UserService } from '@/services/user.service';
+import { clearCuriousModeStorage } from '@/hooks/useCuriousMode';
 
 interface AuthContextType {
     user: User | null;
@@ -69,6 +70,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
 
             if (currentUser) {
+                // Clear curious mode on successful session
+                clearCuriousModeStorage();
+
                 // Real-time Listener (Start immediately)
                 const userRef = doc(db, 'users', currentUser.uid);
                 unsubscribeFirestore = onSnapshot(userRef, (docSnap) => {

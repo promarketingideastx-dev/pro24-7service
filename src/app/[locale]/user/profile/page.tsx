@@ -11,6 +11,8 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { UserService } from '@/services/user.service';
 import { StorageService } from '@/services/storage.service';
+import { AnalyticsService } from '@/services/analytics.service';
+import { Capacitor } from '@capacitor/core';
 import ImageUploader from '@/components/ui/ImageUploader';
 import { FavoritesService, FavoriteRecord } from '@/services/favorites.service';
 import { AppointmentService, Appointment } from '@/services/appointment.service';
@@ -160,6 +162,47 @@ export default function UserProfilePage() {
     const handleDeleteAccount = async () => {
 
         setShowDeleteModal(true);
+    };
+
+    const handleRetryLocation = async () => {
+        if (!user) return;
+        setLoading(true);
+        if (Capacitor.isNativePlatform()) {
+            try {
+                const { Geolocation } = await import('@capacitor/geolocation');
+                let status = await Geolocation.checkPermissions();
+                if (status.location !== 'granted') status = await Geolocation.requestPermissions();
+                if (status.location === 'granted') {
+                    const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+                    await UserService.updateUserProfile(user.uid, { userLocation: { lat: pos.coords.latitude, lng: pos.coords.longitude, timestamp: Date.now() } } as any);
+                    AnalyticsService.track({ type: 'user_location_permission_granted', businessId: 'system', userUid: user.uid, country: userProfile?.country_code });
+                    toast.success('Ubicación actualizada correctamente');
+                } else {
+                    toast.error('Permiso denegado');
+                }
+            } catch (e) {
+                toast.error('Error obteniendo ubicación');
+            }
+        } else {
+            if (!navigator.geolocation) {
+                toast.error('Navegador no soporta GPS');
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    await UserService.updateUserProfile(user.uid, { userLocation: { lat: pos.coords.latitude, lng: pos.coords.longitude, timestamp: Date.now() } } as any);
+                    AnalyticsService.track({ type: 'user_location_permission_granted', businessId: 'system', userUid: user.uid, country: userProfile?.country_code });
+                    toast.success('Ubicación actualizada correctamente');
+                    setLoading(false);
+                },
+                (err) => {
+                    toast.error('Permiso GPS denegado');
+                    setLoading(false);
+                },
+                { enableHighAccuracy: true }
+            );
+        }
+        setLoading(false);
     };
 
     const confirmDeleteAccount = async () => {
@@ -316,6 +359,15 @@ export default function UserProfilePage() {
                                         placeholder={t('addressPlaceholder')}
                                     />
                                 </div>
+                                <button
+                                    type="button"
+                                    onClick={handleRetryLocation}
+                                    disabled={loading}
+                                    className="text-xs font-bold text-[#14B8A6] hover:underline mt-2 flex items-center gap-1"
+                                >
+                                    <MapPin className="w-3 h-3" />
+                                    Actualizar mi ubicación GPS
+                                </button>
                             </div>
 
                             <div className="pt-4 flex items-center gap-4">

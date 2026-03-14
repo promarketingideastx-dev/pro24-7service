@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { BusinessProfileService, BusinessProfileData, PortfolioService } from '@/services/businessProfile.service';
 import { StorageService } from '@/services/storage.service';
@@ -22,7 +22,7 @@ import { useCountry } from '@/context/CountryContext';
 import { getCountryConfig } from '@/lib/locations';
 import { ActiveCountry } from '@/lib/activeCountry';
 import { toast } from 'sonner';
-import PlacesLocationPicker, { LocationResult } from '@/components/business/setup/PlacesLocationPicker';
+import { PlacesLocationPicker, LocationResult } from '@/components/business/setup/PlacesLocationPicker';
 
 
 
@@ -32,6 +32,7 @@ export default function BusinessSetupPage() {
     const { selectedCountry } = useCountry();
     const t = useTranslations('setup');
     const router = useRouter();
+    const locale = useLocale();
     const STEPS = [
         { id: 1, title: t('stepInfo'), icon: Building },
         { id: 2, title: t('stepLocation'), icon: MapPin },
@@ -178,7 +179,7 @@ export default function BusinessSetupPage() {
 
     const isStepValid = () => {
         if (currentStep === 1) return !!formData.businessName && !!formData.coverImage && !!formData.logoUrl;
-        if (currentStep === 2) return !!formData.city && !!formData.department && (formData.locationV2?.isConfirmed === true); // Validate strict Location V2
+        if (currentStep === 2) return !!formData.lat && !!formData.lng; // simplificado
         if (currentStep === 3) {
             return !!formData.category && ((formData.subcategories && formData.subcategories.length > 0) || !!formData.subcategory);
         }
@@ -236,7 +237,7 @@ export default function BusinessSetupPage() {
             }
 
             // Redirect to dashboard
-            router.push('/business/dashboard');
+            router.push(`/${locale}/business/dashboard`);
         } catch (error: any) {
             console.error("Setup Error:", error);
             toast.error(`Error al crear negocio: ${error.message}`);
@@ -419,80 +420,14 @@ export default function BusinessSetupPage() {
                 );
             case 2:
                 const currentCountryConfig = getCountryConfig((formData.country as any) || 'HN');
-                const regions = currentCountryConfig.states || [];
 
                 return (
                     <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-slate-700 font-medium text-sm mb-1">País</label>
-                                <div className="w-full h-12 bg-slate-50 border border-slate-200 rounded-lg px-4 flex items-center text-slate-700 font-medium cursor-not-allowed">
-                                    {currentCountryConfig.name} ({currentCountryConfig.code})
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-slate-700 font-medium text-sm mb-1">{currentCountryConfig.regionLabel} *</label>
-                                <select
-                                    value={formData.department || ''}
-                                    onChange={e => {
-                                        const selectedRegion = regions.find(l => l.name === e.target.value);
-                                        setFormData({
-                                            ...formData,
-                                            department: e.target.value,
-                                            // Auto-capital logic is valid for HN, can be adjusted for others later
-                                            city: selectedRegion?.cities?.[0] || '',
-                                            // [FIX] Limpiar coords al cambiar departamento para forzar re-centrado del mapa a la cabecera
-                                            lat: undefined,
-                                            lng: undefined,
-                                            address: '',
-                                            // [FIX] Destruir por completo la memoria de las viejas coordenadas en V2
-                                            locationV2: formData.locationV2 ? {
-                                                ...formData.locationV2,
-                                                isConfirmed: false,
-                                                lat: undefined as any,
-                                                lng: undefined as any,
-                                                address: ''
-                                            } : undefined
-                                        });
-                                    }}
-                                    className="w-full h-12 bg-white border border-slate-200 rounded-lg px-4 text-slate-900 focus:outline-none focus:border-teal-500"
-                                >
-                                    <option value="">Selecciona...</option>
-                                    {regions.map(reg => (
-                                        <option key={reg.name} value={reg.name}>{reg.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
                         <div>
-                            <label className="block text-slate-600 text-sm mb-1">Ciudad / Cabecera *</label>
-                            {(() => {
-                                const selectedRegion = regions.find(l => l.name === formData.department);
-                                const hasPredefinedCities = selectedRegion?.cities && selectedRegion.cities.length > 0;
-
-                                return (
-                                    <input
-                                        type="text"
-                                        value={formData.city}
-                                        readOnly={!!hasPredefinedCities}
-                                        onChange={e => !hasPredefinedCities && setFormData({ ...formData, city: e.target.value })}
-                                        className={`w-full h-12 rounded-lg px-4 focus:outline-none transition-colors
-                                            ${hasPredefinedCities
-                                                ? 'bg-slate-50 border border-slate-200 text-slate-600 cursor-not-allowed'
-                                                : 'bg-white border border-slate-200 text-slate-900 focus:border-teal-500'
-                                            }
-                                        `}
-                                        placeholder={hasPredefinedCities ? "Se selecciona automáticamente" : "Escribe tu ciudad"}
-                                    />
-                                );
-                            })()}
-                            <p className="text-xs text-slate-500 mt-1">
-                                {regions.find(l => l.name === formData.department)?.cities?.length
-                                    ? `La cabecera se selecciona automáticamente según el ${currentCountryConfig.regionLabel.toLowerCase()}.`
-                                    : "Ingresa el nombre de tu ciudad manualmente."
-                                }
-                            </p>
+                            <label className="block text-slate-700 font-medium text-sm mb-1">País</label>
+                            <div className="w-full h-12 bg-slate-50 border border-slate-200 rounded-lg px-4 flex items-center text-slate-700 font-medium cursor-not-allowed">
+                                {currentCountryConfig.name} ({currentCountryConfig.code})
+                            </div>
                         </div>
 
                         {/* Google Places Location Picker */}
@@ -500,25 +435,22 @@ export default function BusinessSetupPage() {
                             <label className="block text-slate-600 text-sm mb-2">
                                 Dirección Exacta
                                 {formData.lat && (
-                                    <span className="ml-2 text-xs text-green-400 font-medium">✓ Ubicación guardada</span>
+                                    <span className="ml-2 text-xs text-green-500 font-medium">✓ Ubicación confirmada</span>
                                 )}
                             </label>
                             <PlacesLocationPicker
                                 onLocationSelect={(result: LocationResult) => {
                                     setFormData(prev => ({
                                         ...prev,
-                                        // [FIX] Confiar ciegamente en el mapa. El mapa ya protege el texto escrito (value || initial). 
-                                        // Si es una búsqueda nueva, DEBE pisotear.
-                                        address: result.formattedAddress,
-                                        displayAddress: result.displayAddress || result.formattedAddress,
-                                        plusCode: result.plusCode || '',
+                                        address: result.displayAddress || result.formattedAddress,
                                         lat: result.lat,
                                         lng: result.lng,
                                         placeId: result.placeId,
                                         googleMapsUrl: result.googleMapsUrl,
-                                        // Auto-fill city/department if not already set
-                                        city: prev.city || result.city || prev.city,
-                                        department: prev.department || result.department || prev.department,
+                                        // Auto-fill hidden fields from Geocoding without asking user
+                                        city: result.city || prev.city || '',
+                                        department: result.department || prev.department || '',
+                                        country: prev.country || result.country || 'HN',
                                         locationV2: {
                                             country: result.country || prev.country || '',
                                             department: result.department || prev.department || '',
@@ -540,7 +472,6 @@ export default function BusinessSetupPage() {
                                 initialLat={formData.lat}
                                 initialLng={formData.lng}
                                 countryCode={formData.country || 'HN'}
-                                cityContext={formData.city ? `${formData.city}, ${formData.department}` : (formData.department || undefined)}
                                 defaultMapCenter={currentCountryConfig.coordinates}
                             />
                         </div>
@@ -1043,7 +974,7 @@ export default function BusinessSetupPage() {
                             </button>
                         ) : (
                             <button
-                                onClick={() => router.push('/')}
+                                onClick={() => router.push(`/${locale}`)}
                                 className="text-slate-500 hover:text-slate-500 text-sm transition-colors"
                             >
                                 Volver al Inicio

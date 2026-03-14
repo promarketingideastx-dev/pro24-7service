@@ -6,6 +6,8 @@ import WeeklyScheduleView from '@/components/business/public/WeeklyScheduleView'
 import OpeningHoursStatus from '@/components/business/public/OpeningHoursStatus';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
+import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
 const MapWidget = dynamic(() => import('@/components/ui/MapWidget'), {
     ssr: false,
@@ -37,6 +39,7 @@ const TikTokIcon = () => (
 
 export default function DetailsTab({ business }: DetailsTabProps) {
     const t = useTranslations('business.publicProfile');
+    const { user } = useAuth();
     const [isMapInteractive, setIsMapInteractive] = useState(false);
 
     if (!business) return null;
@@ -162,23 +165,43 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                     <span className="block text-slate-800 font-medium mb-3">{t('phone')}</span>
                                     <div className="flex flex-wrap gap-3">
                                         {/* WhatsApp CTA */}
-                                        <a
-                                            href={`https://wa.me/${cleanPhone}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
+                                        <button
+                                            onClick={(e) => {
+                                                if (!user) {
+                                                    e.preventDefault();
+                                                    toast(t('authRequired'), {
+                                                        icon: '👋',
+                                                        duration: 5000,
+                                                        className: 'bg-teal-50 text-teal-900 border border-teal-200'
+                                                    });
+                                                } else {
+                                                    window.open(`https://wa.me/${cleanPhone}`, '_blank');
+                                                }
+                                            }}
                                             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 hover:border-green-500/50 text-green-400 hover:text-green-300 transition-all text-sm font-medium active:scale-95"
                                         >
                                             <MessageCircle className="w-4 h-4" />
                                             <span>WhatsApp</span>
-                                        </a>
+                                        </button>
                                         {/* Call CTA */}
-                                        <a
-                                            href={`tel:${business.phone}`}
+                                        <button
+                                            onClick={(e) => {
+                                                if (!user) {
+                                                    e.preventDefault();
+                                                    toast(t('authRequired'), {
+                                                        icon: '👋',
+                                                        duration: 5000,
+                                                        className: 'bg-teal-50 text-teal-900 border border-teal-200'
+                                                    });
+                                                } else {
+                                                    window.open(`tel:${business.phone}`, '_self');
+                                                }
+                                            }}
                                             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 hover:border-blue-500/50 text-blue-400 hover:text-blue-300 transition-all text-sm font-medium active:scale-95"
                                         >
                                             <Phone className="w-4 h-4" />
                                             <span>{business.phone}</span>
-                                        </a>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -193,14 +216,23 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                             </div>
                             <div>
                                 <span className="block text-slate-800 font-medium mb-1">{t('website')}</span>
-                                <a
-                                    href={!business.website.startsWith('http') ? `https://${business.website}` : business.website}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-brand-neon-cyan text-sm hover:underline"
+                                <button
+                                    onClick={(e) => {
+                                        if (!user) {
+                                            e.preventDefault();
+                                            toast(t('authRequired'), {
+                                                icon: '👋',
+                                                duration: 5000,
+                                                className: 'bg-teal-50 text-teal-900 border border-teal-200'
+                                            });
+                                        } else {
+                                            window.open(!business.website.startsWith('http') ? `https://${business.website}` : business.website, '_blank');
+                                        }
+                                    }}
+                                    className="text-brand-neon-cyan text-sm hover:underline text-left line-clamp-1"
                                 >
                                     {business.website}
-                                </a>
+                                </button>
                             </div>
                         </div>
                     )}
@@ -211,37 +243,64 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                             <span className="block text-slate-800 font-medium mb-3">{t('followUs')}</span>
                             <div className="flex flex-wrap gap-3">
                                 {social.instagram && (
-                                    <a
-                                        href={normalizeUrl(social.instagram, 'https://instagram.com/')}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                    <button
+                                        onClick={(e) => {
+                                            if (!user) {
+                                                e.preventDefault();
+                                                toast(t('authRequired'), {
+                                                    icon: '👋',
+                                                    duration: 5000,
+                                                    className: 'bg-teal-50 text-teal-900 border border-teal-200'
+                                                });
+                                            } else {
+                                                window.open(normalizeUrl(social.instagram, 'https://instagram.com/'), '_blank');
+                                            }
+                                        }}
                                         className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 hover:bg-pink-500/15 border border-slate-200 hover:border-pink-500/40 text-slate-600 hover:text-pink-500 transition-all text-sm"
                                     >
                                         <InstagramIcon />
                                         <span>{t('instagram')}</span>
-                                    </a>
+                                    </button>
                                 )}
                                 {social.facebook && (
-                                    <a
-                                        href={normalizeUrl(social.facebook, 'https://facebook.com/')}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                    <button
+                                        onClick={(e) => {
+                                            if (!user) {
+                                                e.preventDefault();
+                                                toast(t('authRequired'), {
+                                                    icon: '👋',
+                                                    duration: 5000,
+                                                    className: 'bg-teal-50 text-teal-900 border border-teal-200'
+                                                });
+                                            } else {
+                                                window.open(normalizeUrl(social.facebook, 'https://facebook.com/'), '_blank');
+                                            }
+                                        }}
                                         className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 hover:bg-blue-500/15 border border-slate-200 hover:border-blue-500/40 text-slate-600 hover:text-blue-500 transition-all text-sm"
                                     >
                                         <FacebookIcon />
                                         <span>{t('facebook')}</span>
-                                    </a>
+                                    </button>
                                 )}
                                 {social.tiktok && (
-                                    <a
-                                        href={normalizeUrl(social.tiktok, 'https://tiktok.com/@')}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                    <button
+                                        onClick={(e) => {
+                                            if (!user) {
+                                                e.preventDefault();
+                                                toast(t('authRequired'), {
+                                                    icon: '👋',
+                                                    duration: 5000,
+                                                    className: 'bg-teal-50 text-teal-900 border border-teal-200'
+                                                });
+                                            } else {
+                                                window.open(normalizeUrl(social.tiktok, 'https://tiktok.com/@'), '_blank');
+                                            }
+                                        }}
                                         className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-800 transition-all text-sm"
                                     >
                                         <TikTokIcon />
                                         <span>{t('tiktok')}</span>
-                                    </a>
+                                    </button>
                                 )}
                             </div>
                         </div>

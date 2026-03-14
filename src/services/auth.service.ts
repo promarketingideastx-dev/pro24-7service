@@ -158,6 +158,18 @@ export const AuthService = {
                 await FirebaseAuthentication.signOut();
             }
             await signOut(auth);
+
+            // Forzar limpieza de localStorage de guest para que el usuario restablezca su contador al salir
+            try {
+                const { clearCuriousModeStorage } = await import('@/hooks/useCuriousMode');
+                clearCuriousModeStorage();
+            } catch (e) { /* silent */ }
+
+            // Optionally clear storage manually to be absolutely certain
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('pro247_auth_token'); // example if any
+            }
+
             // Clear any stored redirect paths
             if (typeof window !== 'undefined') {
                 sessionStorage.removeItem('auth_redirect_to');

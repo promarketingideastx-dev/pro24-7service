@@ -1,15 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { AnalyticsService } from '@/services/analytics.service';
 
-const MAX_VISITS = 5;
-const STORAGE_KEY = 'pro247_curious_mode_visits';
-const VISITED_BUSINESSES_KEY = 'pro247_visited_businesses';
+export const MAX_VISITS = 5;
+export const CURIOUS_STORAGE_KEY = 'curious_business_views';
+export const CURIOUS_STARTED_KEY = 'curious_mode_started';
+export const CURIOUS_EXPIRY_KEY = 'curious_mode_expiry';
+const EXPIRY_HOURS = 24;
 
-export function useCuriousMode(businessId: string | null) {
+export function useCuriousMode(businessId: string | null, countryCode?: string) {
     const { user, loading } = useAuth();
     const [visits, setVisits] = useState(0);
     const [isBlocked, setIsBlocked] = useState(false);
     const [isInitialized, setIsInitialized] = useState(false);
+
+    const trackedRef = useRef<Record<string, boolean>>({});
 
     useEffect(() => {
         if (loading) return;
@@ -21,47 +26,114 @@ export function useCuriousMode(businessId: string | null) {
             return;
         }
 
-        // We only track when a businessId is provided (actually visiting a profile)
-        if (!businessId) {
-            setIsInitialized(true);
-            return;
-        }
-
         try {
-            // Get current visits
-            const currentVisits = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
-
-            // Get already visited businesses array to avoid double counting reloads
-            const visitedString = localStorage.getItem(VISITED_BUSINESSES_KEY) || '[]';
-            const visitedBusinesses: string[] = JSON.parse(visitedString);
-
-            // If this business hasn't been visited yet, increment counter
-            let newVisits = currentVisits;
-            if (!visitedBusinesses.includes(businessId)) {
-                newVisits = currentVisits + 1;
-                visitedBusinesses.push(businessId);
-
-                localStorage.setItem(STORAGE_KEY, newVisits.toString());
-                localStorage.setItem(VISITED_BUSINESSES_KEY, JSON.stringify(visitedBusinesses));
+            // Track "Started"
+            const hasStarted = localStorage.getItem(CURIOUS_STARTED_KEY);
+            if (!hasStarted) {
+                localStorage.setItem(CURIOUS_STARTED_KEY, 'true');
+                AnalyticsService.track({
+                    type: 'curious_mode_started',
+                    businessId: 'system',
+                    country: countryCode || 'Unknown'
+                }).catch(() => { });
             }
 
-            setVisits(newVisits);
+            // Check Expiration (TTL)
+            const now = Date.now();
+            const expiryString = localStorage.getItem(CURIOUS_EXPIRY_KEY);
+            if (expiryString) {
+                const expiryTime = parseInt(expiryString, 10);
+                if (now > expiryTime) {
+                    // 24 hours passed, clear previous state
+                    localStorage.removeItem(CURIOUS_STORAGE_KEY);
+                    localStorage.removeItem(CURIOUS_STARTED_KEY);
+                    localStorage.removeItem(CURIOUS_EXPIRY_KEY);
+                }
+            } else {
+                // Initialize TTL for first time ever
+                localStorage.setItem(CURIOUS_EXPIRY_KEY, (now + EXPIRY_HOURS * 60 * 60 * 1000).toString());
+            }
 
-            // Check if blocked using the strictly greater condition mentioned (after 5th visit)
-            if (newVisits > MAX_VISITS) {
+            if (!businessId || businessId === '') {
+                setIsInitialized(true);
+                return;
+            }
+
+            // Get already visited businesses array. Using array length as the sole source of truth.
+            const visitedString = localStorage.getItem(CURIOUS_STORAGE_KEY) || '[]';
+            let visitedBusinesses: string[] = [];
+            try {
+                visitedBusinesses = JSON.parse(visitedString);
+                if (!Array.isArray(visitedBusinesses)) visitedBusinesses = [];
+            } catch {
+                visitedBusinesses = [];
+            }
+
+            let newlyVisited = false;
+
+            // If this business hasn't been visited yet, add it to array
+            if (!visitedBusinesses.includes(businessId)) {
+                visitedBusinesses.push(businessId);
+                localStorage.setItem(CURIOUS_STORAGE_KEY, JSON.stringify(visitedBusinesses));
+                newlyVisited = true;
+            }
+
+            const currentTotalVisits = visitedBusinesses.length;
+            setVisits(currentTotalVisits > MAX_VISITS ? MAX_VISITS : currentTotalVisits);
+
+            // Check if blocked: if the array length strictly exceeds the maximum allowed views
+            if (currentTotalVisits > MAX_VISITS) {
                 setIsBlocked(true);
+                if (newlyVisited && !trackedRef.current['limit_reached_' + businessId]) {
+                    trackedRef.current['limit_reached_' + businessId] = true;
+                    AnalyticsService.track({
+                        type: 'curious_limit_reached',
+                        businessId: businessId,
+                        country: countryCode || 'Unknown'
+                    }).catch(() => { });
+                }
             } else {
                 setIsBlocked(false);
+                if (newlyVisited && !trackedRef.current['viewed_' + businessId]) {
+                    trackedRef.current['viewed_' + businessId] = true;
+                    AnalyticsService.track({
+                        type: 'curious_business_viewed',
+                        businessId: businessId,
+                        country: countryCode || 'Unknown'
+                    }).catch(() => { });
+                }
             }
         } catch (e) {
             console.error('LocalStorage error in Curious Mode:', e);
-            // Default to not blocked if localStorage fails (e.g. strict privacy mode)
+            // Default to not blocked if localStorage fails
             setIsBlocked(false);
         }
 
         setIsInitialized(true);
 
-    }, [user, loading, businessId]);
+    }, [user, loading, businessId, countryCode]);
 
     return { visits, isBlocked, isInitialized, maxVisits: MAX_VISITS };
+}
+
+export function clearCuriousModeStorage(countryCode?: string) {
+    try {
+        const visitedString = localStorage.getItem(CURIOUS_STORAGE_KEY) || '[]';
+        let visitedBusinesses: string[] = [];
+        try { visitedBusinesses = JSON.parse(visitedString); } catch { }
+
+        if (visitedBusinesses.length > 0) {
+            AnalyticsService.track({
+                type: 'curious_signup',
+                businessId: 'system',
+                country: countryCode || 'Unknown'
+            }).catch(() => { });
+        }
+
+        localStorage.removeItem(CURIOUS_STORAGE_KEY);
+        localStorage.removeItem(CURIOUS_STARTED_KEY);
+        localStorage.removeItem(CURIOUS_EXPIRY_KEY);
+    } catch (e) {
+        // ignore
+    }
 }

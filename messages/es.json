@@ -615,7 +615,8 @@
       "paymentWallet": "Billetera Digital",
       "bankDetails": "Datos bancarios",
       "walletDetails": "Datos de billetera",
-      "requiresDeposit": "Requiere anticipo"
+      "requiresDeposit": "Requiere anticipo",
+      "authRequired": "Crea tu cuenta gratis para contactar negocios, agendar citas, guardar favoritos y dejar reseñas."
     },
     "profile": {
       "title": "Editar Perfil de Negocio",
@@ -1204,5 +1205,20 @@
     "summary": "Resumen del Negocio",
     "finishDesc": "Al hacer clic en 'Crear Negocio', tu perfil será activado como Proveedor y podrás empezar a gestionar tus servicios.",
     "headerTitle": "Registro de Negocio"
+  },
+  "curiousMode": {
+    "limitReachedTitle": "Sigue explorando negocios cerca de ti",
+    "limitReachedDesc": "Crea tu cuenta gratis para seguir viendo negocios, contactar servicios y recibir recomendaciones cerca de ti.",
+    "createAccount": "Crear cuenta",
+    "login": "Iniciar sesión",
+    "backToHome": "Volver al inicio",
+    "bannerText": "Has visto {current} de {max} negocios disponibles",
+    "bannerAction": "Regístrate aquí gratis"
+  },
+  "userLocation": {
+    "title": "Encuentra negocios cerca de ti",
+    "message": "Activa tu ubicación para mostrarte negocios cercanos y mejorar tus resultados de búsqueda.",
+    "grantBtn": "Activar ubicación",
+    "denyBtn": "Ahora no"
   }
 }

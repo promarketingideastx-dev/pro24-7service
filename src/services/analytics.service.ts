@@ -14,7 +14,14 @@ export type AnalyticsEventType =
     | 'booking_confirmed'     // Booking successfully submitted
     | 'share_profile'         // User shared the profile
     | 'whatsapp_click'        // User clicked WhatsApp button
-    | 'website_click';        // User clicked website link
+    | 'website_click'         // User clicked website link
+    | 'curious_mode_started'  // User started curious mode
+    | 'curious_business_viewed'// User viewed a business in curious mode
+    | 'curious_limit_reached' // User reached max views in curious mode
+    | 'curious_signup'        // User signed up after curious mode
+    | 'user_location_permission_requested' // Modal GPS mostrado
+    | 'user_location_permission_granted'   // Permiso otorgado
+    | 'user_location_permission_denied';   // Permiso rechazado
 
 export interface AnalyticsEvent {
     type: AnalyticsEventType;

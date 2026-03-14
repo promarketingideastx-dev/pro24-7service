@@ -22,7 +22,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import SpecialtyPicker from '@/components/business/SpecialtyPicker';
 import { useCountry } from '@/context/CountryContext';
 import { getCountryConfig } from '@/lib/locations';
-import PlacesLocationPicker, { LocationResult } from '@/components/business/setup/PlacesLocationPicker';
+import { PlacesLocationPicker, LocationResult } from '@/components/business/setup/PlacesLocationPicker';
 import ImageCropModal from '@/components/ui/ImageCropModal';
 import SmartAddressInput from '@/components/ui/SmartAddressInput';
 

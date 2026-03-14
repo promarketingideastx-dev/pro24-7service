@@ -8,6 +8,8 @@ import { Lock, Award, Star, Phone, MessageSquare, Calendar } from 'lucide-react'
 import { useCuriousMode } from '@/hooks/useCuriousMode';
 import CuriousModeModal from '@/components/public/CuriousModeModal';
 import RequestAppointmentModal from '@/components/public/RequestAppointmentModal';
+import { useTranslations, useLocale } from 'next-intl';
+import Link from 'next/link';
 
 import BusinessProfileLayout from '@/components/business/profile/BusinessProfileLayout';
 import ServicesTab from '@/components/business/profile/tabs/ServicesTab';
@@ -37,10 +39,13 @@ function BusinessProfileContent() {
     const [activeTab, setActiveTab] = useState('services');
     const [isChatOpen, setIsChatOpen] = useState(false);
 
-    // 1. Hooks MUST be at the top unconditionally
-    const { isBlocked, isInitialized } = useCuriousMode(id || '');
+    const tCurious = useTranslations('curiousMode');
+    const locale = useLocale();
 
-    // Combine data logic
+    // 1. Hooks MUST be at the top unconditionally
+    // Prevent Curious Mode from counting 404s or loading states by only passing ID when public data exists
+    const validBusinessId = publicData ? id : null;
+    const { visits, maxVisits, isBlocked, isInitialized } = useCuriousMode(validBusinessId, publicData?.country || '');
     const isOwner = user?.uid === id;
     const displayData = isOwner && privateData ? { ...publicData, ...privateData } : publicData;
 
@@ -151,83 +156,97 @@ function BusinessProfileContent() {
     const effectivePlan = PlanService.getEffectivePlan(displayData || {});
     const showTeamTab = PlanService.canUseTeam(effectivePlan);
 
+    const isCuriousActive = !user && isInitialized && !isBlocked && visits > 0;
+
     return (
-        <BusinessProfileLayout
-            business={displayData}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            isOwner={isOwner}
-            onBookClick={() => {
-                setIsBookingOpen(true);
-                AnalyticsService.track({ type: 'booking_modal_open', businessId: id, userUid: user?.uid });
-            }}
-            isModalOpen={isBookingOpen}
-            showTeamTab={showTeamTab}
-        >
-            {activeTab === 'services' && (
-                <ServicesTab
+        <>
+            {isCuriousActive && (
+                <div className="fixed bottom-0 inset-x-0 z-[90] bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-4 flex items-center justify-between shadow-[0_-4px_20px_rgba(37,99,235,0.2)] md:justify-center md:gap-8 animate-in slide-in-from-bottom border-t border-white/10">
+                    <span className="text-sm font-medium">
+                        {tCurious('bannerText', { current: visits, max: maxVisits })}
+                    </span>
+                    <Link href={`/${locale}/auth/register`} className="bg-white text-indigo-600 shadow-sm text-xs font-bold px-4 py-2 rounded-xl hover:bg-slate-50 transition-colors whitespace-nowrap hidden sm:inline-flex">
+                        {tCurious('bannerAction')}
+                    </Link>
+                </div>
+            )}
+            <BusinessProfileLayout
+                business={displayData}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                isOwner={isOwner}
+                onBookClick={() => {
+                    setIsBookingOpen(true);
+                    AnalyticsService.track({ type: 'booking_modal_open', businessId: id, userUid: user?.uid });
+                }}
+                isModalOpen={isBookingOpen}
+                showTeamTab={showTeamTab}
+            >
+                {activeTab === 'services' && (
+                    <ServicesTab
+                        businessId={id}
+                        services={displayData.services}
+                        rating={displayData.rating}
+                        reviewCount={displayData.reviewCount}
+                        onBook={(service) => {
+                            setIsBookingOpen(true);
+                        }}
+                    />
+                )}
+
+                {activeTab === 'gallery' && (
+                    <GalleryTab businessId={id} images={displayData.gallery || displayData.images || []} />
+                )}
+
+                {activeTab === 'reviews' && (
+                    <ReviewsTab
+                        business={displayData}
+                        onRatingUpdate={(rating, count) => {
+                            setPublicData((prev: any) => prev ? { ...prev, rating, reviewCount: count } : prev);
+                        }}
+                    />
+                )}
+
+                {activeTab === 'details' && (
+                    <DetailsTab business={displayData} />
+                )}
+
+                {activeTab === 'team' && showTeamTab && (
+                    <TeamTab businessId={id} />
+                )}
+
+                <RequestAppointmentModal
+                    isOpen={isBookingOpen}
+                    onClose={() => setIsBookingOpen(false)}
                     businessId={id}
-                    services={displayData.services}
-                    rating={displayData.rating}
-                    reviewCount={displayData.reviewCount}
-                    onBook={(service) => {
-                        setIsBookingOpen(true);
-                    }}
+                    businessName={displayData.name}
+                    openingHours={displayData.openingHours}
+                    paymentSettings={displayData.paymentSettings}
                 />
-            )}
 
-            {activeTab === 'gallery' && (
-                <GalleryTab businessId={id} images={displayData.gallery || displayData.images || []} />
-            )}
+                {/* App Install Banner — shows to mobile visitors who don't have the app */}
+                {!isOwner && <AppInstallBanner businessName={displayData.name} />}
 
-            {activeTab === 'reviews' && (
-                <ReviewsTab
-                    business={displayData}
-                    onRatingUpdate={(rating, count) => {
-                        setPublicData((prev: any) => prev ? { ...prev, rating, reviewCount: count } : prev);
-                    }}
+                {/* Floating Chat Button — visible to logged-in clients (not the owner) */}
+                {user && !isOwner && (
+                    <button
+                        onClick={() => setIsChatOpen(true)}
+                        className="fixed bottom-24 right-5 z-[200] w-14 h-14 rounded-full bg-[#14B8A6] hover:bg-[#0F9488] shadow-[0_4px_20px_rgba(20,184,166,0.45)] flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95"
+                        title="Chatear con el negocio"
+                    >
+                        <MessageSquare className="w-6 h-6" />
+                    </button>
+                )}
+
+                {/* Chat Modal */}
+                <ChatModal
+                    isOpen={isChatOpen}
+                    onClose={() => setIsChatOpen(false)}
+                    businessId={id}
+                    businessName={displayData?.name || 'Negocio'}
                 />
-            )}
-
-            {activeTab === 'details' && (
-                <DetailsTab business={displayData} />
-            )}
-
-            {activeTab === 'team' && showTeamTab && (
-                <TeamTab businessId={id} />
-            )}
-
-            <RequestAppointmentModal
-                isOpen={isBookingOpen}
-                onClose={() => setIsBookingOpen(false)}
-                businessId={id}
-                businessName={displayData.name}
-                openingHours={displayData.openingHours}
-                paymentSettings={displayData.paymentSettings}
-            />
-
-            {/* App Install Banner — shows to mobile visitors who don't have the app */}
-            {!isOwner && <AppInstallBanner businessName={displayData.name} />}
-
-            {/* Floating Chat Button — visible to logged-in clients (not the owner) */}
-            {user && !isOwner && (
-                <button
-                    onClick={() => setIsChatOpen(true)}
-                    className="fixed bottom-24 right-5 z-[200] w-14 h-14 rounded-full bg-[#14B8A6] hover:bg-[#0F9488] shadow-[0_4px_20px_rgba(20,184,166,0.45)] flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95"
-                    title="Chatear con el negocio"
-                >
-                    <MessageSquare className="w-6 h-6" />
-                </button>
-            )}
-
-            {/* Chat Modal */}
-            <ChatModal
-                isOpen={isChatOpen}
-                onClose={() => setIsChatOpen(false)}
-                businessId={id}
-                businessName={displayData?.name || 'Negocio'}
-            />
-        </BusinessProfileLayout>
+            </BusinessProfileLayout>
+        </>
     );
 }
 

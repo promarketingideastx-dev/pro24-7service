@@ -1,10 +1,9 @@
-
 'use client';
 
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocomplete';
-import { MapPin, Loader2, Search, X, Check, AlertTriangle } from 'lucide-react';
+import { MapPin, Loader2, Search, X, Check, AlertTriangle, Navigation } from 'lucide-react';
 import { toast } from 'sonner';
 
 const LIBRARIES: ('places')[] = ['places'];
@@ -21,7 +20,7 @@ export interface LocationResult {
     city?: string;
     department?: string;
     country?: string;
-    source: 'google' | 'manual' | 'legacy';
+    source: 'google' | 'manual';
     isConfirmed: boolean;
 }
 
@@ -31,12 +30,11 @@ interface Props {
     initialLat?: number;
     initialLng?: number;
     countryCode?: string;
-    cityContext?: string;
     defaultMapCenter?: { lat: number; lng: number };
 }
 
-function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLat, initialLng, countryCode, cityContext, defaultMapCenter }: Props) {
-    const defaultCenter = defaultMapCenter || { lat: 14.0818, lng: -87.2068 }; // Fallback to Tegucigalpa only if defaultMapCenter is entirely missing
+function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLat, initialLng, countryCode, defaultMapCenter }: Props) {
+    const defaultCenter = defaultMapCenter || { lat: 14.0818, lng: -87.2068 };
 
     const [markerPos, setMarkerPos] = useState<{ lat: number; lng: number }>(
         initialLat && initialLng ? { lat: initialLat, lng: initialLng } : defaultCenter
@@ -61,121 +59,134 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         defaultValue: initialAddress || '',
     });
 
-    // Controles de una sola vía (Single Source of Truth fix)
-    const isMapReady = Boolean(cityContext || initialLat || value);
-    const isInternalUpdateRef = useRef(false);
-    const lastSentCoordsRef = useRef<{ lat: number, lng: number } | null>(null);
-    const lastConfirmedTextRef = useRef<string>(initialAddress || '');
-    const lastConfirmedPlaceIdRef = useRef<string>('');
-
-    // Effect to center map on the selected city context if no initial coords were passed
-    useEffect(() => {
-        if (!initialLat && !initialLng && cityContext) {
-            const query = `${cityContext}${countryCode ? `, ${countryCode}` : ''}`;
-            const geocodeReq: google.maps.GeocoderRequest = { address: query };
-            if (countryCode) {
-                geocodeReq.componentRestrictions = { country: countryCode };
-            }
-            getGeocode(geocodeReq as any).then(async results => {
-                if (results && results.length > 0) {
-                    try {
-                        const { lat, lng } = await getLatLng(results[0]);
-                        setMapCenter({ lat, lng });
-                        setMarkerPos({ lat, lng });
-                        mapRef.current?.panTo({ lat, lng });
-                        mapRef.current?.setZoom(13);
-
-                        // [NUEVO] Informar al padre de la coordenada de la ciudad, para anular la coordenada vieja.
-                        const result: LocationResult = {
-                            lat,
-                            lng,
-                            placeId: results[0].place_id || '',
-                            formattedAddress: initialAddress || '', // Preservar texto escrito
-                            googleMapsUrl: results[0].place_id ? `https://www.google.com/maps/place/?q=place_id:${results[0].place_id}` : '',
-                            city: cityContext.split(',')[0],
-                            department: cityContext.split(',')[1]?.trim(),
-                            country: countryCode,
-                            source: 'google',
-                            isConfirmed: false, // NO es final, requiere selección de calle real
-                        };
-                        isInternalUpdateRef.current = true;
-                        lastSentCoordsRef.current = { lat, lng };
-                        onLocationSelect(result);
-                    } catch (e) {
-                        console.error("getLatLng error:", e);
-                    }
-                }
-            }).catch(e => console.error("Geocoding city context error:", e));
-        }
-    }, [cityContext, countryCode, initialLat, initialLng]);
+    const lastSentCoordsRef = useRef<{ lat: number, lng: number } | null>(
+        initialLat && initialLng ? { lat: initialLat, lng: initialLng } : null
+    );
 
     // [CRITICAL FIX] Reset internal autocomplete and marker cache when countryCode changes globally
     useEffect(() => {
         if (countryCode) {
             setValue('', false);
             clearSuggestions();
-            lastConfirmedTextRef.current = '';
-            lastConfirmedPlaceIdRef.current = '';
             lastSentCoordsRef.current = null;
         }
     }, [countryCode, setValue, clearSuggestions]);
 
-    // [CRITICAL FIX] Effect to synchronize the internal marker with parent formData changes.
-    // Ensure we only listen to external resets, and completely ignore the "echoes" of our own updates.
-    useEffect(() => {
-        if (initialLat && initialLng) {
-            // 1. Si el padre nos manda las mismas coordenadas que le acabamos de mandar, es un Eco del estado.
-            // Lo ignoramos para que el mapa no tartamudee ni haga "efecto rebote".
-            if (isInternalUpdateRef.current && lastSentCoordsRef.current) {
-                const isEcho = Math.abs(lastSentCoordsRef.current.lat - initialLat) < 0.00001 &&
-                    Math.abs(lastSentCoordsRef.current.lng - initialLng) < 0.00001;
-                if (isEcho) {
-                    isInternalUpdateRef.current = false; // Apagamos bandera, eco consumido y evadido
-                    return;
-                }
-            }
-
-            // 2. Si es distinto (el padre cambió de idea, o es on-load), cambiamos todo de forma segura
-            setMarkerPos((currentPos) => {
-                const diffLat = Math.abs(initialLat - currentPos.lat);
-                const diffLng = Math.abs(initialLng - currentPos.lng);
-                if (diffLat > 0.00001 || diffLng > 0.00001) {
-                    const pos = { lat: initialLat, lng: initialLng };
-                    setMapCenter(pos);
-                    if (mapRef.current) {
-                        mapRef.current.panTo(pos);
-                        mapRef.current.setZoom(17);
-                    }
-                    return pos;
-                }
-                return currentPos;
-            });
-        } else {
-            // 3. Si el padre manda undefined (p. ej. cambio de departamento), el marker DEBE reiniciarse visualmente.
-            // En vez de quedarse en Tegucigalpa, esperamos que cityContext responda.
-            // Si no hay coords explícitas, obligamos al estado local a re-sincronizar después.
-            // No hacemos nada activo de Panning aquí para evitar romper la animación de cityContext.
-            isInternalUpdateRef.current = false;
+    // Handle user GPS Location
+    const handleGPS = () => {
+        if (!navigator.geolocation) {
+            toast.error("Tu dispositivo o navegador no soporta geolocalización.");
+            return;
         }
-    }, [initialLat, initialLng]); // Ya NO dependen de markerPos, cero ciclos infinitos
+
+        const toastId = toast.loading("Obteniendo tu ubicación actual...");
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                toast.dismiss(toastId);
+
+                setMapCenter({ lat, lng });
+                setMarkerPos({ lat, lng });
+                if (mapRef.current) {
+                    mapRef.current.panTo({ lat, lng });
+                    mapRef.current.setZoom(17);
+                }
+
+                try {
+                    const geocoder = new window.google.maps.Geocoder();
+                    const response = await geocoder.geocode({ location: { lat, lng } });
+
+                    let fallbackAddress = '';
+                    let fallbackCity = '';
+                    let fallbackDep = '';
+                    let fallbackCountry = '';
+                    let fallbackPlaceId = '';
+
+                    if (response.results && response.results.length > 0) {
+                        const resultGeocode = response.results[0];
+                        fallbackAddress = resultGeocode.formatted_address;
+                        fallbackPlaceId = resultGeocode.place_id;
+
+                        const comps = resultGeocode.address_components || [];
+                        for (const comp of comps) {
+                            if (comp.types.includes('locality')) fallbackCity = comp.long_name;
+                            if (comp.types.includes('administrative_area_level_1')) fallbackDep = comp.long_name;
+                            if (comp.types.includes('country')) fallbackCountry = comp.short_name;
+                        }
+
+                        if (countryCode && fallbackCountry && fallbackCountry.toUpperCase() !== countryCode.toUpperCase()) {
+                            toast.error(`Tu ubicación actual (${fallbackCountry.toUpperCase()}) debe coincidir con el país de registro (${countryCode.toUpperCase()}).`);
+                            const revertPos = lastSentCoordsRef.current || defaultCenter;
+                            setMarkerPos(revertPos);
+                            setMapCenter(revertPos);
+                            mapRef.current?.panTo(revertPos);
+                            return;
+                        }
+
+                        setValue(fallbackAddress, false);
+                    }
+
+                    const result: LocationResult = {
+                        lat,
+                        lng,
+                        placeId: fallbackPlaceId,
+                        formattedAddress: fallbackAddress,
+                        displayAddress: fallbackAddress,
+                        googleMapsUrl: `https://maps.google.com/?q=${lat},${lng}`,
+                        city: fallbackCity,
+                        department: fallbackDep,
+                        country: fallbackCountry || countryCode,
+                        source: 'manual',
+                        isConfirmed: true,
+                    };
+
+                    lastSentCoordsRef.current = { lat, lng };
+                    onLocationSelect(result);
+                    toast.success('Ubicación actualizada correctamente.');
+
+                } catch (err) {
+                    console.error('Reverse geocode from GPS error:', err);
+                    const result: LocationResult = {
+                        lat,
+                        lng,
+                        placeId: "",
+                        formattedAddress: "Ubicación GPS (Sin dirección exacta)",
+                        displayAddress: "Ubicación GPS",
+                        googleMapsUrl: `https://maps.google.com/?q=${lat},${lng}`,
+                        city: "",
+                        department: "",
+                        country: countryCode || "",
+                        source: 'manual',
+                        isConfirmed: true,
+                    };
+                    setValue("", false);
+                    lastSentCoordsRef.current = { lat, lng };
+                    onLocationSelect(result);
+                    toast.success('Ubicación ajustada (ver en el mapa).');
+                }
+            },
+            (error) => {
+                toast.dismiss(toastId);
+                toast.error("No pudimos obtener la ubicación. Activa tu GPS.");
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    };
 
     // When user selects a suggestion from the dropdown
     const handleSelect = useCallback(async (description: string, placeId: string) => {
         try {
-            // Instantly update UI for immediate UX feedback
             setValue(description, false);
             clearSuggestions();
 
             let lat: number;
             let lng: number;
             let comps: any[] = [];
-            let plusCode = '';
             let formattedAddress = '';
 
             try {
                 if (!placeId) throw new Error("No placeId provided");
-
-                // Usar Geocoder nativo para resolver el placeId a una geometría exacta con precision
                 const geocoder = new window.google.maps.Geocoder();
                 const response = await geocoder.geocode({ placeId: placeId });
 
@@ -187,13 +198,9 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 lat = resultGeocode.geometry.location.lat();
                 lng = resultGeocode.geometry.location.lng();
                 comps = resultGeocode.address_components || [];
-                if (resultGeocode.plus_code && resultGeocode.plus_code.global_code) plusCode = resultGeocode.plus_code.global_code;
                 if (resultGeocode.formatted_address) formattedAddress = resultGeocode.formatted_address;
-
-                // Validación de precisión (ROOFTOP vs APPROXIMATE) - Removida por nueva regla UI
             } catch (err) {
-                console.warn('Obtener geometry desde Places falló, usando native Geocoder con texto:', err);
-
+                console.warn('Geocoding fallo, usando texto literal:', err);
                 const geocoder = new window.google.maps.Geocoder();
                 const geocodeOptions: google.maps.GeocoderRequest = { address: description };
                 if (countryCode) {
@@ -201,13 +208,12 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 }
                 const response = await geocoder.geocode(geocodeOptions);
                 if (!response.results || response.results.length === 0) {
-                    throw new Error("Geocoding API falló en resolver esta dirección como fallback.");
+                    throw new Error("No se encontraron resultados");
                 }
                 const resultGeocode = response.results[0];
                 lat = resultGeocode.geometry.location.lat();
                 lng = resultGeocode.geometry.location.lng();
                 comps = resultGeocode.address_components || [];
-                if (resultGeocode.plus_code && resultGeocode.plus_code.global_code) plusCode = resultGeocode.plus_code.global_code;
                 if (resultGeocode.formatted_address) formattedAddress = resultGeocode.formatted_address;
             }
 
@@ -220,7 +226,15 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 if (comp.types.includes('country')) country = comp.short_name;
             }
 
-            // [FUNDAMENTAL FIX]: La geometría resuelta es la FUENTE DE VERDAD ABSOLUTA
+            if (countryCode && country && country.toUpperCase() !== countryCode.toUpperCase()) {
+                toast.error(`La ubicación sugerida (${country.toUpperCase()}) debe pertenecer al país de registro (${countryCode.toUpperCase()}).`);
+                const revertPos = lastSentCoordsRef.current || defaultCenter;
+                setMarkerPos(revertPos);
+                setMapCenter(revertPos);
+                mapRef.current?.panTo(revertPos);
+                return;
+            }
+
             const pos = { lat, lng };
             setMarkerPos(pos);
             setMapCenter(pos);
@@ -234,26 +248,22 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 lat,
                 lng,
                 placeId,
-                displayAddress: description, // Lo que vio el usuario y dio click
-                formattedAddress: formattedAddress || description, // El real de Google
-                plusCode, // Se guarda pero no se muestra de adorno principal
+                displayAddress: description,
+                formattedAddress: formattedAddress || description,
                 googleMapsUrl: `https://www.google.com/maps/place/?q=place_id:${placeId}`,
                 city,
                 department,
                 country,
                 source: 'google',
-                isConfirmed: true, // Habilita el botón "Continuar" sin errores falsos
+                isConfirmed: true,
             };
 
-            lastConfirmedPlaceIdRef.current = placeId;
-            lastConfirmedTextRef.current = description;
             lastSentCoordsRef.current = pos;
-            isInternalUpdateRef.current = true;
             onLocationSelect(result);
 
         } catch (err: any) {
             console.error('PlacesLocationPicker handleSelect error:', err);
-            toast.error('Ocurrió un error consultando a Google. Por favor, intenta de nuevo o mueve el pin manualmente.');
+            // Silencioso: no mostramos error rojo agresivo por geocoding abstracto.
         }
     }, [setValue, clearSuggestions, onLocationSelect, countryCode]);
 
@@ -269,7 +279,6 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         let fallbackDep = '';
         let fallbackCountry = '';
         let fallbackPlaceId = '';
-        let fallbackPlusCode = '';
 
         try {
             const geocoder = new window.google.maps.Geocoder();
@@ -278,7 +287,6 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 const resultGeocode = response.results[0];
                 fallbackAddress = resultGeocode.formatted_address;
                 fallbackPlaceId = resultGeocode.place_id;
-                if (resultGeocode.plus_code && resultGeocode.plus_code.global_code) fallbackPlusCode = resultGeocode.plus_code.global_code;
 
                 const comps = resultGeocode.address_components || [];
                 for (const comp of comps) {
@@ -287,124 +295,121 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                     if (comp.types.includes('country')) fallbackCountry = comp.short_name;
                 }
 
-                // REGLA: El pin siempre actualiza la dirección (reverse geocoding como fuente de verdad del pin)
+                if (countryCode && fallbackCountry && fallbackCountry.toUpperCase() !== countryCode.toUpperCase()) {
+                    toast.error(`La ubicación en el mapa (${fallbackCountry.toUpperCase()}) debe estar dentro de tu país de registro (${countryCode.toUpperCase()}).`);
+                    const revertPos = lastSentCoordsRef.current || defaultCenter;
+                    setMarkerPos(revertPos);
+                    setMapCenter(revertPos);
+                    mapRef.current?.panTo(revertPos);
+                    return;
+                }
+
+                // REGLA: El pin siempre actualiza la dirección visual
                 setValue(fallbackAddress, false);
             }
         } catch (err) {
             console.error('Reverse geocode error:', err);
         }
 
-        const finalAddressText = fallbackAddress || value || initialAddress || '';
-        const finalPlaceId = fallbackPlaceId || lastConfirmedPlaceIdRef.current || '';
+        const finalAddressText = fallbackAddress || "Ubicación marcada en el mapa";
+        if (!fallbackAddress) setValue(finalAddressText, false);
 
         const result: LocationResult = {
             lat,
             lng,
-            placeId: finalPlaceId,
+            placeId: fallbackPlaceId,
             displayAddress: finalAddressText,
             formattedAddress: finalAddressText,
-            plusCode: fallbackPlusCode,
             googleMapsUrl: `https://maps.google.com/?q=${lat},${lng}`,
-            city: fallbackCity || (cityContext ? cityContext.split(',')[0] : ''),
-            department: fallbackDep || (cityContext ? cityContext.split(',')[1]?.trim() : ''),
+            city: fallbackCity,
+            department: fallbackDep,
             country: fallbackCountry || countryCode || '',
             source: 'manual',
-            isConfirmed: true,
+            isConfirmed: true, // El mapa siempre manda
         };
 
         lastSentCoordsRef.current = { lat, lng };
-        lastConfirmedTextRef.current = finalAddressText;
-        lastConfirmedPlaceIdRef.current = finalPlaceId;
-        isInternalUpdateRef.current = true;
         onLocationSelect(result);
 
-        toast.success('Dirección actualizada basada en el pin.');
-    }, [value, initialAddress, cityContext, countryCode, onLocationSelect, setValue]);
+        toast.success('Dirección configurada desde el mapa.');
+    }, [countryCode, onLocationSelect, setValue]);
 
     return (
         <div className="space-y-3">
-            {/* Search Input */}
-            <div className="relative">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                    <Search size={16} />
+            <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                    onClick={handleGPS}
+                    type="button"
+                    className="flex-shrink-0 flex items-center justify-center gap-2 h-12 px-4 rounded-lg font-medium bg-teal-50 text-teal-600 border border-teal-200 hover:bg-teal-100 hover:border-teal-300 transition-colors"
+                >
+                    <Navigation size={18} />
+                    <span>Usar mi ubicación</span>
+                </button>
+
+                <div className="relative w-full">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                        <Search size={16} />
+                    </div>
+                    <input
+                        type="text"
+                        value={value}
+                        onChange={(e) => {
+                            setValue(e.target.value);
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                            }
+                        }}
+                        onBlur={(e) => {
+                            if (isSelectingRef.current) return;
+                            // En flujo directo, si editan el input y salen, mantemos coordenadas actuales pero mostramos alerta que debe completarse o usar pin.
+                            // Aquí no invalidamos coordenadas duras, el mapa manda siempre.
+                        }}
+                        disabled={!ready}
+                        placeholder="Busca tu dirección o arrastra el pin..."
+                        className="w-full h-12 bg-white border border-slate-200 rounded-lg pl-9 pr-9 text-slate-800 text-sm focus:outline-none focus:border-teal-500 placeholder:text-slate-400 disabled:opacity-50"
+                    />
+                    {value && (
+                        <button
+                            onClick={() => { setValue(''); clearSuggestions(); }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                            type="button"
+                        >
+                            <X size={14} />
+                        </button>
+                    )}
+
+                    {status === 'OK' && data.length > 0 && (
+                        <ul className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden">
+                            {data.map(({ place_id, description }) => (
+                                <li
+                                    key={place_id}
+                                    onPointerDown={() => {
+                                        isSelectingRef.current = true;
+                                    }}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handleSelect(description, place_id).finally(() => {
+                                            setTimeout(() => { isSelectingRef.current = false; }, 300);
+                                        });
+                                    }}
+                                    className="flex items-start gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition-colors"
+                                >
+                                    <MapPin size={14} className="text-teal-500 mt-0.5 shrink-0" />
+                                    <span>{description}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
-                <input
-                    type="text"
-                    value={value}
-                    onChange={(e) => {
-                        setValue(e.target.value);
-                    }}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                        }
-                    }}
-                    onBlur={(e) => {
-                        // Prevent race condition: if user is selecting a suggestion, don't trigger blur logic
-                        // which might hold stale coordinates and overwrite the newly fetched ones in the parent.
-                        if (isSelectingRef.current) return;
-
-                        // When leaving input, keep text in parent but DO NOT invent fake coordinates
-                        // Only trigger if text actually changed from what the parent knows
-                        if (e.target.value && e.target.value !== initialAddress && e.target.value !== lastConfirmedTextRef.current) {
-                            onLocationSelect({
-                                lat: markerPos.lat, // markerPos is always the internal source of truth
-                                lng: markerPos.lng,
-                                placeId: '',
-                                formattedAddress: e.target.value,
-                                googleMapsUrl: `https://maps.google.com/?q=${markerPos.lat},${markerPos.lng}`,
-                                city: cityContext ? cityContext.split(',')[0] : '',
-                                department: cityContext ? cityContext.split(',')[1]?.trim() : '',
-                                country: countryCode || '',
-                                source: 'manual',
-                                isConfirmed: false, // Requiere confirmación por marker o google drop
-                            });
-                        }
-                    }}
-                    disabled={!ready}
-                    placeholder="Busca tu dirección exacta... ej: Multiplaza Tegucigalpa"
-                    className="w-full h-12 bg-white border border-slate-200 rounded-lg pl-9 pr-9 text-slate-800 text-sm focus:outline-none focus:border-teal-500 placeholder:text-slate-400 disabled:opacity-50"
-                />
-                {value && (
-                    <button
-                        onClick={() => { setValue(''); clearSuggestions(); }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                    >
-                        <X size={14} />
-                    </button>
-                )}
-
-                {/* Suggestions dropdown */}
-                {status === 'OK' && data.length > 0 && (
-                    <ul className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden">
-                        {data.map(({ place_id, description }) => (
-                            <li
-                                key={place_id}
-                                onPointerDown={() => {
-                                    isSelectingRef.current = true; // Bloquea onBlur prematuro en móviles al tocar
-                                }}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    handleSelect(description, place_id).finally(() => {
-                                        setTimeout(() => { isSelectingRef.current = false; }, 300);
-                                    });
-                                }}
-                                className="flex items-start gap-3 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition-colors"
-                            >
-                                <MapPin size={14} className="text-teal-500 mt-0.5 shrink-0" />
-                                <span>{description}</span>
-                            </li>
-                        ))}
-                    </ul>
-                )}
             </div>
 
-            {/* Map with draggable marker */}
-            <div className={`rounded-xl overflow-hidden border border-slate-200 shadow-sm relative mt-4 transition-opacity ${!isMapReady ? 'opacity-40 grayscale pointer-events-none' : 'opacity-100'}`}>
+            <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm relative mt-4">
                 <GoogleMap
                     mapContainerStyle={MAP_CONTAINER_STYLE}
                     center={mapCenter}
-                    zoom={initialLat ? 17 : 13}
+                    zoom={initialLat ? 16 : 9}
                     onLoad={(map) => { mapRef.current = map; }}
                     options={{
                         disableDefaultUI: false,
@@ -426,25 +431,17 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 </GoogleMap>
             </div>
 
-            {/* Confirmación Visual Persistente */}
-            {
-                initialLat && initialLng && (
-                    <div className="mt-4 flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl text-green-800 text-sm animate-in fade-in slide-in-from-bottom-2">
-                        <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center shrink-0 shadow-sm shadow-green-500/30">
-                            <Check size={16} strokeWidth={3} />
-                        </div>
-                        <div>
-                            <p className="font-bold">Ubicación lista y guardada</p>
-                            <p className="text-xs text-green-600/90 mt-0.5">Esta será la ubicación oficial para tus clientes.</p>
-                        </div>
-                    </div>
-                )
-            }
-        </div >
+            {!initialLat && (
+                <div className="mt-2 flex items-center gap-2 text-amber-700 text-sm animate-in fade-in">
+                    <AlertTriangle size={16} />
+                    <span>Mueve el pin o usa tu GPS para establecer tu ubicación garantizada.</span>
+                </div>
+            )}
+        </div>
     );
 }
 
-export default function PlacesLocationPicker(props: Props) {
+export function PlacesLocationPicker(props: Props) {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
     const { isLoaded, loadError } = useJsApiLoader({
@@ -454,11 +451,11 @@ export default function PlacesLocationPicker(props: Props) {
 
     if (loadError) {
         return (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-4 flex items-start gap-3 shadow-sm">
-                <AlertTriangle size={20} className="text-red-500 shrink-0 mt-0.5" />
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 flex items-start gap-3 shadow-sm">
+                <AlertTriangle size={20} className="text-amber-500 shrink-0 mt-0.5" />
                 <div>
-                    <h3 className="text-red-800 font-medium text-sm">Error al cargar mapas de Google</h3>
-                    <p className="text-red-600/90 text-xs mt-1 leading-relaxed">Verifica tu conexión a internet o contacta a soporte técnico si este problema persiste. ({loadError.message})</p>
+                    <h3 className="text-slate-800 font-medium text-sm">El mapa está cargando</h3>
+                    <p className="text-slate-600 text-xs mt-1">Si no aparece, verifica tu conexión a internet o recarga la página.</p>
                 </div>
             </div>
         );
@@ -472,5 +469,5 @@ export default function PlacesLocationPicker(props: Props) {
         );
     }
 
-    return <PlacesLocationPickerInner {...props} />;
+    return <PlacesLocationPickerInner key={props.countryCode || 'default'} {...props} />;
 }

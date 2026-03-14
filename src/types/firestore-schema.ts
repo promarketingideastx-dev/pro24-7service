@@ -41,6 +41,12 @@ export interface UserDocument {
     country_code: string; // ISO2: "HN", "US", "MX"
     locale: 'es' | 'en' | 'pt';
     settings: UserSettings;
+    userLocation?: {
+        lat?: number | null;
+        lng?: number | null;
+        timestamp?: number | null;
+        denied?: boolean;
+    };
 
     // Optional flattened profile fields for easier access in CRM
     displayName?: string;

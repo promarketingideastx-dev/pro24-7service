@@ -612,7 +612,8 @@
       "paymentWallet": "Carteira Digital",
       "bankDetails": "Dados Bancários",
       "walletDetails": "Dados da Carteira",
-      "requiresDeposit": "Exige adiantamento"
+      "requiresDeposit": "Exige adiantamento",
+      "authRequired": "Crie sua conta gratuita para entrar em contato com empresas, agendar consultas, salvar favoritos e deixar avaliações."
     },
     "profile": {
       "title": "Editar Perfil do Negócio",
@@ -1201,5 +1202,20 @@
     "summary": "Resumo do Negócio",
     "finishDesc": "Ao clicar em 'Criar Negócio', seu perfil será ativado como um Provedor e você pode começar a gerenciar seus serviços.",
     "headerTitle": "Registro do Negócio"
+  },
+  "curiousMode": {
+    "limitReachedTitle": "Continue explorando empresas perto de você",
+    "limitReachedDesc": "Crie sua conta grátis para continuar vendo empresas, contatar serviços e receber recomendações perto de você.",
+    "createAccount": "Criar conta",
+    "login": "Entrar",
+    "backToHome": "Voltar ao início",
+    "bannerText": "Você viu {current} de {max} empresas disponíveis",
+    "bannerAction": "Cadastre-se aqui grátis"
+  },
+  "userLocation": {
+    "title": "Encontre negócios perto de você",
+    "message": "Ative sua localização para mostrar negócios próximos e melhorar seus resultados de pesquisa.",
+    "grantBtn": "Ativar localização",
+    "denyBtn": "Agora não"
   }
 }

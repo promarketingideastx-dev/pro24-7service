@@ -51,7 +51,11 @@ export default function ReviewsTab({ business, onRatingUpdate }: ReviewsTabProps
 
     const handleWriteReview = () => {
         if (!user) {
-            toast.error(t('loginToReview'));
+            toast(t('authRequired'), {
+                icon: '👋',
+                duration: 5000,
+                className: 'bg-teal-50 text-teal-900 border border-teal-200'
+            });
             return;
         }
         setIsModalOpen(true);

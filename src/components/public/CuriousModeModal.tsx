@@ -19,11 +19,11 @@ export default function CuriousModeModal() {
                 </div>
 
                 <h2 className="text-2xl font-bold tracking-tight mb-3 text-slate-800">
-                    {t('limitReachedTitle', { fallback: 'Has explorado varios profesionales cerca de ti' })}
+                    {t('limitReachedTitle')}
                 </h2>
 
                 <p className="text-slate-500 text-[15px] leading-relaxed mb-8">
-                    {t('limitReachedDesc', { fallback: 'Crea una cuenta gratuita para continuar explorando negocios y contactar profesionales.' })}
+                    {t('limitReachedDesc')}
                 </p>
 
                 <div className="space-y-3">
@@ -32,15 +32,22 @@ export default function CuriousModeModal() {
                         className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-[0_8px_20px_rgba(37,99,235,0.25)] hover:shadow-[0_10px_25px_rgba(37,99,235,0.4)] transition-all flex items-center justify-center gap-2"
                     >
                         <UserPlus size={18} />
-                        {t('createAccount', { fallback: 'Crear cuenta' })}
+                        {t('createAccount')}
+                    </Link>
+
+                    <Link
+                        href={lp('/auth/login')}
+                        className="w-full py-3.5 bg-white border border-slate-200 text-slate-700 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                    >
+                        {t('login')}
                     </Link>
 
                     <Link
                         href={lp('/')}
-                        className="w-full py-3.5 bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                        className="w-full py-3.5 bg-transparent text-slate-500 hover:text-slate-900 font-medium rounded-xl transition-all flex items-center justify-center gap-2"
                     >
-                        <ArrowLeft size={18} />
-                        {t('backToHome', { fallback: 'Volver al inicio' })}
+                        <ArrowLeft size={16} />
+                        {t('backToHome')}
                     </Link>
                 </div>
             </div>
