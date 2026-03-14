@@ -86,13 +86,6 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 const lng = position.coords.longitude;
                 toast.dismiss(toastId);
 
-                setMapCenter({ lat, lng });
-                setMarkerPos({ lat, lng });
-                if (mapRef.current) {
-                    mapRef.current.panTo({ lat, lng });
-                    mapRef.current.setZoom(17);
-                }
-
                 try {
                     const geocoder = new window.google.maps.Geocoder();
                     const response = await geocoder.geocode({ location: { lat, lng } });
@@ -116,15 +109,20 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                         }
 
                         if (countryCode && fallbackCountry && fallbackCountry.toUpperCase() !== countryCode.toUpperCase()) {
-                            toast.error(`Tu ubicación actual (${fallbackCountry.toUpperCase()}) debe coincidir con el país de registro (${countryCode.toUpperCase()}).`);
-                            const revertPos = lastSentCoordsRef.current || defaultCenter;
-                            setMarkerPos(revertPos);
-                            setMapCenter(revertPos);
-                            mapRef.current?.panTo(revertPos);
+                            toast.error(`Tu ubicación detectada (${fallbackCountry.toUpperCase()}) debe coincidir con el país de registro (${countryCode.toUpperCase()}).`);
+                            // We do NOT update mapCenter or markerPos here.
                             return;
                         }
 
                         setValue(fallbackAddress, false);
+                    }
+
+                    // Only update UI if validation passed (or if no results, we assume it's okay for now)
+                    setMapCenter({ lat, lng });
+                    setMarkerPos({ lat, lng });
+                    if (mapRef.current) {
+                        mapRef.current.panTo({ lat, lng });
+                        mapRef.current.setZoom(17);
                     }
 
                     const result: LocationResult = {
