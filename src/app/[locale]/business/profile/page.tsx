@@ -20,7 +20,6 @@ import { toast } from 'sonner';
 import PortfolioManager from '@/components/business/profile/PortfolioManager';
 import { useTranslations, useLocale } from 'next-intl';
 import SpecialtyPicker from '@/components/business/SpecialtyPicker';
-import { useCountry } from '@/context/CountryContext';
 import { getCountryConfig } from '@/lib/locations';
 import { PlacesLocationPicker, LocationResult } from '@/components/business/setup/PlacesLocationPicker';
 import ImageCropModal from '@/components/ui/ImageCropModal';
@@ -32,7 +31,6 @@ export default function BusinessProfilePage() {
     const t = useTranslations('business.profile');
     const locale = useLocale();
     const localeKey = locale === 'en' ? 'en' : locale === 'pt-BR' ? 'pt' : 'es';
-    const { selectedCountry } = useCountry();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [uploadingImage, setUploadingImage] = useState<'cover' | 'logo' | null>(null);
@@ -65,10 +63,9 @@ export default function BusinessProfilePage() {
 
                 const profileDoc = await BusinessProfileService.getProfile(user.uid);
                 if (profileDoc) {
-                    // If the profile has no country stored, fall back to the active CountryContext
                     setFormData({
                         ...profileDoc,
-                        country: profileDoc.country || selectedCountry?.code || 'HN',
+                        country: profileDoc.country || 'HN',
                     });
                 }
             } catch (error) {
@@ -93,14 +90,12 @@ export default function BusinessProfilePage() {
 
         setSaving(true);
         try {
-            // Exclude images from general profile save to avoid overwriting PortfolioManager changes
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { images, ...dataToSave } = formData;
 
-            // Country is always locked to the CountryContext — never editable from profile
+            // Country is always locked to the Business profile — never editable from profile nor overridden by context
             const safeData = {
                 ...dataToSave,
-                country: selectedCountry?.code || formData.country || 'HN',
+                country: formData.country || 'HN',
                 locationV2: formData.locationV2 // V2 PARALLEL LAYER
             };
 
@@ -420,8 +415,8 @@ export default function BusinessProfilePage() {
                                         <div>
                                             <label className="block text-slate-700 font-medium text-sm mb-1">{t('country')}</label>
                                             <div className="w-full h-12 bg-[#F4F6F8] border border-[#E6E8EC] rounded-lg px-4 flex items-center text-slate-700 font-medium opacity-70 select-none cursor-not-allowed">
-                                                <span>{selectedCountry?.flag || '🌍'}</span>
-                                                <span className="flex-1 ml-2 font-medium">{selectedCountry?.name || formData.country}</span>
+                                                <span>{currentCountryConfig.flag || '🌍'}</span>
+                                                <span className="flex-1 ml-2 font-medium">{currentCountryConfig.name || formData.country}</span>
                                             </div>
                                         </div>
                                         <div>
