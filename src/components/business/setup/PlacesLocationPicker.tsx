@@ -270,7 +270,6 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         if (!e.latLng) return;
         const lat = e.latLng.lat();
         const lng = e.latLng.lng();
-        setMarkerPos({ lat, lng });
 
         let fallbackAddress = '';
         let fallbackCity = '';
@@ -295,6 +294,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
 
                 if (countryCode && fallbackCountry && fallbackCountry.toUpperCase() !== countryCode.toUpperCase()) {
                     toast.error(`La ubicación en el mapa (${fallbackCountry.toUpperCase()}) debe estar dentro de tu país de registro (${countryCode.toUpperCase()}).`);
+                    // El pin regresa inmediatamente visualmente a su posición autorizada anterior
                     const revertPos = lastSentCoordsRef.current || defaultCenter;
                     setMarkerPos(revertPos);
                     setMapCenter(revertPos);
@@ -302,11 +302,19 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                     return;
                 }
 
+                // Si pasa la validación, actualizamos el estado visual a las nuevas coordenadas
+                setMarkerPos({ lat, lng });
+
                 // REGLA: El pin siempre actualiza la dirección visual
                 setValue(fallbackAddress, false);
+            } else {
+                // Si no hay resultados de geocoding, asumimos que es un punto raro y permitimos el movimiento de momento.
+                setMarkerPos({ lat, lng });
             }
         } catch (err) {
             console.error('Reverse geocode error:', err);
+            // Ante un error de red, permitimos el arrastre
+            setMarkerPos({ lat, lng });
         }
 
         const finalAddressText = fallbackAddress || "Ubicación marcada en el mapa";
