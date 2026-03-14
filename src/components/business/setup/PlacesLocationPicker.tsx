@@ -5,6 +5,7 @@ import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocomplete';
 import { MapPin, Loader2, Search, X, Check, AlertTriangle, Navigation } from 'lucide-react';
 import { toast } from 'sonner';
+import { getCountryConfig, CountryCode } from '@/lib/locations';
 
 const LIBRARIES: ('places')[] = ['places'];
 const MAP_CONTAINER_STYLE = { width: '100%', height: '220px' };
@@ -63,12 +64,15 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         initialLat && initialLng ? { lat: initialLat, lng: initialLng } : null
     );
 
-    // [CRITICAL FIX] Reset internal autocomplete and marker cache when countryCode changes globally
+    const prevCountryCodeRef = useRef(countryCode);
+
+    // [CRITICAL FIX] Reset internal autocomplete and marker cache ONLY when countryCode actually changes globally
     useEffect(() => {
-        if (countryCode) {
+        if (countryCode && countryCode !== prevCountryCodeRef.current) {
             setValue('', false);
             clearSuggestions();
             lastSentCoordsRef.current = null;
+            prevCountryCodeRef.current = countryCode;
         }
     }, [countryCode, setValue, clearSuggestions]);
 
@@ -280,6 +284,8 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         let fallbackCountry = '';
         let fallbackPlaceId = '';
 
+        let isInsideCountry = true;
+
         try {
             const geocoder = new window.google.maps.Geocoder();
             const response = await geocoder.geocode({ location: { lat, lng } });
@@ -296,34 +302,46 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 }
 
                 if (countryCode && fallbackCountry && fallbackCountry.toUpperCase() !== countryCode.toUpperCase()) {
-                    toast.error(`La ubicación en el mapa (${fallbackCountry.toUpperCase()}) debe estar dentro de tu país de registro (${countryCode.toUpperCase()}).`);
-                    // El pin regresa inmediatamente visualmente a su posición autorizada anterior
-                    const revertPos = lastSentCoordsRef.current || defaultCenter;
-                    setMarkerPos(revertPos);
-                    setMapCenter(revertPos);
-                    mapRef.current?.panTo(revertPos);
-                    return;
+                    isInsideCountry = false;
                 }
-
-                // Si pasa la validación, actualizamos el estado visual a las nuevas coordenadas
-                setMarkerPos({ lat, lng });
-
-                // REGLA: El pin siempre actualiza la dirección visual
-                setValue(fallbackAddress, false);
             } else {
-                // Si no hay resultados de geocoding, asumimos que es un punto raro y permitimos el movimiento de momento.
-                throw new Error("No se encontraron resultados de geocoding en esta área.");
+                throw new Error("ZERO_RESULTS");
             }
         } catch (err) {
-            console.error('Reverse geocode error:', err);
-            toast.error("No pudimos validar esta ubicación. Asegúrate de colocar el pin en una zona reconocible dentro de tu país.");
+            console.error('Reverse geocode error or ZERO_RESULTS:', err);
+            // Si el geocoding explota (ej: zona rural sin calle, montaña),
+            // revisamos matemáticamente si la lat/lng cae dentro de la caja delimitadora (bounds) del país.
+            if (countryCode) {
+                const config = getCountryConfig(countryCode as CountryCode);
+                if (config && config.bounds) {
+                    const [minLat, minLng, maxLat, maxLng] = config.bounds;
+                    if (lat >= minLat && lat <= maxLat && lng >= minLng && lng <= maxLng) {
+                        isInsideCountry = true;
+                        fallbackAddress = `Punto fijado en el mapa (${config.name})`;
+                    } else {
+                        isInsideCountry = false;
+                    }
+                } else {
+                    // Si el país no tiene bounds en config, le damos el beneficio de la duda para no bloquear
+                    isInsideCountry = true;
+                    fallbackAddress = "Punto fijado en el mapa";
+                }
+            }
+        }
 
-            // Revertir el pin a su posición autorizada anterior
+        if (!isInsideCountry) {
+            toast.error(`La ubicación soltada debe pertenecer a los límites geográficos de registro (${countryCode?.toUpperCase()}).`);
             const revertPos = lastSentCoordsRef.current || defaultCenter;
             setMarkerPos(revertPos);
             setMapCenter(revertPos);
             mapRef.current?.panTo(revertPos);
             return;
+        }
+
+        // Si pasa la validación, confirmamos el pin en ese lugar
+        setMarkerPos({ lat, lng });
+        if (fallbackAddress) {
+            setValue(fallbackAddress, false);
         }
 
         const finalAddressText = fallbackAddress || "Ubicación marcada en el mapa";
