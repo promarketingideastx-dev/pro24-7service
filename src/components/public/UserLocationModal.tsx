@@ -1,178 +1,130 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { MapPin, X } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
-import { UserService } from '@/services/user.service';
-import { AnalyticsService } from '@/services/analytics.service';
+import { MapPin, Navigation, X } from 'lucide-react';
+import GlassPanel from '@/components/ui/GlassPanel';
 import { Capacitor } from '@capacitor/core';
+import { Geolocation } from '@capacitor/geolocation';
+import { toast } from 'sonner';
 
-export default function UserLocationModal() {
-    const t = useTranslations('userLocation');
-    const { user, userProfile, refreshProfile, loading } = useAuth();
-    const [isOpen, setIsOpen] = useState(false);
-    const [isProcessing, setIsProcessing] = useState(false);
+interface UserLocationModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onLocationGranted: (coords: { lat: number, lng: number }) => void;
+}
 
-    useEffect(() => {
-        // Wait till auth is resolved
-        if (loading) return;
+export default function UserLocationModal({ isOpen, onClose, onLocationGranted }: UserLocationModalProps) {
+    const t = useTranslations('location');
+    const [isRequesting, setIsRequesting] = useState(false);
 
-        // Show ONLY to authenticated users
-        if (!user || !userProfile) {
-            setIsOpen(false);
-            return;
-        }
+    if (!isOpen) return null;
 
-        // If they already have location defined (granted or denied), don't show
-        if (userProfile.userLocation) {
-            setIsOpen(false);
-            return;
-        }
+    const handleDeny = () => {
+        onClose();
+        // Dispara evento reactivo o no hace nada. Ya no guardamos en DB.
+    };
 
-        // Delay slight bit to ensure smooth entry if just logged in
-        const timer = setTimeout(() => {
-            setIsOpen(true);
-            AnalyticsService.track({
-                type: 'user_location_permission_requested',
-                businessId: 'system',
-                userUid: user.uid,
-                country: userProfile.country_code
-            });
-        }, 800);
+    const handleAllow = async () => {
+        setIsRequesting(true);
 
-        return () => clearTimeout(timer);
-    }, [user, userProfile, loading]);
-
-    const handleGrant = async () => {
-        setIsProcessing(true);
-        if (Capacitor.isNativePlatform()) {
-            try {
-                const { Geolocation } = await import('@capacitor/geolocation');
+        try {
+            if (Capacitor.isNativePlatform()) {
                 let status = await Geolocation.checkPermissions();
                 if (status.location !== 'granted') {
                     status = await Geolocation.requestPermissions();
                     if (status.location !== 'granted') {
-                        handleDeny(); // fallback to deny flow
+                        toast.error("Permiso denegado en el dispositivo.");
+                        setIsRequesting(false);
+                        onClose();
                         return;
                     }
                 }
                 const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
-                await saveLocation(position.coords.latitude, position.coords.longitude);
-            } catch (e) {
-                console.warn('Capacitor geolocation failed', e);
-                handleDeny();
-            }
-        } else {
-            if (!navigator.geolocation) {
-                handleDeny();
+                onLocationGranted({ lat: position.coords.latitude, lng: position.coords.longitude });
+                onClose();
                 return;
             }
+
+            // Web Fallback
+            if (!navigator.geolocation) {
+                toast.error("Tu navegador no soporta geolocalización.");
+                setIsRequesting(false);
+                onClose();
+                return;
+            }
+
             navigator.geolocation.getCurrentPosition(
                 async (pos) => {
-                    await saveLocation(pos.coords.latitude, pos.coords.longitude);
+                    onLocationGranted({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+                    onClose();
                 },
-                (err) => {
-                    console.warn('Web geolocation failed/denied', err);
-                    handleDeny();
+                async (err) => {
+                    console.warn("User geolocation denied or failed", err);
+                    toast.error("No se pudo obtener la ubicación o se denegó el permiso.");
+                    onClose();
                 },
-                { timeout: 10000, enableHighAccuracy: true }
+                { timeout: 10000 }
             );
-        }
-    };
-
-    const saveLocation = async (lat: number, lng: number) => {
-        try {
-            await UserService.updateUserProfile(user!.uid, {
-                userLocation: {
-                    lat,
-                    lng,
-                    timestamp: Date.now()
-                }
-            } as any);
-
-            AnalyticsService.track({
-                type: 'user_location_permission_granted',
-                businessId: 'system',
-                userUid: user!.uid,
-                country: userProfile!.country_code
-            });
-
-            await refreshProfile();
-            setIsOpen(false);
         } catch (error) {
-            console.error('Failed to save user location', error);
-            setIsOpen(false);
-        } finally {
-            setIsProcessing(false);
+            console.error("Error requesting location:", error);
+            setIsRequesting(false);
+            onClose();
         }
     };
-
-    const handleDeny = async () => {
-        setIsProcessing(true);
-        try {
-            await UserService.updateUserProfile(user!.uid, {
-                userLocation: {
-                    denied: true,
-                    timestamp: Date.now()
-                }
-            } as any);
-
-            AnalyticsService.track({
-                type: 'user_location_permission_denied',
-                businessId: 'system',
-                userUid: user!.uid,
-                country: userProfile!.country_code
-            });
-
-            await refreshProfile();
-            setIsOpen(false);
-        } catch (error) {
-            console.error('Failed to save denial', error);
-            setIsOpen(false);
-        } finally {
-            setIsProcessing(false);
-        }
-    };
-
-    if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-white rounded-3xl w-full max-w-sm p-8 shadow-2xl animate-in zoom-in-95 duration-300 relative text-center">
-                {/* Decoration */}
-                <div className="mx-auto w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-6 ring-8 ring-blue-50/50">
-                    <MapPin className="w-8 h-8" />
-                </div>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={handleDeny} />
 
-                <h2 className="text-xl font-bold tracking-tight text-slate-900 mb-2">
-                    {t('title')}
-                </h2>
-                <p className="text-slate-500 text-sm leading-relaxed mb-8">
-                    {t('message')}
-                </p>
+            <div className="relative w-full max-w-sm shrink-0 animate-in zoom-in-95 duration-200">
+                <GlassPanel className="p-0 overflow-hidden shadow-2xl ring-1 ring-white/20">
+                    <div className="bg-gradient-to-br from-teal-500 to-[#0F766E] p-6 text-center relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                            <Navigation size={120} />
+                        </div>
+                        <button
+                            onClick={handleDeny}
+                            className="absolute top-3 right-3 text-white/70 hover:text-white transition-colors p-1"
+                        >
+                            <X size={20} />
+                        </button>
 
-                <div className="flex flex-col gap-3">
-                    <button
-                        onClick={handleGrant}
-                        disabled={isProcessing}
-                        className="w-full bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold py-3.5 px-6 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center"
-                    >
-                        {isProcessing ? (
-                            <span className="w-5 h-5 border-2 border-slate-300 border-t-white rounded-full animate-spin" />
-                        ) : (
-                            t('grantBtn')
-                        )}
-                    </button>
+                        <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-md ring-4 ring-white/10">
+                            <MapPin size={32} className="text-white" />
+                        </div>
+                        <h2 className="text-xl font-bold text-white mb-2">{t('modalTitle')}</h2>
+                        <p className="text-white/90 text-sm leading-relaxed max-w-[280px] mx-auto">
+                            {t('modalDesc')}
+                        </p>
+                    </div>
 
-                    <button
-                        onClick={handleDeny}
-                        disabled={isProcessing}
-                        className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3.5 px-6 rounded-xl transition-colors disabled:opacity-50"
-                    >
-                        {t('denyBtn')}
-                    </button>
-                </div>
+                    <div className="p-5 sm:p-6 bg-white flex justify-center">
+                        <div className="flex gap-3 w-full max-w-xs">
+                            <button
+                                onClick={handleDeny}
+                                disabled={isRequesting}
+                                className="flex-1 py-3 px-4 rounded-xl font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors disabled:opacity-50"
+                            >
+                                {t('deny')}
+                            </button>
+                            <button
+                                onClick={handleAllow}
+                                disabled={isRequesting}
+                                className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-[#14B8A6] hover:bg-[#0F9488] shadow-lg shadow-teal-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+                            >
+                                {isRequesting ? (
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                ) : (
+                                    <>
+                                        <Navigation size={18} />
+                                        {t('allow')}
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </GlassPanel>
             </div>
         </div>
     );

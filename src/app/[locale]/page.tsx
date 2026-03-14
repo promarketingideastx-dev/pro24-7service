@@ -19,6 +19,7 @@ import ShareAppModal from '@/components/ui/ShareAppModal';
 import SearchAutocomplete from '@/components/ui/SearchAutocomplete';
 import ClientNotifBell from '@/components/ui/ClientNotifBell';
 import UserLocationModal from '@/components/public/UserLocationModal';
+import { toast } from 'sonner';
 
 export default function Home() {
     const [showShare, setShowShare] = useState(false);
@@ -41,62 +42,21 @@ export default function Home() {
     const [filterRating, setFilterRating] = useState<number>(0);
     const [filterHasSchedule, setFilterHasSchedule] = useState(false);
 
-    /* Geolocation */
-    const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
-    const [geoLoading, setGeoLoading] = useState(false);
-    const [geoError, setGeoError] = useState<string | null>(null);
+    /* Geolocation - Phase 4: GPS On-Demand purely ephemeral */
+    const [userSearchLocationGPS, setUserSearchLocationGPS] = useState<{ lat: number; lng: number } | null>(null);
+    const [showLocationModal, setShowLocationModal] = useState(false);
     const [filterMaxKm, setFilterMaxKm] = useState<number>(0); // 0 = sin límite
     const [revealedCardId, setRevealedCardId] = useState<string | null>(null);
 
     const activeFilterCount = (filterCategory ? 1 : 0) + (filterRating > 0 ? 1 : 0) + (filterHasSchedule ? 1 : 0) + (filterMaxKm > 0 ? 1 : 0);
 
-    const requestLocation = async () => {
-        setGeoLoading(true);
-        setGeoError(null);
+    const requestLocation = () => {
+        setShowLocationModal(true);
+    };
 
-        try {
-            const { Capacitor } = await import('@capacitor/core');
-
-            if (Capacitor.isNativePlatform()) {
-                const { Geolocation } = await import('@capacitor/geolocation');
-                // Use Capacitor plugin
-                let status = await Geolocation.checkPermissions();
-                if (status.location !== 'granted') {
-                    status = await Geolocation.requestPermissions();
-                    if (status.location !== 'granted') {
-                        setGeoError('No se otorgaron los permisos de ubicación en el dispositivo.');
-                        setGeoLoading(false);
-                        return;
-                    }
-                }
-
-                const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
-                setUserCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
-                setGeoLoading(false);
-                return;
-            }
-        } catch (e) {
-            console.warn('Capacitor geolocation fallback triggered', e);
-        }
-
-        // Web Fallback
-        if (!navigator.geolocation) {
-            setGeoError('Tu navegador no soporta geolocalización');
-            setGeoLoading(false);
-            return;
-        }
-
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-                setGeoLoading(false);
-            },
-            () => {
-                setGeoError('No se pudo obtener tu ubicación. Verifica los permisos de tu navegador.');
-                setGeoLoading(false);
-            },
-            { timeout: 10000 }
-        );
+    const handleLocationGranted = (coords: { lat: number, lng: number }) => {
+        setUserSearchLocationGPS(coords);
+        toast.success(localeKey === 'en' ? "Location updated" : localeKey === 'pt' ? "Localização atualizada" : "Ubicación actualizada");
     };
 
     /* Map state: collapsed by default on mobile, gesture lock */
@@ -267,11 +227,8 @@ export default function Home() {
         if (filterHasSchedule && !((b as any).openingHours || (b as any).hasSchedule)) return false;
         return true;
     }).filter(b => {
-        // Distance filter
-        const profileCoords = userProfile?.userLocation?.lat != null && !userProfile.userLocation.denied
-            ? { lat: Number(userProfile.userLocation.lat), lng: Number(userProfile.userLocation.lng) }
-            : null;
-        const referenceCoords = userCoords || profileCoords || (selectedCountry ? { lat: selectedCountry.coordinates.lat, lng: selectedCountry.coordinates.lng } : null);
+        // Distance filter (Ephemeral ONLY)
+        const referenceCoords = userSearchLocationGPS || (selectedCountry ? { lat: selectedCountry.coordinates.lat, lng: selectedCountry.coordinates.lng } : null);
         if (!referenceCoords || filterMaxKm === 0) return true;
         const bizLat = (b as any).location?.lat ?? b.lat;
         const bizLng = (b as any).location?.lng ?? b.lng;
@@ -280,10 +237,7 @@ export default function Home() {
         return dist <= filterMaxKm;
     }).sort((a, b) => {
         // Sort by distance when user location OR country location is known
-        const profileCoords = userProfile?.userLocation?.lat != null && !userProfile.userLocation.denied
-            ? { lat: Number(userProfile.userLocation.lat), lng: Number(userProfile.userLocation.lng) }
-            : null;
-        const referenceCoords = userCoords || profileCoords || (selectedCountry ? { lat: selectedCountry.coordinates.lat, lng: selectedCountry.coordinates.lng } : null);
+        const referenceCoords = userSearchLocationGPS || (selectedCountry ? { lat: selectedCountry.coordinates.lat, lng: selectedCountry.coordinates.lng } : null);
         if (!referenceCoords) return 0;
         const aLat = (a as any).location?.lat ?? a.lat;
         const aLng = (a as any).location?.lng ?? a.lng;
@@ -319,7 +273,11 @@ export default function Home() {
     return (
         <>
             <main className="h-dvh bg-[#F4F6F8] text-slate-900 overflow-hidden font-sans flex flex-col" style={{ height: '100dvh' }}>
-                <UserLocationModal />
+                <UserLocationModal
+                    isOpen={showLocationModal}
+                    onClose={() => setShowLocationModal(false)}
+                    onLocationGranted={handleLocationGranted}
+                />
                 {/* ── Header ── */}
                 <header
                     className="shrink-0 bg-gradient-to-br from-slate-800 to-slate-900 px-4 pb-3 sm:px-5 sm:pb-5 z-50 sticky top-0 shadow-xl"
@@ -447,6 +405,18 @@ export default function Home() {
                                     <X className="w-5 h-5 text-slate-400" />
                                 </button>
                             )}
+                            {/* GPS Button */}
+                            <button
+                                onClick={requestLocation}
+                                title={localeKey === 'en' ? "📍 Use my location" : localeKey === 'pt' ? "📍 Usar minha localização" : "📍 Usar mi ubicación"}
+                                className={`p-1.5 sm:p-2 rounded-xl transition-all shrink-0 ${userSearchLocationGPS
+                                    ? 'bg-teal-50 text-teal-600 shadow-inner'
+                                    : 'bg-slate-100 hover:bg-slate-200 text-slate-500'
+                                    }`}
+                            >
+                                <Navigation className="w-4 h-4 sm:w-5 sm:h-5" />
+                            </button>
+                            <div className="w-[1px] h-6 bg-slate-200 shrink-0 mx-1"></div>
                             {/* Filter Button */}
                             <button
                                 onClick={() => setShowFilters(true)}
@@ -979,11 +949,11 @@ export default function Home() {
                                             ) : (
                                                 <span className="text-[#0F766E] font-bold text-[10px] px-1.5 py-0.5 bg-[rgba(20,184,166,0.1)] rounded px-1">Nuevo</span>
                                             )}
-                                            {userCoords && (() => {
+                                            {userSearchLocationGPS && (() => {
                                                 const bizLat = (biz as any).location?.lat ?? biz.lat;
                                                 const bizLng = (biz as any).location?.lng ?? biz.lng;
                                                 if (bizLat == null) return null;
-                                                const dist = haversineKm(userCoords.lat, userCoords.lng, bizLat, bizLng);
+                                                const dist = haversineKm(userSearchLocationGPS.lat, userSearchLocationGPS.lng, bizLat, bizLng);
                                                 return (
                                                     <span className="flex items-center gap-0.5 text-[10px] text-teal-600 font-semibold">
                                                         <Navigation className="w-2.5 h-2.5" />
@@ -991,7 +961,7 @@ export default function Home() {
                                                     </span>
                                                 );
                                             })()}
-                                            {!userCoords && <span className="text-slate-500 text-[10px] truncate">({(biz as any).city || (biz as any).location?.city || 'Pro24/7'})</span>}
+                                            {!userSearchLocationGPS && <span className="text-slate-500 text-[10px] truncate">({(biz as any).city || (biz as any).location?.city || 'Pro24/7'})</span>}
                                         </div>
                                     </div>
                                     <div className="flex flex-col items-end gap-1.5 ml-2 shrink-0">
@@ -1193,31 +1163,28 @@ export default function Home() {
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">{t('filters.distance')}</p>
 
                                 {/* Request location button */}
-                                {!userCoords ? (
+                                {!userSearchLocationGPS ? (
                                     <button
                                         onClick={requestLocation}
-                                        disabled={geoLoading}
-                                        className="flex items-center gap-2 w-full px-4 py-3 rounded-2xl border border-dashed border-teal-400 bg-teal-50 text-teal-700 text-sm font-semibold hover:bg-teal-100 transition-all disabled:opacity-60 mb-2"
+                                        className="flex items-center gap-2 w-full px-4 py-3 rounded-2xl border border-dashed border-teal-400 bg-teal-50 text-teal-700 text-sm font-semibold hover:bg-teal-100 transition-all mb-2"
                                     >
                                         <Navigation className="w-4 h-4 shrink-0" />
-                                        {geoLoading ? t('filters.gettingLocation') : `📍 ${t('filters.useLocation')}`}
+                                        {`📍 ${t('filters.useLocation')}`}
                                     </button>
                                 ) : (
                                     <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-teal-50 border border-teal-200 text-teal-700 text-xs font-semibold mb-2">
                                         <Navigation className="w-3.5 h-3.5" />
                                         {t('filters.locationActive')} ✅
-                                        <button onClick={() => { setUserCoords(null); setFilterMaxKm(0); }} className="ml-auto text-red-400 hover:text-red-600 text-xs">{t('filters.remove')}</button>
+                                        <button onClick={() => { setUserSearchLocationGPS(null); setFilterMaxKm(0); }} className="ml-auto text-red-400 hover:text-red-600 text-xs">{t('filters.remove')}</button>
                                     </div>
                                 )}
-
-                                {geoError && <p className="text-xs text-red-500 mb-2">{geoError}</p>}
 
                                 {/* Distance options */}
                                 <div className="flex flex-wrap gap-2">
                                     {[{ val: 0, label: t('filters.noLimit') }, { val: 5, label: '5 km' }, { val: 10, label: '10 km' }, { val: 25, label: '25 km' }, { val: 50, label: '50 km' }].map(opt => (
                                         <button
                                             key={opt.val}
-                                            disabled={!userCoords && opt.val > 0}
+                                            disabled={!userSearchLocationGPS && opt.val > 0}
                                             onClick={() => setFilterMaxKm(opt.val)}
                                             className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all disabled:opacity-40 disabled:cursor-not-allowed ${filterMaxKm === opt.val
                                                 ? 'bg-[#14B8A6] text-white border-[#14B8A6]'
