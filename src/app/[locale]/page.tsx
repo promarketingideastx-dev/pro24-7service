@@ -1186,7 +1186,7 @@ export default function Home() {
                                             key={opt.val}
                                             disabled={!userSearchLocationGPS && opt.val > 0}
                                             onClick={() => setFilterMaxKm(opt.val)}
-                                            className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all disabled:opacity-40 disabled:cursor-not-allowed ${filterMaxKm === opt.val
+                                            className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${!userSearchLocationGPS && opt.val > 0 ? 'opacity-40 cursor-not-allowed bg-slate-50 text-slate-400 border-slate-200' : filterMaxKm === opt.val
                                                 ? 'bg-[#14B8A6] text-white border-[#14B8A6]'
                                                 : 'bg-white text-slate-700 border-slate-200 hover:border-[#14B8A6]/50'
                                                 }`}
