@@ -11,6 +11,7 @@ import { es, enUS, ptBR } from 'date-fns/locale';
 import { useAuth } from '@/context/AuthContext';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import { AuthRequiredModal } from '@/components/public/AuthRequiredModal';
 
 interface ReviewsTabProps {
     business: any;
@@ -28,6 +29,9 @@ export default function ReviewsTab({ business, onRatingUpdate }: ReviewsTabProps
     const [reviews, setReviews] = useState<Review[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Auth Required Modal State
+    const [authModalOpen, setAuthModalOpen] = useState(false);
 
     // Local state for immediate UI updates on new review
     const [rating, setRating] = useState(business.rating || 0);
@@ -51,11 +55,7 @@ export default function ReviewsTab({ business, onRatingUpdate }: ReviewsTabProps
 
     const handleWriteReview = () => {
         if (!user) {
-            toast(t('authRequired'), {
-                icon: '👋',
-                duration: 5000,
-                className: 'bg-teal-50 text-teal-900 border border-teal-200'
-            });
+            setAuthModalOpen(true);
             return;
         }
         setIsModalOpen(true);
@@ -175,6 +175,11 @@ export default function ReviewsTab({ business, onRatingUpdate }: ReviewsTabProps
                     ))
                 )}
             </div>
+
+            <AuthRequiredModal
+                isOpen={authModalOpen}
+                onClose={() => setAuthModalOpen(false)}
+            />
         </div>
     );
 }

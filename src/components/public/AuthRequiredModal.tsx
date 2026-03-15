@@ -15,7 +15,7 @@ interface AuthRequiredModalProps {
 }
 
 export function AuthRequiredModal({ isOpen, onClose, context = 'default' }: AuthRequiredModalProps) {
-    const t = useTranslations('publicProfile.authRequiredAction');
+    const t = useTranslations('business.publicProfile.authRequiredAction');
     const locale = useLocale();
     const [mounted, setMounted] = useState(false);
 
@@ -53,8 +53,8 @@ export function AuthRequiredModal({ isOpen, onClose, context = 'default' }: Auth
                 </button>
 
                 {/* Hero / Icon */}
-                <div className="bg-indigo-50/50 pt-8 pb-6 px-6 flex flex-col items-center justify-center text-center">
-                    <div className="w-16 h-16 bg-white shadow-sm border border-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 mb-4">
+                <div className="bg-gradient-to-br from-teal-50 to-slate-50 pt-8 pb-6 px-6 flex flex-col items-center justify-center text-center">
+                    <div className="w-16 h-16 bg-white shadow-sm border border-teal-100 rounded-2xl flex items-center justify-center text-[#14B8A6] mb-4">
                         <ShieldAlert className="w-8 h-8" />
                     </div>
                     <h3 className="text-xl font-bold text-slate-900">
@@ -71,14 +71,14 @@ export function AuthRequiredModal({ isOpen, onClose, context = 'default' }: Auth
                     <div className="flex flex-col gap-3">
                         <Link
                             href={`/${locale}/auth/register`}
-                            className="w-full bg-indigo-600 text-white font-medium py-3.5 rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"
+                            className="w-full bg-[#14B8A6] text-white font-bold py-3.5 rounded-xl hover:bg-[#0F9488] shadow-lg shadow-teal-500/20 active:scale-95 transition-all"
                             onClick={onClose}
                         >
                             {t('createAccount')}
                         </Link>
                         <Link
                             href={`/${locale}/auth/login`}
-                            className="w-full bg-slate-50 text-slate-700 font-medium py-3.5 rounded-xl hover:bg-slate-100 transition-colors border border-slate-200"
+                            className="w-full bg-slate-50 text-slate-700 font-bold py-3.5 rounded-xl hover:bg-slate-100 transition-colors border border-slate-200 active:scale-95"
                             onClick={onClose}
                         >
                             {t('login')}
