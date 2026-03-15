@@ -1,4 +1,13 @@
 {
+  "location": {
+    "modalTitle": "Permissão de Localização",
+    "modalDesc": "Use sua localização para ver distâncias exatas e filtrar negócios próximos.",
+    "deny": "Recusar",
+    "allow": "Permitir",
+    "unsupportedInfo": "Seu navegador não suporta geolocalização.",
+    "deniedInfo": "Permissão de localização negada. Habilite-a no seu navegador.",
+    "errorInfo": "Não foi possível obter a localização ou a permissão foi negada."
+  },
   "authGate": {
     "title": "Acesso ao Perfil",
     "desc": "Para ver a galeria completa, entrar em contato com {business} e ler as {reviews} avaliações verificadas, você precisa de uma conta.",
@@ -74,9 +83,11 @@
     "passwordMismatch": "As senhas não coincidem.",
     "passwordTooShort": "A senha deve ter pelo menos 6 caracteres.",
     "errorInvalidCredentials": "Credenciais incorretas. Tente novamente.",
+    "errorUserNotFound": "Usuário não encontrado.",
     "errorTooManyRequests": "Muitas tentativas. Tente mais tarde.",
     "errorGoogle": "Não foi possível entrar com o Google.",
     "errorEmailExists": "Este email já está cadastrado.",
+    "errorWeakPassword": "A senha é muito fraca.",
     "errorRegister": "Erro ao criar conta.",
     "showPassword": "Mostrar senha",
     "hidePassword": "Ocultar senha",
@@ -99,7 +110,25 @@
     "vipActivateBtn": "Ativar Conta VIP",
     "vipInvalidEmailOrCode": "Convite expirado ou inválido para este email.",
     "vipCodeInvalid": "Código VIP inválido ou já utilizado.",
-    "vipNoPreapprovedEmail": "Você não tem um email pré-aprovado. Insira um código VIP."
+    "vipNoPreapprovedEmail": "Você não tem um email pré-aprovado. Insira um código VIP.",
+    "action": {
+      "verifying": "Verificando link seguro...",
+      "invalidLinkTitle": "Link inválido ou expirado",
+      "invalidLinkDesc": "O link que você usou não é mais válido, expirou ou já foi usado. Por favor, solicite um novo.",
+      "requestNewLink": "Solicitar novo link",
+      "newPasswordTitle": "Criar nova senha",
+      "newPasswordDesc": "Seu link foi verificado. Por favor, digite sua nova senha segura.",
+      "newPasswordLabel": "Nova senha",
+      "newPasswordPlaceholder": "Mínimo 8 caracteres",
+      "confirmPasswordLabel": "Confirmar senha",
+      "confirmPasswordPlaceholder": "Repita sua senha",
+      "passwordMismatch": "As senhas não coincidem. Tente novamente.",
+      "passwordTooShort": "A senha deve ter pelo menos 8 caracteres.",
+      "updatePassword": "Atualizar senha",
+      "successTitle": "Senha atualizada!",
+      "successDesc": "Sua senha foi alterada com sucesso e segurança.",
+      "goToLogin": "Ir para o Login"
+    }
   },
   "onboarding": {
     "title": "Como você usa o Pro24/7YA?",
@@ -613,7 +642,18 @@
       "bankDetails": "Dados Bancários",
       "walletDetails": "Dados da Carteira",
       "requiresDeposit": "Exige adiantamento",
-      "authRequired": "Crie sua conta gratuita para entrar em contato com empresas, agendar consultas, salvar favoritos e deixar avaliações."
+      "authRequired": "Crie sua conta gratuita para entrar em contato com empresas, agendar consultas, salvar favoritos e deixar avaliações.",
+      "authRequiredAction": {
+        "titleDefault": "Acesso Necessário",
+        "titleContact": "Contato Seguro",
+        "titleBooking": "Agende seu Horário",
+        "descContact": "Para enviar uma mensagem ou ligar para este negócio, você precisa criar uma conta gratuita. Leva 30 segundos!",
+        "descBooking": "Crie uma conta gratuita para agendar consultas, gerenciar seu histórico e receber lembretes.",
+        "descDefault": "Para continuar com esta ação, faça login ou crie uma conta gratuita.",
+        "createAccount": "Criar Conta Grátis",
+        "login": "Já tenho conta",
+        "cancel": "Voltar"
+      }
     },
     "profile": {
       "title": "Editar Perfil do Negócio",
@@ -692,7 +732,8 @@
       "noPhotosYet": "Você ainda não enviou fotos para o seu portfólio.",
       "setAsCover": "Usar como Capa",
       "setAsLogo": "Usar como Logo",
-      "noDescription": "Sem descrição"
+      "noDescription": "Sem descrição",
+      "verifyLocationOnMap": "Por favor, reconfirme a localização exata no mapa antes de salvar."
     },
     "payments": {
       "title": "Configurações de Pagamento",

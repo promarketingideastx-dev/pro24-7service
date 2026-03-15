@@ -38,6 +38,7 @@ export default function BusinessProfilePage() {
     const [formData, setFormData] = useState<Partial<BusinessProfileData>>({});
     const [showMultiArea, setShowMultiArea] = useState(false);
     const [cropModal, setCropModal] = useState<{ src: string; file: File } | null>(null);
+    const [locationModified, setLocationModified] = useState(false); // Track if location fields were edited
 
     // Schedule API
     const [scheduleOpen, setScheduleOpen] = useState(false);
@@ -83,9 +84,12 @@ export default function BusinessProfilePage() {
 
         // [CRITICAL FIX] Strict Location Validation before save
         // In V2, we require at least an intent to confirm or strict backward compatible legacy if they didn't touch it.
-        if (!formData.department || !formData.city || !formData.address || !formData.lat || !formData.lng || (formData.locationV2 && !formData.locationV2.isConfirmed)) {
-            toast.error(t('verifyLocationOnMap') || "Por favor, re-confirme la ubicación exacta en el mapa antes de guardar.");
-            return;
+        // WE ONLY CHECK THIS IF THEY MODIFIED LOCATION FIELDS
+        if (locationModified) {
+            if (!formData.department || !formData.city || !formData.address || !formData.lat || !formData.lng || (formData.locationV2 && !formData.locationV2.isConfirmed)) {
+                toast.error(t('verifyLocationOnMap') || "Por favor, re-confirme la ubicación exacta en el mapa antes de guardar.");
+                return;
+            }
         }
 
         setSaving(true);
@@ -100,6 +104,7 @@ export default function BusinessProfilePage() {
             };
 
             await BusinessProfileService.updateProfile(user.uid, safeData);
+            setLocationModified(false); // Reset validation requirement on successful save
             toast.success(t('saved'));
         } catch (error) {
             console.error("Error updating", error);
@@ -444,6 +449,7 @@ export default function BusinessProfilePage() {
                                                                 address: ''
                                                             } : undefined
                                                         });
+                                                        setLocationModified(true); // Flag location as changed
                                                     }}
                                                     className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:border-brand-neon-cyan focus:outline-none"
                                                 >
@@ -456,7 +462,10 @@ export default function BusinessProfilePage() {
                                                 <input
                                                     type="text"
                                                     value={formData.department || ''}
-                                                    onChange={e => setFormData({ ...formData, department: e.target.value })}
+                                                    onChange={e => {
+                                                        setFormData({ ...formData, department: e.target.value });
+                                                        setLocationModified(true); // Flag location as changed
+                                                    }}
                                                     placeholder="Estado / Provincia"
                                                     className="w-full bg-[#F4F6F8] border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:border-brand-neon-cyan focus:outline-none"
                                                 />
@@ -475,7 +484,10 @@ export default function BusinessProfilePage() {
                                                         type="text"
                                                         value={formData.city || ''}
                                                         readOnly={!!hasPredefinedCities}
-                                                        onChange={e => !hasPredefinedCities && setFormData({ ...formData, city: e.target.value })}
+                                                        onChange={e => !hasPredefinedCities && (() => {
+                                                            setFormData({ ...formData, city: e.target.value });
+                                                            setLocationModified(true); // Flag location as changed
+                                                        })()}
                                                         className={`w-full bg-[#F4F6F8] rounded-lg px-4 py-3 focus:outline-none transition-colors
                                                 ${hasPredefinedCities
                                                                 ? 'border border-[#E6E8EC] text-slate-600 cursor-not-allowed opacity-80'
@@ -500,7 +512,10 @@ export default function BusinessProfilePage() {
                                         <label className="block text-slate-400 text-xs uppercase mb-1">{t('address')}</label>
                                         <SmartAddressInput
                                             value={formData.address || ''}
-                                            onChange={(addr) => setFormData(prev => ({ ...prev, address: addr }))}
+                                            onChange={(addr) => {
+                                                setFormData(prev => ({ ...prev, address: addr }));
+                                                setLocationModified(true); // Flag location as changed
+                                            }}
                                             placeholder="Ej: Pasaje Valle Local #50, Edificio Central"
                                         />
                                         <p className="text-xs text-slate-400 mt-1">Dirección física que verán tus clientes.</p>
@@ -544,6 +559,7 @@ export default function BusinessProfilePage() {
                                                         updatedAt: new Date()
                                                     }
                                                 }));
+                                                setLocationModified(true); // Flag location as changed
                                             }}
                                             initialAddress={formData.address || ''}
                                             initialLat={(formData as any).lat}

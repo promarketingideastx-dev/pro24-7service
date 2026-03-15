@@ -55,8 +55,10 @@ function LoginForm() {
             router.replace(target);
         } catch (err: any) {
             console.error(err);
-            if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+            if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
                 setError(t('errorInvalidCredentials'));
+            } else if (err.code === 'auth/user-not-found') {
+                setError(t('errorUserNotFound'));
             } else if (err.code === 'auth/too-many-requests') {
                 setError(t('errorTooManyRequests'));
             } else {

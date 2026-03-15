@@ -7,7 +7,7 @@ import OpeningHoursStatus from '@/components/business/public/OpeningHoursStatus'
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
-import { toast } from 'sonner';
+import { AuthRequiredModal, AuthRequiredContext } from '@/components/public/AuthRequiredModal';
 
 const MapWidget = dynamic(() => import('@/components/ui/MapWidget'), {
     ssr: false,
@@ -41,6 +41,10 @@ export default function DetailsTab({ business }: DetailsTabProps) {
     const t = useTranslations('business.publicProfile');
     const { user } = useAuth();
     const [isMapInteractive, setIsMapInteractive] = useState(false);
+
+    // --- Modal State for Curious Mode 2.0 ---
+    const [authModalOpen, setAuthModalOpen] = useState(false);
+    const [authModalContext, setAuthModalContext] = useState<AuthRequiredContext>('default');
 
     if (!business) return null;
 
@@ -169,11 +173,8 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                             onClick={(e) => {
                                                 if (!user) {
                                                     e.preventDefault();
-                                                    toast(t('authRequired'), {
-                                                        icon: '👋',
-                                                        duration: 5000,
-                                                        className: 'bg-teal-50 text-teal-900 border border-teal-200'
-                                                    });
+                                                    setAuthModalContext('contact');
+                                                    setAuthModalOpen(true);
                                                 } else {
                                                     window.open(`https://wa.me/${cleanPhone}`, '_blank');
                                                 }
@@ -188,11 +189,8 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                             onClick={(e) => {
                                                 if (!user) {
                                                     e.preventDefault();
-                                                    toast(t('authRequired'), {
-                                                        icon: '👋',
-                                                        duration: 5000,
-                                                        className: 'bg-teal-50 text-teal-900 border border-teal-200'
-                                                    });
+                                                    setAuthModalContext('contact');
+                                                    setAuthModalOpen(true);
                                                 } else {
                                                     window.open(`tel:${business.phone}`, '_self');
                                                 }
@@ -200,14 +198,13 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 hover:border-blue-500/50 text-blue-400 hover:text-blue-300 transition-all text-sm font-medium active:scale-95"
                                         >
                                             <Phone className="w-4 h-4" />
-                                            <span>{business.phone}</span>
+                                            <span>{user ? business.phone : '****-****'}</span>
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         );
                     })()}
-
 
                     {business.website && (
                         <div className="flex items-center gap-4">
@@ -220,11 +217,8 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                     onClick={(e) => {
                                         if (!user) {
                                             e.preventDefault();
-                                            toast(t('authRequired'), {
-                                                icon: '👋',
-                                                duration: 5000,
-                                                className: 'bg-teal-50 text-teal-900 border border-teal-200'
-                                            });
+                                            setAuthModalContext('default');
+                                            setAuthModalOpen(true);
                                         } else {
                                             window.open(!business.website.startsWith('http') ? `https://${business.website}` : business.website, '_blank');
                                         }
@@ -247,11 +241,8 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                         onClick={(e) => {
                                             if (!user) {
                                                 e.preventDefault();
-                                                toast(t('authRequired'), {
-                                                    icon: '👋',
-                                                    duration: 5000,
-                                                    className: 'bg-teal-50 text-teal-900 border border-teal-200'
-                                                });
+                                                setAuthModalContext('default');
+                                                setAuthModalOpen(true);
                                             } else {
                                                 window.open(normalizeUrl(social.instagram, 'https://instagram.com/'), '_blank');
                                             }
@@ -267,11 +258,8 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                         onClick={(e) => {
                                             if (!user) {
                                                 e.preventDefault();
-                                                toast(t('authRequired'), {
-                                                    icon: '👋',
-                                                    duration: 5000,
-                                                    className: 'bg-teal-50 text-teal-900 border border-teal-200'
-                                                });
+                                                setAuthModalContext('default');
+                                                setAuthModalOpen(true);
                                             } else {
                                                 window.open(normalizeUrl(social.facebook, 'https://facebook.com/'), '_blank');
                                             }
@@ -287,11 +275,8 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                         onClick={(e) => {
                                             if (!user) {
                                                 e.preventDefault();
-                                                toast(t('authRequired'), {
-                                                    icon: '👋',
-                                                    duration: 5000,
-                                                    className: 'bg-teal-50 text-teal-900 border border-teal-200'
-                                                });
+                                                setAuthModalContext('default');
+                                                setAuthModalOpen(true);
                                             } else {
                                                 window.open(normalizeUrl(social.tiktok, 'https://tiktok.com/@'), '_blank');
                                             }
@@ -378,6 +363,11 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                 <WeeklyScheduleView schedule={business.openingHours} />
             </div>
 
+            <AuthRequiredModal
+                isOpen={authModalOpen}
+                context={authModalContext}
+                onClose={() => setAuthModalOpen(false)}
+            />
         </div>
     );
 }

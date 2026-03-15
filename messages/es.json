@@ -1,4 +1,13 @@
 {
+  "location": {
+    "modalTitle": "Permiso de Ubicación",
+    "modalDesc": "Usa tu ubicación para ver distancias exactas y filtrar negocios cercanos.",
+    "deny": "Rechazar",
+    "allow": "Permitir",
+    "unsupportedInfo": "Tu navegador no soporta geolocalización.",
+    "deniedInfo": "Permiso de ubicación denegado. Habilítalo en tu navegador.",
+    "errorInfo": "No se pudo obtener la ubicación o se denegó el permiso."
+  },
   "authGate": {
     "title": "Acceso a Perfil",
     "desc": "Para ver la galería completa, contactar a {business} y leer sus {reviews} reseñas verificadas, necesitas una cuenta.",
@@ -324,10 +333,12 @@
     "passwordMismatch": "Las contraseñas no coinciden.",
     "passwordTooShort": "La contraseña debe tener al menos 6 caracteres.",
     "errorInvalidCredentials": "Credenciales incorrectas. Intenta de nuevo.",
+    "errorUserNotFound": "Usuario no encontrado.",
     "errorTooManyRequests": "Demasiados intentos. Intenta más tarde.",
     "errorGeneral": "Error al iniciar sesión. Verifica tu conexión.",
     "errorGoogle": "No se pudo iniciar sesión con Google.",
     "errorEmailExists": "Este email ya está registrado.",
+    "errorWeakPassword": "La contraseña es demasiado débil.",
     "errorRegister": "Error al crear cuenta.",
     "showPassword": "Mostrar contraseña",
     "hidePassword": "Ocultar contraseña",
@@ -350,7 +361,25 @@
     "vipActivateBtn": "Activar Cuenta VIP",
     "vipInvalidEmailOrCode": "Invitación expirada o inválida para este correo.",
     "vipCodeInvalid": "Código VIP inválido o ya utilizado.",
-    "vipNoPreapprovedEmail": "No tienes un correo preaprobado. Ingresa un código VIP."
+    "vipNoPreapprovedEmail": "No tienes un correo preaprobado. Ingresa un código VIP.",
+    "action": {
+      "verifying": "Verificando enlace seguro...",
+      "invalidLinkTitle": "Enlace inválido o expirado",
+      "invalidLinkDesc": "El enlace que utilizaste ya no es válido, ha caducado o ya fue utilizado. Por favor, solicita uno nuevo.",
+      "requestNewLink": "Solicitar nuevo enlace",
+      "newPasswordTitle": "Crear nueva contraseña",
+      "newPasswordDesc": "Tu enlace ha sido verificado. Por favor, ingresa tu nueva contraseña segura.",
+      "newPasswordLabel": "Nueva contraseña",
+      "newPasswordPlaceholder": "Mínimo 8 caracteres",
+      "confirmPasswordLabel": "Confirmar contraseña",
+      "confirmPasswordPlaceholder": "Repita tu contraseña",
+      "passwordMismatch": "Las contraseñas no coinciden. Intenta de nuevo.",
+      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres.",
+      "updatePassword": "Actualizar contraseña",
+      "successTitle": "¡Contraseña actualizada!",
+      "successDesc": "Tu contraseña ha sido cambiada de manera exitosa y segura.",
+      "goToLogin": "Ir a Iniciar Sesión"
+    }
   },
   "onboarding": {
     "title": "¿Cómo usas Pro24/7YA?",
@@ -616,7 +645,18 @@
       "bankDetails": "Datos bancarios",
       "walletDetails": "Datos de billetera",
       "requiresDeposit": "Requiere anticipo",
-      "authRequired": "Crea tu cuenta gratis para contactar negocios, agendar citas, guardar favoritos y dejar reseñas."
+      "authRequired": "Crea tu cuenta gratis para contactar negocios, agendar citas, guardar favoritos y dejar reseñas.",
+      "authRequiredAction": {
+        "titleDefault": "Acceso Requerido",
+        "titleContact": "Contacto Seguro",
+        "titleBooking": "Reserva tu Cita",
+        "descContact": "Para enviar un mensaje o llamar a este negocio, necesitas crear una cuenta gratuita. ¡Toma 30 segundos!",
+        "descBooking": "Crea una cuenta gratuita para agendar citas, gestionar tu historial y recibir recordatorios.",
+        "descDefault": "Para continuar con esta acción, por favor inicia sesión o crea una cuenta gratuita.",
+        "createAccount": "Crear Cuenta Gratis",
+        "login": "Ya tengo cuenta",
+        "cancel": "Volver"
+      }
     },
     "profile": {
       "title": "Editar Perfil de Negocio",
@@ -695,7 +735,8 @@
       "noPhotosYet": "Aún no has subido fotos a tu portafolio.",
       "setAsCover": "Usar como Portada",
       "setAsLogo": "Usar como Logo",
-      "noDescription": "Sin descripción"
+      "noDescription": "Sin descripción",
+      "verifyLocationOnMap": "Por favor, re-confirme la ubicación exacta en el mapa antes de guardar."
     },
     "payments": {
       "title": "Configuración de Pagos",

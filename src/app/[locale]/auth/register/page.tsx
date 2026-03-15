@@ -159,7 +159,7 @@ function RegisterForm() {
             } else if (err.code === 'auth/invalid-email') {
                 setError(t('errorEmailExists'));
             } else if (err.code === 'auth/weak-password') {
-                setError(t('passwordTooShort'));
+                setError(t('errorWeakPassword'));
             } else {
                 setError(t('errorRegister'));
             }

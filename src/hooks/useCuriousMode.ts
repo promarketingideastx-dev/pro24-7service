@@ -71,37 +71,26 @@ export function useCuriousMode(businessId: string | null, countryCode?: string) 
 
             let newlyVisited = false;
 
-            // If this business hasn't been visited yet, add it to array
-            if (!visitedBusinesses.includes(businessId)) {
+            // Evitar empujar IDs vacíos o nulos, y asegurar que son negocios ÚNICOS
+            if (businessId && businessId.trim() !== '' && !visitedBusinesses.includes(businessId)) {
                 visitedBusinesses.push(businessId);
                 localStorage.setItem(CURIOUS_STORAGE_KEY, JSON.stringify(visitedBusinesses));
                 newlyVisited = true;
             }
 
-            const currentTotalVisits = visitedBusinesses.length;
-            setVisits(currentTotalVisits > MAX_VISITS ? MAX_VISITS : currentTotalVisits);
+            // Filtrar preventivamente IDs vacíos que el localStorage pueda haber tragado
+            const currentTotalVisits = visitedBusinesses.filter(id => id && id.trim() !== '').length;
+            setVisits(currentTotalVisits);
 
-            // Check if blocked: if the array length strictly exceeds the maximum allowed views
-            if (currentTotalVisits > MAX_VISITS) {
-                setIsBlocked(true);
-                if (newlyVisited && !trackedRef.current['limit_reached_' + businessId]) {
-                    trackedRef.current['limit_reached_' + businessId] = true;
-                    AnalyticsService.track({
-                        type: 'curious_limit_reached',
-                        businessId: businessId,
-                        country: countryCode || 'Unknown'
-                    }).catch(() => { });
-                }
-            } else {
-                setIsBlocked(false);
-                if (newlyVisited && !trackedRef.current['viewed_' + businessId]) {
-                    trackedRef.current['viewed_' + businessId] = true;
-                    AnalyticsService.track({
-                        type: 'curious_business_viewed',
-                        businessId: businessId,
-                        country: countryCode || 'Unknown'
-                    }).catch(() => { });
-                }
+            // Curious Mode 2.0: Never block based on view count.
+            setIsBlocked(false);
+            if (newlyVisited && !trackedRef.current['viewed_' + businessId]) {
+                trackedRef.current['viewed_' + businessId] = true;
+                AnalyticsService.track({
+                    type: 'curious_business_viewed',
+                    businessId: businessId,
+                    country: countryCode || 'Unknown'
+                }).catch(() => { });
             }
         } catch (e) {
             console.error('LocalStorage error in Curious Mode:', e);

@@ -34,7 +34,7 @@ export default function UserLocationModal({ isOpen, onClose, onLocationGranted }
                 if (status.location !== 'granted') {
                     status = await Geolocation.requestPermissions();
                     if (status.location !== 'granted') {
-                        toast.error("Permiso denegado en el dispositivo.");
+                        toast.error(t('deniedInfo'));
                         setIsRequesting(false);
                         onClose();
                         return;
@@ -48,7 +48,7 @@ export default function UserLocationModal({ isOpen, onClose, onLocationGranted }
 
             // Web Fallback
             if (!navigator.geolocation) {
-                toast.error("Tu navegador no soporta geolocalización.");
+                toast.error(t('unsupportedInfo'));
                 setIsRequesting(false);
                 onClose();
                 return;
@@ -60,7 +60,7 @@ export default function UserLocationModal({ isOpen, onClose, onLocationGranted }
                 if (navigator.permissions && navigator.permissions.query) {
                     const perm = await navigator.permissions.query({ name: 'geolocation' });
                     if (perm.state === 'denied') {
-                        toast.error("Permiso de ubicación denegado. Habilítalo en tu navegador.");
+                        toast.error(t('deniedInfo'));
                         setIsRequesting(false);
                         onClose();
                         return;
@@ -83,9 +83,9 @@ export default function UserLocationModal({ isOpen, onClose, onLocationGranted }
                         // No lanzamos un toast rojo frustrante. Solo cerramos para que pueda reintentar de manera natural.
                         console.warn("Geolocation timeout. Suprimido banner rojo.");
                     } else if (err.code === err.PERMISSION_DENIED) {
-                        toast.error("Permiso de ubicación denegado. Habilítalo en tu navegador.");
+                        toast.error(t('deniedInfo'));
                     } else {
-                        toast.error("No se pudo obtener la ubicación.");
+                        toast.error(t('errorInfo'));
                     }
 
                     setIsRequesting(false);

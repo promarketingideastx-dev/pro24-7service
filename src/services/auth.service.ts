@@ -165,13 +165,14 @@ export const AuthService = {
                 clearCuriousModeStorage();
             } catch (e) { /* silent */ }
 
-            // Optionally clear storage manually to be absolutely certain
+            // Limpieza SELECTIVA (No global) para evitar sesiones fantasma
             if (typeof window !== 'undefined') {
-                localStorage.removeItem('pro247_auth_token'); // example if any
-            }
+                localStorage.removeItem('pro247_auth_token');
+                localStorage.removeItem('pro247_user_mode');
+                // Removemos cualquier otra llave inestable de auth si la hubiera.
+                // NO borrar consentimientos de cookies ni settings de idioma.
 
-            // Clear any stored redirect paths
-            if (typeof window !== 'undefined') {
+                // Clear any stored redirect paths or session country cache that could lock the user
                 sessionStorage.removeItem('auth_redirect_to');
             }
         } catch (error) {
@@ -182,7 +183,13 @@ export const AuthService = {
 
     async sendPasswordReset(email: string) {
         try {
-            await sendPasswordResetEmail(auth, email);
+            const isProd = typeof window !== 'undefined' && window.location.hostname === 'www.pro247ya.com';
+            const baseUrl = isProd ? 'https://www.pro247ya.com' : (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+
+            await sendPasswordResetEmail(auth, email, {
+                url: `${baseUrl}/es/auth/action`, // Enforces app routing rather than Firebase defaults
+                handleCodeInApp: false
+            });
         } catch (error) {
             console.error('Error sending password reset:', error);
             throw error;

@@ -132,21 +132,10 @@ function BusinessProfileContent() {
         return <div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center text-slate-600">Negocio no encontrado</div>;
     }
 
-    // 3. Curious Mode Check (Block after 5th visit if no account)
+    // 3. Curious Mode Analytics (No longer blocks access)
     // Prevent FOUC: wait until localStorage is read before rendering public data
     if (!isInitialized) {
         return <div className="min-h-screen bg-[#F4F6F8]"></div>;
-    }
-
-    if (isBlocked) {
-        return (
-            <div className="min-h-screen bg-[#F4F6F8] relative overflow-hidden">
-                {/* Fake skeleton bg to make it look like they loaded the app before the modal drops */}
-                <div className="w-full h-64 bg-slate-200 animate-pulse"></div>
-                <div className="absolute top-48 inset-x-0 h-96 bg-white rounded-t-3xl"></div>
-                <CuriousModeModal />
-            </div>
-        );
     }
 
     // 4. Unified "Mini-App" View for ALL users (Guest & Logged In)
@@ -156,20 +145,8 @@ function BusinessProfileContent() {
     const effectivePlan = PlanService.getEffectivePlan(displayData || {});
     const showTeamTab = PlanService.canUseTeam(effectivePlan);
 
-    const isCuriousActive = !user && isInitialized && !isBlocked && visits > 0;
-
     return (
         <>
-            {isCuriousActive && (
-                <div className="fixed bottom-0 inset-x-0 z-[90] bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-4 flex items-center justify-between shadow-[0_-4px_20px_rgba(37,99,235,0.2)] md:justify-center md:gap-8 animate-in slide-in-from-bottom border-t border-white/10">
-                    <span className="text-sm font-medium">
-                        {tCurious('bannerText', { current: visits, max: maxVisits })}
-                    </span>
-                    <Link href={`/${locale}/auth/register`} className="bg-white text-indigo-600 shadow-sm text-xs font-bold px-4 py-2 rounded-xl hover:bg-slate-50 transition-colors whitespace-nowrap hidden sm:inline-flex">
-                        {tCurious('bannerAction')}
-                    </Link>
-                </div>
-            )}
             <BusinessProfileLayout
                 business={displayData}
                 activeTab={activeTab}

@@ -160,19 +160,39 @@ export default function Home() {
     // Derived State: Intelligent Search Logic
     const [suggestion, setSuggestion] = useState<string | null>(null);
 
-    // Option A: Determine if user is exploring locally (within 2000km of the country's center)
+    // Option A: Determine if user is exploring locally
     const isLocalContext = useMemo(() => {
         if (!userSearchLocationGPS || !selectedCountry) return false;
+
+        const lat = Number(userSearchLocationGPS.lat);
+        const lng = Number(userSearchLocationGPS.lng);
+        const code = selectedCountry.code;
+
+        // Rough bounding boxes for large countries to avoid >2000km centroid failure
+        if (code === 'US') return lat > 24 && lat < 72 && lng > -180 && lng < -65;
+        if (code === 'CA') return lat > 41 && lat < 84 && lng > -141 && lng < -52;
+        if (code === 'MX') return lat > 14 && lat < 33 && lng > -119 && lng < -86;
+        if (code === 'BR') return lat > -34 && lat < 6 && lng > -74 && lng < -34;
+        if (code === 'AR') return lat > -56 && lat < -21 && lng > -74 && lng < -53;
+        if (code === 'CL') return lat > -56 && lat < -17 && lng > -76 && lng < -66;
+        if (code === 'CO') return lat > -5 && lat < 14 && lng > -80 && lng < -66;
+        if (code === 'PE') return lat > -19 && lat < 0 && lng > -82 && lng < -68;
+
+        // Fallback for smaller/central american countries: 1500km from center is very generous
         const distToCenter = haversineKm(
-            Number(userSearchLocationGPS.lat),
-            Number(userSearchLocationGPS.lng),
+            lat, lng,
             Number(selectedCountry.coordinates.lat),
             Number(selectedCountry.coordinates.lng)
         );
-        // If GPS is within 2000 km of the center of the country, we consider it local enough.
-        // If they are searching Honduras from USA, it will be > 3000 km.
-        return distToCenter < 2000;
+        return distToCenter < 1500;
     }, [userSearchLocationGPS, selectedCountry]);
+
+    // Phase 6 UX Fix: Auto-snap to 25km on first location grant if in local context
+    useEffect(() => {
+        if (userSearchLocationGPS && isLocalContext && filterMaxKm === 0) {
+            setFilterMaxKm(25);
+        }
+    }, [userSearchLocationGPS, isLocalContext]); // Intentional: Do not include filterMaxKm to avoid re-triggering if user manually sets it back to 0 later in the same session.
 
     const filteredBusinesses = businesses.filter(b => {
         // 0. Filter by Country Code (Strict)

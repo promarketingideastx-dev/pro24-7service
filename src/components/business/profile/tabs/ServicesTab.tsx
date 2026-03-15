@@ -5,7 +5,7 @@ import { Camera, ChevronLeft, ChevronRight, Star, Zap } from 'lucide-react';
 import { ServicesService, getServiceName } from '@/services/businessProfile.service';
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
-import { toast } from 'sonner';
+import { AuthRequiredModal, AuthRequiredContext } from '@/components/public/AuthRequiredModal';
 
 interface ServicesTabProps {
     businessId: string;
@@ -95,6 +95,10 @@ export default function ServicesTab({ businessId, services: initialServices, onB
     const [services, setServices] = useState<any[]>(initialServices || []);
     const [loading, setLoading] = useState(!initialServices);
 
+    // --- Modal State for Curious Mode 2.0 ---
+    const [authModalOpen, setAuthModalOpen] = useState(false);
+    const [authModalContext, setAuthModalContext] = useState<AuthRequiredContext>('default');
+
     useEffect(() => {
         if (!initialServices) {
             const fetchServices = async () => {
@@ -167,11 +171,8 @@ export default function ServicesTab({ businessId, services: initialServices, onB
                         onClick={(e) => {
                             if (!user) {
                                 e.preventDefault();
-                                toast(t('authRequired'), {
-                                    icon: '👋',
-                                    duration: 5000,
-                                    className: 'bg-teal-50 text-teal-900 border border-teal-200'
-                                });
+                                setAuthModalContext('booking');
+                                setAuthModalOpen(true);
                                 return;
                             }
                             onBook(service);
@@ -225,6 +226,12 @@ export default function ServicesTab({ businessId, services: initialServices, onB
                     </div>
                 );
             })}
+
+            <AuthRequiredModal
+                isOpen={authModalOpen}
+                context={authModalContext}
+                onClose={() => setAuthModalOpen(false)}
+            />
         </div>
     );
 }

@@ -1,4 +1,13 @@
 {
+  "location": {
+    "modalTitle": "Location Permission",
+    "modalDesc": "Use your location to see exact distances and filter nearby businesses.",
+    "deny": "Deny",
+    "allow": "Allow",
+    "unsupportedInfo": "Your browser does not support geolocation.",
+    "deniedInfo": "Location permission denied. Enable it in your browser.",
+    "errorInfo": "Could not get location or permission was denied."
+  },
   "authGate": {
     "title": "Profile Access",
     "desc": "To view the full gallery, contact {business}, and read their {reviews} verified reviews, you need an account.",
@@ -74,10 +83,12 @@
     "passwordMismatch": "Passwords do not match.",
     "passwordTooShort": "Password must be at least 6 characters.",
     "errorInvalidCredentials": "Incorrect credentials. Please try again.",
+    "errorUserNotFound": "User not found.",
     "errorTooManyRequests": "Too many attempts. Please try later.",
     "errorGeneral": "Error signing in. Check your connection.",
     "errorGoogle": "Could not sign in with Google.",
     "errorEmailExists": "This email is already registered.",
+    "errorWeakPassword": "The password is too weak.",
     "errorRegister": "Error creating account.",
     "vipSubmit": "Activate VIP Account",
     "showPassword": "Show password",
@@ -101,7 +112,25 @@
     "vipActivateBtn": "Activate VIP Account",
     "vipInvalidEmailOrCode": "Invitation expired or invalid for this email.",
     "vipCodeInvalid": "Invalid or already used VIP code.",
-    "vipNoPreapprovedEmail": "You don't have a pre-approved email. Enter a VIP code."
+    "vipNoPreapprovedEmail": "You don't have a pre-approved email. Enter a VIP code.",
+    "action": {
+      "verifying": "Verifying secure link...",
+      "invalidLinkTitle": "Invalid or expired link",
+      "invalidLinkDesc": "The link you used is no longer valid, has expired, or has already been used. Please request a new one.",
+      "requestNewLink": "Request new link",
+      "newPasswordTitle": "Create new password",
+      "newPasswordDesc": "Your link has been verified. Please enter your new secure password.",
+      "newPasswordLabel": "New password",
+      "newPasswordPlaceholder": "Minimum 8 characters",
+      "confirmPasswordLabel": "Confirm password",
+      "confirmPasswordPlaceholder": "Repeat your password",
+      "passwordMismatch": "Passwords do not match. Try again.",
+      "passwordTooShort": "Password must be at least 8 characters long.",
+      "updatePassword": "Update password",
+      "successTitle": "Password updated!",
+      "successDesc": "Your password has been changed successfully and securely.",
+      "goToLogin": "Go to Login"
+    }
   },
   "onboarding": {
     "title": "How do you use Pro24/7YA?",
@@ -615,7 +644,18 @@
       "bankDetails": "Bank Details",
       "walletDetails": "Wallet Details",
       "requiresDeposit": "Requires deposit",
-      "authRequired": "Create your free account to contact businesses, book appointments, save favorites, and leave reviews."
+      "authRequired": "Create your free account to contact businesses, book appointments, save favorites, and leave reviews.",
+      "authRequiredAction": {
+        "titleDefault": "Access Required",
+        "titleContact": "Secure Contact",
+        "titleBooking": "Book your Appointment",
+        "descContact": "To send a message or call this business, you need to create a free account. It takes 30 seconds!",
+        "descBooking": "Create a free account to book appointments, manage your history, and receive reminders.",
+        "descDefault": "To continue with this action, please log in or create a free account.",
+        "createAccount": "Create Free Account",
+        "login": "I already have an account",
+        "cancel": "Go back"
+      }
     },
     "profile": {
       "title": "Edit Business Profile",
@@ -694,7 +734,8 @@
       "noPhotosYet": "You haven't uploaded any photos to your portfolio yet.",
       "setAsCover": "Set as Cover",
       "setAsLogo": "Set as Logo",
-      "noDescription": "No description"
+      "noDescription": "No description",
+      "verifyLocationOnMap": "Please re-confirm the exact location on the map before saving."
     },
     "payments": {
       "title": "Payment Settings",

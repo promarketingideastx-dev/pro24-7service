@@ -10,6 +10,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { TAXONOMY } from '@/lib/taxonomy';
 import dynamic from 'next/dynamic';
 import { Share } from '@capacitor/share';
+import { AuthRequiredModal, AuthRequiredContext } from '@/components/public/AuthRequiredModal';
 
 interface ProfileLayoutProps {
     business: any;
@@ -33,6 +34,10 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     const [contentScrolled, setContentScrolled] = useState(false);
     const contentRef = useRef<HTMLDivElement>(null);
 
+    // --- Modal State for Curious Mode 2.0 ---
+    const [authModalOpen, setAuthModalOpen] = useState(false);
+    const [authModalContext, setAuthModalContext] = useState<AuthRequiredContext>('default');
+
     // ─── Favorites: load from Firestore (if logged in) or localStorage ────
     const favKey = 'pro247_favorites';
 
@@ -54,13 +59,10 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
         loadFav();
     }, [user, business?.id]);
 
-    function handleRestrictedAction(e?: React.MouseEvent) {
+    function handleRestrictedAction(e?: React.MouseEvent, context: AuthRequiredContext = 'default') {
         if (e) e.preventDefault();
-        toast(t('authRequired'), {
-            icon: '👋',
-            duration: 5000,
-            className: 'bg-teal-50 text-teal-900 border border-teal-200'
-        });
+        setAuthModalContext(context);
+        setAuthModalOpen(true);
     }
 
     const handleFavorite = async () => {
@@ -157,12 +159,12 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
 
 
     const handleBookClick = (e: React.MouseEvent) => {
-        if (!user) return handleRestrictedAction(e);
+        if (!user && !isOwner) return handleRestrictedAction(e, 'booking');
         onBookClick();
     };
 
     const handleWhatsApp = () => {
-        if (!user) return handleRestrictedAction();
+        if (!user && !isOwner) return handleRestrictedAction(undefined, 'contact');
         if (business.phone) {
             const phone = business.phone.replace(/\D/g, ''); // Remove non-digits
             window.open(`https://wa.me/${phone}`, '_blank');
@@ -170,7 +172,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     };
 
     const handleCall = () => {
-        if (!user) return handleRestrictedAction();
+        if (!user && !isOwner) return handleRestrictedAction(undefined, 'contact');
         if (business.phone) {
             window.open(`tel:${business.phone}`, '_self');
         }
@@ -369,6 +371,11 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                 </div>
             )}
 
+            <AuthRequiredModal
+                isOpen={authModalOpen}
+                context={authModalContext}
+                onClose={() => setAuthModalOpen(false)}
+            />
             {/* Chat Modal removed */}
         </main>
     );
