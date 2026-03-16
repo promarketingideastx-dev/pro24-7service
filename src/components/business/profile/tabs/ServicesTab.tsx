@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { Camera, ChevronLeft, ChevronRight, Star, Zap } from 'lucide-react';
-import { ServicesService, getServiceName } from '@/services/businessProfile.service';
+import { AlignLeft, Camera, ChevronLeft, ChevronRight, Star, Zap } from 'lucide-react';
+import { ServicesService, ServiceData, getServiceName } from '@/services/businessProfile.service';
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { AuthRequiredModal, AuthRequiredContext } from '@/components/public/AuthRequiredModal';
@@ -205,6 +205,11 @@ export default function ServicesTab({ businessId, services: initialServices, onB
                                 <p className="text-slate-500 text-sm line-clamp-2">
                                     {service.description || t('noDescription')}
                                 </p>
+                                {service.notes && (
+                                    <p className="text-[#14B8A6] text-[11px] font-medium mt-1 truncate flex items-center gap-1" title={service.notes}>
+                                        <AlignLeft className="w-3 h-3 shrink-0" /> {service.notes}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="flex items-center justify-between">

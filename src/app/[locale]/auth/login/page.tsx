@@ -30,12 +30,21 @@ function LoginForm() {
         if (!authLoading && user) {
             const redirect = (path: string) => { setTimeout(() => router.replace(path), 0); };
             const stored = sessionStorage.getItem('auth_redirect_to');
+            const intent = searchParams.get('intent');
+            const userMode = sessionStorage.getItem('pro247_user_mode') || undefined;
+
             if (stored) {
                 sessionStorage.removeItem('auth_redirect_to');
                 redirect(stored);
             } else {
                 const hasLocalePrefix = LOCALE_PREFIXES.some(p => returnTo.startsWith(p));
-                const target = returnTo && returnTo !== '/' && !hasLocalePrefix ? lp(returnTo) : returnTo || lp('/');
+                let target = returnTo && returnTo !== '/' && !hasLocalePrefix ? lp(returnTo) : returnTo || lp('/');
+
+                // Override fallback root direction if business intent is present
+                if ((intent === 'business' || userMode === 'business') && (target === '/' || target === lp('/'))) {
+                    target = lp('/business/setup');
+                }
+
                 redirect(target);
             }
         }
@@ -49,9 +58,15 @@ function LoginForm() {
         try {
             await AuthService.loginWithEmail(email, password);
             const hasLocalePrefix = LOCALE_PREFIXES.some(p => returnTo.startsWith(p));
-            const target = returnTo && returnTo !== '/' && !hasLocalePrefix
+            const intent = searchParams.get('intent');
+            let target = returnTo && returnTo !== '/' && !hasLocalePrefix
                 ? lp(returnTo)
                 : returnTo || lp('/');
+
+            if ((intent === 'business') && (target === '/' || target === lp('/'))) {
+                target = lp('/business/setup');
+            }
+
             router.replace(target);
         } catch (err: any) {
             console.error(err);

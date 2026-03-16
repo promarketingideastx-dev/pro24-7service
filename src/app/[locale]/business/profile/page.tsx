@@ -23,7 +23,6 @@ import SpecialtyPicker from '@/components/business/SpecialtyPicker';
 import { getCountryConfig } from '@/lib/locations';
 import { PlacesLocationPicker, LocationResult } from '@/components/business/setup/PlacesLocationPicker';
 import ImageCropModal from '@/components/ui/ImageCropModal';
-import SmartAddressInput from '@/components/ui/SmartAddressInput';
 
 export default function BusinessProfilePage() {
     const { user, userProfile } = useAuth();
@@ -83,10 +82,10 @@ export default function BusinessProfilePage() {
         if (!user) return;
 
         // [CRITICAL FIX] Strict Location Validation before save
-        // In V2, we require at least an intent to confirm or strict backward compatible legacy if they didn't touch it.
-        // WE ONLY CHECK THIS IF THEY MODIFIED LOCATION FIELDS
+        // In the new architecture, lat/lng MUST exist and come from the map.
+        // We check this if the user modified location fields to prevent saving bad data.
         if (locationModified) {
-            if (!formData.department || !formData.city || !formData.address || !formData.lat || !formData.lng || (formData.locationV2 && !formData.locationV2.isConfirmed)) {
+            if (!formData.department || !formData.city || !formData.address || !formData.lat || !formData.lng) {
                 toast.error(t('verifyLocationOnMap') || "Por favor, re-confirme la ubicación exacta en el mapa antes de guardar.");
                 return;
             }
@@ -94,13 +93,15 @@ export default function BusinessProfilePage() {
 
         setSaving(true);
         try {
-            const { images, ...dataToSave } = formData;
+            const dataToSave = { ...formData };
+            if (dataToSave.images && dataToSave.coverImage && !dataToSave.images.includes(dataToSave.coverImage)) {
+                dataToSave.images = [dataToSave.coverImage, ...dataToSave.images.filter((img: string) => img !== dataToSave.coverImage)].slice(0, 10);
+            }
 
             // Country is always locked to the Business profile — never editable from profile nor overridden by context
             const safeData = {
                 ...dataToSave,
-                country: formData.country || 'HN',
-                locationV2: formData.locationV2 // V2 PARALLEL LAYER
+                country: formData.country || 'HN'
             };
 
             await BusinessProfileService.updateProfile(user.uid, safeData);
@@ -143,19 +144,19 @@ export default function BusinessProfilePage() {
 
     const handleCropComplete = useCallback(async (croppedBlob: Blob) => {
         if (!user || !cropModal) return;
-        setCropModal(null);
         setUploadingImage('cover');
         try {
             const croppedFile = new File([croppedBlob], cropModal.file.name, { type: 'image/jpeg' });
             const url = await StorageService.uploadBusinessImage(user.uid, croppedFile);
             setFormData(prev => ({ ...prev, coverImage: url }));
-            URL.revokeObjectURL(cropModal.src);
             toast.success(t('imageUploaded'));
         } catch (error) {
             console.error('Error uploading cropped image:', error);
             toast.error(t('imageError'));
         } finally {
+            setCropModal(null);
             setUploadingImage(null);
+            URL.revokeObjectURL(cropModal.src);
         }
     }, [user, cropModal, t]);
 
@@ -437,17 +438,8 @@ export default function BusinessProfilePage() {
                                                             department: newDepartment,
                                                             // [CRITICAL FIX] Auto-assign default city of the new department to avoid floating desynced cities
                                                             city: selectedRegion?.cities?.[0] || '',
-                                                            lat: undefined,
-                                                            lng: undefined,
-                                                            address: '', // Limpia dirección manual por cambio de contexto mayor
-                                                            // [FIX] Destruir por completo la memoria de las viejas coordenadas en V2
-                                                            locationV2: formData.locationV2 ? {
-                                                                ...formData.locationV2,
-                                                                isConfirmed: false,
-                                                                lat: undefined as any,
-                                                                lng: undefined as any,
-                                                                address: ''
-                                                            } : undefined
+                                                            // We no longer destroy coordinates aggressively, we just mark as modified.
+                                                            // If they hit save, the map pin acts as the truth. If it looks wrong, they are prompted to check the map.
                                                         });
                                                         setLocationModified(true); // Flag location as changed
                                                     }}
@@ -507,18 +499,9 @@ export default function BusinessProfilePage() {
                                         </div>
                                     </div>
 
-                                    {/* Physical address — editable text, independent of GPS picker */}
-                                    <div>
-                                        <label className="block text-slate-400 text-xs uppercase mb-1">{t('address')}</label>
-                                        <SmartAddressInput
-                                            value={formData.address || ''}
-                                            onChange={(addr) => {
-                                                setFormData(prev => ({ ...prev, address: addr }));
-                                                setLocationModified(true); // Flag location as changed
-                                            }}
-                                            placeholder="Ej: Pasaje Valle Local #50, Edificio Central"
-                                        />
-                                        <p className="text-xs text-slate-400 mt-1">Dirección física que verán tus clientes.</p>
+                                    {/* Physical address is now entirely managed by PlacesLocationPicker to avoid desyncs */}
+                                    <div className="hidden">
+                                        {/* Fallback hidden to maintain dom expectations if needed */}
                                     </div>
 
                                     {/* Google Places Picker — only updates GPS pin */}
@@ -535,29 +518,15 @@ export default function BusinessProfilePage() {
                                             onLocationSelect={(result: LocationResult) => {
                                                 setFormData(prev => ({
                                                     ...prev,
-                                                    // [CRITICAL FIX] Trust the map unconditionally over the old manual memory. Map selection replaces previous.
+                                                    // [CRITICAL FIX] Trust the map unconditionally. Map selection replaces ALL previous location fields.
                                                     lat: result.lat,
                                                     lng: result.lng,
                                                     placeId: result.placeId,
                                                     googleMapsUrl: result.googleMapsUrl,
                                                     city: result.city || prev.city,
                                                     department: result.department || prev.department,
-                                                    // [FIX] Confiar ciegamente en la dirección formateada retornada por el picker.
-                                                    // El picker ya se encarga de proteger el texto manual en dragend (FASE 4).
-                                                    address: result.formattedAddress,
-                                                    locationV2: {
-                                                        country: result.country || prev.country || '',
-                                                        department: result.department || prev.department || '',
-                                                        city: result.city || prev.city || '',
-                                                        address: result.formattedAddress,
-                                                        lat: result.lat,
-                                                        lng: result.lng,
-                                                        placeId: result.placeId,
-                                                        googleMapsUrl: result.googleMapsUrl,
-                                                        source: result.source,
-                                                        isConfirmed: result.isConfirmed,
-                                                        updatedAt: new Date()
-                                                    }
+                                                    country: result.country || prev.country || 'HN',
+                                                    address: result.formattedAddress
                                                 }));
                                                 setLocationModified(true); // Flag location as changed
                                             }}

@@ -67,7 +67,7 @@ export default function ImageCropModal({ imageSrc, aspectRatio = 16 / 9, freeCro
         setProcessing(true);
         try {
             const blob = await getCroppedImg(imageSrc, croppedAreaPixels);
-            onComplete(blob);
+            await onComplete(blob);
         } catch (e) {
             console.error('Crop error:', e);
         } finally {

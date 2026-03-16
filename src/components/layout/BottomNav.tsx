@@ -13,11 +13,11 @@ export function BottomNav() {
     const lp = (path: string) => `/${locale}${path}`;
 
     // Hide on wizard pages or specific flows if needed
-    if (pathname?.includes('/negocio/nuevo')) return null;
+    if (pathname?.includes('/business/setup')) return null;
 
     const navItems = [
         { name: 'Inicio', icon: Home, href: lp('/') },
-        { name: 'Publicar', icon: PlusCircle, href: lp('/negocio/nuevo'), isFab: true },
+        { name: 'Publicar', icon: PlusCircle, href: lp('/business/setup'), isFab: true },
         { name: 'Agenda', icon: Calendar, href: lp('/user/profile') },
         { name: 'Perfil', icon: User, href: lp('/user/profile') },
     ];

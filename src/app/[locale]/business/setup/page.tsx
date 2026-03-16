@@ -204,16 +204,14 @@ export default function BusinessSetupPage() {
                 specialties: Object.values(formData.specialtiesBySubcategory || {}).flat(),
                 additionalCategories: formData.additionalCategories || [],
                 modality: formData.modality as any || 'local',
-                address: formData.address,
-                city: formData.city,
+                address: formData.address || '',
+                city: formData.city || '',
                 department: formData.department!, // Pass department
-                country: formData.country,
-                // Exact GPS coordinates from Google Places picker
-                lat: formData.lat,
-                lng: formData.lng,
+                country: formData.country || 'HN',
+                lat: formData.lat || 15.199999, // default if undefined
+                lng: formData.lng || -86.241905, // Honduras center fallback
                 placeId: formData.placeId,
                 googleMapsUrl: formData.googleMapsUrl,
-                locationV2: formData.locationV2,
                 coverImage: formData.coverImage,
                 images: galleryItems.map(item => item.url) || [], // Sync URLs
                 logoUrl: formData.logoUrl,
@@ -453,21 +451,6 @@ export default function BusinessSetupPage() {
                                         city: result.city || prev.city || '',
                                         department: result.department || prev.department || '',
                                         country: prev.country || result.country || 'HN',
-                                        locationV2: {
-                                            country: result.country || prev.country || '',
-                                            department: result.department || prev.department || '',
-                                            city: result.city || prev.city || '',
-                                            address: result.formattedAddress,
-                                            displayAddress: result.displayAddress || result.formattedAddress,
-                                            plusCode: result.plusCode || '',
-                                            lat: result.lat,
-                                            lng: result.lng,
-                                            placeId: result.placeId,
-                                            googleMapsUrl: result.googleMapsUrl,
-                                            source: result.source,
-                                            isConfirmed: result.isConfirmed,
-                                            updatedAt: new Date()
-                                        }
                                     }));
                                 }}
                                 initialAddress={formData.address}
@@ -646,7 +629,11 @@ export default function BusinessSetupPage() {
                                                                 subcategories: [...currentSubs, sub.id]
                                                             });
                                                         } else {
-                                                            toast.error("Máximo 3 especialidades principales permitidas.");
+                                                            toast("Límite de especialidades alcanzado", {
+                                                                description: "Solo puedes seleccionar hasta 3 especialidades principales.",
+                                                                icon: 'ℹ️',
+                                                                style: { background: '#F0FDF4', color: '#166534', border: '1px solid #BBF7D0' }
+                                                            });
                                                         }
                                                     }
                                                 }}

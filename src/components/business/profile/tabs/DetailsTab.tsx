@@ -113,6 +113,11 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                     description: business.description || '',
                                     countryCode: business.country || 'HN'
                                 }]}
+                                countryCoordinates={{
+                                    lat: business.locationV2?.lat || business.location?.lat || business.lat || 15.50417,
+                                    lng: business.locationV2?.lng || business.location?.lng || business.lng || -88.02500,
+                                    zoom: 15
+                                }}
                             />
                         </div>
                     </div>

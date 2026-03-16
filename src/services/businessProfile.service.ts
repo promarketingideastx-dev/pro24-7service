@@ -93,21 +93,7 @@ async function geocodeAddress(
     return fallback;
 }
 
-export interface BusinessLocationV2 {
-    country: string;
-    department: string;
-    city: string;
-    address: string;
-    displayAddress?: string;
-    plusCode?: string;
-    lat: number;
-    lng: number;
-    placeId?: string;
-    googleMapsUrl?: string;
-    source: 'google' | 'manual' | 'legacy';
-    isConfirmed: boolean;
-    updatedAt: any;
-}
+// REMOVED BusinessLocationV2. The location structure is unified in BusinessProfileData.
 
 export interface BusinessProfileData {
     businessName: string;
@@ -124,17 +110,15 @@ export interface BusinessProfileData {
     additionalCategories?: string[];
     additionalSpecialties?: string[];
     modality: 'home' | 'local' | 'both';
-    address?: string;
-    city?: string;
-    department: string;
-    country?: string;
-    // Exact GPS coordinates from Google Places (optional — falls back to Nominatim geocoding)
-    lat?: number;
-    lng?: number;
+    // NEW UNIFIED LOCATION - Strict Google Places Source
+    address: string;
+    city: string;
+    department: string; // Region
+    country: string;
+    lat: number;
+    lng: number;
     placeId?: string;           // Google Place ID for navigation link
     googleMapsUrl?: string;      // Direct "Cómo llegar" URL
-    // NEW LOCATION V2
-    locationV2?: BusinessLocationV2;
     images: string[];
     coverImage?: string;
     logoUrl?: string;
@@ -158,7 +142,8 @@ export interface ServiceData {
     nameI18n?: { es: string; en: string; pt: string }; // Multi-language names
     description?: string;
     price: number;
-    durationMinutes: number;   // Duration in minutes (required for scheduling)
+    durationMinutes?: number;  // Deprecated: Migrating to notes
+    notes?: string;            // Service Notes (max 250 chars)
     currency: string;
     category?: string;         // Tied to business specialty
     isExtra?: boolean;         // Add-on service (optional when booking)
@@ -459,18 +444,15 @@ export const BusinessProfileService = {
                 : (data.specialties || []);
 
             // 2. Prepare location official structure
-            let baseCoords: { lat: number; lng: number };
-            if (data.lat && data.lng) {
-                baseCoords = { lat: data.lat, lng: data.lng };
-            } else {
-                baseCoords = await geocodeAddress(data.city, data.department, data.country, data.address);
-            }
-
+            // In the new architecture, lat/lng/address MUST be provided by PlacesLocationPicker beforehand.
             const officialLocation = {
+                placeId: data.placeId || null,
+                lat: data.lat || COUNTRY_COORDS[(data.country || 'HN').toUpperCase()].lat,
+                lng: data.lng || COUNTRY_COORDS[(data.country || 'HN').toUpperCase()].lng,
                 address: data.address || '',
-                lat: baseCoords.lat,
-                lng: baseCoords.lng,
-                placeId: data.placeId || null
+                city: data.city || '',
+                region: data.department || '',
+                country: data.country || 'HN'
             };
 
             // 3. Fetch user profile to verify VIP status and basic info
@@ -500,29 +482,17 @@ export const BusinessProfileService = {
                 specialtiesBySubcategory: data.specialtiesBySubcategory || {},
                 additionalCategories: data.additionalCategories || [],
                 additionalSpecialties: data.additionalSpecialties || [],
+                // --- NUEVA ESTRUCTURA OFICIAL ESTRICTA ---
+                location: officialLocation,
+                address: data.address || '',
                 city: data.city || '',
                 department: data.department || '',
-                address: data.address || '',
                 country: data.country || 'HN',
-                tags: allTags,
-                rating: 0,
-                reviewCount: 0,
-                coverImage: data.coverImage || data.images[0] || null,
-                logoUrl: data.logoUrl || null,
-                shortDescription: data.description.substring(0, 150),
-                website: data.website || '',
-                phone: data.phone || '',
-                socialMedia: data.socialMedia || { instagram: '', facebook: '', tiktok: '' },
-
-                // --- NUEVA ESTRUCTURA OFICIAL ---
-                location: officialLocation,
-                locationV2: data.locationV2 || null, // LOCATION V2 PARALLEL LAYER
-
-                // --- LEGACY FALLBACKS (Mantenidos por compatibilidad) ---
-                lat: baseCoords.lat,
-                lng: baseCoords.lng,
+                lat: officialLocation.lat,
+                lng: officialLocation.lng,
                 placeId: data.placeId || null,
                 googleMapsUrl: data.googleMapsUrl || null,
+
                 modality: data.modality,
                 status: 'active',
                 openingHours: data.openingHours || null,
@@ -737,11 +707,11 @@ export const BusinessProfileService = {
                 additionalCategories: publicData.additionalCategories || [],
                 additionalSpecialties: publicData.additionalSpecialties || [],
                 specialties: publicData.tags || [],
-                // LECTURA ESTRICTA V2: Priorizar locationV2 si existe, de lo contrario legacy
-                city: publicData.locationV2?.city || publicData.city,
-                department: publicData.locationV2?.department || publicData.department,
-                country: publicData.locationV2?.country || publicData.country,
-                address: publicData.locationV2?.address || privateData.address || '',
+                // LECTURA ESTRICTA: La estructura de location unificada.
+                city: publicData.location?.city || publicData.city || '',
+                department: publicData.location?.region || publicData.department || '',
+                country: publicData.location?.country || publicData.country || 'HN',
+                address: publicData.location?.address || publicData.address || privateData.address || '',
                 modality: publicData.modality,
                 description: privateData.fullDescription || publicData.shortDescription,
                 phone: privateData.phone || '',
@@ -753,12 +723,10 @@ export const BusinessProfileService = {
                 logoUrl: publicData.logoUrl,
                 openingHours: publicData.openingHours || undefined,
                 paymentSettings: privateData.paymentSettings || undefined,
-                // LECTURA ESTRICTA V2 para Coordenadas: Si locationV2 existe, MANDA, incluso si está vacío (para destruir zombies legacy)
-                lat: publicData.locationV2 ? publicData.locationV2.lat : (publicData.lat ?? publicData.location?.lat),
-                lng: publicData.locationV2 ? publicData.locationV2.lng : (publicData.lng ?? publicData.location?.lng),
-                placeId: (publicData.locationV2?.placeId ?? publicData.placeId) || undefined,
-                googleMapsUrl: (publicData.locationV2?.googleMapsUrl ?? publicData.googleMapsUrl) || undefined,
-                locationV2: publicData.locationV2 || undefined,
+                lat: publicData.location?.lat || publicData.lat,
+                lng: publicData.location?.lng || publicData.lng,
+                placeId: publicData.location?.placeId || publicData.placeId || undefined,
+                googleMapsUrl: publicData.googleMapsUrl || undefined,
             };
         } catch (error) {
             console.error("Error getting profile:", error);
@@ -828,50 +796,22 @@ export const BusinessProfileService = {
         if (data.socialMedia !== undefined) privateUpdate.socialMedia = data.socialMedia;
         if (data.department) privateUpdate.department = data.department;
 
-        // ── Location update ──────────────────────────────────────────────────
-        // Priority 1: Exact GPS coords from Google Places (lat/lng provided directly)
+        // ── Location update ESTRICTA ─────────────────────────────────────────
+        // Only accept explicitly provided coords (geocoding should happen at client level)
         if (data.lat && data.lng) {
-            publicUpdate.location = { lat: data.lat, lng: data.lng };
+            publicUpdate.location = {
+                placeId: data.placeId || null,
+                lat: data.lat,
+                lng: data.lng,
+                address: data.address || '',
+                city: data.city || '',
+                region: data.department || '',
+                country: data.country || 'HN'
+            };
             publicUpdate.lat = data.lat;
             publicUpdate.lng = data.lng;
             if (data.placeId !== undefined) publicUpdate.placeId = data.placeId;
             if (data.googleMapsUrl !== undefined) publicUpdate.googleMapsUrl = data.googleMapsUrl;
-        }
-        // Priority 2: Re-geocode with Nominatim only if no exact coords provided
-        else if (data.city || data.department || data.address || data.country) {
-            try {
-                // Read current public data to fill missing location fields
-                const currentSnap = await getDoc(publicRef);
-                const current = currentSnap.exists() ? currentSnap.data() : {};
-
-                const city = data.city || current.city || '';
-                const department = data.department || current.department || '';
-                const country = data.country || current.country || 'HN';
-                const address = data.address || current.address || '';
-
-                // Build the most precise query: address + city + department + country
-                const parts = [address, city, department, country].filter(Boolean);
-                const q = parts.join(', ');
-                const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`;
-                const res = await fetch(url, {
-                    headers: { 'User-Agent': 'PRO247CRM/1.0 (admin@pro247.app)' }
-                });
-                const json = await res.json();
-                if (json?.[0]) {
-                    publicUpdate.location = {
-                        lat: parseFloat(json[0].lat),
-                        lng: parseFloat(json[0].lon)
-                    };
-                }
-            } catch {
-                // Silently skip geocoding on error — existing coords are preserved
-            }
-        }
-        // ──────────────────────────────────────────────────────────────────
-
-        // --- LOCATION V2 PARALLEL LAYER ---
-        if (data.locationV2) {
-            publicUpdate.locationV2 = data.locationV2;
         }
 
         batch.update(publicRef, publicUpdate);

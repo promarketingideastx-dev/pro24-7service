@@ -14,17 +14,8 @@ import { comprimirImagen } from '@/lib/imageCompress';
 import { ServicesService, ServiceData, BusinessProfileService, getServiceName } from '@/services/businessProfile.service';
 import { useTranslations, useLocale } from 'next-intl';
 import { TAXONOMY } from '@/lib/taxonomy';
-
-const DURATION_OPTIONS = [15, 30, 45, 60, 90, 120];
-const CUSTOM_VALUE = -1; // sentinel for "Otro"
-
-
-const formatDuration = (min: number) => {
-    if (min < 60) return `${min} min`;
-    const h = Math.floor(min / 60);
-    const m = min % 60;
-    return m > 0 ? `${h}h ${m}min` : `${h}h`;
-};
+import { getCountryConfig } from '@/lib/locations';
+import { AlignLeft } from 'lucide-react';
 
 export default function ServicesPage() {
     const { user } = useAuth();
@@ -49,10 +40,7 @@ export default function ServicesPage() {
     const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
     const [editingId, setEditingId] = useState<string | null>(null);
 
-    // Custom duration (hours 0-23 + minutes 0-59)
-    const [useCustomDuration, setUseCustomDuration] = useState(false);
-    const [customHours, setCustomHours] = useState(0);
-    const [customMins, setCustomMins] = useState(30);
+    const [businessCurrency, setBusinessCurrency] = useState('L.');
 
     // Fotos del servicio (máx. 10)
     const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -70,8 +58,8 @@ export default function ServicesPage() {
         nameI18n: { es: '', en: '', pt: '' },
         description: '',
         price: 0,
-        durationMinutes: 60,
-        currency: 'L.',
+        notes: '',
+        currency: businessCurrency,
         category: '',
         isExtra: false,
         isActive: true,
@@ -97,6 +85,9 @@ export default function ServicesPage() {
         // Load business specialties for suggestions
         BusinessProfileService.getProfile(user.uid).then(profile => {
             if (profile) {
+                const config = getCountryConfig((profile.country as any) || 'HN');
+                setBusinessCurrency(config.currency);
+
                 setBusinessCategory(profile.category || '');
                 const specMap = (profile as any).specialtiesBySubcategory as Record<string, string[]> | undefined;
                 if (specMap && Object.keys(specMap).length > 0) {
@@ -116,21 +107,9 @@ export default function ServicesPage() {
             setFormData({ ...service });
             setEditingId(service.id!);
             setImageUrls(service.images || (service.imageUrl ? [service.imageUrl] : []));
-            // Check if the stored duration is a predefined value
-            const isPredefined = DURATION_OPTIONS.includes(service.durationMinutes);
-            if (!isPredefined) {
-                setUseCustomDuration(true);
-                setCustomHours(Math.floor(service.durationMinutes / 60));
-                setCustomMins(service.durationMinutes % 60);
-            } else {
-                setUseCustomDuration(false);
-            }
         } else {
-            setFormData(defaultForm());
+            setFormData({ ...defaultForm(), currency: businessCurrency });
             setEditingId(null);
-            setUseCustomDuration(false);
-            setCustomHours(0);
-            setCustomMins(30);
             setImageUrls([]);
         }
         setIsModalOpen(true);
@@ -143,10 +122,6 @@ export default function ServicesPage() {
 
         setIsSubmitting(true);
         try {
-            const resolvedDuration = useCustomDuration
-                ? Math.max(1, customHours * 60 + customMins)
-                : Number(formData.durationMinutes) || 60;
-
             const payload: Omit<ServiceData, 'id'> = {
                 name: formData.nameI18n?.es?.trim() || formData.name.trim(),
                 nameI18n: {
@@ -156,8 +131,8 @@ export default function ServicesPage() {
                 },
                 description: formData.description || '',
                 price: Number(formData.price),
-                durationMinutes: resolvedDuration,
-                currency: formData.currency || 'L.',
+                notes: formData.notes?.substring(0, 250) || '',
+                currency: formData.currency || businessCurrency,
                 category: formData.category || '',
                 isExtra: formData.isExtra || false,
                 isActive: formData.isActive !== false,
@@ -544,67 +519,18 @@ export default function ServicesPage() {
                                 </div>
                                 <div>
                                     <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-2 flex items-center gap-1.5">
-                                        <Clock size={14} className="text-[#14B8A6]" /> {t('duration')} *
+                                        <AlignLeft size={14} className="text-[#14B8A6]" /> {t('serviceNotes')}
                                     </label>
-                                    {/* Predefined + "Otro" selector */}
-                                    <div className="relative">
-                                        <select
-                                            value={useCustomDuration ? CUSTOM_VALUE : formData.durationMinutes}
-                                            onChange={e => {
-                                                const val = Number(e.target.value);
-                                                if (val === CUSTOM_VALUE) {
-                                                    setUseCustomDuration(true);
-                                                } else {
-                                                    setUseCustomDuration(false);
-                                                    setFormData({ ...formData, durationMinutes: val });
-                                                }
-                                            }}
-                                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-bold focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] focus:outline-none appearance-none transition-all text-sm"
-                                        >
-                                            {DURATION_OPTIONS.map(d => (
-                                                <option key={d} value={d}>{formatDuration(d)}</option>
-                                            ))}
-                                            <option value={CUSTOM_VALUE}>{t('other')}</option>
-                                        </select>
-                                        <ChevronDown size={14} className="absolute right-3 top-4 text-slate-500 pointer-events-none" />
+                                    <textarea
+                                        value={formData.notes || ''}
+                                        maxLength={250}
+                                        onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                                        className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] focus:outline-none resize-none transition-all text-sm h-[48px]"
+                                        placeholder="Aclaraciones, tiempos, etc."
+                                    />
+                                    <div className="text-[10px] text-slate-400 mt-1 text-right font-medium">
+                                        {(formData.notes || '').length}/250
                                     </div>
-                                    {/* Custom H:M picker */}
-                                    {useCustomDuration && (
-                                        <div className="mt-2 bg-[#F4F6F8] border border-brand-neon-cyan/30 rounded-xl px-4 py-3 animate-in fade-in slide-in-from-top-1 duration-150">
-                                            <div className="flex items-center gap-2">
-                                                <Clock size={14} className="text-brand-neon-cyan shrink-0" />
-                                                <div className="flex items-center gap-2">
-                                                    <div className="flex flex-col items-center">
-                                                        <span className="text-[10px] text-slate-500 mb-1">{t('hours')}</span>
-                                                        <input
-                                                            type="number"
-                                                            min={0}
-                                                            max={23}
-                                                            value={customHours}
-                                                            onChange={e => setCustomHours(Math.min(23, Math.max(0, Number(e.target.value))))}
-                                                            className="w-14 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-white text-center text-sm focus:border-brand-neon-cyan focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                        />
-                                                    </div>
-                                                    <span className="text-slate-400 font-bold mt-4">:</span>
-                                                    <div className="flex flex-col items-center">
-                                                        <span className="text-[10px] text-slate-500 mb-1">{t('minutes')}</span>
-                                                        <input
-                                                            type="number"
-                                                            min={0}
-                                                            max={59}
-                                                            step={5}
-                                                            value={customMins}
-                                                            onChange={e => setCustomMins(Math.min(59, Math.max(0, Number(e.target.value))))}
-                                                            className="w-14 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-white text-center text-sm focus:border-brand-neon-cyan focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <p className="text-brand-neon-cyan text-xs font-bold mt-2 pl-5">
-                                                = {formatDuration(customHours * 60 + customMins)}
-                                            </p>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
 
@@ -738,9 +664,11 @@ function ServiceCard({ service, onEdit, onDelete, extraLabel, noDescLabel, local
                     <span className="text-lg font-bold text-slate-900">
                         {service.currency} {Number(service.price).toLocaleString('es-HN', { minimumFractionDigits: 2 })}
                     </span>
-                    <span className="flex items-center gap-1 text-xs text-slate-500 bg-slate-50 px-2 py-1 rounded-lg">
-                        <Clock size={11} /> {service.durationMinutes ? formatDuration(service.durationMinutes) : '—'}
-                    </span>
+                    {service.notes && (
+                        <span className="flex items-center gap-1 text-[10px] text-slate-500 max-w-[50%] truncate bg-slate-50 px-2 py-1.5 rounded-lg border border-slate-100" title={service.notes}>
+                            <AlignLeft size={10} className="shrink-0" /> <span className="truncate">{service.notes}</span>
+                        </span>
+                    )}
                 </div>
             </div>
         </GlassPanel>

@@ -35,9 +35,14 @@ function RegisterForm() {
     useEffect(() => {
         if (!authLoading && user && !redirectingRef.current) {
             const stored = sessionStorage.getItem('auth_redirect_to');
+            const intent = searchParams.get('intent');
+            const userMode = sessionStorage.getItem('pro247_user_mode') || undefined;
+
             if (stored) {
                 sessionStorage.removeItem('auth_redirect_to');
                 router.replace(stored);
+            } else if (intent === 'business' || userMode === 'business') {
+                router.replace(lp('/business/setup'));
             } else {
                 router.replace(lp('/onboarding'));
             }
