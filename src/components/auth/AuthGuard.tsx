@@ -54,7 +54,9 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             // Legacy purely provider accounts from bugs might lack client = true, so we assume client capabilities natively unless restricted
             const isClient = userProfile.roles?.client === true || userProfile.role === 'client' || (!isProvider && !isRootAdmin);
 
-            const hasRole = isClient || isProvider || isRootAdmin;
+            const isOnboardingProvider = !!userProfile.providerOnboardingStatus && userProfile.providerOnboardingStatus !== 'completed';
+
+            const hasRole = isClient || isProvider || isRootAdmin || isOnboardingProvider;
 
             // Kick out users with utterly malformed/empty schemas
             if (!hasRole) {
@@ -67,10 +69,15 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             }
 
             // 2. STRICT BUSINESS ROUTE PROTECTION
-            // If they are trying to reach a /business page, they MUST be a provider or an admin
-            if (localelessPath.startsWith('/business') && localelessPath !== '/business/setup') {
+            // If they are trying to reach a /business page, they MUST be a provider, an admin, or onboarding
+            const isBusinessSetupRoute = localelessPath === '/business/setup' || localelessPath === '/business/pricing' || localelessPath === '/business/trial-activation';
+            if (localelessPath.startsWith('/business') && !isBusinessSetupRoute) {
                 if (!isProvider && !isRootAdmin) {
-                    redirect(lp('/business/setup')); // If client tries to access dashboard, send to setup
+                    if (isOnboardingProvider) {
+                        redirect(lp('/business')); // Let BusinessGuard handle them
+                    } else {
+                        redirect(lp('/business/pricing')); // Send curious clients to pricing first
+                    }
                     return;
                 }
             }
@@ -115,9 +122,9 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
                 // Fallback: If no intent, figure out default homepage based on highest role
                 if (isRootAdmin) {
                     redirect(lp('/admin'));
-                } else if (isProvider) {
-                    // Hybrid accounts default landing to Dashboard if they blindly hit /auth without context
-                    redirect(lp('/business/dashboard'));
+                } else if (isOnboardingProvider || isProvider) {
+                    // Hybrid accounts default routing. AuthGuard sends to root /business. BusinessGuard sorts the rest.
+                    redirect(lp('/business'));
                 } else {
                     redirect(lp('/'));
                 }

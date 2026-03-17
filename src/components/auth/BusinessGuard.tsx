@@ -46,51 +46,63 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
         }
 
 
-        // 3. Check Provider Role (roles.provider, role='provider', or roles.admin/isAdmin all qualify)
+        // 3. Evaluate Roles and Status
         const isAdmin = userProfile.isAdmin === true || userProfile.roles?.admin === true;
-        const isProvider = userProfile.roles?.provider || userProfile.role === 'provider' || isAdmin;
-        if (!isProvider) {
-            // Not a provider -> Onboarding
-            console.log('[BusinessGuard] Redirecting to onboarding'); redirect(lp(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
-            return;
+        const isProvider = userProfile.roles?.provider === true || userProfile.role === 'provider';
+        const onboardingStatus = userProfile.providerOnboardingStatus;
+        const hasBusiness = !!userProfile.businessProfileId || userProfile.isBusinessActive;
+
+        // Determine if user has any business intent or role
+        if (!isAdmin && !isProvider && !onboardingStatus && !hasBusiness) {
+             console.log('[BusinessGuard] Redirecting non-provider to onboarding');
+             redirect(lp(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
+             return;
         }
 
         // 4. Admin users always have full access to all business routes
         if (isAdmin) {
-            setIsAuthorized(true);
-            return;
+             setIsAuthorized(true);
+             return;
         }
 
-        // 5. Check Business Profile Existence (for regular providers only)
-        const hasBusiness = !!userProfile.businessProfileId;
-        const isSetupPage = pathname.includes('/business/setup');
-        const isBusinessRoute = pathname.includes('/business');
+        // 5. Onboarding Step Router
+        const isPricingRoute = pathname.includes('/business/pricing');
+        const isSetupRoute = pathname.includes('/business/setup');
+        const isTrialRoute = pathname.includes('/business/trial-activation');
 
-        if (hasBusiness) {
-            // BLOQUE 2D: Enforce Trial Expiration in background 
-            if (isProvider && user.uid) {
-                TrialService.checkAndDowngradeTrial(user.uid).catch(() => { });
-            }
+        // Identify fully operational providers (Completed status, or Legacy ones with businessID but no status)
+        const isOperational = onboardingStatus === 'completed' || hasBusiness || (isProvider && !onboardingStatus);
 
-            // Provider WITH business
-            if (isSetupPage) {
-                router.replace(lp('/business/dashboard'));
-            } else {
-                // Allow access
-                setIsAuthorized(true);
-            }
+        if (isOperational) {
+             // BLOQUE 2D: Enforce Trial Expiration in background 
+             if (isProvider && user.uid) {
+                 TrialService.checkAndDowngradeTrial(user.uid).catch(() => { });
+             }
+
+             // Providers WITH operational business shouldn't hang out in setup unless upgrading/modifying
+             if (isSetupRoute || isTrialRoute) { // Pricing could be valid for upgrades, but Setup/Trial are definitely past
+                 redirect(lp('/business/dashboard'));
+             } else {
+                 setIsAuthorized(true);
+             }
         } else {
-            // Provider WITHOUT business (or partial)
-            // If trying to access setup, allow.
-            if (isSetupPage) {
-                setIsAuthorized(true);
-            } else if (isBusinessRoute) {
-                // Trying to access dashboard without business -> Setup
-                router.replace(lp('/business/setup'));
-            } else {
-                // Public route -> Allow
-                setIsAuthorized(true);
-            }
+             // Onboarding Provider (Incomplete embudo)
+             const currentStatus = onboardingStatus || 'pending_plan';
+             
+             if (currentStatus === 'pending_plan') {
+                 if (!isPricingRoute) redirect(lp('/business/pricing'));
+                 else setIsAuthorized(true);
+             } else if (currentStatus === 'pending_setup') {
+                 if (!isSetupRoute) redirect(lp('/business/setup'));
+                 else setIsAuthorized(true);
+             } else if (currentStatus === 'pending_trial') {
+                 if (!isTrialRoute) redirect(lp('/business/trial-activation'));
+                 else setIsAuthorized(true);
+             } else {
+                 // Fallback safely to plan selection
+                 if (!isPricingRoute) redirect(lp('/business/pricing'));
+                 else setIsAuthorized(true);
+             }
         }
 
     }, [user, userProfile, loading, pathname, searchParams, router]);

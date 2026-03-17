@@ -90,10 +90,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                         setLoading(false);
                     } else {
                         console.log('[AuthContext] Firestore profile not found, triggering creation');
-                        // Profile doesn't exist yet -> Trigger creation in background
-                        UserService.createUserProfile(currentUser.uid, currentUser.email || '').catch(e => console.error(e));
-                        setUserProfile(null);
-                        setLoading(false);
+                        // Profile doesn't exist yet -> Trigger creation.
+                        // CRITICAL: Do NOT setLoading(false) here. The next snapshot will fire when creation completes.
+                        UserService.createUserProfile(currentUser.uid, currentUser.email || '').catch(e => {
+                            console.error("Profile creation failed", e);
+                            setLoading(false); // Only unlock if it drastically failed
+                        });
                     }
                 }, (error) => {
                     console.error("AuthContext Firestore Error:", error);

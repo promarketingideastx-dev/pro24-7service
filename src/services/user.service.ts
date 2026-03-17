@@ -76,7 +76,7 @@ export const UserService = {
      * Updates the user's role (e.g., becoming a provider).
      * Uses setDoc with merge to avoid dependency on document existence check.
      */
-    async setUserRole(uid: string, role: 'client' | 'provider') {
+    async setUserRole(uid: string, role: 'client' | 'provider' | 'provider_intent') {
         if (!uid) throw new Error('User ID required');
 
         const userRef = doc(db, 'users', uid);
@@ -90,7 +90,18 @@ export const UserService = {
                     provider: true,
                     client: true // Ensure legacy accounts migrating to provider get client explicitly enabled
                 },
+                providerOnboardingStatus: 'completed',
                 isBusinessActive: false
+            }, { merge: true });
+        } else if (role === 'provider_intent') {
+            // A user attempting to become a provider hasn't finished onboarding.
+            // Do NOT grant operational roles. Only grant intent flags.
+            await setDoc(userRef, {
+                roles: { 
+                    provider: false, // Explicitly false until they complete setup
+                    client: true 
+                },
+                providerOnboardingStatus: 'pending_plan'
             }, { merge: true });
         } else if (role === 'client') {
             await setDoc(userRef, {

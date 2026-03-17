@@ -98,7 +98,7 @@ function RegisterForm() {
 
             // Check for Intent
             const intent = searchParams.get('intent');
-            const role: 'client' | 'provider' = intent === 'business' ? 'provider' : 'client';
+            const role: 'client' | 'provider_intent' = intent === 'business' ? 'provider_intent' : 'client';
 
             // Send welcome email (fire-and-forget — never breaks the flow)
             fetch('/api/welcome-email', {
@@ -163,7 +163,7 @@ function RegisterForm() {
             // Sólo aplicamos initial role intent if the user has NO role 
             if (!profile?.role && !profile?.roles?.provider && !profile?.roles?.client) {
                 if (intent === 'business') {
-                    await UserService.setUserRole(loggedUser.uid, 'provider');
+                    await UserService.setUserRole(loggedUser.uid, 'provider_intent');
                 } else {
                     await UserService.setUserRole(loggedUser.uid, 'client');
                 }

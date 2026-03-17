@@ -61,6 +61,7 @@ export interface UserDocument {
     businessProfileId?: string | null;
     isBusinessActive: boolean;
     isProvider?: boolean;
+    providerOnboardingStatus?: 'pending_plan' | 'pending_setup' | 'pending_trial' | 'completed';
 
     // Admin flag — set by set-admin.js script
     isAdmin?: boolean;
