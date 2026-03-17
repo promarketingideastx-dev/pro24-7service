@@ -62,6 +62,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.log('[AuthContext] onAuthStateChanged fired, user:', currentUser?.uid || 'null');
             setUser(currentUser);
 
+            if (currentUser) {
+                // EXTREMELY CRITICAL: Lock the application router immediately.
+                // Firebase just told us we have a user, but we do NOT have the userProfile yet.
+                // We MUST set loading to true synchronously to prevent AuthGuard from making 
+                // premature routing decisions based on an incomplete state.
+                setLoading(true);
+            }
+
 
             // Clean up previous Firestore listener if exists
             if (unsubscribeFirestore) {

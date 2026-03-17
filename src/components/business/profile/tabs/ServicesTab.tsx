@@ -206,16 +206,21 @@ export default function ServicesTab({ businessId, services: initialServices, onB
                                     {service.description || t('noDescription')}
                                 </p>
                                 {service.notes && (
-                                    <p className="text-[#14B8A6] text-[11px] font-medium mt-1 truncate flex items-center gap-1" title={service.notes}>
-                                        <AlignLeft className="w-3 h-3 shrink-0" /> {service.notes}
-                                    </p>
+                                    <div className="mt-3 bg-slate-50 p-2.5 rounded-xl border border-slate-100/80">
+                                        <p className="text-slate-600 text-[12px] leading-relaxed">
+                                            {service.notes}
+                                        </p>
+                                    </div>
                                 )}
                             </div>
 
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <div className="text-lg font-bold text-slate-900">
-                                        {service.currency} {service.price}
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-xs font-bold text-slate-500 uppercase">{service.currency?.trim()}</span>
+                                        <span className="text-lg font-bold text-slate-900">
+                                            {Number(service.price).toLocaleString(locale === 'en' ? 'en-US' : locale === 'pt-BR' ? 'pt-BR' : 'es-HN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                                        </span>
                                     </div>
                                     {service.isVariablePrice && (
                                         <span className="text-[10px] text-slate-500 uppercase">{t('fromPrice')}</span>

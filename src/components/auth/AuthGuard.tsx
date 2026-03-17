@@ -47,11 +47,16 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         }
 
         if (userProfile) {
-            // Un usuario tiene rol válido si es cliente, proveedor, O es un admin (isAdmin / roles.admin) O tiene bandera isProvider
+            // 1. EVALUATE CAPABILITIES
             const isRootAdmin = userProfile.isAdmin === true || userProfile.roles?.admin === true;
-            const isRootProvider = userProfile.isProvider === true || userProfile.role === 'provider';
-            const hasRole = userProfile.roles?.client || userProfile.roles?.provider || isRootAdmin || isRootProvider;
+            // Support legacy purely-provider strings alongside the new explicit roles object
+            const isProvider = userProfile.roles?.provider === true || userProfile.role === 'provider' || userProfile.isProvider === true;
+            // Legacy purely provider accounts from bugs might lack client = true, so we assume client capabilities natively unless restricted
+            const isClient = userProfile.roles?.client === true || userProfile.role === 'client' || (!isProvider && !isRootAdmin);
 
+            const hasRole = isClient || isProvider || isRootAdmin;
+
+            // Kick out users with utterly malformed/empty schemas
             if (!hasRole) {
                 if (startsWithAny(ONBOARDING_PREFIXES) || startsWithAny(PUBLIC_PREFIXES)) {
                     setIsAuthorized(true);
@@ -61,18 +66,70 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
                 return;
             }
 
-            const isProvider = userProfile.roles?.provider || isRootProvider || isRootAdmin;
+            // 2. STRICT BUSINESS ROUTE PROTECTION
+            // If they are trying to reach a /business page, they MUST be a provider or an admin
+            if (localelessPath.startsWith('/business') && localelessPath !== '/business/setup') {
+                if (!isProvider && !isRootAdmin) {
+                    redirect(lp('/business/setup')); // If client tries to access dashboard, send to setup
+                    return;
+                }
+            }
 
+            if (startsWithAny(PROVIDER_ONLY_PREFIXES) && !isProvider && !isRootAdmin) {
+                 redirect(lp('/'));
+                 return;
+            }
+
+            // 3. AUTH ROUTE INTERCEPTIONS (Login/Register Forms)
+            // Users with profiles shouldn't be visiting login forms. Rout them back to their life.
             if (startsWithAny(AUTH_PREFIXES)) {
-                redirect(isProvider ? lp('/business/dashboard') : lp('/'));
+                // Respect explicit session returns first (from previous components)
+                if (typeof window !== 'undefined') {
+                    const stored = sessionStorage.getItem('auth_redirect_to');
+                    if (stored) {
+                        sessionStorage.removeItem('auth_redirect_to');
+                        redirect(stored);
+                        return;
+                    }
+                }
+                
+                // If they have an explicit intent from the URL they clicked
+                const intent = searchParams.get('intent');
+                if (intent === 'business') {
+                    redirect(lp('/business/setup'));
+                    return;
+                }
+                if (intent === 'client') {
+                    redirect(lp('/'));
+                    return;
+                }
+
+                // If they have a returnTo path
+                const returnTo = searchParams.get('returnTo');
+                if (returnTo && returnTo !== '/') {
+                    const hasLocalePrefix = SUPPORTED_LOCALES.some(p => returnTo?.startsWith('/' + p));
+                    redirect(hasLocalePrefix ? returnTo : lp(returnTo));
+                    return;
+                }
+                
+                // Fallback: If no intent, figure out default homepage based on highest role
+                if (isRootAdmin) {
+                    redirect(lp('/admin'));
+                } else if (isProvider) {
+                    // Hybrid accounts default landing to Dashboard if they blindly hit /auth without context
+                    redirect(lp('/business/dashboard'));
+                } else {
+                    redirect(lp('/'));
+                }
                 return;
             }
 
-            if (startsWithAny(PROVIDER_ONLY_PREFIXES) && !isProvider) {
-                redirect(lp('/'));
-                return;
-            }
-
+            // 4. PUBLIC & PROTECTED ROUTES (Happy Path)
+            // If the code reaches here:
+            // - The route is NOT /auth
+            // - The route is NOT a forbidden /business area
+            // - The route is PUBLIC ('/') or a standard PROTECTED client route ('/profile')
+            // Hybrid accounts are WELCOME HERE. We do NOT hijack them to Dashboard anymore.
             setIsAuthorized(true);
         } else {
             if (startsWithAny(ONBOARDING_PREFIXES) || startsWithAny(PUBLIC_PREFIXES)) {

@@ -511,9 +511,14 @@
       "deleteError": "Erro ao excluir serviço",
       "serviceImage": "Imagem do Serviço (Opcional)",
       "serviceImageHint": "Toque para adicionar uma foto de referência",
-      "changeImage": "Alterar imagem",
+      "changeImage": "Mudar imagem",
       "uploadingImage": "Enviando...",
-      "imageUploadError": "Não foi possível enviar a imagem. Tente novamente."
+      "imageUploadError": "Não foi possível enviar a imagem. Tente novamente.",
+      "maxPhotos": "Máximo de 10 fotos por serviço",
+      "photoHint": "Compressão automática · A 1ª foto é a principal do serviço",
+      "mainPhoto": "Principal",
+      "addPhoto": "Adicionar foto",
+      "cropPhoto": "Recortar Foto do Serviço"
     },
     "team": {
       "title": "Minha Equipe",

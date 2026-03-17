@@ -17,8 +17,7 @@ function RegisterForm() {
     const lp = (path: string) => `/${locale}${path}`;
     const searchParams = useSearchParams();
     const returnTo = searchParams.get('returnTo') || lp('/');
-    // Prevents the useEffect redirect from firing when handleRegister/handleGoogle already redirected
-    const redirectingRef = useRef(false);
+    // Route interception is globally handled by AuthGuard
 
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
@@ -30,24 +29,7 @@ function RegisterForm() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Fallback redirect: only fires if no explicit redirect was already triggered
-    // (e.g. after mobile Google signInWithRedirect returns)
-    useEffect(() => {
-        if (!authLoading && user && !redirectingRef.current) {
-            const stored = sessionStorage.getItem('auth_redirect_to');
-            const intent = searchParams.get('intent');
-            const userMode = sessionStorage.getItem('pro247_user_mode') || undefined;
-
-            if (stored) {
-                sessionStorage.removeItem('auth_redirect_to');
-                router.replace(stored);
-            } else if (intent === 'business' || userMode === 'business') {
-                router.replace(lp('/business/setup'));
-            } else {
-                router.replace(lp('/onboarding'));
-            }
-        }
-    }, [user, authLoading]);
+    // Fallback redirect is globally handled by AuthGuard
 
 
     const [emailCheckStatus, setEmailCheckStatus] = useState<'idle' | 'checking' | 'exists' | 'available'>('idle');
@@ -130,9 +112,6 @@ function RegisterForm() {
                 }),
             }).catch(() => { /* silently ignore email errors */ });
 
-            // Mark that we are handling the redirect ourselves
-            redirectingRef.current = true;
-
             if (intent === 'client' || intent === 'business') {
                 await UserService.setUserRole(user.uid, role);
                 await UserService.updateUserProfile(user.uid, {
@@ -143,16 +122,9 @@ function RegisterForm() {
                 if (typeof window !== 'undefined') {
                     localStorage.setItem('pro247_user_mode', intent);
                 }
-
-                if (role === 'provider') {
-                    router.replace(lp('/business/setup'));
-                } else {
-                    router.replace(lp('/'));
-                }
-            } else {
-                // No intent → go to home (already has profile from Firebase Auth)
-                router.replace(lp('/'));
             }
+            
+            // Do NOT redirect manually. Wait for AuthGuard perfectly!
 
         } catch (err: any) {
 
@@ -168,7 +140,6 @@ function RegisterForm() {
             } else {
                 setError(t('errorRegister'));
             }
-        } finally {
             setLoading(false);
         }
     };
@@ -184,31 +155,21 @@ function RegisterForm() {
                 : intent === 'client'
                     ? lp('/')
                     : lp('/onboarding');
-
             const loggedUser = await AuthService.loginWithGoogle(redirectAfterLogin);
             if (!loggedUser) return; // Mobile redirect flow — page navigates away
 
-            // Desktop popup: check existing role to redirect correctly
-            redirectingRef.current = true;
             const profile = await UserService.getUserProfile(loggedUser.uid);
-            const role = profile?.role;
-            const isAdmin = profile?.isAdmin === true;
-
-            if (isAdmin) {
-                router.replace(lp('/admin/dashboard'));
-            } else if (role === 'provider') {
-                router.replace(lp('/business/dashboard'));
-            } else if (role === 'client') {
-                router.replace(lp('/'));
-            } else if (intent === 'business') {
-                // New user via Google with business intent
-                await UserService.setUserRole(loggedUser.uid, 'provider');
-                router.replace(lp('/business/setup'));
-            } else {
-                // New user via Google — go home (client by default)
-                await UserService.setUserRole(loggedUser.uid, 'client');
-                router.replace(lp('/'));
+            
+            // Sólo aplicamos initial role intent if the user has NO role 
+            if (!profile?.role && !profile?.roles?.provider && !profile?.roles?.client) {
+                if (intent === 'business') {
+                    await UserService.setUserRole(loggedUser.uid, 'provider');
+                } else {
+                    await UserService.setUserRole(loggedUser.uid, 'client');
+                }
             }
+            
+            // Redirect will be natively handled by AuthGuard
         } catch (err: any) {
             console.error(err);
             if ((err as any).code === 'auth/unauthorized-domain') {
@@ -216,7 +177,6 @@ function RegisterForm() {
             } else if ((err as any).code !== 'auth/popup-closed-by-user') {
                 setError(t('errorGoogle'));
             }
-        } finally {
             setLoading(false);
         }
     };
@@ -227,25 +187,13 @@ function RegisterForm() {
         try {
             const loggedUser = await AuthService.loginWithApple(lp('/onboarding'));
             if (!loggedUser) return; // Mobile: redirect in progress
-
-            const profile = await UserService.getUserProfile(loggedUser.uid);
-            const role = profile?.role;
-            const isAdmin = profile?.isAdmin === true;
-            if (isAdmin) {
-                router.replace(lp('/admin/dashboard'));
-            } else if (role === 'provider') {
-                router.replace(lp('/business/dashboard'));
-            } else if (role === 'client') {
-                router.replace(lp('/'));
-            } else {
-                router.replace(lp('/onboarding'));
-            }
+            
+            // Redirect is implicitly mapped by AuthGuard over /onboarding return value
         } catch (err: any) {
             console.error(err);
             if ((err as any).code !== 'auth/popup-closed-by-user') {
                 setError(t('errorGoogle'));
             }
-        } finally {
             setLoading(false);
         }
     };

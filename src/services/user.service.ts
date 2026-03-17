@@ -27,7 +27,7 @@ export const UserService = {
                 uid,
                 email,
                 roles: {
-                    client: false,
+                    client: true, // Everyone is natively a client.
                     provider: false,
                     admin: false
                 },
@@ -81,10 +81,15 @@ export const UserService = {
 
         const userRef = doc(db, 'users', uid);
 
+        // We use merge: true to make roles ADDITIVE.
+        // Granting provider does not remove client capabilities.
         if (role === 'provider') {
             await setDoc(userRef, {
-                role: 'provider',
-                roles: { provider: true },
+                role: 'provider', // Legacy primary string (kept for backwards compatibility for edge cases)
+                roles: { 
+                    provider: true,
+                    client: true // Ensure legacy accounts migrating to provider get client explicitly enabled
+                },
                 isBusinessActive: false
             }, { merge: true });
         } else if (role === 'client') {

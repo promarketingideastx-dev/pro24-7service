@@ -16,6 +16,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { TAXONOMY } from '@/lib/taxonomy';
 import { getCountryConfig } from '@/lib/locations';
 import { AlignLeft } from 'lucide-react';
+import ImageCropModal from '@/components/ui/ImageCropModal';
 
 export default function ServicesPage() {
     const { user } = useAuth();
@@ -46,6 +47,11 @@ export default function ServicesPage() {
     const [imageUrls, setImageUrls] = useState<string[]>([]);
     const [imageUploading, setImageUploading] = useState(false);
     const imageInputRef = useRef<HTMLInputElement>(null);
+
+    const [cropModal, setCropModal] = useState<{ isOpen: boolean; imageSrc: string }>({
+        isOpen: false,
+        imageSrc: ''
+    });
 
     // Business specialties — loaded once
     const [businessSpecialties, setBusinessSpecialties] = useState<string[]>([]);
@@ -169,27 +175,37 @@ export default function ServicesPage() {
         }
     };
 
-    // Subir fotos del servicio (comprime antes)
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(e.target.files || []);
-        if (!files.length || !user) return;
-        const remaining = 10 - imageUrls.length;
-        const toProcess = files.slice(0, remaining);
+    // Subir fotos del servicio (abriendo cropper)
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !user) return;
+
+        // Bloquear si ya hay 10
+        if (imageUrls.length >= 10) {
+            toast.error(t('maxPhotos'));
+            return;
+        }
+
+        const objectUrl = URL.createObjectURL(file);
+        setCropModal({ isOpen: true, imageSrc: objectUrl });
+        e.target.value = ''; // reset
+    };
+
+    const handleCropComplete = async (croppedBlob: Blob) => {
+        if (!user) return;
         setImageUploading(true);
         try {
-            for (const file of toProcess) {
-                const compressed = await comprimirImagen(file);
-                const path = `businesses/${user.uid}/services/${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`;
-                const sRef = storageRef(storage, path);
-                await uploadBytes(sRef, compressed);
-                const url = await getDownloadURL(sRef);
-                setImageUrls(prev => [...prev, url]);
-            }
+            const file = new File([croppedBlob], `crop_${Date.now()}.jpg`, { type: 'image/jpeg' });
+            const path = `businesses/${user.uid}/services/${Date.now()}_${Math.random().toString(36).slice(2)}.jpg`;
+            const sRef = storageRef(storage, path);
+            await uploadBytes(sRef, file);
+            const url = await getDownloadURL(sRef);
+            setImageUrls(prev => [...prev, url]);
+            setCropModal({ isOpen: false, imageSrc: '' });
         } catch {
             toast.error(t('imageUploadError'));
         } finally {
             setImageUploading(false);
-            e.target.value = '';
         }
     };
 
@@ -314,9 +330,9 @@ export default function ServicesPage() {
                                     <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
                                         {t('serviceImage')}
                                     </label>
-                                    <span className="text-[10px] text-slate-400">{imageUrls.length}/10 fotos</span>
+                                    <span className="text-[10px] text-slate-400">{imageUrls.length}/10</span>
                                 </div>
-                                <p className="text-[11px] text-slate-500 mb-2">Compresión automática · La 1.a foto es la principal del servicio</p>
+                                <p className="text-[11px] text-slate-500 mb-2">{t('photoHint')}</p>
                                 <div className="grid grid-cols-3 gap-2">
                                     {imageUrls.map((url, idx) => (
                                         <div key={idx} className="relative aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group">
@@ -330,7 +346,7 @@ export default function ServicesPage() {
                                             </button>
                                             {idx === 0 && (
                                                 <span className="absolute bottom-1 left-1 text-[9px] bg-[#14B8A6] text-white px-1.5 py-0.5 rounded-md font-bold leading-none">
-                                                    Principal
+                                                    {t('mainPhoto')}
                                                 </span>
                                             )}
                                         </div>
@@ -345,7 +361,7 @@ export default function ServicesPage() {
                                             ) : (
                                                 <>
                                                     <ImageIcon size={22} className="text-slate-400" />
-                                                    <p className="text-[11px] font-medium text-slate-500 text-center leading-tight">Añadir<br />foto</p>
+                                                    <p className="text-[11px] font-medium text-slate-500 text-center leading-tight">{t('addPhoto')}</p>
                                                 </>
                                             )}
                                         </div>
@@ -355,7 +371,6 @@ export default function ServicesPage() {
                                     ref={imageInputRef}
                                     type="file"
                                     accept="image/*"
-                                    multiple
                                     className="hidden"
                                     onChange={handleImageUpload}
                                 />
@@ -504,7 +519,7 @@ export default function ServicesPage() {
                                 <div>
                                     <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-2">{t('price')} *</label>
                                     <div className="relative">
-                                        <span className="absolute left-4 top-3.5 text-slate-500 font-bold">{formData.currency}</span>
+                                        <span className="absolute left-4 top-[14px] text-slate-500 font-bold text-sm tracking-wide">{formData.currency}</span>
                                         <input
                                             type="number"
                                             required
@@ -513,7 +528,7 @@ export default function ServicesPage() {
                                             placeholder="0.00"
                                             value={formData.price === 0 ? '' : formData.price}
                                             onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
-                                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl pl-10 pr-4 py-3 text-slate-900 font-bold text-lg focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl pl-16 pr-4 py-3 text-slate-900 font-bold text-lg focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                     </div>
                                 </div>
@@ -525,8 +540,8 @@ export default function ServicesPage() {
                                         value={formData.notes || ''}
                                         maxLength={250}
                                         onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                                        className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] focus:outline-none resize-none transition-all text-sm h-[48px]"
-                                        placeholder="Aclaraciones, tiempos, etc."
+                                        className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] focus:outline-none resize-none transition-all text-sm h-[72px]"
+                                        placeholder={t('serviceNotesPlaceholder')}
                                     />
                                     <div className="text-[10px] text-slate-400 mt-1 text-right font-medium">
                                         {(formData.notes || '').length}/250
@@ -596,6 +611,16 @@ export default function ServicesPage() {
                     </div>
                 </div>
             )}
+
+            {/* Modal de Recorte de Imagen */}
+            {cropModal.isOpen && cropModal.imageSrc && (
+                <ImageCropModal
+                    onClose={() => setCropModal({ isOpen: false, imageSrc: '' })}
+                    imageSrc={cropModal.imageSrc}
+                    aspectRatio={16 / 9}
+                    onComplete={handleCropComplete}
+                />
+            )}
         </div>
     );
 }
@@ -660,15 +685,22 @@ function ServiceCard({ service, onEdit, onDelete, extraLabel, noDescLabel, local
                     {service.description || noDescLabel || '—'}
                 </p>
 
-                <div className="mt-auto pt-3 border-t border-slate-200 flex items-center justify-between">
-                    <span className="text-lg font-bold text-slate-900">
-                        {service.currency} {Number(service.price).toLocaleString('es-HN', { minimumFractionDigits: 2 })}
-                    </span>
-                    {service.notes && (
-                        <span className="flex items-center gap-1 text-[10px] text-slate-500 max-w-[50%] truncate bg-slate-50 px-2 py-1.5 rounded-lg border border-slate-100" title={service.notes}>
-                            <AlignLeft size={10} className="shrink-0" /> <span className="truncate">{service.notes}</span>
+                {service.notes && (
+                    <div className="mb-4 bg-slate-50 p-2.5 rounded-lg border border-slate-100 flex gap-2 items-start mt-2">
+                        <AlignLeft size={14} className="text-[#14B8A6] shrink-0 mt-0.5" />
+                        <p className="text-slate-600 text-xs leading-snug line-clamp-3">
+                            {service.notes}
+                        </p>
+                    </div>
+                )}
+
+                <div className="mt-auto pt-3 border-t border-slate-200">
+                    <div className="flex items-baseline gap-1">
+                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">{service.currency?.trim()}</span>
+                        <span className="text-lg font-bold text-slate-900">
+                            {Number(service.price).toLocaleString(locale === 'en' ? 'en-US' : locale === 'pt-BR' ? 'pt-BR' : 'es-HN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
                         </span>
-                    )}
+                    </div>
                 </div>
             </div>
         </GlassPanel>

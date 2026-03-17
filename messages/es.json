@@ -516,7 +516,12 @@
       "serviceImageHint": "Toca para agregar una foto de referencia",
       "changeImage": "Cambiar imagen",
       "uploadingImage": "Subiendo...",
-      "imageUploadError": "No se pudo subir la imagen. Intenta de nuevo."
+      "imageUploadError": "No se pudo subir la imagen. Intenta de nuevo.",
+      "maxPhotos": "Máximo 10 fotos por servicio",
+      "photoHint": "Compresión automática · La primera foto es la principal del servicio",
+      "mainPhoto": "Principal",
+      "addPhoto": "Añadir foto",
+      "cropPhoto": "Recortar Foto del Servicio"
     },
     "team": {
       "title": "Mi Equipo",

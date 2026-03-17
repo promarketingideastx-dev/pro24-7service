@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { BusinessProfileService, BusinessProfileData, PortfolioService } from '@/services/businessProfile.service';
 import { StorageService } from '@/services/storage.service';
+import { UserService } from '@/services/user.service';
 import WizardSteps from '@/components/business/setup/WizardSteps';
 import GlassPanel from '@/components/ui/GlassPanel';
 import ImageUploader from '@/components/ui/ImageUploader';
@@ -65,8 +66,11 @@ export default function BusinessSetupPage() {
     useEffect(() => {
         if (!authLoading && !user) {
             router.replace('/onboarding');
+        } else if (userProfile?.roles?.provider) {
+            // Protect against accidental re-entry by existing providers
+            router.replace(`/${locale}/business/dashboard`);
         }
-    }, [user, authLoading]);
+    }, [user, userProfile, authLoading, router, locale]);
 
     // Active Country Logic
     // const activeCountryCode = ActiveCountry.get(); // Moved to State initialization to avoid hydration mismatch? 
@@ -102,18 +106,24 @@ export default function BusinessSetupPage() {
         socialMedia: { instagram: '', facebook: '', tiktok: '' }
     });
 
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploadContext, setUploadContext] = useState<{ type: 'cover' | 'logo' | 'gallery', galleryId?: string } | null>(null);
+
     const triggerImageSelect = (type: 'cover' | 'logo' | 'gallery', galleryId?: string) => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/png, image/jpeg, image/webp';
-        input.onchange = (e: any) => {
-            const file = e.target.files?.[0];
-            if (file) {
-                const objectUrl = URL.createObjectURL(file);
-                setCropModal({ isOpen: true, imageSrc: objectUrl, type, galleryId });
-            }
-        };
-        input.click();
+        setUploadContext({ type, galleryId });
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file && uploadContext) {
+            const objectUrl = URL.createObjectURL(file);
+            setCropModal({ isOpen: true, imageSrc: objectUrl, type: uploadContext.type, galleryId: uploadContext.galleryId });
+            setUploadContext(null);
+        }
     };
 
     const handleCropComplete = async (croppedBlob: Blob) => {
@@ -141,6 +151,7 @@ export default function BusinessSetupPage() {
                     }]);
                 }
             }
+            URL.revokeObjectURL(cropModal.imageSrc); // Cleanup object URL to prevent memory leaks
             setCropModal({ isOpen: false, imageSrc: '', type: 'cover' });
         } catch (error) {
             console.error("Error cropping image:", error);
@@ -233,6 +244,9 @@ export default function BusinessSetupPage() {
                     });
                 }
             }
+
+            // Grant provider capabilities additively using our updated service
+            await UserService.setUserRole(user.uid, 'provider');
 
             // Redirect to dashboard
             router.push(`/${locale}/business/dashboard`);
@@ -868,6 +882,15 @@ export default function BusinessSetupPage() {
     return (
         <div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center p-4 md:p-8">
 
+            {/* Hidden File Input for React-bound uploads (Prevents iOS garbage collection crash) */}
+            <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileSelect} 
+                accept="image/png, image/jpeg, image/webp" 
+                className="hidden" 
+            />
+
             {/* Global Image Crop Modal for Setup */}
             {cropModal.isOpen && (
                 <div className="fixed inset-0 z-[9999]">
@@ -876,7 +899,10 @@ export default function BusinessSetupPage() {
                         aspectRatio={cropModal.type === 'cover' ? 3 / 1 : cropModal.type === 'logo' ? 1 : 1}
                         freeCrop={cropModal.type === 'gallery'}
                         onComplete={handleCropComplete}
-                        onClose={() => setCropModal({ isOpen: false, imageSrc: '', type: 'cover' })}
+                        onClose={() => {
+                            URL.revokeObjectURL(cropModal.imageSrc);
+                            setCropModal({ isOpen: false, imageSrc: '', type: 'cover' });
+                        }}
                     />
                 </div>
             )}

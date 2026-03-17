@@ -515,7 +515,12 @@
       "serviceImageHint": "Tap to add a reference photo",
       "changeImage": "Change image",
       "uploadingImage": "Uploading...",
-      "imageUploadError": "Could not upload image. Try again."
+      "imageUploadError": "Could not upload image. Please try again.",
+      "maxPhotos": "Maximum 10 photos per service",
+      "photoHint": "Auto-compression · The 1st photo is the main service photo",
+      "mainPhoto": "Main",
+      "addPhoto": "Add photo",
+      "cropPhoto": "Crop Service Photo"
     },
     "team": {
       "title": "My Team",

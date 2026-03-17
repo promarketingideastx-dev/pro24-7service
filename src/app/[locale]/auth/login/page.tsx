@@ -25,30 +25,7 @@ function LoginForm() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Auto-redirect when user is already authenticated (e.g., after signInWithRedirect returns)
-    useEffect(() => {
-        if (!authLoading && user) {
-            const redirect = (path: string) => { setTimeout(() => router.replace(path), 0); };
-            const stored = sessionStorage.getItem('auth_redirect_to');
-            const intent = searchParams.get('intent');
-            const userMode = sessionStorage.getItem('pro247_user_mode') || undefined;
-
-            if (stored) {
-                sessionStorage.removeItem('auth_redirect_to');
-                redirect(stored);
-            } else {
-                const hasLocalePrefix = LOCALE_PREFIXES.some(p => returnTo.startsWith(p));
-                let target = returnTo && returnTo !== '/' && !hasLocalePrefix ? lp(returnTo) : returnTo || lp('/');
-
-                // Override fallback root direction if business intent is present
-                if ((intent === 'business' || userMode === 'business') && (target === '/' || target === lp('/'))) {
-                    target = lp('/business/setup');
-                }
-
-                redirect(target);
-            }
-        }
-    }, [user, authLoading, returnTo, router, locale]);
+    // Auto-redirect handles entirely in AuthGuard now
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -57,17 +34,7 @@ function LoginForm() {
 
         try {
             await AuthService.loginWithEmail(email, password);
-            const hasLocalePrefix = LOCALE_PREFIXES.some(p => returnTo.startsWith(p));
-            const intent = searchParams.get('intent');
-            let target = returnTo && returnTo !== '/' && !hasLocalePrefix
-                ? lp(returnTo)
-                : returnTo || lp('/');
-
-            if ((intent === 'business') && (target === '/' || target === lp('/'))) {
-                target = lp('/business/setup');
-            }
-
-            router.replace(target);
+            // No navigation here. AuthGuard intercepts and shoots us to the correct page automatically.
         } catch (err: any) {
             console.error(err);
             if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
@@ -79,7 +46,6 @@ function LoginForm() {
             } else {
                 setError(t('errorGeneral'));
             }
-        } finally {
             setLoading(false);
         }
     };
@@ -90,12 +56,8 @@ function LoginForm() {
         try {
             const hasLocalePrefix = LOCALE_PREFIXES.some(p => returnTo.startsWith(p));
             const target = returnTo && returnTo !== '/' && !hasLocalePrefix ? lp(returnTo) : returnTo || lp('/');
-            const loggedUser = await AuthService.loginWithGoogle(target);
-            if (loggedUser) {
-                // Desktop popup success — redirect immediately
-                router.replace(target);
-            }
-            // Mobile redirect: page navigates away, no further action
+            await AuthService.loginWithGoogle(target);
+            // Desktop popup success OR Mobile redirect. AuthGuard handles the bounce.
         } catch (err: any) {
             console.error(err);
             if ((err as any).code === 'auth/unauthorized-domain') {
@@ -103,7 +65,6 @@ function LoginForm() {
             } else if ((err as any).code !== 'auth/popup-closed-by-user' && (err as any).code !== 'auth/cancelled-popup-request') {
                 setError(t('errorGoogle'));
             }
-        } finally {
             setLoading(false);
         }
     };
@@ -114,16 +75,13 @@ function LoginForm() {
         try {
             const hasLocalePrefix = LOCALE_PREFIXES.some(p => returnTo.startsWith(p));
             const target = returnTo && returnTo !== '/' && !hasLocalePrefix ? lp(returnTo) : returnTo || lp('/');
-            const loggedUser = await AuthService.loginWithApple(target);
-            if (loggedUser) {
-                router.replace(target);
-            }
+            await AuthService.loginWithApple(target);
+            // AuthGuard handles the router bounce
         } catch (err: any) {
             console.error(err);
             if ((err as any).code !== 'auth/popup-closed-by-user') {
                 setError(t('errorGoogle'));
             }
-        } finally {
             setLoading(false);
         }
     };
