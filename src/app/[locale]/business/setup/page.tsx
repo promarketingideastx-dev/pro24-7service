@@ -12,7 +12,7 @@ import GlassPanel from '@/components/ui/GlassPanel';
 import ImageUploader from '@/components/ui/ImageUploader';
 import ImageCropModal from '@/components/ui/ImageCropModal';
 import {
-    Instagram, Facebook, Globe, Upload, X, Trash2, Edit2,
+    Instagram, Facebook, Globe, Upload, X, Trash2, Edit2, Users,
     Building, MapPin, Tag, Check, ArrowRight, ArrowLeft,
     MonitorPlay, Camera, Palette, Music, Scissors, Shield, // Art
     Wrench, Zap, Droplets, PaintBucket, Truck, Key, Car, Bike, Leaf, // General
@@ -45,6 +45,8 @@ export default function BusinessSetupPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [showMultiArea, setShowMultiArea] = useState(false); // Toggle for additional areas
+    const planContext = userProfile?.selectedPlan || 'premium';
+    const isTeamPlan = planContext === 'plus_team';
 
     // Crop Modal State
     const [cropModal, setCropModal] = useState<{
@@ -326,13 +328,15 @@ export default function BusinessSetupPage() {
                         </div>
 
                         <div>
-                            <label className="block text-slate-600 text-sm mb-1">{t('businessName')}</label>
+                            <label className="block text-slate-600 text-sm mb-1">
+                                {isTeamPlan ? 'Nombre de tu Empresa/Negocio *' : 'Nombre del Profesional o Negocio *'}
+                            </label>
                             <input
                                 type="text"
                                 value={formData.businessName}
                                 onChange={e => setFormData({ ...formData, businessName: e.target.value })}
                                 className="w-full h-12 bg-white border border-slate-200 rounded-lg px-4 text-slate-900 focus:outline-none focus:border-teal-500"
-                                placeholder="Ej: Mi Negocio Profesional"
+                                placeholder={isTeamPlan ? 'Ej: Clínica Dental Vida' : 'Ej: Juan Pérez - Electricista'}
                             />
                         </div>
                         <div>
@@ -346,7 +350,9 @@ export default function BusinessSetupPage() {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-slate-600 text-sm mb-1">Teléfono</label>
+                                <label className="block text-slate-600 text-sm mb-1">
+                                    {isTeamPlan ? 'Teléfono de la Empresa' : 'Tu Teléfono Directo'}
+                                </label>
                                 <input
                                     type="tel"
                                     value={formData.phone}
@@ -867,8 +873,9 @@ export default function BusinessSetupPage() {
                                 <span className="text-slate-700 capitalize">{formData.modality}</span>
                             </div>
                         </div>
-                        <p className="text-slate-600 text-center">
-                            Al hacer clic en {t("createBusiness")}, tu perfil será activado como Proveedor y podrás empezar a gestionar tus servicios.
+                        <p className="text-slate-600 text-center mt-4">
+                            Al hacer clic en {t("createBusiness")}, tu perfil será activado como Proveedor y podrás empezar a gestionar tus servicios
+                            {isTeamPlan ? ' y preparar el acceso para tu equipo de trabajo.' : ' como profesional independiente.'}
                         </p>
                     </div>
                 );
@@ -920,7 +927,7 @@ export default function BusinessSetupPage() {
                 {/* ── LEFT SIDEBAR ── */}
                 <div className="w-full md:w-72 bg-slate-50 border-b md:border-b-0 md:border-r border-slate-200 flex flex-col p-6 shrink-0">
                     {/* Logo / Header */}
-                    <div className="flex items-center gap-3 mb-8">
+                    <div className="flex items-center gap-3 mb-4">
                         <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center">
                             <Building size={20} className="text-teal-600" />
                         </div>
@@ -928,6 +935,21 @@ export default function BusinessSetupPage() {
                             <p className="text-xs text-slate-500 uppercase tracking-wider">PRO24/7</p>
                             <p className="text-sm font-bold text-slate-900">Registro de Negocio</p>
                         </div>
+                    </div>
+
+                    {/* Context Badge */}
+                    <div className="mb-8 px-3 py-2 bg-indigo-50/50 border border-indigo-100/50 rounded-lg">
+                        <div className="flex items-center gap-2 mb-1">
+                            {isTeamPlan ? <Users size={14} className="text-indigo-600" /> : <Shield size={14} className="text-indigo-600" />}
+                            <span className="text-xs font-bold text-indigo-900">
+                                {isTeamPlan ? 'Plan Plus Equipo' : 'Plan Premium'}
+                            </span>
+                        </div>
+                        <p className="text-[11px] leading-snug text-indigo-700/70">
+                            {isTeamPlan 
+                                ? 'Configurando empresa con capacidad para equipo de trabajo.' 
+                                : 'Configurando perfil para profesional independiente.'}
+                        </p>
                     </div>
 
                     {/* Step List */}

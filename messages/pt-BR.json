@@ -82,7 +82,7 @@
     "confirmPassword": "Confirmar Senha",
     "passwordMismatch": "As senhas não coincidem.",
     "passwordTooShort": "A senha deve ter pelo menos 6 caracteres.",
-    "errorInvalidCredentials": "Credenciais incorretas. Tente novamente.",
+    "errorInvalidCredentials": "Credenciais incorretas. Se a sua conta originalmente usa Google/Apple, use os botões abaixo.",
     "errorUserNotFound": "Usuário não encontrado.",
     "errorTooManyRequests": "Muitas tentativas. Tente mais tarde.",
     "errorGoogle": "Não foi possível entrar com o Google.",

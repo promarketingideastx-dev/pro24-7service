@@ -332,7 +332,7 @@
     "confirmPassword": "Confirmar Contraseña",
     "passwordMismatch": "Las contraseñas no coinciden.",
     "passwordTooShort": "La contraseña debe tener al menos 6 caracteres.",
-    "errorInvalidCredentials": "Credenciales incorrectas. Intenta de nuevo.",
+    "errorInvalidCredentials": "Credenciales incorrectas. Si tu cuenta originalmente utiliza Google/Apple, usa los botones debajo.",
     "errorUserNotFound": "Usuario no encontrado.",
     "errorTooManyRequests": "Demasiados intentos. Intenta más tarde.",
     "errorGeneral": "Error al iniciar sesión. Verifica tu conexión.",

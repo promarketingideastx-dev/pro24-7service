@@ -103,7 +103,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
                 // If they have an explicit intent from the URL they clicked
                 const intent = searchParams.get('intent');
                 if (intent === 'business') {
-                    redirect(lp('/business/setup'));
+                    redirect(lp('/pricing'));
                     return;
                 }
                 if (intent === 'client') {

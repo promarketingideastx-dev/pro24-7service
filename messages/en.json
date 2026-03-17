@@ -82,7 +82,7 @@
     "confirmPassword": "Confirm Password",
     "passwordMismatch": "Passwords do not match.",
     "passwordTooShort": "Password must be at least 6 characters.",
-    "errorInvalidCredentials": "Incorrect credentials. Please try again.",
+    "errorInvalidCredentials": "Incorrect credentials. If your account originally uses Google/Apple, use the buttons below.",
     "errorUserNotFound": "User not found.",
     "errorTooManyRequests": "Too many attempts. Please try later.",
     "errorGeneral": "Error signing in. Check your connection.",

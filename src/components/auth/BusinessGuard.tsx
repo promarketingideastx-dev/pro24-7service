@@ -66,22 +66,36 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
         }
 
         // 5. Onboarding Step Router
-        const isPricingRoute = pathname.includes('/business/pricing');
         const isSetupRoute = pathname.includes('/business/setup');
         const isTrialRoute = pathname.includes('/business/trial-activation');
+        const isExpiredRoute = pathname.includes('/business/trial-expired');
 
         // Identify fully operational providers (Completed status, or Legacy ones with businessID but no status)
         const isOperational = onboardingStatus === 'completed' || hasBusiness || (isProvider && !onboardingStatus);
 
         if (isOperational) {
-             // BLOQUE 2D: Enforce Trial Expiration in background 
-             if (isProvider && user.uid) {
-                 TrialService.checkAndDowngradeTrial(user.uid).catch(() => { });
+             // Providers WITH operational business shouldn't hang out in setup unless upgrading/modifying
+             if (isSetupRoute || isTrialRoute) { 
+                 redirect(lp('/business/dashboard'));
+                 return;
              }
 
-             // Providers WITH operational business shouldn't hang out in setup unless upgrading/modifying
-             if (isSetupRoute || isTrialRoute) { // Pricing could be valid for upgrades, but Setup/Trial are definitely past
-                 redirect(lp('/business/dashboard'));
+             // Handle Expired Trial Logic dynamically
+             if (isProvider && user.uid) {
+                 TrialService.checkAndProcessExpiration(user.uid, userProfile).then((isExpired) => {
+                     if (isExpired && !isExpiredRoute) {
+                         // They are expired but trying to access dashboard/etc -> Send to expiration page
+                         redirect(lp('/business/trial-expired'));
+                     } else if (!isExpired && isExpiredRoute) {
+                         // They are NOT expired but trying to see expired page -> Send to dashboard
+                         redirect(lp('/business/dashboard'));
+                     } else {
+                         setIsAuthorized(true);
+                     }
+                 }).catch((err) => {
+                     console.error("Trial check failed:", err);
+                     setIsAuthorized(true); // Failsafe
+                 });
              } else {
                  setIsAuthorized(true);
              }
@@ -90,8 +104,7 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
              const currentStatus = onboardingStatus || 'pending_plan';
              
              if (currentStatus === 'pending_plan') {
-                 if (!isPricingRoute) redirect(lp('/business/pricing'));
-                 else setIsAuthorized(true);
+                 redirect(lp('/pricing'));
              } else if (currentStatus === 'pending_setup') {
                  if (!isSetupRoute) redirect(lp('/business/setup'));
                  else setIsAuthorized(true);
@@ -100,8 +113,7 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
                  else setIsAuthorized(true);
              } else {
                  // Fallback safely to plan selection
-                 if (!isPricingRoute) redirect(lp('/business/pricing'));
-                 else setIsAuthorized(true);
+                 redirect(lp('/pricing'));
              }
         }
 

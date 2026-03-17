@@ -71,7 +71,7 @@ const BAR_COLORS = [
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function DashboardPage() {
-    const { user } = useAuth();
+    const { user, userProfile } = useAuth();
     const t = useTranslations('business.dashboard');
     const locale = useLocale();
     const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -243,6 +243,10 @@ export default function DashboardPage() {
         },
     ];
 
+    const subscription = userProfile?.subscription;
+    const isTrial = subscription?.status === 'trial';
+    const trialDaysLeft = subscription ? Math.max(0, Math.ceil((subscription.trialEndAt - Date.now()) / (1000 * 60 * 60 * 24))) : 0;
+
     return (
         <CollaboratorGuard
             planStatus={planData?.planStatus}
@@ -250,6 +254,32 @@ export default function DashboardPage() {
             pauseReason={planData?.pauseReason}
         >
             <div className="space-y-6 pb-20">
+
+                {/* ── Trial Banner ───────────────────────────────────────── */}
+                {isTrial && (
+                    <div className="bg-gradient-to-r from-teal-500 to-emerald-400 rounded-2xl p-4 md:p-5 text-white shadow-[0_8px_30px_rgba(20,184,166,0.25)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                        <div className="flex items-start gap-4">
+                            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center shrink-0 hidden sm:flex backdrop-blur-sm">
+                                <span className="text-xl">🚀</span>
+                            </div>
+                            <div>
+                                <h2 className="font-bold flex items-center gap-2 tracking-tight text-[15px] md:text-base">
+                                    <span className="sm:hidden text-lg">🚀</span>
+                                    Estás en tu periodo de prueba
+                                </h2>
+                                <p className="text-teal-50 text-sm mt-0.5 max-w-lg leading-relaxed mix-blend-lighten">
+                                    Aprovecha todas las herramientas de tu plan <strong>{subscription?.plan === 'plus_team' ? 'Plus Equipo' : 'Premium'}</strong> sin costo. Te quedan <strong className="text-white text-[15px]">{trialDaysLeft} {trialDaysLeft === 1 ? 'días' : 'días'}</strong>.
+                                </p>
+                            </div>
+                        </div>
+                        <NextLink
+                            href={`/${locale}/pricing`}
+                            className="w-full sm:w-auto text-center bg-white text-teal-600 px-6 py-3 rounded-xl font-bold text-sm hover:bg-teal-50 transition-colors shrink-0 shadow-sm active:scale-[0.98]"
+                        >
+                            Ver mi Plan
+                        </NextLink>
+                    </div>
+                )}
 
                 {/* ── Header ─────────────────────────────────────────────── */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">

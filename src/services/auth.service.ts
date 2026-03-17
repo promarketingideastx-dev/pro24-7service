@@ -24,11 +24,15 @@ export const AuthService = {
     // Check if email exists to prevent duplicate account creation attempts
     checkEmailExists: async (email: string) => {
         try {
-            const methods = await fetchSignInMethodsForEmail(auth, email);
-            return methods.length > 0;
+            // Se usa Firestore en lugar de fetchSignInMethodsForEmail para evitar el bloqueo 
+            // de "Email Enumeration Protection" de Firebase Identity Platform.
+            const { query, where } = await import('firebase/firestore');
+            const q = query(collection(db, 'users'), where('email', '==', email));
+            const snap = await getDocs(q);
+            return !snap.empty;
         } catch (error) {
-            console.error('Error checking email existence:', error);
-            // Default to false to not block user, or handle specific error codes if needed
+            console.error('Error checking email existence in Firestore:', error);
+            // Si hay un error, dejamos que Firebase decida durante el Auth flow
             return false;
         }
     },

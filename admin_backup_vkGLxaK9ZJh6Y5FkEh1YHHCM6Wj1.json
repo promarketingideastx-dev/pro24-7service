@@ -1,0 +1,88 @@
+{
+  "timestamp": "2026-03-17T05:24:22.286Z",
+  "authRecord": {
+    "uid": "vkGLxaK9ZJh6Y5FkEh1YHHCM6Wj1",
+    "email": "promarketingideas.tx@gmail.com",
+    "emailVerified": true,
+    "displayName": "Mainor Rios",
+    "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocJpQsXXlK1ZcO10EZzWajyziyA8poLqVGIYj3pQ8KlPxQUQb9Y=s96-c",
+    "disabled": false,
+    "metadata": {
+      "lastSignInTime": "Tue, 17 Mar 2026 05:00:29 GMT",
+      "creationTime": "Sat, 14 Feb 2026 10:15:33 GMT",
+      "lastRefreshTime": "Tue, 17 Mar 2026 05:00:29 GMT"
+    },
+    "tokensValidAfterTime": "Sat, 14 Mar 2026 19:47:10 GMT",
+    "providerData": [
+      {
+        "uid": "114775507783915693798",
+        "displayName": "Mainor Rios",
+        "email": "promarketingideas.tx@gmail.com",
+        "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocJpQsXXlK1ZcO10EZzWajyziyA8poLqVGIYj3pQ8KlPxQUQb9Y=s96-c",
+        "providerId": "google.com"
+      },
+      {
+        "uid": "promarketingideas.tx@gmail.com",
+        "displayName": "Mainor Rios",
+        "email": "promarketingideas.tx@gmail.com",
+        "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocJpQsXXlK1ZcO10EZzWajyziyA8poLqVGIYj3pQ8KlPxQUQb9Y=s96-c",
+        "providerId": "password"
+      }
+    ]
+  },
+  "firestoreRecords": {
+    "users": {
+      "country_code": "HN",
+      "uid": "vkGLxaK9ZJh6Y5FkEh1YHHCM6Wj1",
+      "settings": {
+        "unit_km_mi": "km",
+        "notifications_enabled": true
+      },
+      "isBusinessActive": false,
+      "locale": "es",
+      "email": "promarketingideas.tx@gmail.com",
+      "isProvider": true,
+      "providerSince": {
+        "_seconds": 1771307427,
+        "_nanoseconds": 767000000
+      },
+      "currentRole": "provider",
+      "businessProfileId": "vkGLxaK9ZJh6Y5FkEh1YHHCM6Wj1",
+      "isAdmin": true,
+      "phoneNumber": "7138085039",
+      "displayName": "MJ Rios",
+      "fcmToken": "cHeQS5oB1Q69VzeMZetSO0:APA91bELeWMzY6LqEnhoPbPetnkwONS_qHRtRL_J011mXrPB-rFiaYxtFOfidciX0Q8YK8KdTQd9Yi3fNHwAqC4YZAH21zSS3Ab8-wiWfAD-s5SKlBywifk",
+      "createdAt": {
+        "_seconds": 1772294542,
+        "_nanoseconds": 500000000
+      },
+      "lastLogin": {
+        "_seconds": 1772294542,
+        "_nanoseconds": 500000000
+      },
+      "clientProfile": {
+        "fullName": "",
+        "avatar": {
+          "type": "none"
+        },
+        "privacy_policy_accepted": false,
+        "updated_at": "2026-02-28T16:02:22.168Z"
+      },
+      "fcmTokenUpdatedAt": "2026-02-28T16:03:22.801Z",
+      "role": "provider",
+      "address": "San Pedro Sula HN",
+      "userLocation": {
+        "lat": 29.89062020361568,
+        "lng": -95.42067352551004,
+        "timestamp": 1773295932532
+      },
+      "roles": {
+        "admin": false,
+        "client": true,
+        "provider": false
+      },
+      "providerOnboardingStatus": "pending_setup",
+      "selectedPlan": "premium"
+    }
+  }
+}

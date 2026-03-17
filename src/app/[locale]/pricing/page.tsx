@@ -2,7 +2,10 @@
 
 import { useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
-import { Check, Zap, Users, Star, ArrowRight, MessageCircle } from 'lucide-react';
+import { Check, Zap, ArrowRight, MessageCircle, ArrowLeft, Loader2 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { UserService } from '@/services/user.service';
+import { useState } from 'react';
 
 const PLANS = [
     {
@@ -72,16 +75,31 @@ export default function PricingPage() {
     const router = useRouter();
     const locale = useLocale();
     const lp = (path: string) => `/${locale}${path}`;
+    const { user, refreshProfile } = useAuth();
+    const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
-    const handlePlanSelect = (planId: string) => {
+    const handlePlanSelect = async (planId: string) => {
         if (planId === 'vip') {
-            // Open WhatsApp with a pre-filled message
             const msg = encodeURIComponent('Hola, me gustaría enviar una propuesta para ser Colaborador de Pro24/7YA.');
             window.open(`https://wa.me/50499999999?text=${msg}`, '_blank');
-        } else {
-            // TODO: Integrate payment processor (Stripe/local gateway)
-            // For now, navigate to dashboard — plan activation via CRM
-            router.push(lp('/business/dashboard'));
+            return;
+        } 
+        
+        if (!user) {
+            router.push(lp(`/auth/login?returnTo=${encodeURIComponent('/pricing')}`));
+            return;
+        }
+
+        setLoadingPlan(planId);
+        try {
+            await UserService.setPlanAndAdvanceToSetup(user.uid, planId as 'premium' | 'plus_team');
+            // CRITICAL: We MUST refresh the profile before router.push, otherwise BusinessGuard on /business/setup
+            // will still see providerOnboardingStatus as 'pending_plan' from the stale context and infinite loop us back here.
+            await refreshProfile();
+            router.push(lp('/business/setup'));
+        } catch (error) {
+            console.error('Error selecting plan:', error);
+            setLoadingPlan(null);
         }
     };
 
@@ -91,7 +109,18 @@ export default function PricingPage() {
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-purple-500/5 rounded-full blur-[100px] pointer-events-none" />
 
-            <div className="relative z-10 max-w-6xl mx-auto px-4 py-16">
+            <div className="relative z-10 max-w-6xl mx-auto px-4 py-8 md:py-16">
+                
+                {/* ── Escape Hatch ── */}
+                <div className="mb-8 md:mb-12">
+                    <button 
+                        onClick={() => router.push(lp('/'))}
+                        className="group flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors font-medium text-sm bg-white/50 backdrop-blur-md border border-slate-200/60 px-4 py-2 rounded-full shadow-sm"
+                    >
+                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                        Seguir explorando como cliente
+                    </button>
+                </div>
 
                 {/* Header */}
                 <div className="text-center mb-14">
@@ -160,10 +189,20 @@ export default function PricingPage() {
                             {/* CTA */}
                             <button
                                 onClick={() => handlePlanSelect(plan.id)}
-                                className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${plan.ctaStyle}`}
+                                disabled={loadingPlan === plan.id}
+                                className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${plan.ctaStyle} ${loadingPlan === plan.id ? 'opacity-75 cursor-not-allowed' : ''}`}
                             >
-                                {plan.ctaText}
-                                <ArrowRight className="w-4 h-4" />
+                                {loadingPlan === plan.id ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        Activando...
+                                    </>
+                                ) : (
+                                    <>
+                                        {plan.ctaText}
+                                        <ArrowRight className="w-4 h-4" />
+                                    </>
+                                )}
                             </button>
                         </div>
                     ))}

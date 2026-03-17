@@ -62,6 +62,16 @@ export interface UserDocument {
     isBusinessActive: boolean;
     isProvider?: boolean;
     providerOnboardingStatus?: 'pending_plan' | 'pending_setup' | 'pending_trial' | 'completed';
+    selectedPlan?: 'premium' | 'plus_team';
+    
+    // Suscripción
+    subscription?: {
+        plan: 'premium' | 'plus_team';
+        status: 'trial' | 'requires_payment_method' | 'canceled' | 'active' | 'expired';
+        trialStartAt: number;
+        trialEndAt: number;
+        isActive: boolean;
+    };
 
     // Admin flag — set by set-admin.js script
     isAdmin?: boolean;

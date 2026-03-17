@@ -4,6 +4,7 @@ import { Providers } from '../providers';
 import { Toaster } from 'sonner';
 import CookieConsent from '@/components/ui/CookieConsent';
 import NotificationBanner from '@/components/ui/NotificationBanner';
+import PasswordOptInBanner from '@/components/ui/PasswordOptInBanner';
 import SWRegistrar from '@/components/ui/SWRegistrar';
 
 const LOCALES = ['es', 'en', 'pt-BR'];
@@ -36,6 +37,7 @@ export default async function LocaleLayout({
             <Providers>
                 {children}
                 <NotificationBanner />
+                <PasswordOptInBanner />
                 <SWRegistrar />
                 <Toaster position="top-center" theme="dark" richColors toastOptions={{ style: { marginTop: 'calc(env(safe-area-inset-top, 1rem) + 1rem)' } }} />
                 <CookieConsent />

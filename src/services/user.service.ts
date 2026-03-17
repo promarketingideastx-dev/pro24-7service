@@ -84,6 +84,13 @@ export const UserService = {
         // We use merge: true to make roles ADDITIVE.
         // Granting provider does not remove client capabilities.
         if (role === 'provider') {
+            const userSnap = await getDoc(userRef);
+            const userData = userSnap.data() as UserDocument;
+            const plan = userData?.selectedPlan || 'premium';
+            
+            const now = Date.now();
+            const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+
             await setDoc(userRef, {
                 role: 'provider', // Legacy primary string (kept for backwards compatibility for edge cases)
                 roles: { 
@@ -91,7 +98,14 @@ export const UserService = {
                     client: true // Ensure legacy accounts migrating to provider get client explicitly enabled
                 },
                 providerOnboardingStatus: 'completed',
-                isBusinessActive: false
+                isBusinessActive: false,
+                subscription: {
+                    plan: plan,
+                    status: 'trial',
+                    trialStartAt: now,
+                    trialEndAt: now + sevenDaysInMs,
+                    isActive: true
+                }
             }, { merge: true });
         } else if (role === 'provider_intent') {
             // A user attempting to become a provider hasn't finished onboarding.
@@ -118,5 +132,18 @@ export const UserService = {
         if (!uid) throw new Error('User ID required');
         const userRef = doc(db, 'users', uid);
         await updateDoc(userRef, data as any);
+    },
+
+    /**
+     * Sets the selected plan and advances the provider onboarding status.
+     * This satisfies the Pricing -> Setup transition.
+     */
+    async setPlanAndAdvanceToSetup(uid: string, planId: 'premium' | 'plus_team') {
+        if (!uid) throw new Error('User ID required');
+        const userRef = doc(db, 'users', uid);
+        await setDoc(userRef, {
+            selectedPlan: planId,
+            providerOnboardingStatus: 'pending_setup'
+        }, { merge: true });
     }
 };

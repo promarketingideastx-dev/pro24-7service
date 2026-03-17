@@ -43,6 +43,9 @@ function OnboardingContent() {
         if (!user) {
             if (role === 'vip') {
                 router.push(lp(`/auth/register/vip?intent=${intent}${returnParam}`));
+            } else if (role === 'provider') {
+                // Phase 2B: Auth Portal para unificar Flujo de Negocios
+                router.push(lp(`/auth/portal?intent=${intent}${returnParam}`));
             } else if (isLoginMode) {
                 router.push(lp(`/auth/login?intent=${intent}${returnParam}`));
             } else {
@@ -64,7 +67,8 @@ function OnboardingContent() {
 
             // Normal provider/client mode save
             if (role !== 'vip') {
-                await UserService.setUserRole(user.uid, role);
+                const targetRole = role === 'provider' ? 'provider_intent' : role;
+                await UserService.setUserRole(user.uid, targetRole);
             }
 
             const redirect = (path: string) => {
