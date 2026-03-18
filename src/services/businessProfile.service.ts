@@ -2,7 +2,7 @@ import { db } from '@/lib/firebase';
 import { doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, writeBatch, serverTimestamp, query, orderBy, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { WeeklySchedule } from './employee.service';
 import { PaymentSettings } from '@/types/firestore-schema';
-import { TrialService } from './trial.service';
+
 import { PlanService } from './plan.service';
 
 
@@ -460,6 +460,10 @@ export const BusinessProfileService = {
             const userProfile = await UserService.getUserProfile(userId);
             const isVip = userProfile?.isVip === true;
 
+            const selectedPlan = userProfile?.selectedPlan || 'premium';
+            const now = Date.now();
+            const trialEndAt = now + (7 * 24 * 60 * 60 * 1000);
+
             // 4. Determine Plan Status (VIP vs Standard Trial)
             const planData = isVip ? {
                 plan: 'vip',
@@ -467,7 +471,15 @@ export const BusinessProfileService = {
                 planSource: 'collaborator_beta',
                 teamMemberLimit: 999, // VIP infinite
                 overriddenByCRM: false
-            } : TrialService.getNewBusinessPlanData();
+            } : {
+                plan: selectedPlan,
+                planStatus: 'trial',
+                planSource: 'trial',
+                teamMemberLimit: selectedPlan === 'plus_team' ? 5 : 0,
+                overriddenByCRM: false,
+                trialStartDate: new Date(now).toISOString(),
+                trialEndDate: new Date(trialEndAt).toISOString(),
+            };
 
             // 5. Prepare Public Payload (Safe for everyone, readable by Admin)
             const publicPayload = {
@@ -498,13 +510,7 @@ export const BusinessProfileService = {
                 openingHours: data.openingHours || null,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
-                planData: isVip ? {
-                    plan: 'vip',
-                    planStatus: 'active',
-                    planSource: 'collaborator_beta',
-                    teamMemberLimit: 999,
-                    overriddenByCRM: false
-                } : TrialService.getNewBusinessPlanData()
+                planData: planData
             };
 
             // 6. Prepare Private Payload (Sensitive info)
@@ -525,12 +531,31 @@ export const BusinessProfileService = {
             // 7. Batch Writes
             batch.set(publicRef, publicPayload);
             batch.set(privateRef, privatePayload);
-            batch.update(userRef, {
+
+            // Build the updated user document data
+            const userUpdatePayload: any = {
                 isProvider: true,
                 currentRole: 'provider',
                 businessProfileId: userId, // Link business to user for BusinessGuard
-                providerSince: serverTimestamp()
-            });
+                providerSince: serverTimestamp(),
+                providerOnboardingStatus: 'completed'
+            };
+
+            userUpdatePayload.subscription = isVip ? {
+                plan: 'premium', // fallback baseline within UI constraints
+                status: 'active',
+                trialStartAt: now,
+                trialEndAt: now,
+                isActive: true
+            } : {
+                plan: selectedPlan,
+                status: 'trial',
+                trialStartAt: now,
+                trialEndAt: trialEndAt,
+                isActive: true
+            };
+
+            batch.update(userRef, userUpdatePayload);
 
             // 8. Write trial plan data to businesses doc (gated plan management)
             const businessesRef = doc(db, 'businesses', userId);

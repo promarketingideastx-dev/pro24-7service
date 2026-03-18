@@ -62,7 +62,11 @@ function OnboardingContent() {
             const userProfile = await UserService.createUserProfile(user.uid, user.email || '');
 
             if (typeof window !== 'undefined') {
-                localStorage.setItem('pro247_user_mode', role === 'provider' ? 'business' : 'client');
+                try {
+                    localStorage.setItem('pro247_user_mode', role === 'provider' ? 'business' : 'client');
+                } catch (e) {
+                    console.warn('localStorage access denied, continuing onboarding naturally', e);
+                }
             }
 
             // Normal provider/client mode save
@@ -82,12 +86,9 @@ function OnboardingContent() {
                 return;
             }
 
-            if (userProfile?.role === 'provider' || userProfile?.roles?.provider || userProfile?.isProvider) {
-                if (userProfile?.businessProfileId) {
-                    redirect(lp('/business/dashboard'));
-                } else {
-                    redirect(lp('/business/setup'));
-                }
+            // Trust the 'role' the user just clicked, because userProfile is stale
+            if (role === 'provider') {
+                redirect(lp('/business'));
             } else {
                 redirect(lp('/'));
             }

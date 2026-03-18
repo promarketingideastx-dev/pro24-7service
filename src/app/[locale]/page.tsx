@@ -394,13 +394,23 @@ export default function Home() {
                                             <p className="text-xs text-slate-400">{t('loggedInAs')}</p>
                                             <p className="text-sm text-slate-800 font-medium truncate">{user.email}</p>
                                         </div>
+                                        {/* Dropdown Action: Provider Onboarding State */}
                                         {(userProfile?.roles?.provider || userProfile?.role === 'provider' || userProfile?.isAdmin) && (
                                             <button
                                                 onClick={() => router.push(lp('/business/dashboard'))}
                                                 className="w-full text-left px-3 py-2 rounded-lg text-[#14B8A6] hover:bg-slate-50 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
                                             >
                                                 <Store size={14} />
-                                                {t('manageBusiness')}
+                                                Administrar negocio
+                                            </button>
+                                        )}
+                                        {((userProfile?.role as string) === 'provider_intent') && !userProfile?.roles?.provider && (
+                                            <button
+                                                onClick={() => router.push(lp('/onboarding'))}
+                                                className="w-full text-left px-3 py-2 rounded-lg text-amber-600 hover:bg-slate-50 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
+                                            >
+                                                <Store size={14} />
+                                                Continuar registro
                                             </button>
                                         )}
                                         <button

@@ -23,8 +23,13 @@ function AuthPortalForm() {
     const intent = searchParams.get('intent');
     const returnTo = searchParams.get('returnTo') || (intent === 'business' ? lp('/business/pricing') : lp('/'));
 
-    // Steps: 'email' (initial check) | 'login' (exists) | 'register' (new)
-    const [step, setStep] = useState<'email' | 'login' | 'register'>('email');
+    // Steps:
+    // 'portal'         -> Option to choose explicitly (Login / Register) with Socials below
+    // 'email_login'    -> Entering email specifically aiming to login
+    // 'login'          -> Entering password 
+    // 'email_register' -> Entering email specifically aiming to create account
+    // 'register'       -> Filling out name/phone/password
+    const [step, setStep] = useState<'portal' | 'email_login' | 'email_register' | 'login' | 'register'>('portal');
 
     // Fields
     const [email, setEmail] = useState(searchParams.get('email') || '');
@@ -38,17 +43,47 @@ function AuthPortalForm() {
     const [error, setError] = useState<string | null>(null);
     const [suggestGoogleLink, setSuggestGoogleLink] = useState(false);
 
-    // --- STEP 1: VERIFY EMAIL ---
-    const handleEmailSubmit = async (e: React.FormEvent) => {
+    // --- STEP 1: VERIFY EMAIL FOR LOGIN ---
+    const handleEmailLoginSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
         setSuggestGoogleLink(false);
 
+        const normalizedEmail = email.trim().toLowerCase();
+        
         try {
-            const exists = await AuthService.checkEmailExists(email);
+            const exists = await AuthService.checkEmailExists(normalizedEmail);
             if (exists) {
                 setStep('login');
+            } else {
+                setError(t('errorInvalidCredentials')); // Generic so we don't leak "user doesn't exist" explicitly, or custom message if preferred.
+                setLoading(false);
+                return;
+            }
+        } catch (error) {
+            console.error("Failed email check", error);
+            setError(t('errorGeneral'));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // --- STEP 1: VERIFY EMAIL FOR REGISTER ---
+    const handleEmailRegisterSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+        setSuggestGoogleLink(false);
+
+        const normalizedEmail = email.trim().toLowerCase();
+        
+        try {
+            const exists = await AuthService.checkEmailExists(normalizedEmail);
+            if (exists) {
+                setError('Esta cuenta ya existe. Por favor, inicia sesión.');
+                // Smooth transition to login so they don't get stuck
+                setStep('email_login'); 
             } else {
                 setStep('register');
             }
@@ -67,22 +102,19 @@ function AuthPortalForm() {
         setError(null);
         setSuggestGoogleLink(false);
 
+        const normalizedEmail = email.trim().toLowerCase();
+
         try {
-            const loggedUser = await AuthService.loginWithEmail(email, password);
+            const loggedUser = await AuthService.loginWithEmail(normalizedEmail, password);
             
-            // FASE 2B: We inject provider_intent if intent=business, even for existing accounts
-            if (intent === 'business') {
-                await UserService.setUserRole(loggedUser.uid, 'provider_intent');
-                if (typeof window !== 'undefined') {
-                    localStorage.setItem('pro247_user_mode', intent);
-                }
-            }
-            // AuthGuard handles routing after hydration
+            // We no longer blindly inject provider_intent for existing accounts logging in.
+            // They will be routed to /pricing by AuthGuard and can decide to subscribe there.
         } catch (err: any) {
             console.error(err);
             if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
                 try {
-                    const exists = await AuthService.checkEmailExists(email);
+                    const normalizedEmail = email.trim().toLowerCase();
+                    const exists = await AuthService.checkEmailExists(normalizedEmail);
                     if (exists) {
                         setSuggestGoogleLink(true);
                     }
@@ -118,7 +150,8 @@ function AuthPortalForm() {
         }
 
         try {
-            const result = await AuthService.registerWithEmail(email, password);
+            const normalizedEmail = email.trim().toLowerCase();
+            const result = await AuthService.registerWithEmail(normalizedEmail, password);
             const role: 'client' | 'provider_intent' = intent === 'business' ? 'provider_intent' : 'client';
 
             // Send welcome email background
@@ -126,7 +159,7 @@ function AuthPortalForm() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    email,
+                    email: normalizedEmail,
                     name: name,
                     locale: locale || 'es',
                     role,
@@ -147,7 +180,7 @@ function AuthPortalForm() {
             console.error(err);
             if (err.code === 'auth/email-already-in-use') {
                 setError(t('errorEmailExists'));
-                setStep('login'); 
+                setStep('email_login'); 
             } else if (err.code === 'auth/weak-password') {
                 setError(t('errorWeakPassword'));
             } else {
@@ -171,10 +204,8 @@ function AuthPortalForm() {
 
             const profile = await UserService.getUserProfile(loggedUser.uid);
             
-            // FASE 2B: Injection for Google accounts
-            if (intent === 'business') {
-                await UserService.setUserRole(loggedUser.uid, 'provider_intent');
-            } else if (!profile?.role && !profile?.roles?.provider && !profile?.roles?.client) {
+            // FASE 2B: We no longer inject provider_intent for existing accounts making social logins.
+            if (!profile?.role && !profile?.roles?.provider && !profile?.roles?.client) {
                 await UserService.setUserRole(loggedUser.uid, 'client');
             }
             // Let AuthGuard route
@@ -196,9 +227,7 @@ function AuthPortalForm() {
             const loggedUser = await AuthService.loginWithApple(lp('/onboarding'));
             if (!loggedUser) return; 
             
-            if (intent === 'business') {
-                await UserService.setUserRole(loggedUser.uid, 'provider_intent');
-            }
+            // Do not inject provider_intent blindly for Apple logins
             // AuthGuard will handle routing
         } catch (err: any) {
             console.error(err);
@@ -214,10 +243,14 @@ function AuthPortalForm() {
             
             {/* dynamic headers based on step */}
             <h2 className="text-2xl md:text-3xl font-semibold text-slate-800 mb-2 tracking-tight" style={{ fontFamily: 'var(--font-outfit), sans-serif' }}>
-                {step === 'email' ? 'Comencemos 🚀' : step === 'login' ? t('welcomeBack') : t('createAccount')}
+                {step === 'portal' ? 'Bienvenido a PRO24/7' : 
+                 step === 'email_login' || step === 'login' ? t('welcomeBack') : 
+                 t('createAccount')}
             </h2>
             <p className="text-slate-500 font-medium text-sm md:text-base mb-6">
-                {step === 'email' ? 'Ingresa tu correo para continuar.' : t('enterData')}
+                {step === 'portal' ? 'Elige cómo quieres continuar:' : 
+                 step === 'email_login' || step === 'email_register' ? 'Ingresa tu correo para continuar.' : 
+                 t('enterData')}
             </p>
 
             {error && !suggestGoogleLink && (
@@ -227,9 +260,51 @@ function AuthPortalForm() {
                 </div>
             )}
 
-            {/* Email Form */}
-            {step === 'email' && (
-                <form onSubmit={handleEmailSubmit} className="space-y-4">
+            {/* Step 0: PORTAL CHOICES */}
+            {step === 'portal' && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
+                    <button type="button" onClick={() => { setStep('email_login'); setError(null); }} className="w-full p-4 border rounded-2xl transition-all cursor-pointer group overflow-hidden relative bg-blue-50/50 hover:bg-blue-50/80 border-[#E6E8EC] hover:border-blue-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] text-left active:scale-[0.98] flex items-center">
+                        <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl bg-blue-500" />
+                        <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center mr-4 shrink-0 transition-transform group-hover:scale-110">
+                            <User className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div className="flex-1 min-w-0 pr-2">
+                            <h2 className="font-bold text-slate-900 text-sm md:text-base">Ya tengo cuenta</h2>
+                            <p className="text-xs text-slate-500 mt-0.5 leading-snug">Iniciar sesión</p>
+                        </div>
+                        <div className="shrink-0 flex flex-col items-center">
+                            <div className="bg-white rounded-full p-1.5 shadow-sm border border-slate-100 group-hover:border-blue-200 transition-colors">
+                                <ArrowRight className="w-4 h-4 text-blue-500 group-hover:translate-x-0.5 transition-transform" />
+                            </div>
+                        </div>
+                    </button>
+
+                    <button type="button" onClick={() => { setStep('email_register'); setError(null); }} className="w-full p-4 border rounded-2xl transition-all cursor-pointer group overflow-hidden relative bg-pink-50/50 hover:bg-pink-50/80 border-[#E6E8EC] hover:border-pink-200 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] text-left active:scale-[0.98] flex items-center">
+                        <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl bg-pink-500" />
+                        <div className="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center mr-4 shrink-0 transition-transform group-hover:scale-110">
+                            <UserPlus className="w-6 h-6 text-pink-600" />
+                        </div>
+                        <div className="flex-1 min-w-0 pr-2">
+                            <h2 className="font-bold text-slate-900 text-sm md:text-base">No tengo cuenta</h2>
+                            <p className="text-xs text-slate-500 mt-0.5 leading-snug">Crear cuenta nueva</p>
+                        </div>
+                        <div className="shrink-0 flex flex-col items-center">
+                            <div className="bg-white rounded-full p-1.5 shadow-sm border border-slate-100 group-hover:border-pink-200 transition-colors">
+                                <ArrowRight className="w-4 h-4 text-pink-500 group-hover:translate-x-0.5 transition-transform" />
+                            </div>
+                        </div>
+                    </button>
+                    {!intent && (
+                        <div className="text-center mt-2">
+                           <button onClick={() => router.push(lp('/'))} className="text-slate-500 hover:text-slate-800 text-xs font-medium transition-colors cursor-pointer">Seguir explorando</button>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Email Form For Login */}
+            {step === 'email_login' && (
+                <form onSubmit={handleEmailLoginSubmit} className="space-y-4 animate-in fade-in slide-in-from-right-4">
                     <div className="space-y-1.5">
                         <label className="text-xs font-bold text-slate-800 uppercase tracking-widest">Email</label>
                         <div className="relative">
@@ -250,6 +325,39 @@ function AuthPortalForm() {
                         className="w-full mt-2 py-4 rounded-xl bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-white font-extrabold text-[15px] shadow-[0_8px_20px_rgba(15,23,42,0.25)] hover:shadow-[0_10px_25px_rgba(15,23,42,0.4)] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:grayscale-[50%] active:scale-[0.98]"
                     >
                         {loading ? <span className="w-5 h-5 border-2 border-slate-300 border-t-white rounded-full animate-spin"></span> : <>Continuar <ArrowRight className="w-4 h-4" /></>}
+                    </button>
+                    <button type="button" onClick={() => { setStep('portal'); setError(null); }} className="w-full py-2 text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors">
+                        Atrás
+                    </button>
+                </form>
+            )}
+
+            {/* Email Form For Register */}
+            {step === 'email_register' && (
+                <form onSubmit={handleEmailRegisterSubmit} className="space-y-4 animate-in fade-in slide-in-from-right-4">
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-800 uppercase tracking-widest">Email</label>
+                        <div className="relative">
+                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                            <input
+                                type="email"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full bg-white/60 backdrop-blur-sm border-[1.5px] border-slate-300/80 rounded-xl py-3.5 pl-11 pr-4 text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:border-[#14B8A6] focus:ring-4 focus:ring-[#14B8A6]/10 transition-all shadow-sm"
+                                placeholder="ejemplo@correo.com"
+                            />
+                        </div>
+                    </div>
+                    <button
+                        type="submit"
+                        disabled={loading || !email}
+                        className="w-full mt-2 py-4 rounded-xl bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-white font-extrabold text-[15px] shadow-[0_8px_20px_rgba(15,23,42,0.25)] hover:shadow-[0_10px_25px_rgba(15,23,42,0.4)] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:grayscale-[50%] active:scale-[0.98]"
+                    >
+                        {loading ? <span className="w-5 h-5 border-2 border-slate-300 border-t-white rounded-full animate-spin"></span> : <>Continuar <ArrowRight className="w-4 h-4" /></>}
+                    </button>
+                    <button type="button" onClick={() => { setStep('portal'); setError(null); }} className="w-full py-2 text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors">
+                        Atrás
                     </button>
                 </form>
             )}
@@ -291,7 +399,7 @@ function AuthPortalForm() {
                         <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
                             <Mail className="w-5 h-5 text-slate-400" />
                             <span className="flex-1 text-slate-700 font-medium truncate">{email}</span>
-                            <button type="button" onClick={() => {setStep('email'); setError(null);}} className="text-[#14B8A6] text-xs font-bold hover:underline">Cambiar</button>
+                            <button type="button" onClick={() => {setStep('email_login'); setError(null);}} className="text-[#14B8A6] text-xs font-bold hover:underline">Cambiar</button>
                         </div>
                     </div>
                     
@@ -320,18 +428,22 @@ function AuthPortalForm() {
                     <button type="submit" disabled={loading} className="w-full mt-2 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold transition-all flex items-center justify-center gap-2">
                         {loading ? <span className="w-5 h-5 border-2 border-slate-300 border-t-white rounded-full animate-spin"></span> : <><LogIn className="w-4 h-4" />{t('signIn')}</>}
                     </button>
+                    <button type="button" onClick={() => { setStep('email_login'); setError(null); }} className="w-full py-2 text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors">
+                        Atrás
+                    </button>
                 </form>
                 </div>
             )}
 
             {/* Register Form */}
             {step === 'register' && (
-                <form onSubmit={handleRegister} className="space-y-4 animate-in fade-in slide-in-from-right-4">
+                <div className="animate-in fade-in slide-in-from-right-4">
+                <form onSubmit={handleRegister} className="space-y-4">
                     <div className="space-y-1.5">
                         <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
                             <Mail className="w-5 h-5 text-slate-400" />
                             <span className="flex-1 text-slate-700 font-medium truncate">{email}</span>
-                            <button type="button" onClick={() => {setStep('email'); setError(null);}} className="text-[#14B8A6] text-xs font-bold hover:underline">Cambiar</button>
+                            <button type="button" onClick={() => {setStep('email_register'); setError(null);}} className="text-[#14B8A6] text-xs font-bold hover:underline">Cambiar</button>
                         </div>
                     </div>
 
@@ -387,10 +499,11 @@ function AuthPortalForm() {
                          {loading ? <span className="w-5 h-5 border-2 border-slate-300 border-t-white rounded-full animate-spin"></span> : <><UserPlus className="w-4 h-4" />Crear Cuenta</>}
                     </button>
                 </form>
+                </div>
             )}
 
-            {/* Social Logins - Only visible if step is email to not clutter the subviews? No, let's keep them visible globally unless they are in register/password entry state since that distracts. */}
-            {step === 'email' && (
+            {/* Social Logins - Keep visible globally in portal unless in deeper fields */}
+            {step === 'portal' && (
                 <>
                     <div className="relative my-6">
                         <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>

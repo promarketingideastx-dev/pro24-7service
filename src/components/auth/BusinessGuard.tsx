@@ -52,8 +52,10 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
         const onboardingStatus = userProfile.providerOnboardingStatus;
         const hasBusiness = !!userProfile.businessProfileId || userProfile.isBusinessActive;
 
+        const isPricingRoute = pathname.includes('/pricing') || pathname.includes('/business/pricing');
+
         // Determine if user has any business intent or role
-        if (!isAdmin && !isProvider && !onboardingStatus && !hasBusiness) {
+        if (!isAdmin && !isProvider && !onboardingStatus && !hasBusiness && !isPricingRoute) {
              console.log('[BusinessGuard] Redirecting non-provider to onboarding');
              redirect(lp(`/onboarding?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
              return;

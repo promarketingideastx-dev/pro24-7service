@@ -22,8 +22,9 @@ import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 
 export const AuthService = {
     // Check if email exists to prevent duplicate account creation attempts
-    checkEmailExists: async (email: string) => {
+    checkEmailExists: async (rawEmail: string) => {
         try {
+            const email = rawEmail.trim().toLowerCase();
             // Se usa Firestore en lugar de fetchSignInMethodsForEmail para evitar el bloqueo 
             // de "Email Enumeration Protection" de Firebase Identity Platform.
             const { query, where } = await import('firebase/firestore');
@@ -118,14 +119,23 @@ export const AuthService = {
 
     loginWithEmail: async (email: string, pass: string) => {
         try {
+            let user;
             if (Capacitor.isNativePlatform()) {
                 const result = await FirebaseAuthentication.signInWithEmailAndPassword({ email, password: pass });
                 if (!result.user) throw new Error('Native login failed without user');
-                return result.user; // Note: AuthContext will pick this up via Web SDK sync
+                user = result.user;
+            } else {
+                const result = await signInWithEmailAndPassword(auth, email, pass);
+                user = result.user;
             }
 
-            const result = await signInWithEmailAndPassword(auth, email, pass);
-            return result.user;
+            // FASE 4: Ghost Account Recovery -> If Auth exists but no Firestore doc, heal it.
+            const profile = await UserService.getUserProfile(user.uid);
+            if (!profile) {
+                await UserService.createUserProfile(user.uid, user.email || email);
+            }
+
+            return user;
         } catch (error) {
             console.error('Error logging in with Email:', error);
             throw error;
