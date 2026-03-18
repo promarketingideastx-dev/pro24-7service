@@ -83,19 +83,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                 // Real-time Listener (Start immediately)
                 const userRef = doc(db, 'users', currentUser.uid);
-                unsubscribeFirestore = onSnapshot(userRef, (docSnap) => {
+                unsubscribeFirestore = onSnapshot(userRef, async (docSnap) => {
                     if (docSnap.exists()) {
-                        console.log('[AuthContext] Firestore profile loaded');
+                        console.log('[AuthContext] Firestore profile loaded from server/cache');
                         setUserProfile(docSnap.data() as UserDocument);
                         setLoading(false);
                     } else {
-                        console.log('[AuthContext] Firestore profile not found, triggering creation');
-                        // Profile doesn't exist yet -> Trigger creation.
-                        // CRITICAL: Do NOT setLoading(false) here. The next snapshot will fire when creation completes.
-                        UserService.createUserProfile(currentUser.uid, currentUser.email || '').catch(e => {
-                            console.error("Profile creation failed", e);
-                            setLoading(false); // Only unlock if it drastically failed
-                        });
+                        console.log('[AuthContext] Firestore profile cache miss or missing, verifying with server...');
+                        try {
+                            // En FASE 4 / FIX: Await the response explicitly.
+                            // If user is real but cache was empty, this returns the genuine profile without mutating DB.
+                            // If user is truly missing, this creates it and returns it.
+                            const recoveredProfile = await UserService.createUserProfile(currentUser.uid, currentUser.email || '');
+                            
+                            if (recoveredProfile) {
+                                console.log('[AuthContext] Profile recovered/created successfully. Unlocking UI.');
+                                setUserProfile(recoveredProfile);
+                            } else {
+                                console.log('[AuthContext] Profile recovery returned null (missing/error).');
+                                setUserProfile(null);
+                            }
+                        } catch (e) {
+                            console.error("Profile creation/recovery failed", e);
+                            setUserProfile(null);
+                        } finally {
+                            // GARANTÍA: Siempre destrabar UI, sin excepciones, evitando spin infinito.
+                            setLoading(false);
+                        }
                     }
                 }, (error) => {
                     console.error("AuthContext Firestore Error:", error);
