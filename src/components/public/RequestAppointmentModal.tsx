@@ -30,7 +30,7 @@ interface RequestAppointmentModalProps {
     paymentSettings?: PaymentSettings;
 }
 
-type Step = 'service' | 'datetime' | 'payment' | 'contact' | 'review';
+type Step = 'service' | 'datetime' | 'payment' | 'incomplete_profile' | 'contact' | 'review';
 
 // ── Days / Months per locale ──────────────────────────────────────────────
 const DAYS: Record<string, string[]> = {
@@ -238,6 +238,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
     const [availableSlots, setAvailableSlots] = useState<string[]>([]);
     const [dayStatus, setDayStatus] = useState<{ isOpen: boolean; message: string }>({ isOpen: true, message: '' });
     const [proofFile, setProofFile] = useState<File | null>(null);
+    const [missingFields, setMissingFields] = useState<string[]>([]);
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         defaultValues: {
@@ -256,14 +257,12 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
             const hasEmail = !!userProfile?.email || !!user?.email;
 
             if (!hasName || !hasPhone || !hasEmail) {
-                const msgs: Record<string, string> = {
-                    es: "Completa tu perfil para poder agendar una cita",
-                    en: "Complete your profile before booking an appointment",
-                    pt: "Complete seu perfil antes de agendar uma consulta"
-                };
-                toast.warning(msgs[localeKey] || msgs.es);
-                onClose();
-                router.push(`/${locale === 'pt-BR' ? 'pt-BR' : locale}/user/profile`);
+                const missing = [];
+                if (!hasName) missing.push(localeKey === 'en' ? 'Full Name' : localeKey === 'pt' ? 'Nome Completo' : 'Nombre Completo');
+                if (!hasPhone) missing.push(localeKey === 'en' ? 'Phone' : localeKey === 'pt' ? 'Telefone' : 'Teléfono');
+                if (!hasEmail) missing.push('Email');
+                setMissingFields(missing);
+                setStep('incomplete_profile');
             } else {
                 reset({
                     name: userProfile?.clientProfile?.fullName || '',
@@ -497,7 +496,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 {/* Header Clean Light */}
                 <div className="flex items-center justify-between pt-8 pb-4 px-6">
                     <div className="flex items-center gap-3">
-                        {step !== 'service' && (
+                        {step !== 'service' && step !== 'incomplete_profile' && (
                             <button onClick={() => {
                                 if (step === 'datetime') setStep('service');
                                 if (step === 'payment') setStep('datetime');
@@ -522,15 +521,59 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 </div>
 
                 {/* Progress Bar */}
-                <div className="flex gap-1 p-1 bg-slate-50">
-                    <div className={`h-1 flex-1 rounded-full ${['service', 'datetime', 'payment', 'contact'].includes(step) ? 'bg-[#14B8A6]' : 'bg-slate-100'}`} />
-                    <div className={`h-1 flex-1 rounded-full ${['datetime', 'payment', 'contact'].includes(step) ? 'bg-[#14B8A6]' : 'bg-slate-100'}`} />
-                    <div className={`h-1 flex-1 rounded-full ${['payment', 'contact'].includes(step) ? 'bg-[#14B8A6]' : 'bg-slate-100'}`} />
-                    <div className={`h-1 flex-1 rounded-full ${['contact'].includes(step) ? 'bg-[#14B8A6]' : 'bg-slate-100'}`} />
-                </div>
+                {step !== 'incomplete_profile' && (
+                    <div className="flex gap-1 p-1 bg-slate-50">
+                        <div className={`h-1 flex-1 rounded-full ${['service', 'datetime', 'payment', 'contact'].includes(step) ? 'bg-[#14B8A6]' : 'bg-slate-100'}`} />
+                        <div className={`h-1 flex-1 rounded-full ${['datetime', 'payment', 'contact'].includes(step) ? 'bg-[#14B8A6]' : 'bg-slate-100'}`} />
+                        <div className={`h-1 flex-1 rounded-full ${['payment', 'contact'].includes(step) ? 'bg-[#14B8A6]' : 'bg-slate-100'}`} />
+                        <div className={`h-1 flex-1 rounded-full ${['contact'].includes(step) ? 'bg-[#14B8A6]' : 'bg-slate-100'}`} />
+                    </div>
+                )}
 
                 {/* Body */}
                 <div className="flex-1 overflow-y-auto p-5 sm:p-6 pb-32 sm:pb-12 custom-scrollbar">
+
+                    {/* STEP: INCOMPLETE PROFILE */}
+                    {step === 'incomplete_profile' && (
+                        <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
+                            <div className="flex justify-center mb-2 mt-4">
+                                <div className="p-4 bg-orange-100 rounded-full">
+                                    <User className="w-10 h-10 text-orange-500" />
+                                </div>
+                            </div>
+                            <div className="text-center space-y-2">
+                                <h3 className="text-slate-900 font-bold text-lg">
+                                    {localeKey === 'en' ? 'Incomplete Profile' : localeKey === 'pt' ? 'Perfil Incompleto' : 'Perfil Incompleto'}
+                                </h3>
+                                <p className="text-slate-500 text-sm">
+                                    {localeKey === 'en' 
+                                        ? 'To book an appointment, you must complete the following details in your profile:' 
+                                        : localeKey === 'pt' 
+                                        ? 'Para agendar uma consulta, você deve preencher os seguintes dados no seu perfil:' 
+                                        : 'Para agendar una cita necesitas completar los siguientes datos en tu perfil:'}
+                                </p>
+                            </div>
+                            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mt-4">
+                                <ul className="list-none text-slate-700 font-medium space-y-2">
+                                    {missingFields.map((field, idx) => (
+                                        <li key={idx} className="flex gap-2 items-center text-sm">
+                                           <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0"></span>
+                                           {field}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    onClose();
+                                    router.push(`/${locale === 'pt-BR' ? 'pt-BR' : locale}/user/profile`);
+                                }}
+                                className="w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl mt-6 hover:shadow-lg transition-all"
+                            >
+                                {localeKey === 'en' ? 'Complete profile now' : localeKey === 'pt' ? 'Completar perfil agora' : 'Completar perfil ahora'}
+                            </button>
+                        </div>
+                    )}
 
                     {/* STEP 1: SERVICE */}
                     {step === 'service' && (

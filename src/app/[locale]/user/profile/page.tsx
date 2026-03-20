@@ -19,6 +19,9 @@ import { FavoritesService, FavoriteRecord } from '@/services/favorites.service';
 import { BookingService } from '@/services/booking.service';
 import { BookingDocument } from '@/types/firestore-schema';
 import { useLocale, useTranslations } from 'next-intl';
+import { PlacesLocationPicker, LocationResult } from '@/components/business/setup/PlacesLocationPicker';
+import { getCountryConfig } from '@/lib/locations';
+import { ActiveCountry } from '@/lib/activeCountry';
 
 export default function UserProfilePage() {
     const { user, userProfile } = useAuth();
@@ -38,7 +41,13 @@ export default function UserProfilePage() {
     const [formData, setFormData] = useState({
         displayName: '',
         phoneNumber: '',
-        address: '',
+        userLocation: {
+            address: '',
+            placeId: '',
+            lat: undefined as number | undefined,
+            lng: undefined as number | undefined,
+            countryCode: '',
+        }
     });
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showReauthModal, setShowReauthModal] = useState(false);
@@ -59,7 +68,13 @@ export default function UserProfilePage() {
             setFormData({
                 displayName: userProfile.displayName || user.displayName || '',
                 phoneNumber: userProfile.phoneNumber || '',
-                address: userProfile.address || '',
+                userLocation: {
+                    address: userProfile.userLocation?.address || '',
+                    placeId: userProfile.userLocation?.placeId || '',
+                    lat: userProfile.userLocation?.lat || undefined,
+                    lng: userProfile.userLocation?.lng || undefined,
+                    countryCode: userProfile.userLocation?.countryCode || userProfile.country_code || ActiveCountry.get() || 'HN',
+                }
             });
         }
         if (user) {
@@ -390,15 +405,32 @@ export default function UserProfilePage() {
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-xs font-semibold text-slate-500 uppercase">{t('addressLabel')}</label>
-                                <div className="relative">
-                                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                                    <input
-                                        type="text"
-                                        value={formData.address}
-                                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                        className="w-full bg-[#F4F6F8] border border-slate-200 rounded-xl pl-10 pr-4 py-3 focus:border-[#14B8A6]/50 focus:outline-none transition-colors"
-                                        placeholder={t('addressPlaceholder')}
+                                <label className="text-xs font-semibold text-slate-500 uppercase flex items-center gap-2">
+                                    {t('addressLabel')}
+                                    {formData.userLocation.lat && (
+                                        <span className="text-xs text-green-500 font-medium normal-case flex items-center"><CheckCircle className="w-3 h-3 inline mr-1" /> Ubicación confirmada</span>
+                                    )}
+                                </label>
+                                <div className="rounded-xl overflow-hidden border border-slate-200">
+                                    <PlacesLocationPicker
+                                        countryCode={formData.userLocation.countryCode || 'HN'}
+                                        defaultMapCenter={getCountryConfig((formData.userLocation.countryCode as any) || 'HN').coordinates}
+                                        onLocationSelect={(result) => {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                userLocation: {
+                                                    ...prev.userLocation,
+                                                    address: result.displayAddress || result.formattedAddress,
+                                                    lat: result.lat,
+                                                    lng: result.lng,
+                                                    placeId: result.placeId,
+                                                    countryCode: result.country || prev.userLocation.countryCode || 'HN',
+                                                }
+                                            }));
+                                        }}
+                                        initialAddress={formData.userLocation.address || ''}
+                                        initialLat={formData.userLocation.lat}
+                                        initialLng={formData.userLocation.lng}
                                     />
                                 </div>
                                 <button

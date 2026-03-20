@@ -89,31 +89,30 @@ export default function ClientsPage() {
                 BusinessProfileService.getProfile(user.uid),
             ]);
             
-            let finalCustomerData = initialCustomerData;
+            let finalCustomerData = [...initialCustomerData];
             
-            // Auto-sync diferido: Inyectar clientes de nuevas reservas en el CRM.
-            // Al ejecutarse aquí en la sesión del DEUÑO del negocio, las Firestore Rules permiten la escritura
-            // eliminando el banner rojo de error de origen en el frontend de clientes.
-            const syncPromises = [];
+            // FASE 4: Auto-sync en memoria (Resolución Temporal para Evitar Índices Compuestos)
+            // Se inyectan las huellas de clientes desde bookings directamente a la vista del CRM.
             for (const b of allBookings) {
                 if (b.clientEmail || b.clientPhone) {
-                    const exists = initialCustomerData.some((c: Customer) => 
+                    const exists = finalCustomerData.some((c: Customer) => 
                         (b.clientEmail && c.email === b.clientEmail) || 
                         (b.clientPhone && c.phone === b.clientPhone)
                     );
                     if (!exists) {
-                        syncPromises.push(CustomerService.upsertFromAppointment(user.uid, {
+                        // Create a volatile Customer instance for the CRM view
+                        finalCustomerData.push({
+                            id: b.clientId || `temp-${b.id}`,
+                            businessId: user.uid,
                             fullName: b.clientName || 'Cliente Online',
-                            email: b.clientEmail,
-                            phone: b.clientPhone
-                        }));
+                            email: b.clientEmail || '',
+                            phone: b.clientPhone || '',
+                            notes: 'Autogenerado vía Cita (Temporal en memoria)',
+                            createdAt: b.createdAt || new Date().toISOString(),
+                            updatedAt: new Date().toISOString(),
+                        } as Customer);
                     }
                 }
-            }
-            
-            if (syncPromises.length > 0) {
-                await Promise.allSettled(syncPromises);
-                finalCustomerData = await CustomerService.getCustomers(user.uid);
             }
 
             setCustomers(finalCustomerData);

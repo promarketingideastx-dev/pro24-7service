@@ -54,8 +54,11 @@ export interface UserDocument {
     locale: 'es' | 'en' | 'pt';
     settings: UserSettings;
     userLocation?: {
+        address?: string | null;
+        placeId?: string | null;
         lat?: number | null;
         lng?: number | null;
+        countryCode?: string | null;
         timestamp?: number | null;
         denied?: boolean;
     };
@@ -63,7 +66,6 @@ export interface UserDocument {
     // Optional flattened profile fields for easier access in CRM
     displayName?: string;
     phoneNumber?: string;
-    address?: string;
     isVip?: boolean;
 
     // Perfil Cliente (Siempre existe, aunque sea básico)
