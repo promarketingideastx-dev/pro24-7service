@@ -10,7 +10,8 @@ import {
     serverTimestamp,
     getDoc,
     orderBy,
-    Timestamp
+    Timestamp,
+    writeBatch
 } from 'firebase/firestore';
 import { BookingDocument, BookingStatus } from '@/types/firestore-schema';
 
@@ -124,6 +125,19 @@ export const BookingService = {
             paymentStatus: 'rejected',
             updatedAt: serverTimestamp()
         });
+    },
+
+    /**
+     * Batch Delete Bookings
+     */
+    async deleteBookings(bookingIds: string[]) {
+        if (!bookingIds.length) return;
+        const batch = writeBatch(db);
+        bookingIds.forEach(id => {
+            const ref = doc(db, COLLECTION_NAME, id);
+            batch.delete(ref);
+        });
+        await batch.commit();
     },
 
     /**

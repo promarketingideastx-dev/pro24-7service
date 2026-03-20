@@ -7,7 +7,7 @@ import { BusinessNotificationService } from '@/services/businessNotification.ser
 import { ClientNotificationService } from '@/services/clientNotification.service';
 import { format } from 'date-fns';
 import { es, enUS, ptBR } from 'date-fns/locale';
-import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, User, MessageCircle } from 'lucide-react';
+import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, User, MessageCircle, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAppointmentRefresh } from '@/context/AppointmentRefreshContext';
 import { useTranslations, useLocale } from 'next-intl';
@@ -49,6 +49,10 @@ export default function AppointmentInbox({
     const [rejectTarget, setRejectTarget] = useState<BookingDocument | null>(null);
     const [rejectReason, setRejectReason] = useState(DEFAULT_REJECTION_TEXT);
     const MAX_CHARS = 250;
+
+    // ── Multi-select state ────────────────────────────────────────────────────
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     // ── Sound ─────────────────────────────────────────────────────────────────
     useEffect(() => {
@@ -100,7 +104,42 @@ export default function AppointmentInbox({
 
     useEffect(() => {
         if (businessId) fetchAppointments();
+        setSelectedIds(new Set());
     }, [businessId, activeTab]);
+
+    const handleSelectAll = () => {
+        if (appointments.length === 0) return;
+        if (selectedIds.size === appointments.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(appointments.map(a => a.id!)));
+        }
+    };
+
+    const handleToggleSelect = (id: string | undefined) => {
+        if (!id) return;
+        const next = new Set(selectedIds);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        setSelectedIds(next);
+    };
+
+    const executeDelete = async () => {
+        if (selectedIds.size === 0) return;
+        setLoading(true);
+        setShowDeleteConfirm(false);
+        try {
+            await BookingService.deleteBookings(Array.from(selectedIds));
+            toast.success(`${selectedIds.size} ${t('deletedCount') || 'citas eliminadas'}`);
+            setSelectedIds(new Set());
+            triggerRefresh(); // global inbox count trigger
+            fetchAppointments();
+        } catch (error) {
+            console.error('Error deleting:', error);
+            toast.error(t('updateError'));
+            setLoading(false);
+        }
+    };
 
     // ── Helpers ────────────────────────────────────────────────────────────────
     const fmtDate = (apt: BookingDocument) =>
@@ -282,7 +321,23 @@ export default function AppointmentInbox({
                 </div>
 
                 {/* List */}
-                <div className="p-4 min-h-[300px] bg-[#F8FAFC]">
+                <div className="p-4 flex flex-col min-h-[300px] bg-[#F8FAFC] relative pb-20">
+                    {!loading && appointments.length > 0 && (
+                        <div className="flex items-center gap-3 mb-4 px-2">
+                            <button 
+                                onClick={handleSelectAll}
+                                className="w-5 h-5 rounded border-2 flex items-center justify-center transition-colors border-slate-300 hover:border-[#14B8A6] cursor-pointer"
+                            >
+                                {selectedIds.size === appointments.length && (
+                                    <div className="w-2.5 h-2.5 bg-[#14B8A6] rounded-sm" />
+                                )}
+                            </button>
+                            <span className="text-sm font-semibold text-slate-600">
+                                {selectedIds.size > 0 ? `${selectedIds.size} seleccionadas` : 'Seleccionar todas'}
+                            </span>
+                        </div>
+                    )}
+
                     {loading ? (
                         <div className="flex justify-center items-center h-48 text-slate-400 animate-pulse gap-2">
                             <div className="w-5 h-5 rounded-full border-2 border-[#14B8A6]/30 border-t-[#14B8A6] animate-spin" />
@@ -300,10 +355,18 @@ export default function AppointmentInbox({
                             {appointments.map((apt) => (
                                 <div
                                     key={apt.id}
-                                    className={`bg-white border border-[#E6E8EC] rounded-xl p-4 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all ${statusBorderLeft[apt.status] ?? 'border-l-4 border-l-slate-200'}`}
+                                    className={`bg-white border border-[#E6E8EC] rounded-xl p-4 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all ${statusBorderLeft[apt.status] ?? 'border-l-4 border-l-slate-200'} ${selectedIds.has(apt.id!) ? 'ring-2 ring-[#14B8A6]' : ''}`}
                                 >
-                                    {/* Status icon */}
+                                    {/* Selection Checkbox & Status icon */}
                                     <div className="flex items-start gap-4">
+                                        <button 
+                                            onClick={() => handleToggleSelect(apt.id)}
+                                            className="w-5 h-5 mt-1.5 rounded border-2 flex shrink-0 items-center justify-center transition-colors cursor-pointer border-slate-300 hover:border-[#14B8A6]"
+                                        >
+                                            {selectedIds.has(apt.id!) && (
+                                                <div className="w-2.5 h-2.5 bg-[#14B8A6] rounded-sm" />
+                                            )}
+                                        </button>
                                         <div className={`p-2.5 rounded-xl shrink-0 ${apt.status === 'confirmed' ? 'bg-[rgba(20,184,166,0.10)] text-[#14B8A6]' :
                                             apt.status === 'pending' ? 'bg-amber-50 text-amber-500' :
                                                 apt.status === 'completed' ? 'bg-green-50 text-green-500' :
@@ -370,6 +433,51 @@ export default function AppointmentInbox({
                     )}
                 </div>
             </div>
+
+            {/* ── Floating Delete Action Bar ─────────────────────────────── */}
+            {selectedIds.size > 0 && (
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900 text-white px-6 py-4 rounded-full shadow-2xl flex items-center justify-between gap-6 min-w-[300px] border border-slate-700 animate-in slide-in-from-bottom-8">
+                    <span className="font-semibold text-sm">
+                        {selectedIds.size} seleccionada{selectedIds.size !== 1 ? 's' : ''}
+                    </span>
+                    <button
+                        onClick={() => setShowDeleteConfirm(true)}
+                        className="flex items-center gap-2 bg-red-500 hover:bg-red-600 px-4 py-2 rounded-full text-sm font-bold transition-colors"
+                    >
+                        <Trash2 size={16} />
+                        Eliminar
+                    </button>
+                </div>
+            )}
+
+            {/* ── Delete Confirmation Modal ────────────────────────────── */}
+            {showDeleteConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+                    <div className="bg-white border border-[#E6E8EC] rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center">
+                        <div className="mx-auto w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4">
+                            <AlertCircle size={24} />
+                        </div>
+                        <h3 className="font-bold text-lg text-slate-900 mb-2">¿Eliminar {selectedIds.size} cita{selectedIds.size !== 1 ? 's' : ''}?</h3>
+                        <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+                            Esta acción es permanente y eliminará los registros de Firebase de forma irreversible.
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowDeleteConfirm(false)}
+                                className="flex-1 py-3 rounded-xl border border-[#E6E8EC] text-slate-600 hover:bg-[#F8FAFC] text-sm font-medium transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={executeDelete}
+                                className="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold text-sm transition-colors shadow-[0_4px_12px_rgba(239,68,68,0.25)]"
+                            >
+                                Eliminar todo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* ── Rejection Reason Modal ───────────────────────────────────── */}
             {rejectTarget && (
