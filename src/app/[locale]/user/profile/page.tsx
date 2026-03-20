@@ -405,6 +405,19 @@ export default function UserProfilePage() {
                             </div>
 
                             <div className="space-y-1">
+                                <label className="text-xs font-semibold text-slate-500 uppercase">Email</label>
+                                <div className="relative">
+                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <input
+                                        type="email"
+                                        value={user?.email || userProfile?.email || ''}
+                                        disabled={true}
+                                        className="w-full bg-slate-100/50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-slate-500 cursor-not-allowed focus:outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-1">
                                 <label className="text-xs font-semibold text-slate-500 uppercase flex items-center gap-2">
                                     {t('addressLabel')}
                                     {formData.userLocation.lat && (

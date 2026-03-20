@@ -252,9 +252,13 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
     // Validar perfil y autocompletar
     useEffect(() => {
         if (isOpen && user && !authLoading) {
-            const hasName = !!userProfile?.clientProfile?.fullName;
-            const hasPhone = !!userProfile?.clientProfile?.phone;
-            const hasEmail = !!userProfile?.email || !!user?.email;
+            const finalName = userProfile?.clientProfile?.fullName || userProfile?.displayName || user?.displayName || '';
+            const finalPhone = userProfile?.clientProfile?.phone || userProfile?.phoneNumber || '';
+            const finalEmail = userProfile?.email || user?.email || '';
+
+            const hasName = !!finalName;
+            const hasPhone = !!finalPhone;
+            const hasEmail = !!finalEmail;
 
             if (!hasName || !hasPhone || !hasEmail) {
                 const missing = [];
@@ -265,9 +269,9 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 setStep('incomplete_profile');
             } else {
                 reset({
-                    name: userProfile?.clientProfile?.fullName || '',
-                    phone: userProfile?.clientProfile?.phone || '',
-                    email: userProfile?.email || user?.email || '',
+                    name: finalName,
+                    phone: finalPhone,
+                    email: finalEmail,
                     notes: ''
                 });
             }
