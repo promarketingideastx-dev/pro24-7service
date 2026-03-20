@@ -430,8 +430,11 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                         paymentStatus: 'proof_uploaded'
                     });
                 } catch (e: any) {
-                    console.error("Proof upload failed:", e);
-                    toast.error(`Comprobante no se pudo procesar: ${e.message}.`);
+                    console.error(`[Storage Error] Proof upload failed for bookingId: ${booking.id} | Code: ${e.code || 'unknown'} | Path: bookings/${booking.id}/${proofFile.name} | Details:`, e);
+                    const errorMsg = localeKey === 'en' ? 'We couldn’t upload the payment proof. Please try again.' 
+                                   : localeKey === 'pt' ? 'Não foi possível enviar o comprovante. Tente novamente.' 
+                                   : 'No pudimos subir el comprobante. Inténtalo nuevamente.';
+                    toast.error(errorMsg);
                 }
             }
 
