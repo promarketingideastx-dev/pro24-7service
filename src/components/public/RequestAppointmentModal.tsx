@@ -11,6 +11,7 @@ import { db } from '@/lib/firebase';
 import { format } from 'date-fns';
 import { es, enUS, ptBR } from 'date-fns/locale';
 import { useLocale, useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { ActiveCountry } from '@/lib/activeCountry';
 import { getCountryConfig } from '@/lib/locations';
@@ -213,9 +214,10 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
 
 
 export default function RequestAppointmentModal({ isOpen, onClose, businessId, businessName, openingHours, paymentSettings }: RequestAppointmentModalProps) {
-    const { user } = useAuth();
+    const { user, userProfile, loading: authLoading } = useAuth();
     const t = useTranslations('booking');
     const locale = useLocale();
+    const router = useRouter();
     const localeKey = locale === 'en' ? 'en' : locale === 'pt-BR' ? 'pt' : 'es';
     const dateFnsLocale = locale === 'en' ? enUS : locale === 'pt-BR' ? ptBR : es;
 
@@ -237,7 +239,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
     const [dayStatus, setDayStatus] = useState<{ isOpen: boolean; message: string }>({ isOpen: true, message: '' });
     const [proofFile, setProofFile] = useState<File | null>(null);
 
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const { register, handleSubmit, reset, formState: { errors } } = useForm({
         defaultValues: {
             name: '',
             phone: '',
@@ -245,6 +247,33 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
             notes: ''
         }
     });
+
+    // Validar perfil y autocompletar
+    useEffect(() => {
+        if (isOpen && user && !authLoading) {
+            const hasName = !!userProfile?.clientProfile?.fullName;
+            const hasPhone = !!userProfile?.clientProfile?.phone;
+            const hasEmail = !!userProfile?.email || !!user?.email;
+
+            if (!hasName || !hasPhone || !hasEmail) {
+                const msgs: Record<string, string> = {
+                    es: "Completa tu perfil para poder agendar una cita",
+                    en: "Complete your profile before booking an appointment",
+                    pt: "Complete seu perfil antes de agendar uma consulta"
+                };
+                toast.warning(msgs[localeKey] || msgs.es);
+                onClose();
+                router.push(`/${locale === 'pt-BR' ? 'pt-BR' : locale}/user/profile`);
+            } else {
+                reset({
+                    name: userProfile?.clientProfile?.fullName || '',
+                    phone: userProfile?.clientProfile?.phone || '',
+                    email: userProfile?.email || user?.email || '',
+                    notes: ''
+                });
+            }
+        }
+    }, [isOpen, user, userProfile, authLoading, locale, localeKey, router, onClose, reset]);
 
     // Helpers
     const getDayKey = (dateStr: string) => {
