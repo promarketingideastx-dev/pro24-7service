@@ -351,16 +351,8 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
         setLoading(true);
 
         try {
-            let customerId: string | undefined = undefined;
-            try {
-                customerId = await CustomerService.upsertFromAppointment(businessId, {
-                    fullName: data.name,
-                    phone: data.phone || undefined,
-                    email: data.email || undefined,
-                });
-            } catch (err) {
-                console.warn("CRM sync failed silently:", err);
-            }
+            // CRM sync removed from client-side to prevent permission errors
+            // The business CRM will lazily sync it when the owner views their clients.
 
             // Calculo de abono
             const totalAmount = selectedService.price || 0;
@@ -373,10 +365,12 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 }
             }
 
-            // 1. Create the booking
             const booking = await BookingService.createBooking({
                 businessId,
                 clientId: user.uid,
+                clientName: data.name,
+                clientEmail: data.email || undefined,
+                clientPhone: data.phone || undefined,
                 serviceId: selectedService.id!,
                 serviceName: selectedService.name || t('service'),
                 date: selectedDate, // YYYY-MM-DD

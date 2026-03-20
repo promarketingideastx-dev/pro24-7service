@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { Plus, Users } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { CustomerService, Customer } from '@/services/customer.service';
-import { AppointmentService, Appointment } from '@/services/appointment.service';
+import { BookingService } from '@/services/booking.service';
+import { BookingDocument } from '@/types/firestore-schema';
 import { BusinessProfileService } from '@/services/businessProfile.service';
 import CustomerList from '@/components/business/clients/CustomerList';
 import CustomerFormModal from '@/components/business/clients/CustomerFormModal';
@@ -19,34 +20,46 @@ export interface CustomerStats {
     appointmentCount: number;
 }
 
-function computeStats(appointments: Appointment[]): Record<string, CustomerStats> {
+function computeStats(bookings: BookingDocument[], customers: Customer[]): Record<string, CustomerStats> {
     const stats: Record<string, CustomerStats> = {};
     const now = new Date();
 
-    for (const apt of appointments) {
-        const key = apt.customerId || `phone:${apt.customerPhone}` || `name:${apt.customerName}`;
+    for (const b of bookings) {
+        // Enlazar la reserva con el cliente del CRM si existen coincidencias
+        let matchedCustomer = null;
+        if (b.clientEmail || b.clientPhone) {
+             matchedCustomer = customers.find(c => 
+                 (b.clientEmail && c.email === b.clientEmail) || 
+                 (b.clientPhone && c.phone === b.clientPhone)
+             );
+        }
+        
+        const key = matchedCustomer?.id || b.clientId; 
         if (!key) continue;
 
         if (!stats[key]) {
             stats[key] = { ltv: 0, lastVisit: null, nextAppointment: null, appointmentCount: 0 };
         }
 
-        const aptDate = apt.date.toDate();
+        const [y, m, d] = b.date.split('-').map(Number);
+        const [hr, mn] = b.time.split(':').map(Number);
+        const aptDate = new Date(y, m - 1, d, hr, mn);
+        
         const s = stats[key];
         s.appointmentCount++;
 
-        // LTV: sum of accepted/completed appointments
-        if ((apt.status === 'confirmed' || apt.status === 'completed') && apt.servicePrice) {
-            s.ltv += apt.servicePrice;
+        // LTV: suma de amount de citas confirmadas/completadas
+        if ((b.status === 'confirmed' || b.status === 'completed') && b.totalAmount) {
+            s.ltv += b.totalAmount;
         }
 
-        // Last visit: most recent past confirmed/completed
-        if (aptDate < now && (apt.status === 'confirmed' || apt.status === 'completed')) {
+        // Última visita
+        if (aptDate < now && (b.status === 'confirmed' || b.status === 'completed')) {
             if (!s.lastVisit || aptDate > s.lastVisit) s.lastVisit = aptDate;
         }
 
-        // Next appointment: soonest future confirmed
-        if (aptDate >= now && apt.status === 'confirmed') {
+        // Siguiente cita
+        if (aptDate >= now && b.status === 'confirmed') {
             if (!s.nextAppointment || aptDate < s.nextAppointment) s.nextAppointment = aptDate;
         }
     }
@@ -70,14 +83,41 @@ export default function ClientsPage() {
         if (!user) return;
         try {
             setLoading(true);
-            // Fetch customers, appointments and business profile in parallel
-            const [customerData, allAppointments, profile] = await Promise.all([
+            const [initialCustomerData, allBookings, profile] = await Promise.all([
                 CustomerService.getCustomers(user.uid),
-                AppointmentService.getAllByBusiness(user.uid),
+                BookingService.getByBusiness(user.uid),
                 BusinessProfileService.getProfile(user.uid),
             ]);
-            setCustomers(customerData);
-            setAppointmentStats(computeStats(allAppointments));
+            
+            let finalCustomerData = initialCustomerData;
+            
+            // Auto-sync diferido: Inyectar clientes de nuevas reservas en el CRM.
+            // Al ejecutarse aquí en la sesión del DEUÑO del negocio, las Firestore Rules permiten la escritura
+            // eliminando el banner rojo de error de origen en el frontend de clientes.
+            const syncPromises = [];
+            for (const b of allBookings) {
+                if (b.clientEmail || b.clientPhone) {
+                    const exists = initialCustomerData.some((c: Customer) => 
+                        (b.clientEmail && c.email === b.clientEmail) || 
+                        (b.clientPhone && c.phone === b.clientPhone)
+                    );
+                    if (!exists) {
+                        syncPromises.push(CustomerService.upsertFromAppointment(user.uid, {
+                            fullName: b.clientName || 'Cliente Online',
+                            email: b.clientEmail,
+                            phone: b.clientPhone
+                        }));
+                    }
+                }
+            }
+            
+            if (syncPromises.length > 0) {
+                await Promise.allSettled(syncPromises);
+                finalCustomerData = await CustomerService.getCustomers(user.uid);
+            }
+
+            setCustomers(finalCustomerData);
+            setAppointmentStats(computeStats(allBookings, finalCustomerData));
             if (profile?.country) setBusinessCountry(profile.country);
         } catch (error) {
             console.error(error);

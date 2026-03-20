@@ -51,6 +51,9 @@ export const BookingService = {
 
         const data: Omit<BookingDocument, 'id'> = {
             ...bookingData,
+            clientName: bookingData.clientName,
+            clientEmail: bookingData.clientEmail,
+            clientPhone: bookingData.clientPhone,
             status: 'pending',
             paymentStatus: initialPaymentStatus,
             remainingAmount: bookingData.totalAmount - bookingData.depositAmount,

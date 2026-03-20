@@ -1067,7 +1067,7 @@
     "aptStatus_pending": "Pending",
     "aptStatus_confirmed": "Confirmed",
     "aptStatus_completed": "Completed",
-    "aptStatus_cancelled": "Cancelled",
+    "aptStatus_canceled": "Cancelled",
     "aptStatus_no-show": "No Show",
     "aptCancelBtn": "Cancel appointment",
     "aptCancelConfirm": "Cancel?",

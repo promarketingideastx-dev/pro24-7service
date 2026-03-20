@@ -270,6 +270,9 @@ export interface BookingDocument {
     id: string;
     businessId: string;
     clientId: string;
+    clientName?: string;
+    clientEmail?: string;
+    clientPhone?: string;
     serviceId: string;
     serviceName: string;
     date: string; // YYYY-MM-DD
