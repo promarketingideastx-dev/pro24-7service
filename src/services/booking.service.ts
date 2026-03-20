@@ -67,6 +67,33 @@ export const BookingService = {
     },
 
     /**
+     * Update an entire booking document
+     */
+    async updateBooking(bookingId: string, bookingData: Partial<BookingDocument>) {
+        const ref = doc(db, COLLECTION_NAME, bookingId);
+        const dataToUpdate = { ...bookingData, updatedAt: serverTimestamp() };
+        delete dataToUpdate.id;
+        await updateDoc(ref, dataToUpdate);
+    },
+
+    /**
+     * Creates a manual booking directly from Business Agenda bypassing payments
+     */
+    async createManualBooking(bookingData: Partial<BookingDocument>) {
+        const data = {
+            ...bookingData,
+            totalAmount: bookingData.totalAmount || 0,
+            depositAmount: bookingData.depositAmount || 0,
+            remainingAmount: bookingData.totalAmount || 0,
+            paymentStatus: 'pending',
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+        };
+        const docRef = await addDoc(collection(db, COLLECTION_NAME), data);
+        return { id: docRef.id, ...data };
+    },
+
+    /**
      * Mutate status (Confirm/Cancel/Complete)
      */
     async updateStatus(bookingId: string, status: BookingStatus) {

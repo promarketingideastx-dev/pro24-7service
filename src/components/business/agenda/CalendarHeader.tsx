@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { es, enUS, ptBR } from 'date-fns/locale';
 import { useLocale, useTranslations } from 'next-intl';
 
-export type CalendarView = 'day' | 'week' | 'resource';
+export type CalendarView = 'day' | 'week' | 'month' | 'resource';
 
 interface CalendarHeaderProps {
     currentDate: Date;
@@ -64,7 +64,7 @@ export default function CalendarHeader({
                 </div>
 
                 <h2 className="text-xl font-bold text-slate-900 capitalize">
-                    {format(currentDate, 'MMMM yyyy', { locale: dateFnsLocale })}
+                    {format(currentDate, view === 'day' ? 'MMMM d, yyyy' : 'MMMM yyyy', { locale: dateFnsLocale })}
                 </h2>
             </div>
 
@@ -87,6 +87,15 @@ export default function CalendarHeader({
                         }`}
                 >
                     {t('viewWeek')}
+                </button>
+                <button
+                    onClick={() => onViewChange('month')}
+                    className={`flex-1 md:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-all ${view === 'month'
+                        ? 'bg-white text-[#0F766E] font-semibold border border-[#14B8A6]/30 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700'
+                        }`}
+                >
+                    Mes
                 </button>
                 <button
                     onClick={() => onViewChange('resource')}

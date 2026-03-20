@@ -2,13 +2,13 @@ import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
 import { es, enUS, ptBR } from 'date-fns/locale';
 import { useLocale } from 'next-intl';
 import { getTimeSlots, SLOT_HEIGHT, getTopOffset, TOTAL_HEIGHT } from './TimeGridHelpers';
-import { Appointment } from '@/services/appointment.service';
+import { BookingDocument } from '@/types/firestore-schema';
 import AppointmentItem from './AppointmentItem';
 
 interface WeekViewProps {
     date: Date;
-    appointments: Appointment[];
-    onAppointmentClick?: (appointment: Appointment) => void;
+    appointments: BookingDocument[];
+    onAppointmentClick?: (appointment: BookingDocument) => void;
     onSlotClick?: (date: Date) => void;
     timeFormat?: '12h' | '24h';
 }
@@ -55,7 +55,7 @@ export default function WeekView({ date, appointments, onAppointmentClick, onSlo
 
                 {/* Day Columns */}
                 {weekDays.map((day, i) => {
-                    const dayAppointments = appointments.filter(apt => isSameDay(apt.date.toDate(), day));
+                    const dayAppointments = appointments.filter(apt => isSameDay(new Date(apt.date + 'T' + (apt.time || '00:00')), day) && apt.status !== 'canceled');
 
                     return (
                         <div
@@ -97,9 +97,9 @@ export default function WeekView({ date, appointments, onAppointmentClick, onSlo
 
                             {/* Events */}
                             {dayAppointments.map(apt => {
-                                const aptDate = apt.date.toDate();
+                                const aptDate = new Date(apt.date + 'T' + (apt.time || '00:00'));
                                 const top = getTopOffset(format(aptDate, 'HH:mm'));
-                                const height = (apt.serviceDuration / 30) * SLOT_HEIGHT;
+                                const height = ((apt.duration || 60) / 30) * SLOT_HEIGHT;
 
                                 return (
                                     <AppointmentItem

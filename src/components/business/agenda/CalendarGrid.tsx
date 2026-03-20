@@ -2,14 +2,14 @@ import { CalendarView } from './CalendarHeader';
 import DayView from './DayView';
 import WeekView from './WeekView';
 import ResourceView from './ResourceView';
-
-import { Appointment } from '@/services/appointment.service';
+import MonthView from './MonthView';
+import { BookingDocument } from '@/types/firestore-schema';
 
 interface CalendarGridProps {
     date: Date;
     view: CalendarView;
-    appointments?: Appointment[];
-    onAppointmentClick?: (appointment: Appointment) => void;
+    appointments?: BookingDocument[];
+    onAppointmentClick?: (appointment: BookingDocument) => void;
     onSlotClick?: (date: Date, resourceId?: string) => void;
     timeFormat?: '12h' | '24h';
 }
@@ -27,6 +27,8 @@ export default function CalendarGrid({
             return <DayView date={date} appointments={appointments} onAppointmentClick={onAppointmentClick} onSlotClick={onSlotClick} timeFormat={timeFormat} />;
         case 'week':
             return <WeekView date={date} appointments={appointments} onAppointmentClick={onAppointmentClick} onSlotClick={onSlotClick} timeFormat={timeFormat} />;
+        case 'month':
+            return <MonthView date={date} appointments={appointments} onAppointmentClick={onAppointmentClick} onSlotClick={onSlotClick} />;
         case 'resource':
             return <ResourceView date={date} appointments={appointments} onAppointmentClick={onAppointmentClick} onSlotClick={onSlotClick} timeFormat={timeFormat} />;
         default:

@@ -1,18 +1,18 @@
 import { format, isSameDay } from 'date-fns';
 import { getTimeSlots, formatTimeDisplay, SLOT_HEIGHT, getTopOffset, TOTAL_HEIGHT } from './TimeGridHelpers';
-import { Appointment } from '@/services/appointment.service';
+import { BookingDocument } from '@/types/firestore-schema';
 import AppointmentItem from './AppointmentItem';
 
 interface DayViewProps {
     date: Date;
-    appointments: Appointment[];
-    onAppointmentClick?: (appointment: Appointment) => void;
+    appointments: BookingDocument[];
+    onAppointmentClick?: (appointment: BookingDocument) => void;
     onSlotClick?: (date: Date) => void;
     timeFormat?: '12h' | '24h';
 }
 
 export default function DayView({ date, appointments, onAppointmentClick, onSlotClick, timeFormat = '12h' }: DayViewProps) {
-    const dayAppointments = appointments.filter(apt => isSameDay(apt.date.toDate(), date));
+    const dayAppointments = appointments.filter(apt => isSameDay(new Date(apt.date + 'T' + (apt.time || '00:00')), date) && apt.status !== 'canceled');
     const timeSlots = getTimeSlots(timeFormat);
 
     return (
@@ -75,9 +75,9 @@ export default function DayView({ date, appointments, onAppointmentClick, onSlot
 
                 {/* Events */}
                 {dayAppointments.map(apt => {
-                    const aptDate = apt.date.toDate();
+                    const aptDate = new Date(apt.date + 'T' + (apt.time || '00:00'));
                     const top = getTopOffset(format(aptDate, 'HH:mm')); // 24h format for internal logic matches getTopOffset's regex fallback? No, getTopOffset checks for 'M'. 24h string works.
-                    const height = (apt.serviceDuration / 30) * SLOT_HEIGHT;
+                    const height = ((apt.duration || 60) / 30) * SLOT_HEIGHT;
 
                     return (
                         <AppointmentItem

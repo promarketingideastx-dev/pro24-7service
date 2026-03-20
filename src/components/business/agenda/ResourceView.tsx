@@ -2,15 +2,15 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { EmployeeService, EmployeeData } from '@/services/employee.service';
 import { getTimeSlots, SLOT_HEIGHT, getTopOffset, TOTAL_HEIGHT } from './TimeGridHelpers';
-import { Appointment } from '@/services/appointment.service';
+import { BookingDocument } from '@/types/firestore-schema';
 import AppointmentItem from './AppointmentItem';
 import { format, isSameDay } from 'date-fns';
 import { useTranslations } from 'next-intl';
 
 interface ResourceViewProps {
     date: Date;
-    appointments: Appointment[];
-    onAppointmentClick?: (appointment: Appointment) => void;
+    appointments: BookingDocument[];
+    onAppointmentClick?: (appointment: BookingDocument) => void;
     onSlotClick?: (date: Date, resourceId?: string) => void;
     timeFormat?: '12h' | '24h';
 }
@@ -101,10 +101,10 @@ export default function ResourceView({ date, appointments, onAppointmentClick, o
                     ))}
 
                     {/* Events */}
-                    {appointments.filter(apt => isSameDay(apt.date.toDate(), date) && (apt.employeeId === 'pending' || !apt.employeeId)).map(apt => {
-                        const aptDate = apt.date.toDate();
+                    {appointments.filter(apt => isSameDay(new Date(apt.date + 'T' + (apt.time || '00:00')), date) && (apt.employeeId === 'pending' || !apt.employeeId) && apt.status !== 'canceled').map(apt => {
+                        const aptDate = new Date(apt.date + 'T' + (apt.time || '00:00'));
                         const top = getTopOffset(format(aptDate, 'HH:mm'));
-                        const height = (apt.serviceDuration / 30) * SLOT_HEIGHT;
+                        const height = ((apt.duration || 60) / 30) * SLOT_HEIGHT;
 
                         return (
                             <AppointmentItem
@@ -125,7 +125,7 @@ export default function ResourceView({ date, appointments, onAppointmentClick, o
                 {/* Employee Columns */}
                 {employees.map((emp) => {
                     const empAppointments = appointments.filter(apt =>
-                        isSameDay(apt.date.toDate(), date) && apt.employeeId === emp.id
+                        isSameDay(new Date(apt.date + 'T' + (apt.time || '00:00')), date) && apt.employeeId === emp.id && apt.status !== 'canceled'
                     );
 
                     return (
@@ -168,9 +168,9 @@ export default function ResourceView({ date, appointments, onAppointmentClick, o
 
                             {/* Events */}
                             {empAppointments.map(apt => {
-                                const aptDate = apt.date.toDate();
+                                const aptDate = new Date(apt.date + 'T' + (apt.time || '00:00'));
                                 const top = getTopOffset(format(aptDate, 'HH:mm'));
-                                const height = (apt.serviceDuration / 30) * SLOT_HEIGHT;
+                                const height = ((apt.duration || 60) / 30) * SLOT_HEIGHT;
 
                                 return (
                                     <AppointmentItem

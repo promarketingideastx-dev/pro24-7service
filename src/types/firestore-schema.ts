@@ -284,6 +284,8 @@ export interface BookingDocument {
     
     // Future multiple slots preparedness
     slotMetadata?: SlotMetadata;
+    employeeId?: string;
+    notes?: string;
     
     paymentStatus: PaymentStatus;
     paymentMethod: PaymentMethod;

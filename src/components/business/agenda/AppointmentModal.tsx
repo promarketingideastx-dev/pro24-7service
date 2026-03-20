@@ -4,9 +4,9 @@ import { X, Calendar as CalendarIcon, Clock, User, Briefcase } from 'lucide-reac
 import { format } from 'date-fns';
 import { ServiceData, getServiceName } from '@/services/businessProfile.service';
 import { EmployeeData } from '@/services/employee.service';
-import { Appointment, AppointmentStatus } from '@/services/appointment.service';
 import { Customer } from '@/services/customer.service';
 import { Timestamp } from 'firebase/firestore';
+import { BookingDocument, BookingStatus } from '@/types/firestore-schema';
 import { useTranslations, useLocale } from 'next-intl';
 
 interface AppointmentModalProps {
@@ -18,7 +18,7 @@ interface AppointmentModalProps {
     customers?: Customer[];
     initialDate?: Date;
     initialResource?: string;
-    appointment?: Appointment | null;
+    appointment?: BookingDocument | null;
 }
 
 export default function AppointmentModal({
@@ -35,7 +35,7 @@ export default function AppointmentModal({
         defaultValues: {
             customerId: '', customerName: '', customerPhone: '',
             serviceId: '', employeeId: '', date: '', time: '',
-            notes: '', status: 'confirmed' as AppointmentStatus
+            notes: '', status: 'confirmed' as BookingStatus
         }
     });
 
@@ -45,20 +45,19 @@ export default function AppointmentModal({
     useEffect(() => {
         if (isOpen) {
             if (appointment) {
-                const date = appointment.date.toDate();
                 reset({
-                    customerId: appointment.customerId || '',
-                    customerName: appointment.customerName,
-                    customerPhone: appointment.customerPhone || '',
-                    serviceId: appointment.serviceId,
+                    customerId: appointment.clientId || '',
+                    customerName: appointment.clientName || '',
+                    customerPhone: appointment.clientPhone || '',
+                    serviceId: appointment.serviceId || '',
                     employeeId: appointment.employeeId === 'pending' ? '' : appointment.employeeId,
-                    date: format(date, 'yyyy-MM-dd'),
-                    time: format(date, 'HH:mm'),
+                    date: appointment.date,
+                    time: appointment.time || '09:00',
                     notes: appointment.notes || '',
                     status: appointment.status
                 });
-                if (appointment.customerId && appointment.customerName) {
-                    setCustomerSearch(appointment.customerName);
+                if (appointment.clientId && appointment.clientName) {
+                    setCustomerSearch(appointment.clientName);
                 }
             } else {
                 reset({
@@ -94,17 +93,17 @@ export default function AppointmentModal({
         try {
             const service = services.find(s => s.id === data.serviceId);
             if (!service) throw new Error('Service not found');
-            const startDateTime = new Date(`${data.date}T${data.time}`);
-            const appointmentData = {
+            const appointmentData: Partial<BookingDocument> = {
                 ...appointment,
-                customerId: data.customerId || null,
-                customerName: data.customerName,
-                customerPhone: data.customerPhone,
+                clientId: data.customerId || null,
+                clientName: data.customerName,
+                clientPhone: data.customerPhone,
                 serviceId: data.serviceId,
                 serviceName: service.name,
-                serviceDuration: service.durationMinutes || 30,
-                employeeId: data.employeeId,
-                date: Timestamp.fromDate(startDateTime),
+                duration: service.durationMinutes || 30,
+                employeeId: data.employeeId || 'pending',
+                date: data.date,
+                time: data.time,
                 status: data.status,
                 notes: data.notes
             };
@@ -152,14 +151,14 @@ export default function AppointmentModal({
                             <label className="text-xs font-bold text-slate-800 uppercase tracking-wide mb-2 ml-1">{t('client')}</label>
                             <div className="flex items-center gap-3 bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3">
                                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm shrink-0">
-                                    {(appointment.customerName || '?').charAt(0).toUpperCase()}
+                                    {(appointment.clientName || '?').charAt(0).toUpperCase()}
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-slate-900 font-bold text-sm leading-tight truncate">
-                                        {appointment.customerName || t('noName')}
+                                        {appointment.clientName || t('noName')}
                                     </p>
-                                    {appointment.customerPhone && (
-                                        <p className="text-slate-500 text-xs">{appointment.customerPhone}</p>
+                                    {appointment.clientPhone && (
+                                        <p className="text-slate-500 text-xs">{appointment.clientPhone}</p>
                                     )}
                                 </div>
                                 <span className="ml-auto text-[10px] font-bold text-slate-500 bg-slate-200/50 px-2 py-0.5 rounded-full shrink-0">

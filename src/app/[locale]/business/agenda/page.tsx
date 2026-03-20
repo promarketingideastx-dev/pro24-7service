@@ -5,7 +5,8 @@ import CalendarHeader, { CalendarView } from '@/components/business/agenda/Calen
 import CalendarGrid from '@/components/business/agenda/CalendarGrid';
 import AppointmentModal from '@/components/business/agenda/AppointmentModal';
 import { useAuth } from '@/context/AuthContext';
-import { AppointmentService, Appointment } from '@/services/appointment.service';
+import { BookingService } from '@/services/booking.service';
+import { BookingDocument } from '@/types/firestore-schema';
 import { ServicesService, ServiceData } from '@/services/businessProfile.service';
 import { EmployeeService, EmployeeData } from '@/services/employee.service';
 import { CustomerService, Customer } from '@/services/customer.service';
@@ -23,12 +24,12 @@ export default function AgendaPage() {
     const timeFormat = countryConfig.timeFormat || '12h';
     const [currentDate, setCurrentDate] = useState(new Date());
     const [view, setView] = useState<CalendarView>('resource');
-    const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [appointments, setAppointments] = useState<BookingDocument[]>([]);
     const [services, setServices] = useState<ServiceData[]>([]);
     const [employees, setEmployees] = useState<EmployeeData[]>([]);
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+    const [selectedAppointment, setSelectedAppointment] = useState<BookingDocument | null>(null);
     const { lastRefresh } = useAppointmentRefresh();
 
     // Fetch dependencies
@@ -55,19 +56,11 @@ export default function AgendaPage() {
     const fetchAppointments = async () => {
         if (!user) return;
         try {
-            let start = startOfDay(currentDate);
-            let end = endOfDay(currentDate);
-
-            if (view === 'week') {
-                start = startOfWeek(currentDate, { weekStartsOn: 1 });
-                end = endOfWeek(currentDate, { weekStartsOn: 1 });
-            }
-
-            const data = await AppointmentService.getAppointments(user.uid, start, end);
+            const data = await BookingService.getByBusiness(user.uid);
             setAppointments(data);
         } catch (error) {
             console.error("Error fetching appointments:", error);
-            toast.error("Error al cargar citas");
+            toast.error("Error al cargar reservas");
         }
     };
 
@@ -86,20 +79,20 @@ export default function AgendaPage() {
         if (!user) return;
         try {
             if (appointmentData.id) {
-                await AppointmentService.updateAppointment(appointmentData.id, appointmentData);
-                toast.success("Cita actualizada");
+                await BookingService.updateBooking(appointmentData.id, appointmentData);
+                toast.success("Reserva actualizada");
             } else {
-                await AppointmentService.createAppointment({
+                await BookingService.createManualBooking({
                     ...appointmentData,
                     businessId: user.uid
                 });
-                toast.success("Cita creada");
+                toast.success("Reserva creada");
             }
             fetchAppointments();
             setIsModalOpen(false);
         } catch (error) {
             console.error(error);
-            toast.error("Error al guardar la cita");
+            toast.error("Error al guardar la reserva");
         }
     };
 
@@ -111,7 +104,7 @@ export default function AgendaPage() {
         setIsModalOpen(true);
     };
 
-    const handleOpenEdit = (apt: Appointment) => {
+    const handleOpenEdit = (apt: BookingDocument) => {
         setSelectedAppointment(apt);
         setIsModalOpen(true);
     };
