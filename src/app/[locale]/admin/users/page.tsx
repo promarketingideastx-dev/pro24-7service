@@ -20,6 +20,7 @@ type UserRecord = {
     isProvider?: boolean;
     isAdmin?: boolean;
     isBanned?: boolean;
+    accountStatus?: string;
     isVip?: boolean; // Added for VIP UI
     country_code?: string;
     createdAt?: any;
@@ -81,7 +82,20 @@ function ActionMenu({ user, onRefresh }: { user: UserRecord; onRefresh: () => vo
         setLoading(true);
         setOpen(false);
         try {
-            await updateDoc(doc(db, 'users', user.id), { isBanned: !user.isBanned });
+            await updateDoc(doc(db, 'users', user.id), { 
+                isBanned: !user.isBanned,
+                accountStatus: !user.isBanned ? 'blocked' : 'active'
+            });
+            // Also attempt to sync IdentityRegistry if it fails, it's fine for now from the client side
+            try {
+                if (user.email) {
+                    const { IdentityService } = await import('@/services/identity.service');
+                    await IdentityService.updateAccountStatus(user.email, !user.isBanned ? 'blocked' : 'active');
+                }
+            } catch (e) {
+                console.warn('Could not sync identity registry from CRM', e);
+            }
+
             toast.success(user.isBanned ? 'Usuario desbloqueado' : 'Usuario bloqueado');
             onRefresh();
         } catch { toast.error('Error'); }
@@ -403,11 +417,12 @@ export default function AdminUsersPage() {
                                             <td className="px-4 py-3 text-xs text-slate-500">{lastLogin ?? '—'}</td>
                                             <td className="px-4 py-3 text-xs text-slate-500">{createdDate ?? '—'}</td>
                                             <td className="px-4 py-3">
-                                                {u.isBanned ? (
-                                                    <span className="text-xs text-red-400 flex items-center gap-1"><UserX size={11} /> Bloqueado</span>
-                                                ) : (
-                                                    <span className="text-xs text-green-400 flex items-center gap-1"><UserCheck size={11} /> Activo</span>
-                                                )}
+                                                {(() => {
+                                                    if (u.isBanned || u.accountStatus === 'blocked') return <span className="text-xs text-red-400 flex items-center gap-1"><UserX size={11} /> Bloqueado</span>;
+                                                    if (u.accountStatus === 'canceled' || u.accountStatus === 'archived') return <span className="text-xs text-amber-500 flex items-center gap-1"><UserX size={11} /> {u.accountStatus === 'canceled' ? 'Cancelada' : 'Archivada'}</span>;
+                                                    if (u.accountStatus === 'pending_verification') return <span className="text-xs text-orange-400 flex items-center gap-1"><Clock size={11} /> Pendiente</span>;
+                                                    return <span className="text-xs text-green-400 flex items-center gap-1"><UserCheck size={11} /> Activo</span>;
+                                                })()}
                                             </td>
                                             <td className="px-4 py-3 text-right">
                                                 <ActionMenu user={u} onRefresh={load} />

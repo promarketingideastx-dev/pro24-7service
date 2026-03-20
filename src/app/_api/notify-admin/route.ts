@@ -4,7 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 // NOTE: Resend is instantiated inside the handler (not at module level)
 // to prevent Next.js build from crashing when RESEND_API_KEY is not set.
 
-const ADMIN_EMAIL = 'promarketingideas.tx@gmail.com';
+// to prevent Next.js build from crashing when RESEND_API_KEY is not set.
+
 const FROM_EMAIL = 'onboarding@resend.dev'; // Resend test domain — works without domain verification
 
 // ── Email templates ──────────────────────────────────────────────────────────
@@ -133,6 +134,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, skipped: true });
   }
 
+  const targetEmail = process.env.ADMIN_NOTIFICATIONS_EMAIL;
+  if (!targetEmail) {
+    console.warn('[notify-admin] ADMIN_NOTIFICATIONS_EMAIL not set — email skipped');
+    return NextResponse.json({ ok: true, skipped: true });
+  }
+
   // Instantiate inside the handler — safe from build-time crashes
   const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -160,7 +167,7 @@ export async function POST(req: NextRequest) {
 
     const result = await resend.emails.send({
       from: FROM_EMAIL,
-      to: ADMIN_EMAIL,
+      to: targetEmail,
       subject,
       html,
     });

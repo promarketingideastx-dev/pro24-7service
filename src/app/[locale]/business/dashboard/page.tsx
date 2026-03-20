@@ -73,9 +73,12 @@ const BAR_COLORS = [
 export default function DashboardPage() {
     const { user, userProfile } = useAuth();
     const t = useTranslations('business.dashboard');
+    const tTrial = useTranslations('dashboardTrial');
+    const tPricing = useTranslations('pricing');
     const locale = useLocale();
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     const [planData, setPlanData] = useState<{ planStatus?: string; planSource?: string; pauseReason?: string } | null>(null);
@@ -152,8 +155,10 @@ export default function DashboardPage() {
                 weeklyRevenue: buildWeeklyRevenue(allApts),
                 topServices: buildTopServices(allApts),
             });
-        } catch (error) {
-            console.error("Error fetching dashboard stats:", error);
+            setError(null);
+        } catch (err: any) {
+            console.error("Error fetching dashboard stats:", err);
+            setError(err.message || 'Error loading dashboard');
         } finally {
             setLoading(false);
         }
@@ -173,6 +178,19 @@ export default function DashboardPage() {
     useEffect(() => { fetchStats(); }, [user]);
 
     if (!user) return null;
+
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
+                <XCircle className="w-16 h-16 text-red-500 mb-4" />
+                <h2 className="text-xl font-bold text-slate-800 mb-2">Hubo un problema al cargar tus datos</h2>
+                <p className="text-slate-500 max-w-md mb-6">{error}</p>
+                <button onClick={fetchStats} className="px-6 py-3 bg-[#14B8A6] text-white font-bold rounded-xl active:scale-95 transition-all shadow-md">
+                    Intentar de nuevo
+                </button>
+            </div>
+        );
+    }
 
     if (!stats) {
         return (
@@ -265,10 +283,10 @@ export default function DashboardPage() {
                             <div>
                                 <h2 className="font-bold flex items-center gap-2 tracking-tight text-[15px] md:text-base">
                                     <span className="sm:hidden text-lg">🚀</span>
-                                    Estás en tu periodo de prueba
+                                    {tTrial('title')}
                                 </h2>
                                 <p className="text-teal-50 text-sm mt-0.5 max-w-lg leading-relaxed mix-blend-lighten">
-                                    Aprovecha todas las herramientas de tu plan <strong>{subscription?.plan === 'plus_team' ? 'Plus Equipo' : 'Premium'}</strong> sin costo. Te quedan <strong className="text-white text-[15px]">{trialDaysLeft} {trialDaysLeft === 1 ? 'días' : 'días'}</strong>.
+                                    {tTrial('descPart1')} <strong>{subscription?.plan === 'plus_team' ? tPricing('plans.plusTeam.name') : tPricing('plans.premium.name')}</strong> {tTrial('descPart2')} <strong className="text-white text-[15px]">{trialDaysLeft} {tTrial('days')}</strong>.
                                 </p>
                             </div>
                         </div>
@@ -276,7 +294,7 @@ export default function DashboardPage() {
                             href={`/${locale}/pricing`}
                             className="w-full sm:w-auto text-center bg-white text-teal-600 px-6 py-3 rounded-xl font-bold text-sm hover:bg-teal-50 transition-colors shrink-0 shadow-sm active:scale-[0.98]"
                         >
-                            Ver mi Plan
+                            {tTrial('viewPlan')}
                         </NextLink>
                     </div>
                 )}

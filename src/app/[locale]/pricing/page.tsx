@@ -1,75 +1,11 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Check, Zap, ArrowRight, MessageCircle, ArrowLeft, Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { UserService } from '@/services/user.service';
 import { useState } from 'react';
-
-const PLANS = [
-    {
-        id: 'premium',
-        name: 'Premium',
-        price: 9.99,
-        currency: 'USD',
-        period: 'mes',
-        description: 'Para profesionales independientes.',
-        highlight: false,
-        badge: null,
-        features: [
-            'Servicios ilimitados',
-            'Analytics básicos',
-            'Agenda completa',
-            '1 empleado permitido',
-            'Perfil de negocio premium',
-            'Soporte por email',
-        ],
-        ctaText: 'Activar Premium',
-        ctaStyle: 'border border-slate-300 text-slate-700 hover:bg-slate-50',
-    },
-    {
-        id: 'plus_team',
-        name: 'Plus Equipo',
-        price: 14.99,
-        currency: 'USD',
-        period: 'mes',
-        description: 'Para negocios con equipo de trabajo.',
-        highlight: true,
-        badge: 'Más Popular',
-        features: [
-            'Todo lo de Premium',
-            'Hasta 5 empleados permitidos',
-            'Agenda colaborativa',
-            'Analytics avanzados',
-            'Panel de administración de equipo',
-            'Soporte prioritario',
-        ],
-        ctaText: 'Activar Plus Equipo',
-        ctaStyle: 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 shadow-[0_0_30px_rgba(0,240,255,0.3)]',
-    },
-    {
-        id: 'vip',
-        name: 'Pro24/7YA Colaboradores',
-        price: null,
-        currency: null,
-        period: null,
-        description: 'Para personas que quieran hacer crecer Pro24/7YA a cambio de beneficios exclusivos.',
-        highlight: false,
-        badge: 'Por Invitación',
-        features: [
-            'Acceso completo sin costo',
-            'Todos los beneficios del plan Plus Equipo',
-            'Insignia oficial de Colaborador',
-            'Membresía en grupo de colaboradores',
-            'Influencia en el roadmap del producto',
-            'Soporte VIP y acceso anticipado',
-            'Beneficios exclusivos a negociar',
-        ],
-        ctaText: 'Enviar Propuesta',
-        ctaStyle: 'border border-amber-500/50 text-amber-400 hover:bg-amber-500/10',
-    },
-];
 
 export default function PricingPage() {
     const router = useRouter();
@@ -77,6 +13,49 @@ export default function PricingPage() {
     const lp = (path: string) => `/${locale}${path}`;
     const { user, refreshProfile } = useAuth();
     const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+    const t = useTranslations('pricing');
+
+    const PLANS = [
+        {
+            id: 'premium',
+            name: t('plans.premium.name'),
+            price: 9.99,
+            currency: 'USD',
+            period: t('plans.premium.period'),
+            description: t('plans.premium.description'),
+            highlight: false,
+            badge: null,
+            features: t.raw('plans.premium.features') as string[],
+            ctaText: t('plans.premium.cta'),
+            ctaStyle: 'border border-slate-300 text-slate-700 hover:bg-slate-50',
+        },
+        {
+            id: 'plus_team',
+            name: t('plans.plusTeam.name'),
+            price: 14.99,
+            currency: 'USD',
+            period: t('plans.plusTeam.period'),
+            description: t('plans.plusTeam.description'),
+            highlight: true,
+            badge: t('plans.plusTeam.badge'),
+            features: t.raw('plans.plusTeam.features') as string[],
+            ctaText: t('plans.plusTeam.cta'),
+            ctaStyle: 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-400 hover:to-blue-500 shadow-[0_0_30px_rgba(0,240,255,0.3)]',
+        },
+        {
+            id: 'vip',
+            name: t('plans.vip.name'),
+            price: null,
+            currency: null,
+            period: null,
+            description: t('plans.vip.description'),
+            highlight: false,
+            badge: t('plans.vip.badge'),
+            features: t.raw('plans.vip.features') as string[],
+            ctaText: t('plans.vip.cta'),
+            ctaStyle: 'border border-amber-500/50 text-amber-400 hover:bg-amber-500/10',
+        },
+    ];
 
     const handlePlanSelect = async (planId: string) => {
         if (planId === 'vip') {
@@ -118,7 +97,7 @@ export default function PricingPage() {
                         className="group flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors font-medium text-sm bg-white/50 backdrop-blur-md border border-slate-200/60 px-4 py-2 rounded-full shadow-sm"
                     >
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                        Seguir explorando como cliente
+                        {t('escape')}
                     </button>
                 </div>
 
@@ -126,17 +105,16 @@ export default function PricingPage() {
                 <div className="text-center mb-14">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 text-xs font-bold mb-6">
                         <Zap className="w-3 h-3 fill-current" />
-                        7 días de prueba gratis · Sin tarjeta de crédito
+                        {t('header.trialBadge')}
                     </div>
                     <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-                        Elige tu plan de{' '}
+                        {t('header.titlePart1')}{' '}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-                            Pro24/7YA
+                            {t('header.titlePart2')}
                         </span>
                     </h1>
                     <p className="text-slate-400 text-lg max-w-xl mx-auto">
-                        Empieza gratis 7 días. Sin restricciones, sin tarjeta.
-                        Al terminar, elige el plan que mejor se adapte a ti.
+                        {t('header.subtitle')}
                     </p>
                 </div>
 

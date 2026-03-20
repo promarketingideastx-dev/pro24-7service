@@ -3,8 +3,10 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 /** @type {import('next').NextConfig} */
+const isVercel = process.env.VERCEL === '1';
+
 const nextConfig = {
-    output: 'export',
+    ...(isVercel ? {} : { output: 'export' }),
     images: {
         domains: ['firebasestorage.googleapis.com'],
         unoptimized: true,

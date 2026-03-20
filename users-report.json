@@ -1,0 +1,119 @@
+{
+  "totalAuthUsers": 8,
+  "totalFirestoreUsers": 6,
+  "totalBusinesses": 0,
+  "users": [
+    {
+      "uid": "2R9Hlbj8GUflnD2M9dkTaJLojqi1",
+      "email": "rivipro2012@yahoo.com",
+      "hasFirestoreUser": false,
+      "hasBusinessProfile": false,
+      "roles": null,
+      "isProvider": false,
+      "isClient": false,
+      "onboardingStatus": null,
+      "businessData": null
+    },
+    {
+      "uid": "3kmqeKX96kYW2I3PyxpGYOC5uyp1",
+      "email": "rivipro2012@yahol.com",
+      "hasFirestoreUser": true,
+      "hasBusinessProfile": false,
+      "roles": {
+        "client": true,
+        "provider": false,
+        "admin": false
+      },
+      "isProvider": false,
+      "isClient": true,
+      "onboardingStatus": "pending_setup",
+      "businessData": null
+    },
+    {
+      "uid": "GnMjCitLzRVBb6M5BuDToVhyHcH3",
+      "email": "promarketingideas@gmail.com",
+      "hasFirestoreUser": false,
+      "hasBusinessProfile": false,
+      "roles": null,
+      "isProvider": false,
+      "isClient": false,
+      "onboardingStatus": null,
+      "businessData": null
+    },
+    {
+      "uid": "QMBk3t6C5ndI7V4xbzLJxZ4x2Dw2",
+      "email": "dp@mjrios.com",
+      "hasFirestoreUser": true,
+      "hasBusinessProfile": false,
+      "roles": {
+        "client": true,
+        "provider": false,
+        "admin": false
+      },
+      "isProvider": false,
+      "isClient": true,
+      "onboardingStatus": null,
+      "businessData": null
+    },
+    {
+      "uid": "a9GkzvhXM5STcJBKn2sUgXtUBGH3",
+      "email": "providerb@test.com",
+      "hasFirestoreUser": true,
+      "hasBusinessProfile": false,
+      "roles": {
+        "client": true,
+        "provider": false,
+        "admin": false
+      },
+      "isProvider": false,
+      "isClient": true,
+      "onboardingStatus": "pending_setup",
+      "businessData": null
+    },
+    {
+      "uid": "gw0EH9shYlP9S8KlPYi6VTfNXB13",
+      "email": "pro_trial_beta@example.com",
+      "hasFirestoreUser": true,
+      "hasBusinessProfile": false,
+      "roles": {
+        "client": true,
+        "provider": false,
+        "admin": false
+      },
+      "isProvider": false,
+      "isClient": true,
+      "onboardingStatus": "pending_setup",
+      "businessData": null
+    },
+    {
+      "uid": "vkGLxaK9ZJh6Y5FkEh1YHHCM6Wj1",
+      "email": "promarketingideas.tx@gmail.com",
+      "hasFirestoreUser": true,
+      "hasBusinessProfile": false,
+      "roles": {
+        "admin": false,
+        "client": true,
+        "provider": false
+      },
+      "isProvider": false,
+      "isClient": true,
+      "onboardingStatus": "pending_plan",
+      "businessData": null
+    },
+    {
+      "uid": "x3vUzU1yAqbSrOVO3HYaagh6S8z1",
+      "email": "clienta@test.com",
+      "hasFirestoreUser": true,
+      "hasBusinessProfile": false,
+      "roles": {
+        "client": true,
+        "provider": false,
+        "admin": false
+      },
+      "isProvider": false,
+      "isClient": true,
+      "onboardingStatus": null,
+      "businessData": null
+    }
+  ]
+}

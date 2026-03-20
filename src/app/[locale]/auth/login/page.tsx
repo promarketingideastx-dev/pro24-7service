@@ -37,6 +37,11 @@ function LoginForm() {
         try {
             await AuthService.loginWithEmail(email, password);
             // No navigation here. AuthGuard intercepts and shoots us to the correct page automatically.
+            setTimeout(() => {
+                if (typeof window !== 'undefined' && window.location.pathname.includes('/auth/login')) {
+                    setLoading(false);
+                }
+            }, 5000);
         } catch (err: any) {
             console.error(err);
             if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
@@ -70,6 +75,11 @@ function LoginForm() {
             const target = returnTo && returnTo !== '/' && !hasLocalePrefix ? lp(returnTo) : returnTo || lp('/');
             await AuthService.loginWithGoogle(target);
             // Desktop popup success OR Mobile redirect. AuthGuard handles the bounce.
+            setTimeout(() => {
+                if (typeof window !== 'undefined' && window.location.pathname.includes('/auth/login')) {
+                    setLoading(false);
+                }
+            }, 5000);
         } catch (err: any) {
             console.error(err);
             if ((err as any).code === 'auth/unauthorized-domain') {

@@ -4,8 +4,10 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { ServicesService, ServiceData } from '@/services/businessProfile.service';
 import { CustomerService } from '@/services/customer.service';
-import { AppointmentService } from '@/services/appointment.service';
-import { Timestamp } from 'firebase/firestore';
+import { BookingService } from '@/services/booking.service';
+import { NotificationQueueService } from '@/services/notificationQueue.service';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { format } from 'date-fns';
 import { es, enUS, ptBR } from 'date-fns/locale';
 import { useLocale, useTranslations } from 'next-intl';
@@ -233,6 +235,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
     const [selectedTime, setSelectedTime] = useState('');
     const [availableSlots, setAvailableSlots] = useState<string[]>([]);
     const [dayStatus, setDayStatus] = useState<{ isOpen: boolean; message: string }>({ isOpen: true, message: '' });
+    const [proofFile, setProofFile] = useState<File | null>(null);
 
     const { register, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
@@ -341,6 +344,10 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
 
     const onSubmit = async (data: any) => {
         if (!selectedService || !selectedDate || !selectedTime) return;
+        if (!user) {
+            toast.error(t('loginRequired') || "Debes iniciar sesión para agendar.");
+            return;
+        }
         setLoading(true);
 
         try {
@@ -355,24 +362,69 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 console.warn("CRM sync failed silently:", err);
             }
 
-            const startDateTime = new Date(`${selectedDate}T${selectedTime}`);
+            // Calculo de abono
+            const totalAmount = selectedService.price || 0;
+            let depositAmount = 0;
+            if (paymentSettings?.requiresDeposit && paymentSettings.depositValue) {
+                if (paymentSettings.depositType === 'percent') {
+                     depositAmount = (totalAmount * paymentSettings.depositValue) / 100;
+                } else {
+                     depositAmount = Number(paymentSettings.depositValue);
+                }
+            }
 
-            await AppointmentService.createAppointment({
+            // 1. Create the booking
+            const booking = await BookingService.createBooking({
                 businessId,
-                customerId: customerId,
-                customerUid: user?.uid || undefined,
-                customerName: data.name,
-                customerPhone: data.phone,
-                customerEmail: data.email,
+                clientId: user.uid,
                 serviceId: selectedService.id!,
                 serviceName: selectedService.name || t('service'),
-                serviceDuration: selectedService.durationMinutes || 30,
-                servicePrice: selectedService.price || 0,
-                employeeId: 'pending',
-                date: Timestamp.fromDate(startDateTime),
-                status: 'pending',
-                notes: data.notes,
+                date: selectedDate, // YYYY-MM-DD
+                time: selectedTime, // HH:mm
+                duration: selectedService.durationMinutes || 30,
+                paymentMethod: 'manual',
+                totalAmount: totalAmount,
+                depositAmount: depositAmount,
+                currency: countryConfig.currency, // Add enforced currency
+                notesClient: data.notes
             });
+
+            // Upload payment proof if provided
+            if (proofFile) {
+                try {
+                    const { StorageService } = await import('@/services/storage.service');
+                    const proofRes = await StorageService.uploadPaymentProof(booking.id, proofFile);
+                    await updateDoc(doc(db, 'bookings', booking.id), {
+                        paymentProof: {
+                            url: proofRes.url,
+                            type: proofRes.type,
+                            fileName: proofRes.fileName,
+                            uploadedAt: new Date().toISOString()
+                        },
+                        paymentStatus: 'proof_uploaded'
+                    });
+                } catch (e: any) {
+                    console.error("Proof upload failed:", e);
+                    toast.error(`Comprobante no se pudo procesar: ${e.message}.`);
+                }
+            }
+
+            // 2. Fetch business email for Fallback
+            let bizEmail = '';
+            try {
+                const bDoc = await getDoc(doc(db, 'businesses', businessId));
+                bizEmail = bDoc.data()?.email || '';
+            } catch (e) {}
+
+            // 3. Queue Notifications
+            await NotificationQueueService.enqueueForBookingCreation(
+                booking.id,
+                businessId,
+                user.uid,
+                data.name,
+                booking.serviceName,
+                bizEmail
+            );
 
             toast.success(t('requestSent'));
             onClose();
@@ -381,10 +433,33 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
             setSelectedDate('');
             setSelectedTime('');
             setAvailableSlots([]);
+            setProofFile(null);
 
-        } catch (error) {
-            console.error("Error booking:", error);
-            toast.error(t('requestError'));
+        } catch (error: any) {
+            console.error("[Booking Error] Falló confirmación. Detalles de debug:", { 
+                errorCode: error?.code, 
+                errorMessage: error?.message,
+                path: 'bookings',
+                payloadSnippet: { serviceId: selectedService.id, businessId, date: selectedDate, time: selectedTime }
+            });
+
+            const isPermissionError = error?.code === 'permission-denied' || error?.message?.includes('Missing or insufficient permissions');
+
+            if (isPermissionError) {
+                const msgs: Record<string, string> = {
+                    es: 'No pudimos confirmar tu solicitud en este momento. Verifica tu sesión e inténtalo nuevamente.',
+                    en: 'We couldn’t confirm your request right now. Please verify your session and try again.',
+                    pt: 'Não foi possível confirmar sua solicitação agora. Verifique sua sessão e tente novamente.'
+                };
+                toast.error(msgs[localeKey] || msgs.es);
+            } else {
+                const msgs: Record<string, string> = {
+                    es: 'Ocurrió un problema al guardar tu solicitud. Inténtalo de nuevo.',
+                    en: 'There was a problem saving your request. Please try again.',
+                    pt: 'Ocorreu um problema ao salvar sua solicitação. Tente novamente.'
+                };
+                toast.error(msgs[localeKey] || msgs.es);
+            }
         } finally {
             setLoading(false);
         }
@@ -432,7 +507,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 </div>
 
                 {/* Body */}
-                <div className="flex-1 overflow-y-auto p-5 sm:p-6 pb-20 sm:pb-8 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-5 sm:p-6 pb-32 sm:pb-12 custom-scrollbar">
 
                     {/* STEP 1: SERVICE */}
                     {step === 'service' && (
@@ -554,9 +629,31 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                 </div>
                             </div>
 
+                            <div className="mt-4 p-4 border border-slate-200 rounded-xl bg-slate-50/50">
+                                <label className="text-slate-900 font-bold mb-2 block">{t('uploadProof')}</label>
+                                <p className="text-xs text-slate-500 mb-4">{t('uploadProofDesc')}</p>
+                                <input 
+                                    type="file" 
+                                    accept="image/*,application/pdf" 
+                                    onChange={(e) => setProofFile(e.target.files?.[0] || null)}
+                                    className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#14B8A6]/10 file:text-[#14B8A6] hover:file:bg-[#14B8A6]/20 cursor-pointer"
+                                />
+                                {paymentSettings.paymentProofRequired && !proofFile && (
+                                    <p className="text-xs text-red-500 mt-2 font-medium flex items-center gap-1">
+                                        <CheckCircle size={12} className="shrink-0" />
+                                        {t('proofRequired')}
+                                    </p>
+                                )}
+                            </div>
+
                             <button
                                 onClick={() => setStep('contact')}
-                                className="w-full py-3 bg-[#14B8A6] text-black font-bold rounded-xl mt-4 hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+                                disabled={!!(paymentSettings.paymentProofRequired && !proofFile)}
+                                className={`w-full py-3 font-bold rounded-xl mt-4 transition-all ${
+                                    !!(paymentSettings.paymentProofRequired && !proofFile) 
+                                        ? 'bg-slate-200 text-slate-500 cursor-not-allowed' 
+                                        : 'bg-[#14B8A6] text-black hover:shadow-lg hover:shadow-cyan-500/30'
+                                }`}
                             >
                                 {t('understoodContinue')}
                             </button>
@@ -616,10 +713,14 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
 
                             <button
                                 type="submit"
-                                disabled={loading}
-                                className="w-full py-4 bg-gradient-to-r from-[#14B8A6] to-[#2563EB] text-black font-bold rounded-xl mt-4 hover:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all flex items-center justify-center gap-2 text-base"
+                                disabled={loading || !user}
+                                className={`w-full py-4 text-black font-bold rounded-xl mt-4 transition-all flex items-center justify-center gap-2 text-base ${
+                                    !user || loading 
+                                        ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                                        : 'bg-gradient-to-r from-[#14B8A6] to-[#2563EB] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)]'
+                                }`}
                             >
-                                {loading ? t('sending') : t('confirmRequest')}
+                                {loading ? t('sending') : (!user ? 'Debes iniciar sesión' : t('confirmRequest'))}
                             </button>
                         </form>
                     )}

@@ -29,7 +29,7 @@ import { PlacesLocationPicker, LocationResult } from '@/components/business/setu
 
 
 export default function BusinessSetupPage() {
-    const { user, userProfile, loading: authLoading } = useAuth();
+    const { user, userProfile, loading: authLoading, refreshProfile } = useAuth();
     const { selectedCountry } = useCountry();
     const t = useTranslations('setup');
     const router = useRouter();
@@ -250,6 +250,9 @@ export default function BusinessSetupPage() {
             // Grant provider capabilities additively using our updated service
             await UserService.setUserRole(user.uid, 'provider');
 
+            // Refresh context before redirecting so AuthGuard reads 'isProvider: true'
+            await refreshProfile();
+            
             // Redirect to dashboard
             router.push(`/${locale}/business/dashboard`);
         } catch (error: any) {
@@ -903,8 +906,8 @@ export default function BusinessSetupPage() {
                 <div className="fixed inset-0 z-[9999]">
                     <ImageCropModal
                         imageSrc={cropModal.imageSrc}
-                        aspectRatio={cropModal.type === 'cover' ? 3 / 1 : cropModal.type === 'logo' ? 1 : 1}
-                        freeCrop={cropModal.type === 'gallery'}
+                        aspectRatio={cropModal.type === 'cover' ? 3 / 1 : 1}
+                        freeCrop={false}
                         onComplete={handleCropComplete}
                         onClose={() => {
                             URL.revokeObjectURL(cropModal.imageSrc);

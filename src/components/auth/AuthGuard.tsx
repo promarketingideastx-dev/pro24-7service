@@ -3,12 +3,15 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { UserService } from '@/services/user.service';
+import { IdentityService } from '@/services/identity.service';
+import { AuthService } from '@/services/auth.service';
 
 const SUPPORTED_LOCALES = ['es', 'pt-BR'];
 const PUBLIC_PREFIXES = ["/", "/search", "/negocio", "/auth"];
 const AUTH_PREFIXES = ["/auth"];
 const ONBOARDING_PREFIXES = ["/onboarding"];
-const PROTECTED_PREFIXES = ["/profile", "/citas", "/messages", "/account", "/favoritos", "/solicitudes"];
+const PROTECTED_PREFIXES = ["/profile", "/citas", "/messages", "/account", "/favoritos", "/solicitudes", "/user"];
 const PROVIDER_ONLY_PREFIXES = ["/business/dashboard", "/business/edit"];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
@@ -40,15 +43,61 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         if (!user) {
             if (startsWithAny(PROTECTED_PREFIXES) || startsWithAny(PROVIDER_ONLY_PREFIXES)) {
                 redirect(lp(`/auth/login?returnTo=${encodeURIComponent(currentPathWithQuery)}`));
-            } else {
-                setIsAuthorized(true);
+                return;
+            } 
+            
+            // PORTAL RESTORATION: Only intercept the exact root path '/' for new guests
+            if (localelessPath === '/') {
+                if (typeof window !== 'undefined' && !sessionStorage.getItem('portal_explored')) {
+                    redirect(lp('/onboarding'));
+                    return;
+                }
             }
+            
+            setIsAuthorized(true);
             return;
         }
 
         if (userProfile) {
-            // 1. EVALUATE CAPABILITIES
+            // FASE 3: Self-Healing & Strict Status Locks
+            if (user.emailVerified && userProfile.accountStatus === 'pending_verification') {
+                userProfile.accountStatus = 'active'; // Local mutation for this tick
+                UserService.updateUserProfile(user.uid, { accountStatus: 'active', emailVerified: true }).catch(console.error);
+                if (user.email) {
+                    IdentityService.updateAccountStatus(user.email, 'active').catch(console.error);
+                }
+            }
+
+            // Exceptions: Admins bypass strict locks to avoid locking out the system owners in edge cases
             const isRootAdmin = userProfile.isAdmin === true || userProfile.roles?.admin === true;
+
+            if (!isRootAdmin) {
+                if (userProfile.accountStatus === 'blocked' || userProfile.isBanned) {
+                    AuthService.logout().catch(console.error);
+                    redirect(lp('/auth/portal?error=blocked'));
+                    return;
+                }
+
+                if (userProfile.accountStatus === 'canceled' || userProfile.accountStatus === 'archived') {
+                    if (localelessPath !== '/auth/reactivate') {
+                        redirect(lp('/auth/reactivate'));
+                        return;
+                    }
+                    setIsAuthorized(true);
+                    return;
+                }
+
+                if (userProfile.accountStatus === 'pending_verification' && !userProfile.legacyTrusted) {
+                    if (localelessPath !== '/onboarding/verify-email') {
+                        redirect(lp('/onboarding/verify-email'));
+                        return;
+                    }
+                    setIsAuthorized(true);
+                    return;
+                }
+            }
+
+            // 1. EVALUATE CAPABILITIES
             // Support legacy purely-provider strings alongside the new explicit roles object
             const isProvider = userProfile.roles?.provider === true || userProfile.role === 'provider' || userProfile.isProvider === true;
             // Legacy purely provider accounts from bugs might lack client = true, so we assume client capabilities natively unless restricted
@@ -70,13 +119,13 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
             // 2. STRICT BUSINESS ROUTE PROTECTION
             // If they are trying to reach a /business page, they MUST be a provider, an admin, or onboarding
-            const isBusinessSetupRoute = localelessPath === '/business/setup' || localelessPath === '/business/pricing' || localelessPath === '/business/trial-activation';
+            const isBusinessSetupRoute = localelessPath === '/business/setup' || localelessPath === '/business/trial-activation';
             if (localelessPath.startsWith('/business') && !isBusinessSetupRoute) {
                 if (!isProvider && !isRootAdmin) {
                     if (isOnboardingProvider) {
                         redirect(lp('/business')); // Let BusinessGuard handle them
                     } else {
-                        redirect(lp('/business/pricing')); // Send curious clients to pricing first
+                        redirect(lp('/pricing')); // Send curious clients to pricing first
                     }
                     return;
                 }
@@ -90,6 +139,13 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             // 3. AUTH ROUTE INTERCEPTIONS (Login/Register Forms)
             // Users with profiles shouldn't be visiting login forms. Rout them back to their life.
             if (startsWithAny(AUTH_PREFIXES)) {
+                
+                // Admins ALWAYS go to the admin dashboard upon logging in, ignoring client/business intents.
+                if (isRootAdmin) {
+                     redirect(lp('/admin'));
+                     return;
+                }
+
                 // Respect explicit session returns first (from previous components)
                 if (typeof window !== 'undefined') {
                     const stored = sessionStorage.getItem('auth_redirect_to');
@@ -128,6 +184,18 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
                     redirect(lp('/admin'));
                 } else if (isOnboardingProvider || isProvider) {
                     // Hybrid accounts default routing. AuthGuard sends to root /business. BusinessGuard sorts the rest.
+                    redirect(lp('/business'));
+                } else {
+                    redirect(lp('/'));
+                }
+                return;
+            }
+
+            // PORTAL RESTORATION: Bouncing auth'd users out of the selection screen
+            if (startsWithAny(ONBOARDING_PREFIXES)) {
+                if (isRootAdmin) {
+                    redirect(lp('/admin'));
+                } else if (isOnboardingProvider || isProvider) {
                     redirect(lp('/business'));
                 } else {
                     redirect(lp('/'));

@@ -14,9 +14,10 @@ import {
     sendPasswordResetEmail,
     signInWithCredential
 } from 'firebase/auth';
-import { doc, deleteDoc, collection, getDocs, writeBatch, getDoc } from 'firebase/firestore';
+import { doc, deleteDoc, collection, getDocs, writeBatch, getDoc, updateDoc } from 'firebase/firestore';
 import { ref, listAll, deleteObject } from 'firebase/storage';
 import { UserService } from './user.service';
+import { IdentityService } from './identity.service';
 import { Capacitor } from '@capacitor/core';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 
@@ -24,16 +25,10 @@ export const AuthService = {
     // Check if email exists to prevent duplicate account creation attempts
     checkEmailExists: async (rawEmail: string) => {
         try {
-            const email = rawEmail.trim().toLowerCase();
-            // Se usa Firestore en lugar de fetchSignInMethodsForEmail para evitar el bloqueo 
-            // de "Email Enumeration Protection" de Firebase Identity Platform.
-            const { query, where } = await import('firebase/firestore');
-            const q = query(collection(db, 'users'), where('email', '==', email));
-            const snap = await getDocs(q);
-            return !snap.empty;
+            const reg = await IdentityService.getEmailRegistry(rawEmail);
+            return !!reg;
         } catch (error) {
-            console.error('Error checking email existence in Firestore:', error);
-            // Si hay un error, dejamos que Firebase decida durante el Auth flow
+            console.error('Error checking email existence in Registry:', error);
             return false;
         }
     },
@@ -59,9 +54,21 @@ export const AuthService = {
             if (!idToken) throw new Error('No idToken from Google Login');
             const credential = GoogleAuthProvider.credential(idToken);
             const userCredential = await signInWithCredential(auth, credential);
+            
+            // FASE 3: Enforce Identity Registry
+            const reg = await IdentityService.getEmailRegistry(userCredential.user.email || '');
+            if (!reg) {
+                await IdentityService.createEmailRegistry(userCredential.user.email || '', userCredential.user.uid, 'active', 'google.com');
+            } else if (!reg.providers.includes('google.com')) {
+                await IdentityService.updateProviders(userCredential.user.email || '', 'google.com');
+            }
+
             const profile = await UserService.getUserProfile(userCredential.user.uid);
             if (!profile) {
-                await UserService.createUserProfile(userCredential.user.uid, userCredential.user.email || '');
+                const newUser = await UserService.createUserProfile(userCredential.user.uid, userCredential.user.email || '');
+                if (newUser) {
+                    await UserService.updateUserProfile(userCredential.user.uid, { accountStatus: 'active', emailVerified: true });
+                }
             }
             return userCredential.user;
         }
@@ -75,9 +82,21 @@ export const AuthService = {
         }
         // Desktop: use popup
         const result = await signInWithPopup(auth, provider);
+        
+        // FASE 3: Enforce Identity Registry
+        const reg = await IdentityService.getEmailRegistry(result.user.email || '');
+        if (!reg) {
+            await IdentityService.createEmailRegistry(result.user.email || '', result.user.uid, 'active', 'google.com');
+        } else if (!reg.providers.includes('google.com')) {
+            await IdentityService.updateProviders(result.user.email || '', 'google.com');
+        }
+
         const profile = await UserService.getUserProfile(result.user.uid);
         if (!profile) {
-            await UserService.createUserProfile(result.user.uid, result.user.email || '');
+            const newUser = await UserService.createUserProfile(result.user.uid, result.user.email || '');
+            if (newUser) {
+                await UserService.updateUserProfile(result.user.uid, { accountStatus: 'active', emailVerified: true });
+            }
         }
         return result.user;
     },
@@ -94,9 +113,21 @@ export const AuthService = {
                 rawNonce: nonce,
             });
             const userCredential = await signInWithCredential(auth, credential);
+            
+            // FASE 3: Enforce Identity Registry
+            const reg = await IdentityService.getEmailRegistry(userCredential.user.email || '');
+            if (!reg) {
+                await IdentityService.createEmailRegistry(userCredential.user.email || '', userCredential.user.uid, 'active', 'apple.com');
+            } else if (!reg.providers.includes('apple.com')) {
+                await IdentityService.updateProviders(userCredential.user.email || '', 'apple.com');
+            }
+
             const profile = await UserService.getUserProfile(userCredential.user.uid);
             if (!profile) {
-                await UserService.createUserProfile(userCredential.user.uid, userCredential.user.email || '');
+                const newUser = await UserService.createUserProfile(userCredential.user.uid, userCredential.user.email || '');
+                if (newUser) {
+                     await UserService.updateUserProfile(userCredential.user.uid, { accountStatus: 'active', emailVerified: true });
+                }
             }
             return userCredential.user;
         }
@@ -110,29 +141,44 @@ export const AuthService = {
             return null;
         }
         const result = await signInWithPopup(auth, provider);
+        
+        // FASE 3: Enforce Identity Registry
+        const reg = await IdentityService.getEmailRegistry(result.user.email || '');
+        if (!reg) {
+            await IdentityService.createEmailRegistry(result.user.email || '', result.user.uid, 'active', 'apple.com');
+        } else if (!reg.providers.includes('apple.com')) {
+            await IdentityService.updateProviders(result.user.email || '', 'apple.com');
+        }
+
         const profile = await UserService.getUserProfile(result.user.uid);
         if (!profile) {
-            await UserService.createUserProfile(result.user.uid, result.user.email || '');
+             const newUser = await UserService.createUserProfile(result.user.uid, result.user.email || '');
+             if (newUser) {
+                 await UserService.updateUserProfile(result.user.uid, { accountStatus: 'active', emailVerified: true });
+             }
         }
         return result.user;
     },
 
     loginWithEmail: async (email: string, pass: string) => {
         try {
+            // CRITICAL FIX: Sanitize input to prevent mobile keyboard trailing spaces & auto-caps
+            const normalizedEmail = IdentityService.normalizeEmail(email);
+            
             let user;
             if (Capacitor.isNativePlatform()) {
-                const result = await FirebaseAuthentication.signInWithEmailAndPassword({ email, password: pass });
+                const result = await FirebaseAuthentication.signInWithEmailAndPassword({ email: normalizedEmail, password: pass });
                 if (!result.user) throw new Error('Native login failed without user');
                 user = result.user;
             } else {
-                const result = await signInWithEmailAndPassword(auth, email, pass);
+                const result = await signInWithEmailAndPassword(auth, normalizedEmail, pass);
                 user = result.user;
             }
 
             // FASE 4: Ghost Account Recovery -> If Auth exists but no Firestore doc, heal it.
             const profile = await UserService.getUserProfile(user.uid);
             if (!profile) {
-                await UserService.createUserProfile(user.uid, user.email || email);
+                await UserService.createUserProfile(user.uid, user.email || normalizedEmail);
             }
 
             return user;
@@ -144,22 +190,34 @@ export const AuthService = {
 
     registerWithEmail: async (email: string, pass: string) => {
         try {
-            let uid: string;
-            let finalEmail = email;
-
-            if (Capacitor.isNativePlatform()) {
-                const result = await FirebaseAuthentication.createUserWithEmailAndPassword({ email, password: pass });
-                if (!result.user?.uid) throw new Error('Native register failed without uid');
-                uid = result.user.uid;
-                finalEmail = result.user.email || email;
-            } else {
-                const result = await createUserWithEmailAndPassword(auth, email, pass);
-                uid = result.user.uid;
-                finalEmail = result.user.email || email;
+            const normalizedEmail = IdentityService.normalizeEmail(email);
+            
+            // FASE 3: Enforce Identity Policy - No recreating accounts
+            const existingReg = await IdentityService.getEmailRegistry(normalizedEmail);
+            if (existingReg) {
+                throw new Error('identity/email-reserved');
             }
 
-            await UserService.createUserProfile(uid, finalEmail);
-            return { uid, email: finalEmail };
+            let uid: string;
+
+            if (Capacitor.isNativePlatform()) {
+                const result = await FirebaseAuthentication.createUserWithEmailAndPassword({ email: normalizedEmail, password: pass });
+                if (!result.user?.uid) throw new Error('Native register failed without uid');
+                uid = result.user.uid;
+            } else {
+                const result = await createUserWithEmailAndPassword(auth, normalizedEmail, pass);
+                uid = result.user.uid;
+                
+                // Require Email Verification
+                const { sendEmailVerification } = await import('firebase/auth');
+                await sendEmailVerification(result.user).catch((e) => console.warn('Could not send verification email', e));
+            }
+
+            // Centralized Identity Storage
+            await IdentityService.createEmailRegistry(normalizedEmail, uid, 'pending_verification', 'password');
+            await UserService.createUserProfile(uid, normalizedEmail);
+            
+            return { uid, email: normalizedEmail };
         } catch (error) {
             console.error('Error registering with Email:', error);
             throw error;
@@ -211,86 +269,74 @@ export const AuthService = {
     },
 
     async deleteAccount() {
+        // FASE 3: SOFT DELETE (Logical Closure)
         const user = auth.currentUser;
         if (!user) throw new Error('No hay usuario autenticado');
 
         try {
-            // 1. Delete Firestore data (best effort)
-            const batch = writeBatch(db);
-
-            // Fetch user doc first to find their actual business Profile ID before deleting
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            // Retrieve actual user doc to discover properties before closing
+            const userRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userRef);
             const userData = userDoc.exists() ? userDoc.data() : null;
-            const bizId = userData?.businessProfileId || user.uid;
+            
+            // Revert functional states
+            await updateDoc(userRef, {
+                accountStatus: 'canceled',
+                canceledAt: new Date().toISOString()
+            });
 
-            // Main docs
-            batch.delete(doc(db, 'users', user.uid));
-            batch.delete(doc(db, 'businesses', bizId)); // The gated plan info document
-            batch.delete(doc(db, 'businesses_public', bizId));
-            batch.delete(doc(db, 'businesses_private', bizId));
-
-            // Subcollections of business_private/public
-            const publicSubcollections = ['portfolio_posts', 'reviews'];
-            const privateSubcollections = ['services'];
-
-            for (const sub of privateSubcollections) {
-                try {
-                    const snapshot = await getDocs(collection(db, 'businesses_private', bizId, sub));
-                    snapshot.forEach(d => batch.delete(d.ref));
-                } catch (_) { /* ignore if not found */ }
+            if (user.email) {
+                await IdentityService.updateAccountStatus(user.email, 'canceled');
             }
 
-            for (const sub of publicSubcollections) {
-                try {
-                    const snapshot = await getDocs(collection(db, 'businesses_public', bizId, sub));
-                    snapshot.forEach(d => batch.delete(d.ref));
-                } catch (_) { /* ignore if not found */ }
+            // Hide public businesses without destroying them
+            const bizId = userData?.businessProfileId;
+            if (bizId) {
+                const bizPublicRef = doc(db, 'businesses_public', bizId);
+                const pDoc = await getDoc(bizPublicRef);
+                if (pDoc.exists()) {
+                    await updateDoc(bizPublicRef, { status: 'inactive' });
+                }
             }
 
-            await batch.commit().catch(e => console.warn('Partial Firestore cleanup:', e));
-
-            // 1.5 Delete Firebase Storage files (avatars & business_images)
-            try {
-                // We use listAll to get all files in a directory and delete them
-                const deleteStorageFolder = async (folderPath: string) => {
-                    try {
-                        const folderRef = ref(storage, folderPath);
-                        const result = await listAll(folderRef);
-                        const deletePromises = result.items.map(item => deleteObject(item));
-                        await Promise.all(deletePromises);
-                    } catch (err: any) {
-                        // ignore if folder doesn't exist
-                        if (err.code !== 'storage/object-not-found') {
-                            console.warn(`Could not empty folder ${folderPath}:`, err);
-                        }
-                    }
-                };
-
-                await deleteStorageFolder(`avatars/${user.uid}`);
-                // Storage service uses user.uid for business images path
-                await deleteStorageFolder(`business_images/${user.uid}`);
-            } catch (storageErr) {
-                console.warn('Storage cleanup failed:', storageErr);
-            }
-
-            // 2. Delete Firebase Auth account
-            await user.delete();
+            // Sign them out finally (no destruction of identity)
+            await signOut(auth);
 
         } catch (error: any) {
-            // Firebase requires re-authentication if session is too old
-            if (error.code === 'auth/requires-recent-login') {
-                // Sign out so user can log back in
-                await signOut(auth);
-                // Signal to the UI that re-login is needed before deletion
-                const recentLoginError = new Error('REQUIRES_REAUTH');
-                (recentLoginError as any).code = 'auth/requires-recent-login';
-                throw recentLoginError;
-            }
+            console.error('[deleteAccount] Soft Delete Failed', error);
             throw error;
         }
     },
 
-    // Re-authenticate with password and then delete (for email/pass users)
+    // FASE 3: Enforce OAuth Linking
+    async loginAndLink(password: string, pendingCred: any) {
+        const user = auth.currentUser;
+        if (!user) {
+            // Wait, to link we need to be logged in first.
+            // If we are not, we need to supply email to login with.
+            throw new Error('Debe autenticarse con contraseña primero para vincular la cuenta.');
+        }
+        try {
+            const { linkWithCredential } = await import('firebase/auth');
+            const result = await linkWithCredential(user, pendingCred);
+            
+            // Update Identity Registry
+            if (user.email) {
+                const reg = await IdentityService.getEmailRegistry(user.email);
+                if (reg && pendingCred.providerId === 'google.com' && !reg.providers.includes('google.com')) {
+                    await IdentityService.updateProviders(user.email, 'google.com');
+                } else if (reg && pendingCred.providerId === 'apple.com' && !reg.providers.includes('apple.com')) {
+                    await IdentityService.updateProviders(user.email, 'apple.com');
+                }
+            }
+            return result.user;
+        } catch (error) {
+            console.error('[AuthService] Error vinculando credencial:', error);
+            throw error;
+        }
+    },
+
+    // Re-authenticate with password and then soft delete (for email/pass users)
     async reauthAndDelete(password: string) {
         const user = auth.currentUser;
         if (!user || !user.email) throw new Error('No hay usuario autenticado con email');

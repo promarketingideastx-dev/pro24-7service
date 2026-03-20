@@ -40,6 +40,8 @@ export default function ServicesPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [showValidationErrors, setShowValidationErrors] = useState(false);
+    const [showOtherLanguages, setShowOtherLanguages] = useState(false);
 
     const [businessCurrency, setBusinessCurrency] = useState('L.');
 
@@ -113,18 +115,34 @@ export default function ServicesPage() {
             setFormData({ ...service });
             setEditingId(service.id!);
             setImageUrls(service.images || (service.imageUrl ? [service.imageUrl] : []));
+            // Si el servicio ya tiene nombre en EN o PT, abrimos las traducciones automáticamente
+            if (service.nameI18n?.en || service.nameI18n?.pt) setShowOtherLanguages(true);
+            else setShowOtherLanguages(false);
         } else {
             setFormData({ ...defaultForm(), currency: businessCurrency });
             setEditingId(null);
             setImageUrls([]);
+            setShowOtherLanguages(false);
         }
+        setShowValidationErrors(false);
         setIsModalOpen(true);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const primaryName = formData.nameI18n?.es?.trim() || formData.name.trim();
-        if (!user || !primaryName || formData.price === undefined) return;
+
+        if (!primaryName || formData.price === undefined || formData.price === null) {
+            setShowValidationErrors(true);
+            toast.error('Faltan campos obligatorios. Revisa las áreas marcadas en rojo.');
+            
+            // Auto scroll al inicio del formulario para que vea el error
+            const formObj = document.getElementById("service-form-scroll");
+            if (formObj) formObj.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
+        if (!user) return;
 
         setIsSubmitting(true);
         try {
@@ -317,12 +335,12 @@ export default function ServicesPage() {
                                     {t('modalSubtitle')}
                                 </p>
                             </div>
-                            <button onClick={() => setIsModalOpen(false)} className="p-2 rounded-full text-slate-400 hover:text-slate-800 hover:bg-slate-200 transition-colors">
+                            <button type="button" onClick={() => setIsModalOpen(false)} className="p-2 rounded-full text-slate-400 hover:text-slate-800 hover:bg-slate-200 transition-colors">
                                 <X size={24} />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="flex-1 p-6 space-y-5 overflow-y-auto">
+                        <form onSubmit={handleSubmit} id="service-form-scroll" className="flex-1 p-6 space-y-5 overflow-y-auto">
 
                             {/* ── Fotos del servicio (máx. 10) ── */}
                             <div>
@@ -477,30 +495,75 @@ export default function ServicesPage() {
                                 ) : null
                             )}
 
-                            {/* Name — 3 language inputs */}
+                            {/* Name — Spanish (Primary) */}
                             <div>
-                                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-2">
-                                    {t('serviceName')} *
+                                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-2 flex justify-between items-center">
+                                    <span>{t('serviceName')} *</span>
+                                    {showValidationErrors && !formData.nameI18n?.es?.trim() && (
+                                        <span className="text-red-500 font-bold text-[10px] animate-pulse">REQUERIDO</span>
+                                    )}
                                 </label>
-                                <div className="space-y-2">
-                                    {([['es', '🇪🇸'], ['en', '🇺🇸'], ['pt', '🇧🇷']] as const).map(([lang, flag]) => (
-                                        <div key={lang} className="flex items-center gap-2">
-                                            <span className="text-lg shrink-0">{flag}</span>
+                                <div className="flex items-center gap-2 mb-4">
+                                    <span className="text-lg shrink-0">🇪🇸</span>
+                                    <input
+                                        type="text"
+                                        value={formData.nameI18n?.es ?? ''}
+                                        onChange={e => {
+                                            if (showValidationErrors) setShowValidationErrors(false);
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                name: e.target.value,
+                                                nameI18n: { ...prev.nameI18n!, es: e.target.value } as any
+                                            }));
+                                        }}
+                                        className={`flex-1 bg-slate-50 border-2 rounded-xl px-4 py-3 text-slate-900 font-medium focus:bg-white focus:outline-none transition-all placeholder:text-slate-400/70 text-sm ${showValidationErrors && !formData.nameI18n?.es?.trim() ? 'border-red-500 bg-red-50/50' : 'border-slate-200 focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)]'}`}
+                                        placeholder="Ej. Corte Regular, Manicure, Logo Design..."
+                                    />
+                                </div>
+                                
+                                {/* Translations Toggle */}
+                                {!showOtherLanguages ? (
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setShowOtherLanguages(true)} 
+                                        className="text-[#14B8A6] text-[11px] font-bold hover:underline flex items-center gap-1 ml-8"
+                                    >
+                                        + Añadir traducciones Inglés/Portugués (Opcional)
+                                    </button>
+                                ) : (
+                                    <div className="space-y-3 pl-8 animate-in fade-in slide-in-from-top-2">
+                                        <div className="flex items-center justify-between pb-1">
+                                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide">Traducciones Opcionales</label>
+                                            <button type="button" onClick={() => setShowOtherLanguages(false)} className="text-slate-400 hover:text-red-500 text-[10px] font-medium transition-colors">Ocultar</button>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-lg shrink-0 opacity-80">🇺🇸</span>
                                             <input
                                                 type="text"
-                                                required={lang === 'es'}
-                                                value={formData.nameI18n?.[lang] ?? ''}
+                                                value={formData.nameI18n?.en ?? ''}
                                                 onChange={e => setFormData(prev => ({
                                                     ...prev,
-                                                    name: lang === 'es' ? e.target.value : prev.name,
-                                                    nameI18n: { ...prev.nameI18n!, [lang]: e.target.value } as any
+                                                    nameI18n: { ...prev.nameI18n!, en: e.target.value } as any
                                                 }))}
-                                                className={`flex-1 bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] focus:outline-none transition-all placeholder:text-slate-400 text-sm`}
-                                                placeholder={lang === 'es' ? t('serviceNamePlaceholder') : lang === 'en' ? 'e.g. Regular Cut...' : 'Ex. Corte Regular...'}
+                                                className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-medium focus:border-[#14B8A6] focus:outline-none transition-all placeholder:text-slate-300 text-sm"
+                                                placeholder="(Opcional) e.g. Regular Cut..."
                                             />
                                         </div>
-                                    ))}
-                                </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-lg shrink-0 opacity-80">🇧🇷</span>
+                                            <input
+                                                type="text"
+                                                value={formData.nameI18n?.pt ?? ''}
+                                                onChange={e => setFormData(prev => ({
+                                                    ...prev,
+                                                    nameI18n: { ...prev.nameI18n!, pt: e.target.value } as any
+                                                }))}
+                                                className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-medium focus:border-[#14B8A6] focus:outline-none transition-all placeholder:text-slate-300 text-sm"
+                                                placeholder="(Opcional) Ex. Corte Regular..."
+                                            />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Description */}
@@ -575,8 +638,8 @@ export default function ServicesPage() {
                             {/* Submit */}
                             <button
                                 type="submit"
-                                disabled={isSubmitting || !formData.name}
-                                className="w-full py-3 bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold rounded-xl transition-all disabled:opacity-50 shadow-[0_4px_14px_rgba(20,184,166,0.30)] flex items-center justify-center gap-2"
+                                disabled={isSubmitting}
+                                className="w-full py-3 bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold rounded-xl transition-all disabled:opacity-50 shadow-[0_4px_14px_rgba(20,184,166,0.30)] flex items-center justify-center gap-2 mt-4"
                             >
                                 {isSubmitting ? (
                                     <><div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" /> {t('saving')}</>
@@ -617,7 +680,8 @@ export default function ServicesPage() {
                 <ImageCropModal
                     onClose={() => setCropModal({ isOpen: false, imageSrc: '' })}
                     imageSrc={cropModal.imageSrc}
-                    aspectRatio={16 / 9}
+                    aspectRatio={1}
+                    freeCrop={false}
                     onComplete={handleCropComplete}
                 />
             )}

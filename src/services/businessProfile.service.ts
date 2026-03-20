@@ -458,7 +458,7 @@ export const BusinessProfileService = {
             // 3. Fetch user profile to verify VIP status and basic info
             const { UserService } = await import('@/services/user.service');
             const userProfile = await UserService.getUserProfile(userId);
-            const isVip = userProfile?.isVip === true;
+            const isVip = userProfile?.isVip === true || userProfile?.isAdmin === true || userProfile?.roles?.admin === true || userProfile?.roles?.ceo === true;
 
             const selectedPlan = userProfile?.selectedPlan || 'premium';
             const now = Date.now();
@@ -504,6 +504,8 @@ export const BusinessProfileService = {
                 lng: officialLocation.lng,
                 placeId: data.placeId || null,
                 googleMapsUrl: data.googleMapsUrl || null,
+                coverImage: data.coverImage || null,
+                logoUrl: data.logoUrl || null,
 
                 modality: data.modality,
                 status: 'active',
@@ -523,6 +525,7 @@ export const BusinessProfileService = {
                 department: data.department || '', // Also save in private for querying ease if needed
                 gallery: data.images || [],
                 logoUrl: data.logoUrl || null,
+                coverImage: data.coverImage || null,
                 socialMedia: data.socialMedia || { instagram: '', facebook: '', tiktok: '' },
                 verificationStatus: 'pending',
                 updatedAt: serverTimestamp()
@@ -763,6 +766,12 @@ export const BusinessProfileService = {
      * Update full profile
      */
     async updateProfile(userId: string, data: Partial<BusinessProfileData>) {
+        // [CRITICAL SECURE GUARD] Prevent ghost creations (CEO trying to update without creating onboarding)
+        const publicSnap = await getDoc(doc(db, 'businesses_public', userId));
+        if (!publicSnap.exists()) {
+            throw new Error('400_NO_BUSINESS: Operación rechazada de forma segura. No existe un negocio asociado a esta identidad. Por favor, completa el onboarding.');
+        }
+
         const publicRef = doc(db, 'businesses_public', userId);
         const privateRef = doc(db, 'businesses_private', userId);
         const batch = writeBatch(db);

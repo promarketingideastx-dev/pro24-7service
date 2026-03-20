@@ -770,10 +770,9 @@
       "platformNoteTitle": "PRO24/7YA Subscription",
       "platformNoteDesc": "The management of your monthly/annual plan with PRO24/7YA is now administered directly with our support team.",
       "legalNote": "Note: PRO24/7 does not process payments. You are responsible for collecting money and coordinating with the client.",
-      "paymentProofTitle": "Payment Proofs (Pre-Launch)",
-      "paymentProofDescription": "In the future, if your client's payment requires validation (e.g. Bank Deposit), the option will be enabled here for the client to send you the screenshot/receipt directly via WhatsApp or SMS upon booking.",
-      "paymentProofComingSoon": "Coming Soon",
-      "paymentProofOptions": "Planned options: Send via WhatsApp / Send via SMS"
+      "paymentProofTitle": "Mandatory Payment Proof",
+      "paymentProofDescription": "Require the client to upload a photo or document (PDF/Img) confirming payment to schedule their appointment (e.g. bank transfer).",
+      "paymentProofRequired": "Require payment proof to book"
     },
     "notifications": {
       "title": "Notifications",
@@ -794,11 +793,14 @@
     "available": "Available",
     "schedule": "Schedule",
     "selectDateFirst": "Select a date on the calendar",
-    "closedThisDay": "Closed on this day",
-    "noSlots": "No available time slots",
+    "closedThisDay": "Closed this day",
+    "noSlots": "No available slots",
     "continue": "Continue",
     "businessClosedThisDay": "This business is closed on this day.",
     "selectDateTimeWarning": "Please select a date and time to continue.",
+    "uploadProof": "Payment Proof",
+    "uploadProofDesc": "PDF or Image (Max 5MB). Attach a screenshot of the transfer or deposit.",
+    "proofRequired": "Required: Upload the payment proof to continue.",
     "paymentInfo": "Payment Information",
     "depositPolicy": "Deposit Policy",
     "depositRequired": "This business requires a deposit to confirm your appointment.",
@@ -1268,5 +1270,67 @@
     "message": "Enable your location to show you nearby businesses and improve your search results.",
     "grantBtn": "Enable location",
     "denyBtn": "Not now"
+  },
+  "pricing": {
+    "header": {
+      "trialBadge": "7 days free trial · No credit card required",
+      "titlePart1": "Choose your",
+      "titlePart2": "PRO24/7 plan",
+      "subtitle": "Start 7 days for free. No restrictions, no card. When finished, pick the plan that best suits you."
+    },
+    "escape": "Keep exploring as a client",
+    "plans": {
+      "premium": {
+        "name": "Premium",
+        "period": "mo",
+        "description": "For independent professionals.",
+        "features": [
+          "Unlimited services",
+          "Basic analytics",
+          "Full agenda",
+          "1 employee allowed",
+          "Premium business profile",
+          "Email support"
+        ],
+        "cta": "Activate Premium"
+      },
+      "plusTeam": {
+        "name": "Plus Team",
+        "period": "mo",
+        "description": "For businesses with a team.",
+        "badge": "Most Popular",
+        "features": [
+          "Everything in Premium",
+          "Up to 5 employees",
+          "Collaborative agenda",
+          "Advanced analytics",
+          "Team administration panel",
+          "Priority support"
+        ],
+        "cta": "Activate Plus Team"
+      },
+      "vip": {
+        "name": "PRO24/7 Collaborators",
+        "description": "For people wanting to grow PRO24/7 in exchange for exclusive benefits.",
+        "badge": "Invite Only",
+        "features": [
+          "Full free access",
+          "All Plus Team benefits",
+          "Official Collaborator Badge",
+          "Collaborator group membership",
+          "Influence on product roadmap",
+          "VIP support and early access",
+          "Exclusive benefits at request"
+        ],
+        "cta": "Send Proposal"
+      }
+    }
+  },
+  "dashboardTrial": {
+    "title": "You are on your trial period",
+    "descPart1": "Enjoy all tools of your",
+    "descPart2": "plan at no cost. You have",
+    "days": "days left",
+    "viewPlan": "View my Plan"
   }
 }

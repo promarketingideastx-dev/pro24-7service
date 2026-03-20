@@ -19,7 +19,7 @@ import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 export default function BusinessShell({ children }: { children: React.ReactNode }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
-    const { user } = useAuth();
+    const { user, userProfile } = useAuth();
     const pathname = usePathname();
     const locale = useLocale();
     const t = useTranslations('business.nav');
@@ -31,7 +31,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
     useEffect(() => {
         if (!user) return;
         getDoc(doc(db, 'users', user.uid)).then(snap => {
-            if (snap.data()?.isAdmin === true) setIsAdmin(true);
+            if (snap.data()?.isAdmin === true || snap.data()?.roles?.admin === true) setIsAdmin(true);
         });
     }, [user]);
 
@@ -49,7 +49,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
 
     const menuItems = [
         { name: t('dashboard'), href: lp('/business/dashboard'), icon: <LayoutDashboard size={20} /> },
-        { name: t('agenda'), href: lp('/business/agenda'), icon: <Calendar size={20} /> },
+        { name: t('agenda'), href: lp('/business/bookings'), icon: <Calendar size={20} /> },
         { name: t('clients'), href: lp('/business/clients'), icon: <Users size={20} /> },
         { name: t('services'), href: lp('/business/services'), icon: <Store size={20} /> },
         { name: t('team'), href: lp('/business/team'), icon: <Users size={20} /> },
@@ -190,7 +190,25 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                     <main className={`flex-1 flex flex-col relative w-full min-w-0 pb-[env(safe-area-inset-bottom)] ${isMessages ? 'p-0 h-[calc(100dvh-70px)] md:h-[100dvh] md:p-4 overflow-hidden' : 'p-0 md:p-8 overflow-y-auto'}`}>
                         <TrialWarningBanner />
                         <div className={`w-full max-w-7xl mx-auto flex-1 p-3 sm:p-4 md:p-0 ${isMessages ? 'h-full flex flex-col' : ''}`}>
-                            {children}
+                            {((userProfile?.roles as any)?.ceo === true) && !userProfile?.businessProfileId && !userProfile?.isBusinessActive && !userProfile?.roles?.provider ? (
+                                <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center p-6 animate-in fade-in zoom-in duration-500">
+                                    <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-6 shadow-[inset_0_2px_10px_rgba(0,0,0,0.05)] border border-slate-200">
+                                        <Store className="w-10 h-10 text-slate-400" />
+                                    </div>
+                                    <h2 className="text-2xl font-bold text-slate-900 mb-3">No tienes un negocio creado</h2>
+                                    <p className="text-slate-500 max-w-md mx-auto mb-8 leading-relaxed">
+                                        Esta sección es para proveedores. Como CEO, debes crear un negocio desde el flujo oficial si deseas probar como proveedor sin afectar tu identidad central.
+                                    </p>
+                                    <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
+                                        <Link href={lp('/business/setup')} className="px-6 py-3 bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold rounded-xl shadow-[0_8px_20px_rgba(20,184,166,0.3)] hover:shadow-[0_10px_25px_rgba(20,184,166,0.45)] transition-all active:scale-95 flex items-center justify-center gap-2">
+                                            Crear mi negocio
+                                        </Link>
+                                        <Link href={lp('/admin/dashboard')} className="px-6 py-3 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl border border-slate-200 transition-all active:scale-95 flex items-center justify-center gap-2">
+                                            <Shield className="w-4 h-4 text-slate-400" /> Ir a Admin
+                                        </Link>
+                                    </div>
+                                </div>
+                            ) : children}
                         </div>
                     </main>
                 </div>

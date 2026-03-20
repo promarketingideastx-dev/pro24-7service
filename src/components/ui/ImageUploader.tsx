@@ -5,6 +5,7 @@ import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { StorageService } from '@/services/storage.service';
 import { useAuth } from '@/context/AuthContext';
+import ImageCropModal from './ImageCropModal';
 
 interface ImageUploaderProps {
     images: string[];
@@ -17,32 +18,53 @@ export default function ImageUploader({ images, onImagesChange, maxImages = 5, d
     const { user } = useAuth();
     const [uploading, setUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [cropQueue, setCropQueue] = useState<File[]>([]);
+    const [processedUrls, setProcessedUrls] = useState<string[]>([]);
+    const [originalQueueLength, setOriginalQueueLength] = useState(0);
 
-    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files || !user) return;
 
+        // Limitar la cola a los espacios disponibles
+        const availableSlots = maxImages - images.length;
+        const filesToProcess = Array.from(files).slice(0, availableSlots);
+
+        if (filesToProcess.length > 0) {
+            setCropQueue(filesToProcess);
+            setProcessedUrls([]);
+            setOriginalQueueLength(filesToProcess.length);
+        }
+
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const handleCropComplete = async (croppedBlob: Blob) => {
+        if (!user || cropQueue.length === 0) return;
+
         setUploading(true);
-        const newUrls: string[] = [];
+        const currentFile = cropQueue[0];
 
         try {
-            // Upload sequentially or parallel? Parallel is faster.
-            const uploadPromises = Array.from(files).map(file =>
-                StorageService.uploadBusinessImage(user.uid, file)
-            );
+            const fileToUpload = new File([croppedBlob], currentFile.name, { type: 'image/jpeg' });
+            const url = await StorageService.uploadBusinessImage(user.uid, fileToUpload);
+            
+            const newProcessed = [...processedUrls, url];
+            setProcessedUrls(newProcessed);
 
-            const uploadedUrls = await Promise.all(uploadPromises);
-
-            // Combine with existing images and respect limit
-            const combined = [...images, ...uploadedUrls].slice(0, maxImages);
-            onImagesChange(combined);
-
+            const remainingQueue = cropQueue.slice(1);
+            if (remainingQueue.length === 0) {
+                // Done with queue
+                onImagesChange([...images, ...newProcessed].slice(0, maxImages));
+            }
+            setCropQueue(remainingQueue);
         } catch (error) {
             console.error("Error uploading image:", error);
             toast.error("Error al subir imagen. Intenta de nuevo.");
+            // On error, we abort the rest of the queue to be safe.
+            setCropQueue([]);
         } finally {
             setUploading(false);
-            if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
 
@@ -122,6 +144,17 @@ export default function ImageUploader({ images, onImagesChange, maxImages = 5, d
                         </>
                     )}
                 </div>
+            )}
+
+            {/* Crop Queue Modal */}
+            {cropQueue.length > 0 && !uploading && (
+                <ImageCropModal
+                    imageSrc={URL.createObjectURL(cropQueue[0])}
+                    aspectRatio={1}
+                    freeCrop={false}
+                    onComplete={handleCropComplete}
+                    onClose={() => setCropQueue([])}
+                />
             )}
         </div>
     );

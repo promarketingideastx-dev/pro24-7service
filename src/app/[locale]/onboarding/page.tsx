@@ -4,10 +4,6 @@ import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
-import { UserService } from '@/services/user.service';
-import { db } from '@/lib/firebase';
-import { enableNetwork } from 'firebase/firestore';
-import { toast } from 'sonner';
 import { Search, Briefcase, MapPin, Crown } from 'lucide-react';
 import { useCountry } from '@/context/CountryContext';
 import CountrySelector from '@/components/ui/CountrySelector';
@@ -39,68 +35,24 @@ function OnboardingContent() {
 
         const returnParam = returnTo ? `&returnTo=${encodeURIComponent(returnTo)}` : '';
 
-        // 1. Not logged in → send to login or register based on mode
-        if (!user) {
-            if (role === 'vip') {
-                router.push(lp(`/auth/register/vip?intent=${intent}${returnParam}`));
-            } else if (role === 'provider') {
-                // Phase 2B: Auth Portal para unificar Flujo de Negocios
-                router.push(lp(`/auth/portal?intent=${intent}${returnParam}`));
-            } else if (isLoginMode) {
-                router.push(lp(`/auth/login?intent=${intent}${returnParam}`));
-            } else {
-                router.push(lp(`/auth/register?intent=${intent}${returnParam}`));
+        // Marcar que el usuario ya vio el portal para que no vuelva a ser interceptado
+        if (typeof window !== 'undefined') {
+            sessionStorage.setItem('portal_explored', '1');
+            try {
+                localStorage.setItem('pro247_user_mode', role === 'provider' ? 'business' : 'client');
+            } catch (e) {
+                console.warn('localStorage access denied');
             }
-            return;
         }
 
-        // 2. Already logged in → set role and redirect
-        setLoading(true);
-        try {
-            try { await enableNetwork(db); } catch { /* ignore */ }
-
-            const userProfile = await UserService.createUserProfile(user.uid, user.email || '');
-
-            if (typeof window !== 'undefined') {
-                try {
-                    localStorage.setItem('pro247_user_mode', role === 'provider' ? 'business' : 'client');
-                } catch (e) {
-                    console.warn('localStorage access denied, continuing onboarding naturally', e);
-                }
-            }
-
-            // Normal provider/client mode save
-            if (role !== 'vip') {
-                const targetRole = role === 'provider' ? 'provider_intent' : role;
-                await UserService.setUserRole(user.uid, targetRole);
-            }
-
-            const redirect = (path: string) => {
-                setTimeout(() => {
-                    router.replace(path);
-                }, 0);
-            };
-
-            if (userProfile?.isAdmin) {
-                redirect(lp('/admin/dashboard'));
-                return;
-            }
-
-            // Trust the 'role' the user just clicked, because userProfile is stale
-            if (role === 'provider') {
-                redirect(lp('/business'));
-            } else {
-                redirect(lp('/'));
-            }
-        } catch (error: any) {
-            console.error('Error saving role:', error);
-            if (error.message?.includes('offline')) {
-                toast.error(t('errorOffline'));
-            } else {
-                toast.error(t('errorSaving'));
-            }
-        } finally {
-            setLoading(false);
+        if (role === 'vip') {
+            router.push(lp(`/auth/register/vip?intent=${intent}${returnParam}`));
+        } else if (role === 'provider') {
+            router.push(lp(`/auth/portal?intent=${intent}${returnParam}`));
+        } else if (isLoginMode) {
+            router.push(lp(`/auth/login?intent=${intent}${returnParam}`));
+        } else {
+            router.push(lp(`/auth/register?intent=${intent}${returnParam}`));
         }
     };
 
@@ -210,7 +162,12 @@ function OnboardingContent() {
 
                 <div className="mt-12">
                     <button
-                        onClick={() => router.push(lp('/'))}
+                        onClick={() => {
+                            if (typeof window !== 'undefined') {
+                                sessionStorage.setItem('portal_explored', '1');
+                            }
+                            router.push(lp('/'));
+                        }}
                         className="text-slate-500 hover:text-slate-800 text-xs font-medium transition-colors flex items-center gap-2"
                     >
                         <span>{t('exploreOnly')}</span>

@@ -102,5 +102,52 @@ export const StorageService = {
             console.warn("Delete Error (might not exist or permission):", error);
             return false;
         }
+    },
+
+    /**
+     * Uploads a Payment Proof for a Booking.
+     * Limits to 5MB, compresses images, allows PDF natively.
+     * Path: bookings/{bookingId}/proof_{timestamp}.{ext}
+     */
+    async uploadPaymentProof(bookingId: string, file: File): Promise<{ url: string, type: 'image' | 'pdf', fileName: string }> {
+        if (!bookingId) throw new Error("Booking ID is required.");
+
+        const isPdf = file.type === 'application/pdf';
+        const isImage = file.type.startsWith('image/');
+
+        if (!isPdf && !isImage) {
+            throw new Error("Formato inválido. Solo se admiten imágenes y PDFs.");
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            throw new Error("El archivo excede el límite de 5MB.");
+        }
+
+        let fileToUpload = file;
+        let ext = isPdf ? 'pdf' : 'jpg';
+
+        if (isImage) {
+            fileToUpload = await this.compressImage(file);
+            ext = 'webp'; // Compresser output
+        }
+
+        const timestamp = Date.now();
+        const safeName = file.name.replace(/[^a-zA-Z0-9.\-]/g, '_');
+        const storagePath = `bookings/${bookingId}/proof_${timestamp}_${safeName}`;
+
+        const storageRef = ref(storage, storagePath);
+
+        try {
+            const snapshot = await uploadBytes(storageRef, fileToUpload);
+            const downloadURL = await getDownloadURL(snapshot.ref);
+            return {
+                url: downloadURL,
+                type: isPdf ? 'pdf' : 'image',
+                fileName: safeName
+            };
+        } catch (error: any) {
+            console.error("Payment Proof Upload Error:", error);
+            throw new Error("Error al subir comprobante: " + error.message);
+        }
     }
 };

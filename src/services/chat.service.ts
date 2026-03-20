@@ -249,6 +249,18 @@ export const ChatService = {
         const chatRef = doc(db, 'chats', chatDocId);
         const field = role === 'client' ? 'unreadClient' : 'unreadBusiness';
         await updateDoc(chatRef, { [field]: 0 });
+
+        // Phase 4: Interaction Tracking to Cancel Fallback Queues
+        try {
+            const [businessId, clientUid] = chatDocId.split('_');
+            const targetUid = role === 'client' ? clientUid : businessId;
+            const senderId = role === 'client' ? businessId : clientUid;
+            
+            const { NotificationQueueService } = await import('@/services/notificationQueue.service');
+            await NotificationQueueService.cancelAllForTargetAndSender(targetUid, senderId);
+        } catch (e) {
+            console.warn("[ChatService] Failed to cancel notification queue on read", e);
+        }
     },
 
     // Upload file to Firebase Storage and return {fileUrl, fileType, fileName}

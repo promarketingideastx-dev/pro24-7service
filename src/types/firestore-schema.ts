@@ -8,6 +8,7 @@ export interface UserRole {
     client: boolean;
     provider: boolean;
     admin: boolean;
+    ceo?: boolean;
 }
 
 export interface UserSettings {
@@ -34,6 +35,17 @@ export interface ClientProfile {
 export interface UserDocument {
     uid: string;
     email: string;
+
+    // FASE 3: Identity Integrity Status
+    accountStatus: 'pending_verification' | 'active' | 'archived' | 'canceled' | 'blocked' | 'incomplete';
+    onboardingStatus: 'not_started' | 'incomplete' | 'completed';
+    emailVerified?: boolean;
+    legacyTrusted?: boolean;
+    canceledAt?: string;
+    archivedAt?: string;
+    reactivatedAt?: string;
+    isBanned?: boolean; // Legacy ban system
+
     roles: UserRole;
     role: 'client' | 'provider' | null; // Primary active role
     createdAt: Timestamp;
@@ -163,6 +175,7 @@ export interface PaymentSettings {
     depositType?: 'percent' | 'fixed';
     depositValue?: number;
     depositNotes?: string;
+    paymentProofRequired?: boolean;
     updatedAt?: any; // Timestamp
 }
 
@@ -237,4 +250,84 @@ export interface CollaboratorData {
     deactivatedBy?: string;
     lastActionAt?: any;            // Latest admin action timestamp
     lastActionBy?: string;
+}
+
+// ==========================================
+// 5. Bookings Collection (bookings)
+// ==========================================
+
+export type BookingStatus = 'pending' | 'confirmed' | 'canceled' | 'completed';
+export type PaymentStatus = 'pending' | 'instructions_sent' | 'proof_uploaded' | 'confirmed' | 'rejected' | 'completed';
+export type PaymentMethod = 'manual' | 'external' | 'future_integrated';
+
+// Preparatory structure for Phase 2 multiple employees/slots
+export interface SlotMetadata {
+    employeeId?: string; // Phase 2
+    resourceId?: string; // Phase 2
+}
+
+export interface BookingDocument {
+    id: string;
+    businessId: string;
+    clientId: string;
+    serviceId: string;
+    serviceName: string;
+    date: string; // YYYY-MM-DD
+    time: string; // HH:mm (24h)
+    duration: number; // minutes
+    status: BookingStatus;
+    
+    // Future multiple slots preparedness
+    slotMetadata?: SlotMetadata;
+    
+    paymentStatus: PaymentStatus;
+    paymentMethod: PaymentMethod;
+    paymentProof?: {
+        url: string;
+        type: 'image' | 'pdf';
+        uploadedAt: any;
+        fileName?: string;
+    };
+    totalAmount: number;
+    depositAmount: number;
+    remainingAmount: number;
+    currency: string; // Enforced from business
+    
+    notesClient?: string;
+    notesBusiness?: string;
+    
+    // Interaction tracking for notification queues
+    clientReadReceipt?: boolean;
+    businessReadReceipt?: boolean;
+    
+    createdAt: any; // Timestamp
+    updatedAt: any; // Timestamp
+}
+
+// ==========================================
+// 6. Notification Queue Collection (notification_queue)
+// ==========================================
+
+export type NotificationChannel = 'push' | 'email';
+export type NotificationType = 'booking_created' | 'booking_confirmed' | 'booking_canceled' | 'booking_completed' | 'message_received' | 'booking_reminder' | 'proof_uploaded' | 'proof_approved' | 'proof_rejected';
+export type NotificationStatus = 'pending' | 'sent' | 'cancelled';
+
+export interface NotificationQueueDocument {
+    id: string; // Auto
+    targetUid: string;
+    targetEmail?: string;
+    channel: NotificationChannel;
+    type: NotificationType;
+    entityId: string; // booking.id OR chatRoom.id
+    payload?: any; // Additional data for template rendering
+    
+    scheduledFor: any; // Timestamp
+    attempts: number; // 0, 1, 2
+    status: NotificationStatus;
+    
+    createdAt: any; // Timestamp
+    updatedAt: any; // Timestamp
+    sentAt?: any; // Timestamp
+    cancelledAt?: any; // Timestamp
+    openedAt?: any; // Timestamp
 }

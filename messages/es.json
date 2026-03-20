@@ -771,10 +771,9 @@
       "platformNoteTitle": "Suscripción PRO24/7YA",
       "platformNoteDesc": "La gestión de tu plan mensual/anual con PRO24/7YA ahora se encuentra administrada directamente con nuestro equipo de soporte.",
       "legalNote": "Nota: PRO24/7 no procesa pagos. Tú eres responsable de recolectar el dinero y coordinar con el cliente.",
-      "paymentProofTitle": "Comprobantes de Pago (Pre-Lanzamiento)",
-      "paymentProofDescription": "En el futuro, si el pago de tu cliente requiere validación (Ej. Depósito Bancario), aquí se activará la opción para que el cliente pueda enviarte la captura / comprobante gráfico directamente a tu WhatsApp o SMS al agendar.",
-      "paymentProofComingSoon": "Próximamente",
-      "paymentProofOptions": "Opciones planeadas: Enviar vía WhatsApp / Enviar vía SMS"
+      "paymentProofTitle": "Comprobante de Pago Obligatorio",
+      "paymentProofDescription": "Exige que el cliente suba una foto o documento (PDF/Img) confirmando el pago para poder agendar su cita (Ej. transferencia bancaria).",
+      "paymentProofRequired": "Requerir comprobante de pago para agendar"
     },
     "notifications": {
       "title": "Notificaciones",
@@ -798,6 +797,9 @@
     "closedThisDay": "Cerrado este día",
     "noSlots": "Sin horarios disponibles",
     "continue": "Continuar",
+    "uploadProof": "Comprobante de Pago",
+    "uploadProofDesc": "PDF o Imagen (Máx 5MB). Adjunta captura de transferencia o depósito.",
+    "proofRequired": "Obligatorio: Sube el comprobante de pago para continuar.",
     "businessClosedThisDay": "El negocio está cerrado este día.",
     "selectDateTimeWarning": "Por favor selecciona una fecha y hora para continuar.",
     "paymentInfo": "Información de Pago",
@@ -1269,5 +1271,67 @@
     "message": "Activa tu ubicación para mostrarte negocios cercanos y mejorar tus resultados de búsqueda.",
     "grantBtn": "Activar ubicación",
     "denyBtn": "Ahora no"
+  },
+  "pricing": {
+    "header": {
+      "trialBadge": "7 días de prueba gratis · Sin tarjeta de crédito",
+      "titlePart1": "Elige tu plan de",
+      "titlePart2": "Pro24/7YA",
+      "subtitle": "Empieza gratis 7 días. Sin restricciones, sin tarjeta. Al terminar, elige el plan que mejor se adapte a ti."
+    },
+    "escape": "Seguir explorando como cliente",
+    "plans": {
+      "premium": {
+        "name": "Premium",
+        "period": "mes",
+        "description": "Para profesionales independientes.",
+        "features": [
+          "Servicios ilimitados",
+          "Analytics básicos",
+          "Agenda completa",
+          "1 empleado permitido",
+          "Perfil de negocio premium",
+          "Soporte por email"
+        ],
+        "cta": "Activar Premium"
+      },
+      "plusTeam": {
+        "name": "Plus Equipo",
+        "period": "mes",
+        "description": "Para negocios con equipo de trabajo.",
+        "badge": "Más Popular",
+        "features": [
+          "Todo lo de Premium",
+          "Hasta 5 empleados permitidos",
+          "Agenda colaborativa",
+          "Analytics avanzados",
+          "Panel de administración de equipo",
+          "Soporte prioritario"
+        ],
+        "cta": "Activar Plus Equipo"
+      },
+      "vip": {
+        "name": "Pro24/7YA Colaboradores",
+        "description": "Para personas que quieran hacer crecer Pro24/7YA a cambio de beneficios exclusivos.",
+        "badge": "Por Invitación",
+        "features": [
+          "Acceso completo sin costo",
+          "Todos los beneficios del plan Plus Equipo",
+          "Insignia oficial de Colaborador",
+          "Membresía en grupo de colaboradores",
+          "Influencia en el roadmap del producto",
+          "Soporte VIP y acceso anticipado",
+          "Beneficios exclusivos a negociar"
+        ],
+        "cta": "Enviar Propuesta"
+      }
+    }
+  },
+  "dashboardTrial": {
+    "title": "Estás en tu periodo de prueba",
+    "descPart1": "Aprovecha todas las herramientas de tu plan",
+    "descPart2": "sin costo. Te quedan",
+    "days": "días",
+    "viewPlan": "Ver mi Plan"
   }
 }

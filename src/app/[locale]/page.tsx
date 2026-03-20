@@ -370,7 +370,7 @@ export default function Home() {
 
                             {user ? (
                                 <div className="flex items-center gap-2 group relative">
-                                    {(userProfile?.roles?.provider || userProfile?.role === 'provider' || userProfile?.isAdmin) && (
+                                    {(userProfile?.roles?.provider || userProfile?.role === 'provider' || userProfile?.isAdmin || userProfile?.roles?.admin === true) && (
                                         <button
                                             onClick={() => router.push(lp('/business/dashboard'))}
                                             className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition-all"
@@ -394,32 +394,41 @@ export default function Home() {
                                             <p className="text-xs text-slate-400">{t('loggedInAs')}</p>
                                             <p className="text-sm text-slate-800 font-medium truncate">{user.email}</p>
                                         </div>
-                                        {/* Dropdown Action: Provider Onboarding State */}
-                                        {(userProfile?.roles?.provider || userProfile?.role === 'provider' || userProfile?.isAdmin) && (
+                                        {/* Smart Ver Perfil Route Resolver */}
+                                        {!(userProfile?.providerOnboardingStatus === 'completed' || userProfile?.roles?.provider || userProfile?.role === 'provider' || userProfile?.isAdmin || userProfile?.roles?.admin === true) && (
                                             <button
-                                                onClick={() => router.push(lp('/business/dashboard'))}
-                                                className="w-full text-left px-3 py-2 rounded-lg text-[#14B8A6] hover:bg-slate-50 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
+                                                onClick={() => {
+                                                    // Send to pricing with business intent to trigger the seamless Seeker -> Provider flow
+                                                    router.push(lp('/pricing?intent=business'));
+                                                }}
+                                                className="w-full text-left px-3 py-2 rounded-lg text-[#0F766E] hover:bg-teal-50 text-sm font-bold transition-colors flex items-center gap-2 mb-1"
                                             >
                                                 <Store size={14} />
-                                                Administrar negocio
-                                            </button>
-                                        )}
-                                        {((userProfile?.role as string) === 'provider_intent') && !userProfile?.roles?.provider && (
-                                            <button
-                                                onClick={() => router.push(lp('/onboarding'))}
-                                                className="w-full text-left px-3 py-2 rounded-lg text-amber-600 hover:bg-slate-50 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
-                                            >
-                                                <Store size={14} />
-                                                Continuar registro
+                                                {localeKey === 'en' ? 'Offer Services' : localeKey === 'pt' ? 'Oferecer Serviços' : 'Ofrecer Servicios'}
                                             </button>
                                         )}
                                         <button
-                                            onClick={() => router.push(lp('/user/profile'))}
+                                            onClick={() => {
+                                                return router.push(lp('/user/profile'));
+                                            }}
                                             className="w-full text-left px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors flex items-center gap-2 mb-1"
                                         >
                                             <User size={14} />
                                             {t('viewProfile')}
                                         </button>
+                                        {/* Dashboard Button (Dropdown fallback) */}
+                                        {(userProfile?.providerOnboardingStatus === 'completed' || userProfile?.roles?.provider || userProfile?.role === 'provider' || userProfile?.isAdmin || userProfile?.roles?.admin === true) && (
+                                            <button
+                                                onClick={() => {
+                                                    if (userProfile?.isAdmin || userProfile?.roles?.admin === true) return router.push(lp('/admin'));
+                                                    return router.push(lp('/business/dashboard'));
+                                                }}
+                                                className="w-full text-left px-3 py-2 rounded-lg text-[#0F766E] hover:bg-teal-50 text-sm font-bold transition-colors flex items-center gap-2 mb-1"
+                                            >
+                                                <Store size={14} />
+                                                {(userProfile?.isAdmin || userProfile?.roles?.admin === true) ? 'Panel de Control' : t('manageMyBusiness')}
+                                            </button>
+                                        )}
                                         <button
                                             onClick={() => {
                                                 import('@/services/auth.service').then(({ AuthService }) => {
@@ -435,7 +444,7 @@ export default function Home() {
                                 </div>
                             ) : (
                                 <button
-                                    onClick={() => router.push(lp('/onboarding?mode=login'))}
+                                    onClick={() => router.push(lp('/onboarding'))}
                                     className="bg-white text-[#0F766E] font-bold text-sm px-5 py-2.5 rounded-xl shadow-[0_4px_14px_rgba(0,0,0,0.15)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.20)] active:scale-95 transition-all"
                                 >
                                     {t('login')}

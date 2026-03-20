@@ -5,7 +5,7 @@ import { updateProfile } from 'firebase/auth';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import {
-    User, Mail, Phone, MapPin, Calendar, Edit2, LogOut, Camera, Shield, X, Trash2, AlertTriangle, Heart, Save, ExternalLink, Building2, Lock, Clock, CheckCircle, XCircle, AlertCircle
+    User, Mail, Phone, MapPin, Calendar, Edit2, LogOut, Camera, Shield, X, Trash2, AlertTriangle, Heart, Save, ExternalLink, Building2, Lock, Clock, CheckCircle, XCircle, AlertCircle, Store
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -14,6 +14,7 @@ import { StorageService } from '@/services/storage.service';
 import { AnalyticsService } from '@/services/analytics.service';
 import { Capacitor } from '@capacitor/core';
 import ImageUploader from '@/components/ui/ImageUploader';
+import ImageCropModal from '@/components/ui/ImageCropModal';
 import { FavoritesService, FavoriteRecord } from '@/services/favorites.service';
 import { AppointmentService, Appointment } from '@/services/appointment.service';
 import { useLocale, useTranslations } from 'next-intl';
@@ -25,7 +26,13 @@ export default function UserProfilePage() {
     const t = useTranslations('userProfile');
 
     const [loading, setLoading] = useState(false);
+    const [uploadingAvatar, setUploadingAvatar] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const [cropModal, setCropModal] = useState<{ isOpen: boolean; imageSrc: string; file: File | null }>({
+        isOpen: false,
+        imageSrc: '',
+        file: null
+    });
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         displayName: '',
@@ -36,6 +43,8 @@ export default function UserProfilePage() {
     const [showReauthModal, setShowReauthModal] = useState(false);
     const [reauthPassword, setReauthPassword] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
+    const [showCloseBizModal, setShowCloseBizModal] = useState(false);
+    const [isClosingBiz, setIsClosingBiz] = useState(false);
     const [favorites, setFavorites] = useState<FavoriteRecord[]>([]);
     const [favLoading, setFavLoading] = useState(true);
     const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -116,8 +125,21 @@ export default function UserProfilePage() {
         const file = e.target.files?.[0];
         if (!file || !user) return;
 
+        const objectUrl = URL.createObjectURL(file);
+        setCropModal({ isOpen: true, imageSrc: objectUrl, file });
+        
+        // Reset input
+        e.target.value = '';
+    };
+
+    const handleCropComplete = async (croppedBlob: Blob) => {
+        if (!user || !cropModal.file) return;
+
         setLoading(true);
+        setUploadingAvatar(true);
         try {
+            const file = new File([croppedBlob], cropModal.file.name, { type: 'image/jpeg' });
+            
             // 1. Upload to Storage
             const downloadURL = await StorageService.uploadUserAvatar(user.uid, file);
 
@@ -125,21 +147,21 @@ export default function UserProfilePage() {
             await updateProfile(user, { photoURL: downloadURL });
 
             // 3. Update Firestore (for persistence)
-            // If we want to save photoURL in Firestore, we should add it to UserDocument and update it here.
-            // For now, we're only updating the Auth profile and local state.
-            // await UserService.updateUserProfile(user.uid, { photoURL: downloadURL }); // Example if you want to save in Firestore
+            // For user profile, sometimes photoURL is kept at root of doc, depending on schema.
+            await UserService.updateUserProfile(user.uid, { photoURL: downloadURL });
 
-            // Set local preview to avoid reload
+            // Set local preview
             setAvatarPreview(downloadURL);
-
-            // Optional: Show a subtle success message
             toast.success('Foto actualizada correctamente');
 
         } catch (error: any) {
             console.error("Error uploading avatar:", error);
-            toast.error("Error al subir la imagen: " + (error.message || error));
+            toast.error("Error al subir la imagen.");
         } finally {
             setLoading(false);
+            setUploadingAvatar(false);
+            setCropModal({ isOpen: false, imageSrc: '', file: null });
+            URL.revokeObjectURL(cropModal.imageSrc);
         }
     };
 
@@ -232,6 +254,36 @@ export default function UserProfilePage() {
             } else {
                 toast.error('Error al eliminar cuenta: ' + (error.message || 'Intenta de nuevo'));
             }
+        }
+    };
+
+    const confirmCloseBusiness = async () => {
+        if (!user || !userProfile) return;
+        setIsClosingBiz(true);
+        try {
+            const bizId = userProfile.businessProfileId || user.uid;
+            const { doc, updateDoc } = await import('firebase/firestore');
+            const { db } = await import('@/lib/firebase');
+
+            // 1. Deactivate business doc
+            const bizRef = doc(db, 'businesses', bizId);
+            await updateDoc(bizRef, { status: 'deactivated', 'planData.planStatus': 'cancelled' }).catch(() => {});
+            
+            // 2. Remove provider role from user
+            await UserService.updateUserProfile(user.uid, {
+                'roles.provider': false,
+                role: 'client',
+                providerOnboardingStatus: null
+            } as any);
+            
+            toast.success('Negocio cerrado cerrado. Sigues siendo un usuario normal.');
+            setTimeout(() => window.location.reload(), 1500);
+        } catch (error) {
+            console.error(error);
+            toast.error('Error al cerrar negocio');
+        } finally {
+            setIsClosingBiz(false);
+            setShowCloseBizModal(false);
         }
     };
 
@@ -565,6 +617,23 @@ export default function UserProfilePage() {
                         <AlertTriangle className="w-5 h-5 text-red-400" />
                         <h2 className="text-lg font-bold text-red-600">{t('dangerZone')}</h2>
                     </div>
+
+                    {(userProfile?.roles?.provider || userProfile?.role === 'provider' || userProfile?.providerOnboardingStatus === 'completed') && (
+                        <div className="mb-6 pb-6 border-b border-red-100">
+                            <p className="text-sm text-slate-600 mb-4 font-medium">
+                                Si ya no ofreces servicios, puedes cerrar tu negocio en PRO24/7YA conservando tu cuenta de usuario básica (para buscar servicios o ver tus citas).
+                            </p>
+                            <button
+                                type="button"
+                                onClick={() => setShowCloseBizModal(true)}
+                                className="px-6 py-2.5 rounded-xl bg-orange-100/50 hover:bg-orange-100 text-orange-700 font-bold text-sm border border-orange-200 transition-all flex items-center gap-2 active:scale-[0.98]"
+                            >
+                                <Store className="w-4 h-4" />
+                                Cerrar mi Negocio
+                            </button>
+                        </div>
+                    )}
+
                     <p className="text-sm text-slate-400 mb-6">
                         {t('dangerDesc')}
                     </p>
@@ -622,6 +691,49 @@ export default function UserProfilePage() {
                 </div>
             )}
 
+            {/* Close Business Modal */}
+            {showCloseBizModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white border border-orange-500/20 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative ring-1 ring-orange-500/20">
+                        <div className="flex flex-col items-center text-center gap-4">
+                            <div className="w-16 h-16 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 mb-2">
+                                <Store size={32} />
+                            </div>
+
+                            <div>
+                                <h3 className="text-xl font-bold text-slate-900 mb-2">¿Cerrar Negocio?</h3>
+                                <p className="text-slate-500 text-sm leading-relaxed">
+                                    Tu perfil público será ocultado y cancelarás tu suscripción activa como proveedor. 
+                                    <br/><br/>
+                                    <strong>Seguirás teniendo acceso</strong> a la aplicación como usuario normal para buscar servicios.
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col gap-3 w-full mt-4">
+                                <button
+                                    onClick={confirmCloseBusiness}
+                                    disabled={isClosingBiz}
+                                    className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(249,115,22,0.3)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                                >
+                                    {isClosingBiz ? (
+                                        <><div className="w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin" /> Procesando...</>
+                                    ) : (
+                                        <><Store size={18} /> Sí, cerrar negocio</>
+                                    )}
+                                </button>
+                                <button
+                                    onClick={() => setShowCloseBizModal(false)}
+                                    disabled={isClosingBiz}
+                                    className="w-full py-3 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl font-medium transition-colors border border-slate-200 disabled:opacity-50"
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Re-authentication Modal (for email/pass users) */}
             {showReauthModal && (
                 <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
@@ -668,6 +780,19 @@ export default function UserProfilePage() {
                         </div>
                     </div>
                 </div>
+            )}
+            {/* Avatar Crop Modal */}
+            {cropModal.isOpen && cropModal.imageSrc && (
+                <ImageCropModal
+                    onClose={() => {
+                        URL.revokeObjectURL(cropModal.imageSrc);
+                        setCropModal({ isOpen: false, imageSrc: '', file: null });
+                    }}
+                    imageSrc={cropModal.imageSrc}
+                    aspectRatio={1}
+                    freeCrop={false}
+                    onComplete={handleCropComplete}
+                />
             )}
         </div>
 

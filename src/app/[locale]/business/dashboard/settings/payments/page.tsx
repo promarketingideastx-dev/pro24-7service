@@ -263,20 +263,30 @@ export default function PaymentSettingsPage() {
                 </GlassPanel>
             </div>
 
-            {/* Placeholder for future WhatsApp/SMS voucher integration */}
+            {/* 5. Payment Proof Policy */}
             <div className="mt-8">
-                <GlassPanel className="p-6 border-dashed border-slate-300">
-                    <div className="opacity-70">
-                        <h3 className="font-bold text-slate-800 text-sm mb-2">{t('paymentProofTitle')}</h3>
-                        <p className="text-xs text-slate-500 max-w-2xl mb-4">
-                            {t('paymentProofDescription')}
-                        </p>
-                        <div className="flex items-center gap-3">
-                            <span className="text-[10px] uppercase font-bold text-slate-400 border border-slate-200 px-2 py-0.5 rounded-full">{t('paymentProofComingSoon')}</span>
-                            <span className="text-xs text-[#14B8A6] font-medium block">
-                                {t('paymentProofOptions')}
-                            </span>
+                <GlassPanel className="p-6">
+                    <div className="flex items-start justify-between">
+                        <div className="flex gap-3">
+                            <div className="p-2 bg-[#14B8A6]/10 rounded-lg text-[#14B8A6]">
+                                <BadgeDollarSign className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-slate-800 text-sm mb-1">{t('paymentProofTitle')}</h3>
+                                <p className="text-xs text-slate-500 max-w-2xl">
+                                    {t('paymentProofDescription')}
+                                </p>
+                            </div>
                         </div>
+                        <label className="relative inline-flex items-center cursor-pointer mt-2 shrink-0">
+                            <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={!!settings.paymentProofRequired}
+                                onChange={(e) => setSettings({ ...settings, paymentProofRequired: e.target.checked })}
+                            />
+                            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#14B8A6]"></div>
+                        </label>
                     </div>
                 </GlassPanel>
             </div>

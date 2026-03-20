@@ -754,7 +754,7 @@
       "cashDesc": "Pagamento presencial ao finalizar o serviço.",
       "bankTransfer": "Transferência Bancária",
       "bankTransferDesc": "Pagamentos diretos para sua conta.",
-      "bankDetails": "Dados Bancários e Instruções",
+      "bankDetails": "Dados Bancários",
       "digitalWallet": "Carteira Digital",
       "digitalWalletDesc": "PayPal, Zelle, Pix, etc.",
       "walletDetails": "Detalhes da Carteira",
@@ -768,10 +768,9 @@
       "platformNoteTitle": "Assinatura PRO24/7YA",
       "platformNoteDesc": "A gestão do seu plano mensal/anual com o PRO24/7YA agora é administrada diretamente com a nossa equipe de suporte.",
       "legalNote": "Nota: PRO24/7 não processa pagamentos. Você é responsável por receber o dinheiro e coordenar com o cliente.",
-      "paymentProofTitle": "Comprovantes de Pagamento (Pré-Lançamento)",
-      "paymentProofDescription": "No futuro, se o pagamento do seu cliente exigir validação (Ex: Depósito Bancário), a opção será ativada aqui para que o cliente envie a captura / comprovante diretamente via WhatsApp ou SMS ao agendar.",
-      "paymentProofComingSoon": "Em Breve",
-      "paymentProofOptions": "Opções planejadas: Enviar via WhatsApp / Enviar via SMS"
+      "paymentProofTitle": "Comprovante de Pagamento Obrigatório",
+      "paymentProofDescription": "Exige que o cliente envie uma foto ou documento (PDF/Img) confirmando o pagamento para poder agendar sua consulta (Ex. transferência bancária).",
+      "paymentProofRequired": "Exigir comprovante de pagamento para agendar"
     },
     "notifications": {
       "title": "Notificações",
@@ -795,6 +794,9 @@
     "closedThisDay": "Fechado neste dia",
     "noSlots": "Sem horários disponíveis",
     "continue": "Continuar",
+    "uploadProof": "Comprovante de Pagamento",
+    "uploadProofDesc": "PDF ou Imagem (Máx 5MB). Anexe a captura da transferência ou depósito.",
+    "proofRequired": "Obrigatório: Envie o comprovante de pagamento para continuar.",
     "businessClosedThisDay": "O negócio está fechado neste dia.",
     "selectDateTimeWarning": "Por favor selecione uma data e horário para continuar.",
     "paymentInfo": "Informações de Pagamento",
@@ -1266,5 +1268,67 @@
     "message": "Ative sua localização para mostrar negócios próximos e melhorar seus resultados de pesquisa.",
     "grantBtn": "Ativar localização",
     "denyBtn": "Agora não"
+  },
+  "pricing": {
+    "header": {
+      "trialBadge": "Teste grátis de 7 dias · Sem cartão de crédito",
+      "titlePart1": "Escolha seu plano",
+      "titlePart2": "PRO24/7",
+      "subtitle": "Comece grátis por 7 dias. Sem restrições, sem cartão. Ao final, escolha o plano que melhor combina com você."
+    },
+    "escape": "Continuar explorando como cliente",
+    "plans": {
+      "premium": {
+        "name": "Premium",
+        "period": "mês",
+        "description": "Para profissionais independentes.",
+        "features": [
+          "Serviços ilimitados",
+          "Análises básicas",
+          "Agenda completa",
+          "Permitido 1 funcionário",
+          "Perfil de negócio premium",
+          "Suporte por e-mail"
+        ],
+        "cta": "Ativar Premium"
+      },
+      "plusTeam": {
+        "name": "Plus Equipe",
+        "period": "mês",
+        "description": "Para negócios com equipe de trabalho.",
+        "badge": "Mais Popular",
+        "features": [
+          "Tudo do Premium",
+          "Até 5 funcionários",
+          "Agenda colaborativa",
+          "Análises avançadas",
+          "Painel de administração da equipe",
+          "Suporte prioritário"
+        ],
+        "cta": "Ativar Plus Equipe"
+      },
+      "vip": {
+        "name": "Colaboradores PRO24/7",
+        "description": "Para pessoas que querem ajudar a crescer o PRO24/7 em troca de benefícios exclusivos.",
+        "badge": "Por Convite",
+        "features": [
+          "Acesso completo grátis",
+          "Todos benefícios do Plus Equipe",
+          "Selo oficial de Colaborador",
+          "Membro em grupo de colaboradores",
+          "Influência no roadmap de produtos",
+          "Suporte VIP e acesso antecipado",
+          "Benefícios exclusivos sob consulta"
+        ],
+        "cta": "Enviar Proposta"
+      }
+    }
+  },
+  "dashboardTrial": {
+    "title": "Você está no período de teste",
+    "descPart1": "Aproveite todas as ferramentas do seu plano",
+    "descPart2": "sem custo. Faltam",
+    "days": "dias",
+    "viewPlan": "Ver meu Plano"
   }
 }

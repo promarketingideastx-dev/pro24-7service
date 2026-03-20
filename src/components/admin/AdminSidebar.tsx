@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import {
     LayoutDashboard, Building2, Users, FileImage,
     Bell, CreditCard, Settings, Scale, BookOpen,
-    ChevronLeft, ChevronRight, Map, BarChart2, Crown, Store, ArrowLeft
+    ChevronLeft, ChevronRight, Map, BarChart2, Crown, Store, ArrowLeft, CalendarCheck
 } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { AdminNotificationService } from '@/services/adminNotification.service';
@@ -47,6 +47,7 @@ export default function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
         { href: lp('/admin/dashboard'), icon: LayoutDashboard, label: t('dashboard'), badge: 0 },
         { href: lp('/admin/businesses'), icon: Building2, label: t('businesses'), badge: 0 },
         { href: lp('/admin/users'), icon: Users, label: t('users'), badge: 0 },
+        { href: lp('/admin/bookings'), icon: CalendarCheck, label: 'Bookings', badge: 0 },
         { href: lp('/admin/collaborators'), icon: Crown, label: t('collaborators'), badge: pendingCollabs },
         { href: lp('/admin/map'), icon: Map, label: t('map'), badge: 0 },
         { href: lp('/admin/analytics'), icon: BarChart2, label: t('analytics'), badge: 0 },

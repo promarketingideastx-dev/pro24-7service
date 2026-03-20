@@ -36,7 +36,7 @@ export default function BusinessProfilePage() {
 
     const [formData, setFormData] = useState<Partial<BusinessProfileData>>({});
     const [showMultiArea, setShowMultiArea] = useState(false);
-    const [cropModal, setCropModal] = useState<{ src: string; file: File } | null>(null);
+    const [cropModal, setCropModal] = useState<{ src: string; file: File; type: 'cover' | 'logo' } | null>(null);
     const [locationModified, setLocationModified] = useState(false); // Track if location fields were edited
 
     // Schedule API
@@ -121,41 +121,34 @@ export default function BusinessProfilePage() {
         // Reset input so same file can be selected again
         e.target.value = '';
 
-        if (type === 'cover') {
-            // For cover: open crop modal instead of uploading directly
+        // Handle both cover and logo through the new crop modal sequence
+        if (type === 'cover' || type === 'logo') {
             const objectUrl = URL.createObjectURL(file);
-            setCropModal({ src: objectUrl, file });
-            return;
-        }
-
-        // Logo: upload directly (no crop needed)
-        setUploadingImage('logo');
-        try {
-            const url = await StorageService.uploadBusinessImage(user.uid, file);
-            setFormData(prev => ({ ...prev, logoUrl: url }));
-            toast.success(t('imageUploaded'));
-        } catch (error) {
-            console.error('Error uploading:', error);
-            toast.error(t('imageError'));
-        } finally {
-            setUploadingImage(null);
+            setCropModal({ src: objectUrl, file, type });
         }
     };
 
     const handleCropComplete = useCallback(async (croppedBlob: Blob) => {
         if (!user || !cropModal) return;
-        setUploadingImage('cover');
+
+        setUploadingImage(cropModal.type);
         try {
             const croppedFile = new File([croppedBlob], cropModal.file.name, { type: 'image/jpeg' });
             const url = await StorageService.uploadBusinessImage(user.uid, croppedFile);
-            setFormData(prev => ({ ...prev, coverImage: url }));
+            
+            if (cropModal.type === 'cover') {
+                setFormData(prev => ({ ...prev, coverImage: url }));
+            } else {
+                setFormData(prev => ({ ...prev, logoUrl: url }));
+            }
             toast.success(t('imageUploaded'));
         } catch (error) {
-            console.error('Error uploading cropped image:', error);
-            toast.error(t('imageError'));
+            console.error("Error uploading image:", error);
+            toast.error(t('imageUploadError'));
         } finally {
-            setCropModal(null);
             setUploadingImage(null);
+            setCropModal(null);
+            // Cleanup memory
             URL.revokeObjectURL(cropModal.src);
         }
     }, [user, cropModal, t]);
@@ -651,12 +644,13 @@ export default function BusinessProfilePage() {
                 saveLabel={t('confirmSchedule')}
             />
 
-            {/* Cover image crop modal */}
+            {/* Image crop modal */}
             {
                 cropModal && (
                     <ImageCropModal
                         imageSrc={cropModal.src}
-                        aspectRatio={16 / 9}
+                        aspectRatio={cropModal.type === 'cover' ? 16 / 9 : 1}
+                        freeCrop={false}
                         onComplete={handleCropComplete}
                         onClose={() => {
                             URL.revokeObjectURL(cropModal.src);

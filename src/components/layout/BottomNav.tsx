@@ -1,13 +1,15 @@
 'use client';
 
-import { Home, Calendar, User, PlusCircle } from 'lucide-react';
+import { Home, Calendar, User, PlusCircle, Store } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
+import { useAuth } from '@/context/AuthContext';
 
 export function BottomNav() {
     const pathname = usePathname();
     const locale = useLocale();
+    const { user, userProfile } = useAuth();
 
     // Helper for locale prefixes
     const lp = (path: string) => `/${locale}${path}`;
@@ -15,11 +17,27 @@ export function BottomNav() {
     // Hide on wizard pages or specific flows if needed
     if (pathname?.includes('/business/setup')) return null;
 
+    const getProfileRoute = () => {
+        if (!user) return lp('/auth/login');
+        if (userProfile?.isAdmin || userProfile?.roles?.admin === true) return lp('/admin');
+        return lp('/user/profile');
+    };
+
+    const profileHref = getProfileRoute();
+
+    // Helper function to check if user has provider privileges
+    const isProvider = userProfile?.roles?.provider === true || userProfile?.role === 'provider' || userProfile?.isAdmin === true || userProfile?.roles?.admin === true || userProfile?.providerOnboardingStatus === 'completed';
+
     const navItems = [
         { name: 'Inicio', icon: Home, href: lp('/') },
-        { name: 'Publicar', icon: PlusCircle, href: lp('/business/setup'), isFab: true },
-        { name: 'Agenda', icon: Calendar, href: lp('/user/profile') },
-        { name: 'Perfil', icon: User, href: lp('/user/profile') },
+        { 
+            name: isProvider ? 'Negocio' : 'Ofrecer', 
+            icon: Store, 
+            href: isProvider ? lp('/business/dashboard') : lp('/pricing?intent=business'), 
+            isFab: true 
+        },
+        { name: 'Agenda', icon: Calendar, href: profileHref },
+        { name: 'Perfil', icon: User, href: profileHref },
     ];
 
     return (

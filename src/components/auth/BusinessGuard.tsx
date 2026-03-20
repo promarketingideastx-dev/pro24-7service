@@ -51,8 +51,7 @@ export default function BusinessGuard({ children }: { children: React.ReactNode 
         const isProvider = userProfile.roles?.provider === true || userProfile.role === 'provider';
         const onboardingStatus = userProfile.providerOnboardingStatus;
         const hasBusiness = !!userProfile.businessProfileId || userProfile.isBusinessActive;
-
-        const isPricingRoute = pathname.includes('/pricing') || pathname.includes('/business/pricing');
+        const isPricingRoute = pathname.includes('/pricing');
 
         // Determine if user has any business intent or role
         if (!isAdmin && !isProvider && !onboardingStatus && !hasBusiness && !isPricingRoute) {

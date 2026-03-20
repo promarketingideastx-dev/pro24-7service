@@ -112,19 +112,24 @@ function RegisterForm() {
                 }),
             }).catch(() => { /* silently ignore email errors */ });
 
-            if (intent === 'client' || intent === 'business') {
-                await UserService.setUserRole(user.uid, role);
-                await UserService.updateUserProfile(user.uid, {
-                    displayName: name.trim(),
-                    phoneNumber: phone.trim()
-                });
+            // Make initialization UNCONDITIONAL (Flujo Maestro 2 y 4)
+            await UserService.setUserRole(user.uid, role);
+            await UserService.updateUserProfile(user.uid, {
+                displayName: name.trim(),
+                phoneNumber: phone.trim()
+            });
 
-                if (typeof window !== 'undefined') {
-                    localStorage.setItem('pro247_user_mode', intent);
-                }
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('pro247_user_mode', intent || 'client');
             }
             
             // Do NOT redirect manually. Wait for AuthGuard perfectly!
+            // Safety net release for the spinner
+            setTimeout(() => {
+                if (typeof window !== 'undefined' && window.location.pathname.includes('/auth/register')) {
+                    setLoading(false);
+                }
+            }, 5000);
 
         } catch (err: any) {
 
@@ -170,6 +175,11 @@ function RegisterForm() {
             }
             
             // Redirect will be natively handled by AuthGuard
+            setTimeout(() => {
+                if (typeof window !== 'undefined' && window.location.pathname.includes('/auth/register')) {
+                    setLoading(false);
+                }
+            }, 5000);
         } catch (err: any) {
             console.error(err);
             if ((err as any).code === 'auth/unauthorized-domain') {

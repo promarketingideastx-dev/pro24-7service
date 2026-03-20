@@ -21,7 +21,7 @@ function AuthPortalForm() {
     
     // Fallback if no intent or returnTo
     const intent = searchParams.get('intent');
-    const returnTo = searchParams.get('returnTo') || (intent === 'business' ? lp('/business/pricing') : lp('/'));
+    const returnTo = searchParams.get('returnTo') || (intent === 'business' ? lp('/pricing') : lp('/'));
 
     // Steps:
     // 'portal'         -> Option to choose explicitly (Login / Register) with Socials below
@@ -42,6 +42,7 @@ function AuthPortalForm() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [suggestGoogleLink, setSuggestGoogleLink] = useState(false);
+    const [pendingLinkCredential, setPendingLinkCredential] = useState<any>(null);
 
     // --- STEP 1: VERIFY EMAIL FOR LOGIN ---
     const handleEmailLoginSubmit = async (e: React.FormEvent) => {
@@ -50,7 +51,7 @@ function AuthPortalForm() {
         setError(null);
         setSuggestGoogleLink(false);
 
-        const normalizedEmail = email.trim().toLowerCase();
+        const normalizedEmail = email.replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toLowerCase();
         
         try {
             const exists = await AuthService.checkEmailExists(normalizedEmail);
@@ -76,7 +77,7 @@ function AuthPortalForm() {
         setError(null);
         setSuggestGoogleLink(false);
 
-        const normalizedEmail = email.trim().toLowerCase();
+        const normalizedEmail = email.replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toLowerCase();
         
         try {
             const exists = await AuthService.checkEmailExists(normalizedEmail);
@@ -102,19 +103,29 @@ function AuthPortalForm() {
         setError(null);
         setSuggestGoogleLink(false);
 
-        const normalizedEmail = email.trim().toLowerCase();
+        const normalizedEmail = email.replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toLowerCase();
 
         try {
             const loggedUser = await AuthService.loginWithEmail(normalizedEmail, password);
             
-            // We no longer blindly inject provider_intent for existing accounts logging in.
-            // They will be routed to /pricing by AuthGuard and can decide to subscribe there.
+            // FASE 3: Enforce Identity Linking
+            if (pendingLinkCredential) {
+                try {
+                    await AuthService.loginAndLink(password, pendingLinkCredential);
+                    setPendingLinkCredential(null);
+                } catch (linkErr) {
+                    console.error('Error linking after login:', linkErr);
+                    // Silently fail the link perhaps, or set a small warning. Since login succeeded, they are in.
+                }
+            }
+
+            // Route handling happens via AuthGuard
         } catch (err: any) {
             console.error(err);
             if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
                 try {
-                    const normalizedEmail = email.trim().toLowerCase();
-                    const exists = await AuthService.checkEmailExists(normalizedEmail);
+                    const checkEmail = email.replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toLowerCase();
+                    const exists = await AuthService.checkEmailExists(checkEmail);
                     if (exists) {
                         setSuggestGoogleLink(true);
                     }
@@ -150,7 +161,7 @@ function AuthPortalForm() {
         }
 
         try {
-            const normalizedEmail = email.trim().toLowerCase();
+            const normalizedEmail = email.replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toLowerCase();
             const result = await AuthService.registerWithEmail(normalizedEmail, password);
             const role: 'client' | 'provider_intent' = intent === 'business' ? 'provider_intent' : 'client';
 
@@ -211,6 +222,20 @@ function AuthPortalForm() {
             // Let AuthGuard route
         } catch (err: any) {
             console.error(err);
+            if (err.code === 'auth/account-exists-with-different-credential' || (err as any).code === 'auth/email-already-in-use') {
+                const { OAuthProvider } = await import('firebase/auth');
+                const cred = OAuthProvider.credentialFromError(err);
+                if (cred) {
+                    setPendingLinkCredential(cred);
+                }
+                if (err.customData?.email) setEmail(err.customData.email);
+                
+                setStep('login');
+                setError('Tu correo ya está registrado mediante contraseña. Por favor, ingresa tu contraseña para vincular de forma segura tu cuenta de Google.');
+                setLoading(false);
+                return;
+            }
+
             if ((err as any).code === 'auth/unauthorized-domain') {
                 setError('Dominio no autorizado.');
             } else if ((err as any).code !== 'auth/popup-closed-by-user') {
@@ -231,6 +256,20 @@ function AuthPortalForm() {
             // AuthGuard will handle routing
         } catch (err: any) {
             console.error(err);
+            if (err.code === 'auth/account-exists-with-different-credential' || (err as any).code === 'auth/email-already-in-use') {
+                const { OAuthProvider } = await import('firebase/auth');
+                const cred = OAuthProvider.credentialFromError(err);
+                if (cred) {
+                    setPendingLinkCredential(cred);
+                }
+                if (err.customData?.email) setEmail(err.customData.email);
+                
+                setStep('login');
+                setError('Tu correo ya está registrado mediante contraseña. Por favor, ingresa tu contraseña para vinculación.');
+                setLoading(false);
+                return;
+            }
+
             if ((err as any).code !== 'auth/popup-closed-by-user') {
                 setError(t('errorGoogle'));
             }
@@ -314,6 +353,10 @@ function AuthPortalForm() {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                autoCapitalize="none"
+                                autoCorrect="off"
+                                spellCheck="false"
+                                autoComplete="username"
                                 className="w-full bg-white/60 backdrop-blur-sm border-[1.5px] border-slate-300/80 rounded-xl py-3.5 pl-11 pr-4 text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:border-[#14B8A6] focus:ring-4 focus:ring-[#14B8A6]/10 transition-all shadow-sm"
                                 placeholder="ejemplo@correo.com"
                             />
@@ -344,6 +387,10 @@ function AuthPortalForm() {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                autoCapitalize="none"
+                                autoCorrect="off"
+                                spellCheck="false"
+                                autoComplete="username"
                                 className="w-full bg-white/60 backdrop-blur-sm border-[1.5px] border-slate-300/80 rounded-xl py-3.5 pl-11 pr-4 text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:border-[#14B8A6] focus:ring-4 focus:ring-[#14B8A6]/10 transition-all shadow-sm"
                                 placeholder="ejemplo@correo.com"
                             />
@@ -394,6 +441,9 @@ function AuthPortalForm() {
                         </div>
                     )}
                 <form onSubmit={handleLogin} className="space-y-4">
+                    {/* Hidden input to trick mobile Password Managers (iOS Keychain, Chrome) into associating username and password */}
+                    <input type="email" value={email} readOnly className="hidden" aria-hidden="true" autoComplete="username" />
+                    
                     <div className="space-y-1.5">
                         <label className="text-xs font-bold text-slate-800 uppercase tracking-widest">Email</label>
                         <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
@@ -417,6 +467,7 @@ function AuthPortalForm() {
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                autoComplete="current-password"
                                 className="w-full bg-white/60 backdrop-blur-sm border-[1.5px] border-slate-300/80 rounded-xl py-3.5 pl-11 pr-11 text-slate-900 font-medium placeholder:text-slate-400 focus:outline-none focus:border-[#14B8A6] focus:ring-4 focus:ring-[#14B8A6]/10 transition-all shadow-sm"
                                 placeholder="••••••••"
                             />
@@ -439,6 +490,9 @@ function AuthPortalForm() {
             {step === 'register' && (
                 <div className="animate-in fade-in slide-in-from-right-4">
                 <form onSubmit={handleRegister} className="space-y-4">
+                    {/* Hidden input for password manager compat */}
+                    <input type="email" value={email} readOnly className="hidden" aria-hidden="true" autoComplete="username" />
+                    
                     <div className="space-y-1.5">
                         <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
                             <Mail className="w-5 h-5 text-slate-400" />
@@ -486,6 +540,7 @@ function AuthPortalForm() {
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                autoComplete="new-password"
                                 className="w-full bg-white/60 border-[1.5px] border-slate-300/80 rounded-xl py-3 pl-11 pr-11"
                                 placeholder="Mínimo 6 caracteres"
                             />
