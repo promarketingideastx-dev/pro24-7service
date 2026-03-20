@@ -5,7 +5,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense } from 'react';
 import { ArrowLeft, Edit2, Phone, Mail, MapPin, Calendar, FileText, Clock, TrendingUp, CheckCircle, XCircle, AlertCircle, Save } from 'lucide-react';
 import { CustomerService, Customer } from '@/services/customer.service';
-import { AppointmentService, Appointment } from '@/services/appointment.service';
+import { BookingService } from '@/services/booking.service';
+import { BookingDocument } from '@/types/firestore-schema';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -27,7 +28,7 @@ function CustomerDetailContent() {
     const id = searchParams.get('id') as string;
 
     const [customer, setCustomer] = useState<Customer | null>(null);
-    const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [appointments, setAppointments] = useState<BookingDocument[]>([]);
     const [loading, setLoading] = useState(true);
     const [isEditOpen, setIsEditOpen] = useState(false);
 
@@ -40,16 +41,40 @@ function CustomerDetailContent() {
         if (!user || !id) return;
         setLoading(true);
         try {
-            const [cust, allApts] = await Promise.all([
-                CustomerService.getCustomer(id),
-                AppointmentService.getAppointmentsByCustomer(user.uid, id),
-            ]);
+            // Reemplazo In-Memory: Leer todas las Bookings del negocio
+            const allBookings = await BookingService.getByBusiness(user.uid);
+            
+            // Filtrar las bookings que le pertenecen a este ID (ya sea id fisico en customers o temp-id virtual)
+            const clientApts = allBookings.filter(b => 
+                b.clientId === id || `temp-${b.id}` === id || b.clientId === id.replace('temp-', '')
+            );
+
+            // Intento de buscar si físicamente el cliente Legacy existe en BD
+            let cust = await CustomerService.getCustomer(id);
+
+            // Si es un cliente in-memory y no tiene registro físico en customers, lo sintetizamos
+            if (!cust && clientApts.length > 0) {
+                const first = clientApts[0];
+                cust = {
+                    id: id,
+                    businessId: user.uid,
+                    fullName: first.clientName || 'Cliente (Sin Nombre)',
+                    email: first.clientEmail || '',
+                    phone: first.clientPhone || '',
+                    createdAt: first.createdAt,
+                    notes: ''
+                };
+            }
 
             if (cust) {
                 setCustomer(cust);
                 setNotes(cust.notes || '');
-                // Sort by date desc
-                const sorted = allApts.sort((a, b) => b.date.toDate().getTime() - a.date.toDate().getTime());
+                // Ordenar por fecha combinada date+time descendente
+                const sorted = clientApts.sort((a, b) => {
+                    const d1 = new Date(b.date + 'T' + b.time).getTime();
+                    const d2 = new Date(a.date + 'T' + a.time).getTime();
+                    return d1 - d2;
+                });
                 setAppointments(sorted);
             } else {
                 router.push('/business/clients');
@@ -82,15 +107,15 @@ function CustomerDetailContent() {
     // Compute LTV for this customer
     const ltv = appointments
         .filter(a => a.status === 'confirmed' || a.status === 'completed')
-        .reduce((sum, a) => sum + (a.servicePrice || 0), 0);
+        .reduce((sum, a) => sum + (a.totalAmount || 0), 0);
 
     const lastVisit = appointments
-        .filter(a => (a.status === 'confirmed' || a.status === 'completed') && a.date.toDate() < new Date())
-        .sort((a, b) => b.date.toDate().getTime() - a.date.toDate().getTime())[0];
+        .filter(a => (a.status === 'confirmed' || a.status === 'completed') && (new Date(a.date + 'T' + a.time) < new Date()))
+        .sort((a, b) => new Date(b.date + 'T' + b.time).getTime() - new Date(a.date + 'T' + a.time).getTime())[0];
 
     const nextAppt = appointments
-        .filter(a => a.status === 'confirmed' && a.date.toDate() >= new Date())
-        .sort((a, b) => a.date.toDate().getTime() - b.date.toDate().getTime())[0];
+        .filter(a => a.status === 'confirmed' && (new Date(a.date + 'T' + a.time) >= new Date()))
+        .sort((a, b) => new Date(a.date + 'T' + a.time).getTime() - new Date(b.date + 'T' + b.time).getTime())[0];
 
     if (loading) return <div className="p-8 text-center text-slate-500 animate-pulse">Cargando perfil...</div>;
     if (!customer) return null;
@@ -123,14 +148,14 @@ function CustomerDetailContent() {
                 <div className="bg-white border border-slate-200 rounded-xl p-4 text-center">
                     <Clock className="w-4 h-4 text-slate-500 mx-auto mb-1" />
                     <p className="text-sm font-bold text-slate-900">
-                        {lastVisit ? format(lastVisit.date.toDate(), 'd MMM', { locale: es }) : '—'}
+                        {lastVisit ? format(new Date(lastVisit.date + 'T' + lastVisit.time), 'd MMM', { locale: es }) : '—'}
                     </p>
                     <p className="text-[10px] text-slate-500 mt-0.5">Última Visita</p>
                 </div>
                 <div className="bg-white border border-slate-200 rounded-xl p-4 text-center">
                     <Calendar className="w-4 h-4 text-[#14B8A6] mx-auto mb-1" />
                     <p className="text-sm font-bold text-[#0F766E]">
-                        {nextAppt ? format(nextAppt.date.toDate(), 'd MMM', { locale: es }) : '—'}
+                        {nextAppt ? format(new Date(nextAppt.date + 'T' + nextAppt.time), 'd MMM', { locale: es }) : '—'}
                     </p>
                     <p className="text-[10px] text-slate-500 mt-0.5">Próxima Cita</p>
                 </div>
@@ -227,7 +252,7 @@ function CustomerDetailContent() {
                             <div className="space-y-3">
                                 {appointments.map((apt) => {
                                     const cfg = STATUS_CONFIG[apt.status] || STATUS_CONFIG['pending'];
-                                    const aptDate = apt.date.toDate();
+                                    const aptDate = new Date(apt.date + 'T' + (apt.time || '00:00'));
                                     return (
                                         <div
                                             key={apt.id}
@@ -237,8 +262,8 @@ function CustomerDetailContent() {
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2 flex-wrap">
                                                         <span className="font-semibold text-slate-900 text-sm">{apt.serviceName}</span>
-                                                        {apt.servicePrice != null && apt.servicePrice > 0 && (
-                                                            <span className="text-xs text-[#0F766E] font-bold">L {apt.servicePrice}</span>
+                                                        {apt.totalAmount != null && apt.totalAmount > 0 && (
+                                                            <span className="text-xs text-[#0F766E] font-bold">L {apt.totalAmount}</span>
                                                         )}
                                                     </div>
                                                     <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
@@ -252,8 +277,8 @@ function CustomerDetailContent() {
                                                         </span>
 
                                                     </div>
-                                                    {apt.notes && (
-                                                        <p className="mt-1.5 text-xs text-slate-500 italic">"{apt.notes}"</p>
+                                                    {apt.notesClient && (
+                                                        <p className="mt-1.5 text-xs text-slate-500 italic">"G. Cliente: {apt.notesClient}"</p>
                                                     )}
                                                 </div>
                                                 <span className={`shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium border ${cfg.color}`}>

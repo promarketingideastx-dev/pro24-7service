@@ -6,8 +6,9 @@ import GlassPanel from '@/components/ui/GlassPanel';
 import CollaboratorGuard from '@/components/ui/CollaboratorGuard';
 import AppointmentInbox from '@/components/business/AppointmentInbox';
 import { Activity, Users, CalendarCheck, TrendingUp, Loader2, RefreshCw, XCircle, CheckCircle, Link } from 'lucide-react';
-import { AppointmentService, Appointment } from '@/services/appointment.service';
+import { BookingService } from '@/services/booking.service';
 import { CustomerService } from '@/services/customer.service';
+import { BookingDocument } from '@/types/firestore-schema';
 import { format, startOfMonth, endOfMonth, startOfWeek, addDays, isSameDay, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useTranslations, useLocale } from 'next-intl';
@@ -28,7 +29,7 @@ interface DashboardStats {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-function buildWeeklyRevenue(appointments: Appointment[]): { label: string; amount: number }[] {
+function buildWeeklyRevenue(appointments: BookingDocument[]): { label: string; amount: number }[] {
     const now = new Date();
     const weeks: { label: string; amount: number }[] = [];
     for (let i = 7; i >= 0; i--) {
@@ -37,17 +38,17 @@ function buildWeeklyRevenue(appointments: Appointment[]): { label: string; amoun
         const label = format(weekStart, 'd MMM', { locale: es });
         const amount = appointments
             .filter(a => {
-                const d = a.date.toDate();
+                const d = new Date(a.date + 'T' + (a.time || '00:00'));
                 return (a.status === 'confirmed' || a.status === 'completed') &&
                     d >= weekStart && d <= weekEnd;
             })
-            .reduce((sum, a) => sum + (a.servicePrice || 0), 0);
+            .reduce((sum, a) => sum + (a.totalAmount || 0), 0);
         weeks.push({ label, amount });
     }
     return weeks;
 }
 
-function buildTopServices(appointments: Appointment[]): { name: string; count: number }[] {
+function buildTopServices(appointments: BookingDocument[]): { name: string; count: number }[] {
     const map: Record<string, number> = {};
     for (const a of appointments) {
         if (a.status === 'confirmed' || a.status === 'completed') {
@@ -110,35 +111,37 @@ export default function DashboardPage() {
             const prevMonthStart = startOfMonth(subMonths(now, 1));
             const prevMonthEnd = endOfMonth(subMonths(now, 1));
 
-            const [allApts, pending, customers] = await Promise.all([
-                AppointmentService.getAllByBusiness(user.uid),
-                AppointmentService.getAppointmentsByStatus(user.uid, 'pending'),
+            const [allBookings, customers] = await Promise.all([
+                BookingService.getByBusiness(user.uid),
                 CustomerService.getCustomers(user.uid),
             ]);
 
+            const allApts = allBookings;
+            const pending = allApts.filter(b => b.status === 'pending');
+
             const todayCount = allApts.filter(a => {
-                const d = a.date.toDate();
+                const d = new Date(a.date + 'T' + (a.time || '00:00'));
                 return a.status === 'confirmed' && d >= todayStart && d <= todayEnd;
             }).length;
 
             const monthRevenue = allApts
                 .filter(a => {
-                    const d = a.date.toDate();
+                    const d = new Date(a.date + 'T' + (a.time || '00:00'));
                     return (a.status === 'confirmed' || a.status === 'completed') &&
                         d >= thisMonthStart && d <= thisMonthEnd;
                 })
-                .reduce((sum, a) => sum + (a.servicePrice || 0), 0);
+                .reduce((sum, a) => sum + (a.totalAmount || 0), 0);
 
             const prevMonthRevenue = allApts
                 .filter(a => {
-                    const d = a.date.toDate();
+                    const d = new Date(a.date + 'T' + (a.time || '00:00'));
                     return (a.status === 'confirmed' || a.status === 'completed') &&
                         d >= prevMonthStart && d <= prevMonthEnd;
                 })
-                .reduce((sum, a) => sum + (a.servicePrice || 0), 0);
+                .reduce((sum, a) => sum + (a.totalAmount || 0), 0);
 
             const last30 = allApts.filter(a => {
-                const d = a.date.toDate();
+                const d = new Date(a.date + 'T' + (a.time || '00:00'));
                 const ago = new Date(); ago.setDate(ago.getDate() - 30);
                 return d >= ago;
             });

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Appointment, AppointmentService, AppointmentStatus } from '@/services/appointment.service';
+import { BookingService } from '@/services/booking.service';
+import { BookingDocument } from '@/types/firestore-schema';
 import { BusinessNotificationService } from '@/services/businessNotification.service';
 import { ClientNotificationService } from '@/services/clientNotification.service';
 import { format } from 'date-fns';
@@ -39,13 +40,13 @@ export default function AppointmentInbox({
     const dateFnsLocale = locale === 'en' ? enUS : locale === 'pt-BR' ? ptBR : es;
 
     const [activeTab, setActiveTab] = useState<'pending' | 'upcoming' | 'history'>('pending');
-    const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [appointments, setAppointments] = useState<BookingDocument[]>([]);
     const [loading, setLoading] = useState(true);
     const [processingId, setProcessingId] = useState<string | null>(null);
     const { triggerRefresh } = useAppointmentRefresh();
 
     // ── Rejection modal state ─────────────────────────────────────────────────
-    const [rejectTarget, setRejectTarget] = useState<Appointment | null>(null);
+    const [rejectTarget, setRejectTarget] = useState<BookingDocument | null>(null);
     const [rejectReason, setRejectReason] = useState(DEFAULT_REJECTION_TEXT);
     const MAX_CHARS = 250;
 
@@ -66,27 +67,25 @@ export default function AppointmentInbox({
     const fetchAppointments = async () => {
         setLoading(true);
         try {
-            let data: Appointment[] = [];
+            const allBookings = await BookingService.getByBusiness(businessId);
+            let data: BookingDocument[] = [];
 
             if (activeTab === 'pending') {
-                data = await AppointmentService.getAppointmentsByStatus(businessId, 'pending');
+                data = allBookings.filter(b => b.status === 'pending');
             } else if (activeTab === 'upcoming') {
-                data = await AppointmentService.getAppointmentsByStatus(businessId, 'confirmed');
                 const now = new Date();
-                data = data.filter(a => a.date.toDate() >= now);
+                data = allBookings.filter(b => b.status === 'confirmed' && new Date(b.date + 'T' + b.time) >= now);
             } else {
-                const cancelled = await AppointmentService.getAppointmentsByStatus(businessId, 'cancelled');
-                const completed = await AppointmentService.getAppointmentsByStatus(businessId, 'completed');
-                const noshow = await AppointmentService.getAppointmentsByStatus(businessId, 'no-show');
-                const confirmed = await AppointmentService.getAppointmentsByStatus(businessId, 'confirmed');
                 const now = new Date();
-                const pastConfirmed = confirmed.filter(a => a.date.toDate() < now);
-                data = [...cancelled, ...completed, ...noshow, ...pastConfirmed];
+                data = allBookings.filter(b => 
+                    b.status === 'canceled' || b.status === 'completed' ||
+                    (b.status === 'confirmed' && new Date(b.date + 'T' + b.time) < now)
+                );
             }
 
             data.sort((a, b) => {
-                const dateA = a.date.toDate().getTime();
-                const dateB = b.date.toDate().getTime();
+                const dateA = new Date(a.date + 'T' + a.time).getTime();
+                const dateB = new Date(b.date + 'T' + b.time).getTime();
                 return activeTab === 'history' ? dateB - dateA : dateA - dateB;
             });
 
@@ -104,8 +103,8 @@ export default function AppointmentInbox({
     }, [businessId, activeTab]);
 
     // ── Helpers ────────────────────────────────────────────────────────────────
-    const fmtDate = (apt: Appointment) =>
-        format(apt.date.toDate(), 'PPP p', { locale: dateFnsLocale });
+    const fmtDate = (apt: BookingDocument) =>
+        format(new Date(apt.date + 'T' + apt.time), 'PPP p', { locale: dateFnsLocale });
 
     const sendEmailFf = (type: string, to: string, data: Record<string, any>) => {
         fetch('/api/notify-business', {
@@ -125,11 +124,11 @@ export default function AppointmentInbox({
     };
 
     // ── Accept ────────────────────────────────────────────────────────────────
-    const handleAccept = async (apt: Appointment) => {
+    const handleAccept = async (apt: BookingDocument) => {
         if (!apt.id) return;
         setProcessingId(apt.id);
         try {
-            await AppointmentService.updateStatus(apt.id, 'confirmed');
+            await BookingService.updateStatus(apt.id, 'confirmed');
 
             setAppointments(prev => prev.map(a => a.id === apt.id ? { ...a, status: 'confirmed' } : a));
             toast.success(t('statusAccepted'));
@@ -139,16 +138,16 @@ export default function AppointmentInbox({
             // Notify business (in-app)
             await BusinessNotificationService.create(businessId, {
                 type: 'appointment_confirmed',
-                title: `✅ Cita confirmada: ${apt.customerName}`,
+                title: `✅ Cita confirmada: ${apt.clientName || 'Cliente'}`,
                 body: `${apt.serviceName} · ${fmtDate(apt)}`,
                 relatedId: apt.id,
-                relatedName: apt.customerName,
+                relatedName: apt.clientName || 'Cliente',
             });
 
             // Email to client
-            if (apt.customerEmail) {
-                sendEmailFf('appointment_confirmed', apt.customerEmail, {
-                    clientName: apt.customerName,
+            if (apt.clientEmail) {
+                sendEmailFf('appointment_confirmed', apt.clientEmail, {
+                    clientName: apt.clientName || 'Cliente',
                     businessName: businessName || 'el negocio',
                     serviceName: apt.serviceName,
                     dateLabel: fmtDate(apt),
@@ -158,14 +157,14 @@ export default function AppointmentInbox({
 
             // Push notification to client (if they have FCM token)
             sendPushToClient(
-                apt.customerUid,
+                apt.clientId,
                 '✅ Cita confirmada',
                 `Tu cita de ${apt.serviceName} con ${businessName || 'el negocio'} fue confirmada.`
             );
 
             // In-app bell notification for the client
-            if (apt.customerUid) {
-                ClientNotificationService.create(apt.customerUid, {
+            if (apt.clientId) {
+                ClientNotificationService.create(apt.clientId, {
                     type: 'appointment_confirmed',
                     title: '✅ Cita confirmada',
                     body: `Tu cita de ${apt.serviceName} con ${businessName || 'el negocio'} fue confirmada.`,
@@ -186,17 +185,17 @@ export default function AppointmentInbox({
         if (!rejectTarget?.id) return;
         setProcessingId(rejectTarget.id);
         try {
-            await AppointmentService.updateStatus(rejectTarget.id, 'cancelled', rejectReason);
+            await BookingService.updateStatus(rejectTarget.id, 'canceled');
 
-            setAppointments(prev => prev.map(a => a.id === rejectTarget.id ? { ...a, status: 'cancelled' } : a));
+            setAppointments(prev => prev.map(a => a.id === rejectTarget.id ? { ...a, status: 'canceled' } : a));
             toast.success(t('statusRejected'));
             triggerRefresh();
             fetchAppointments();
 
             // Email to client
-            if (rejectTarget.customerEmail) {
-                sendEmailFf('appointment_rejected', rejectTarget.customerEmail, {
-                    clientName: rejectTarget.customerName,
+            if (rejectTarget.clientEmail) {
+                sendEmailFf('appointment_rejected', rejectTarget.clientEmail, {
+                    clientName: rejectTarget.clientName || 'Cliente',
                     businessName: businessName || 'el negocio',
                     serviceName: rejectTarget.serviceName,
                     reason: rejectReason,
@@ -206,14 +205,14 @@ export default function AppointmentInbox({
 
             // Push notification to client
             sendPushToClient(
-                rejectTarget.customerUid,
+                rejectTarget.clientId,
                 '📋 Actualización de cita',
                 `Tu solicitud de ${rejectTarget.serviceName} con ${businessName || 'el negocio'} no pudo ser confirmada.`
             );
 
             // In-app bell notification for the client
-            if (rejectTarget.customerUid) {
-                ClientNotificationService.create(rejectTarget.customerUid, {
+            if (rejectTarget.clientId) {
+                ClientNotificationService.create(rejectTarget.clientId, {
                     type: 'appointment_rejected',
                     title: '❌ Cita no confirmada',
                     body: `Tu cita de ${rejectTarget.serviceName} con ${businessName || 'el negocio'} no pudo confirmarse.`,
@@ -243,7 +242,7 @@ export default function AppointmentInbox({
         pending: 'border-amber-300 text-amber-700 bg-amber-50',
         confirmed: 'border-[#14B8A6]/40 text-[#0F766E] bg-[rgba(20,184,166,0.08)]',
         completed: 'border-green-300 text-green-700 bg-green-50',
-        cancelled: 'border-red-300 text-red-600 bg-red-50',
+        canceled: 'border-red-300 text-red-600 bg-red-50',
         'no-show': 'border-slate-300 text-slate-500 bg-slate-50',
     };
 
@@ -252,7 +251,7 @@ export default function AppointmentInbox({
         pending: 'border-l-4 border-l-amber-400',
         confirmed: 'border-l-4 border-l-[#14B8A6]',
         completed: 'border-l-4 border-l-green-400',
-        cancelled: 'border-l-4 border-l-red-400',
+        canceled: 'border-l-4 border-l-red-400',
         'no-show': 'border-l-4 border-l-slate-300',
     };
 
@@ -308,28 +307,28 @@ export default function AppointmentInbox({
                                         <div className={`p-2.5 rounded-xl shrink-0 ${apt.status === 'confirmed' ? 'bg-[rgba(20,184,166,0.10)] text-[#14B8A6]' :
                                             apt.status === 'pending' ? 'bg-amber-50 text-amber-500' :
                                                 apt.status === 'completed' ? 'bg-green-50 text-green-500' :
-                                                    apt.status === 'cancelled' ? 'bg-red-50 text-red-500' :
+                                                    apt.status === 'canceled' ? 'bg-red-50 text-red-500' :
                                                         'bg-slate-100 text-slate-400'
                                             }`}>
                                             <User size={18} />
                                         </div>
                                         <div>
-                                            <h4 className="font-bold text-slate-900 text-base">{apt.customerName}</h4>
+                                            <h4 className="font-bold text-slate-900 text-base">{apt.clientName || 'Cliente'}</h4>
                                             <div className="flex flex-col gap-1 mt-1 text-sm text-slate-500">
                                                 <div className="flex items-center gap-2">
                                                     <Calendar size={13} className="text-[#14B8A6]" />
-                                                    <span>{format(apt.date.toDate(), 'PPP', { locale: dateFnsLocale })}</span>
+                                                    <span>{format(new Date(apt.date + 'T' + apt.time), 'PPP', { locale: dateFnsLocale })}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <Clock size={13} className="text-[#2563EB]" />
-                                                    <span>{format(apt.date.toDate(), 'p', { locale: dateFnsLocale })}</span>
+                                                    <span>{format(new Date(apt.date + 'T' + apt.time), 'p', { locale: dateFnsLocale })}</span>
                                                     <span className="text-slate-300">•</span>
                                                     <span className="text-slate-700 font-medium">{apt.serviceName}</span>
                                                 </div>
-                                                {apt.notes && (
+                                                {apt.notesClient && (
                                                     <div className="flex items-start gap-2 mt-1 px-2 py-1.5 bg-[#F8FAFC] border border-[#E6E8EC] rounded-lg text-xs italic text-slate-500">
                                                         <MessageCircle size={11} className="mt-0.5 shrink-0 text-slate-400" />
-                                                        "{apt.notes}"
+                                                        "{apt.notesClient}"
                                                     </div>
                                                 )}
                                             </div>
@@ -360,9 +359,8 @@ export default function AppointmentInbox({
                                     {activeTab !== 'pending' && (
                                         <div className={`shrink-0 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${statusBadge[apt.status] ?? statusBadge.pending}`}>
                                             {apt.status === 'confirmed' && <><CheckCircle size={11} /> {t('badgeConfirmed')}</>}
-                                            {apt.status === 'cancelled' && <><XCircle size={11} />    {t('badgeCancelled')}</>}
+                                            {apt.status === 'canceled' && <><XCircle size={11} />    {t('badgeCancelled')}</>}
                                             {apt.status === 'completed' && <><CheckCircle size={11} /> {t('badgeCompleted')}</>}
-                                            {apt.status === 'no-show' && <><XCircle size={11} />    {t('badgeNoShow')}</>}
                                             {apt.status === 'pending' && <><AlertCircle size={11} /> {t('badgePending')}</>}
                                         </div>
                                     )}
@@ -384,7 +382,7 @@ export default function AppointmentInbox({
                                 Rechazar cita
                             </h3>
                             <p className="text-sm mt-1 text-red-600/80">
-                                <strong>{rejectTarget.customerName}</strong>
+                                <strong>{rejectTarget.clientName || 'Cliente'}</strong>
                                 {' · '}{rejectTarget.serviceName} · {fmtDate(rejectTarget)}
                             </p>
                         </div>
