@@ -16,7 +16,8 @@ import { Capacitor } from '@capacitor/core';
 import ImageUploader from '@/components/ui/ImageUploader';
 import ImageCropModal from '@/components/ui/ImageCropModal';
 import { FavoritesService, FavoriteRecord } from '@/services/favorites.service';
-import { AppointmentService, Appointment } from '@/services/appointment.service';
+import { BookingService } from '@/services/booking.service';
+import { BookingDocument } from '@/types/firestore-schema';
 import { useLocale, useTranslations } from 'next-intl';
 
 export default function UserProfilePage() {
@@ -47,7 +48,7 @@ export default function UserProfilePage() {
     const [isClosingBiz, setIsClosingBiz] = useState(false);
     const [favorites, setFavorites] = useState<FavoriteRecord[]>([]);
     const [favLoading, setFavLoading] = useState(true);
-    const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [appointments, setAppointments] = useState<BookingDocument[]>([]);
     const [aptsLoading, setAptsLoading] = useState(true);
     const [cancellingId, setCancellingId] = useState<string | null>(null); // id being cancelled
     const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null); // id waiting inline confirm
@@ -70,20 +71,9 @@ export default function UserProfilePage() {
             // Fetch by UID (new bookings) + email (legacy bookings), deduplicate
             const fetchAppointments = async () => {
                 try {
-                    const [byUid, byEmail] = await Promise.all([
-                        AppointmentService.getByClientUid(user.uid),
-                        user.email ? AppointmentService.getByClientEmail(user.email) : Promise.resolve([]),
-                    ]);
-                    // Merge and deduplicate by appointment id
-                    const seen = new Set<string>();
-                    const merged = [...byUid, ...byEmail].filter(apt => {
-                        if (!apt.id || seen.has(apt.id)) return false;
-                        seen.add(apt.id);
-                        return true;
-                    });
-                    // Sort newest first, keep max 10
-                    merged.sort((a, b) => (b.date?.toMillis?.() ?? 0) - (a.date?.toMillis?.() ?? 0));
-                    setAppointments(merged.slice(0, 10));
+                    const bookings = await BookingService.getByClient(user.uid);
+                    // Items are already sorted by BookingsService (date desc, time desc)
+                    setAppointments(bookings.slice(0, 10));
                 } catch {
                     // Silent — empty state shown
                 } finally {
@@ -101,8 +91,8 @@ export default function UserProfilePage() {
         if (!aptId) return;
         setCancellingId(aptId);
         try {
-            await AppointmentService.updateStatus(aptId, 'cancelled');
-            setAppointments(prev => prev.map(a => a.id === aptId ? { ...a, status: 'cancelled' } : a));
+            await BookingService.updateStatus(aptId, 'canceled');
+            setAppointments(prev => prev.map(a => a.id === aptId ? { ...a, status: 'canceled' } as any : a));
             toast.success(t('aptCancelled'), { icon: '📅' });
         } catch {
             toast.error(t('aptCancelError'));
@@ -528,13 +518,17 @@ export default function UserProfilePage() {
                     ) : (
                         <div className="space-y-2">
                             {appointments.map((apt) => {
-                                const aptDate = apt.date?.toDate ? apt.date.toDate() : new Date();
+                                // In Bookings, date is string "YYYY-MM-DD" and time is "HH:MM"
+                                const [y, m, d] = apt.date.split('-').map(Number);
+                                const [hr, mn] = apt.time.split(':').map(Number);
+                                const aptDate = new Date(y, m - 1, d, hr, mn);
+                                
                                 const statusKey = `aptStatus_${apt.status}` as any;
                                 const statusColors: Record<string, string> = {
                                     pending: 'bg-amber-50 text-amber-700 border-amber-200',
                                     confirmed: 'bg-[rgba(20,184,166,0.10)] text-[#0F766E] border-[#14B8A6]/30',
                                     completed: 'bg-green-50 text-green-700 border-green-200',
-                                    cancelled: 'bg-red-50 text-red-600 border-red-200',
+                                    canceled: 'bg-red-50 text-red-600 border-red-200',
                                     'no-show': 'bg-slate-100 text-slate-500 border-slate-200',
                                 };
                                 const color = statusColors[apt.status] ?? statusColors.pending;
