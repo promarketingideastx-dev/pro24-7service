@@ -38,7 +38,10 @@ function CustomerDetailContent() {
     const [notesDirty, setNotesDirty] = useState(false);
 
     const fetchData = async () => {
-        if (!user || !id) return;
+        if (!user || !id) {
+            if (!id) setLoading(false);
+            return;
+        }
         setLoading(true);
         try {
             // Reemplazo In-Memory: Leer todas las Bookings del negocio
@@ -50,7 +53,14 @@ function CustomerDetailContent() {
             );
 
             // Intento de buscar si físicamente el cliente Legacy existe en BD
-            let cust = await CustomerService.getCustomer(id);
+            let cust: Customer | null = null;
+            try {
+                if (!id.startsWith('temp-')) {
+                    cust = await CustomerService.getCustomer(id);
+                }
+            } catch (err) {
+                console.warn('Error al buscar cliente legacy (Ignorado):', err);
+            }
 
             // Si es un cliente in-memory y no tiene registro físico en customers, lo sintetizamos
             if (!cust && clientApts.length > 0) {
@@ -178,10 +188,10 @@ function CustomerDetailContent() {
 
                         <div className="flex flex-col items-center text-center">
                             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center border-4 border-white shadow-xl mb-4">
-                                <span className="text-2xl font-bold text-white">{customer.fullName.charAt(0).toUpperCase()}</span>
+                                <span className="text-2xl font-bold text-white">{customer.fullName ? customer.fullName.charAt(0).toUpperCase() : '?'}</span>
                             </div>
-                            <h2 className="text-xl font-bold text-slate-900 mb-1">{customer.fullName}</h2>
-                            {customer.createdAt && (
+                            <h2 className="text-xl font-bold text-slate-900 mb-1">{customer.fullName || 'Cliente'}</h2>
+                            {customer.createdAt && typeof customer.createdAt.toDate === 'function' && (
                                 <p className="text-slate-500 text-xs">
                                     Cliente desde {format(customer.createdAt.toDate(), 'PPP', { locale: es })}
                                 </p>
