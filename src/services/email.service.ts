@@ -13,9 +13,10 @@ interface EmailTemplatePayload {
 
 export const EmailService = {
     async sendEmail(to: string, subject: string, html: string) {
-        if (!process.env.RESEND_API_KEY) {
-            console.warn('[Mock Email] RESEND_API_KEY not set. Would send:', { to, subject });
-            return { id: 'mock-id' };
+        if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 're_dummy_fallback_for_build') {
+            const errMsg = '[Email Service] CRITICAL: RESEND_API_KEY is missing. Cannot send real emails.';
+            console.error(errMsg);
+            throw new Error(errMsg);
         }
 
         try {
