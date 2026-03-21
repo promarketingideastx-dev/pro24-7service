@@ -68,42 +68,44 @@ export default function AppointmentInbox({
     const playSound = () => playNotificationSound();
 
     // ── Fetch ─────────────────────────────────────────────────────────────────
-    const fetchAppointments = async () => {
-        setLoading(true);
-        try {
-            const allBookings = await BookingService.getByBusiness(businessId);
-            let data: BookingDocument[] = [];
-
-            if (activeTab === 'pending') {
-                data = allBookings.filter(b => b.status === 'pending');
-            } else if (activeTab === 'upcoming') {
-                const now = new Date();
-                data = allBookings.filter(b => b.status === 'confirmed' && new Date(b.date + 'T' + b.time) >= now);
-            } else {
-                const now = new Date();
-                data = allBookings.filter(b => 
-                    b.status === 'canceled' || b.status === 'completed' ||
-                    (b.status === 'confirmed' && new Date(b.date + 'T' + b.time) < now)
-                );
-            }
-
-            data.sort((a, b) => {
-                const dateA = new Date(a.date + 'T' + a.time).getTime();
-                const dateB = new Date(b.date + 'T' + b.time).getTime();
-                return activeTab === 'history' ? dateB - dateA : dateA - dateB;
-            });
-
-            setAppointments(data);
-        } catch (error) {
-            console.error('Error fetching inbox:', error);
-            toast.error(t('loadError'));
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [allBookings, setAllBookings] = useState<BookingDocument[]>([]);
 
     useEffect(() => {
-        if (businessId) fetchAppointments();
+        if (!businessId) return;
+        setLoading(true);
+        const unsubscribe = BookingService.onBookingsByBusiness(businessId, (bookings) => {
+            setAllBookings(bookings);
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, [businessId]);
+
+    useEffect(() => {
+        let data: BookingDocument[] = [];
+
+        if (activeTab === 'pending') {
+            data = allBookings.filter(b => b.status === 'pending');
+        } else if (activeTab === 'upcoming') {
+            const now = new Date();
+            data = allBookings.filter(b => b.status === 'confirmed' && new Date(b.date + 'T' + b.time) >= now);
+        } else {
+            const now = new Date();
+            data = allBookings.filter(b => 
+                b.status === 'canceled' || b.status === 'completed' ||
+                (b.status === 'confirmed' && new Date(b.date + 'T' + b.time) < now)
+            );
+        }
+
+        data.sort((a, b) => {
+            const dateA = new Date(a.date + 'T' + a.time).getTime();
+            const dateB = new Date(b.date + 'T' + b.time).getTime();
+            return activeTab === 'history' ? dateB - dateA : dateA - dateB;
+        });
+
+        setAppointments(data);
+    }, [allBookings, activeTab]);
+
+    useEffect(() => {
         setSelectedIds(new Set());
     }, [businessId, activeTab]);
 
@@ -133,7 +135,6 @@ export default function AppointmentInbox({
             toast.success(`${selectedIds.size} ${t('deletedCount') || 'citas eliminadas'}`);
             setSelectedIds(new Set());
             triggerRefresh(); // global inbox count trigger
-            fetchAppointments();
         } catch (error) {
             console.error('Error deleting:', error);
             toast.error(t('updateError'));
@@ -169,10 +170,8 @@ export default function AppointmentInbox({
         try {
             await BookingService.updateStatus(apt.id, 'confirmed');
 
-            setAppointments(prev => prev.map(a => a.id === apt.id ? { ...a, status: 'confirmed' } : a));
             toast.success(t('statusAccepted'));
             triggerRefresh();
-            fetchAppointments();
 
             // Notify business (in-app)
             await BusinessNotificationService.create(businessId, {
@@ -226,10 +225,8 @@ export default function AppointmentInbox({
         try {
             await BookingService.updateStatus(rejectTarget.id, 'canceled');
 
-            setAppointments(prev => prev.map(a => a.id === rejectTarget.id ? { ...a, status: 'canceled' } : a));
             toast.success(t('statusRejected'));
             triggerRefresh();
-            fetchAppointments();
 
             // Email to client
             if (rejectTarget.clientEmail) {

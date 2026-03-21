@@ -455,6 +455,18 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 bizEmail
             );
 
+            // 4. Send Instant Push Notification to Business
+            fetch('/api/push-business', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    businessUid: businessId,
+                    title: '¡Nueva cita recibida! 📅',
+                    body: `${data.name} ha solicitado agendar ${selectedService.name}.`,
+                    url: `/${localeKey}/business/agenda`
+                })
+            }).catch(e => console.error('[Push Business Error]', e));
+
             toast.success(t('requestSent'));
             onClose();
             setStep('service');

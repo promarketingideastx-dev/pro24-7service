@@ -98,9 +98,8 @@ export default function DashboardPage() {
         }).catch(() => { });
     }, [user?.uid]);
 
-    const fetchStats = async () => {
+    const calculateStats = async (allApts: BookingDocument[]) => {
         if (!user?.uid) return;
-        setLoading(true);
         try {
             const now = new Date();
             const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
@@ -111,12 +110,8 @@ export default function DashboardPage() {
             const prevMonthStart = startOfMonth(subMonths(now, 1));
             const prevMonthEnd = endOfMonth(subMonths(now, 1));
 
-            const [allBookings, customers] = await Promise.all([
-                BookingService.getByBusiness(user.uid),
-                CustomerService.getCustomers(user.uid),
-            ]);
+            const customers = await CustomerService.getCustomers(user.uid);
 
-            const allApts = allBookings;
             const pending = allApts.filter(b => b.status === 'pending');
 
             const todayCount = allApts.filter(a => {
@@ -160,25 +155,29 @@ export default function DashboardPage() {
             });
             setError(null);
         } catch (err: any) {
-            console.error("Error fetching dashboard stats:", err);
+            console.error("Error calculating dashboard stats:", err);
             setError(err.message || 'Error loading dashboard');
         } finally {
             setLoading(false);
         }
     };
 
+    useEffect(() => {
+        if (!user?.uid) return;
+        setLoading(true);
+        const unsubscribe = BookingService.onBookingsByBusiness(user.uid, (allBookings) => {
+            calculateStats(allBookings);
+        });
+        return () => unsubscribe();
+    }, [user?.uid]);
+
     const handleManualRefresh = async () => {
         setIsRefreshing(true);
-        // Firebase responses from cache return in ~5ms.
+        // Using snapshot data means it's always up to date.
         // We add a synthetic 600ms minimum delay so the spin animation is perceptible and satisfying to the user.
-        await Promise.all([
-            fetchStats(),
-            new Promise(r => setTimeout(r, 600))
-        ]);
+        await new Promise(r => setTimeout(r, 600));
         setIsRefreshing(false);
     };
-
-    useEffect(() => { fetchStats(); }, [user]);
 
     if (!user) return null;
 
@@ -188,7 +187,7 @@ export default function DashboardPage() {
                 <XCircle className="w-16 h-16 text-red-500 mb-4" />
                 <h2 className="text-xl font-bold text-slate-800 mb-2">Hubo un problema al cargar tus datos</h2>
                 <p className="text-slate-500 max-w-md mb-6">{error}</p>
-                <button onClick={fetchStats} className="px-6 py-3 bg-[#14B8A6] text-white font-bold rounded-xl active:scale-95 transition-all shadow-md">
+                <button onClick={() => window.location.reload()} className="px-6 py-3 bg-[#14B8A6] text-white font-bold rounded-xl active:scale-95 transition-all shadow-md">
                     Intentar de nuevo
                 </button>
             </div>

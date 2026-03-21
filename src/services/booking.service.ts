@@ -11,7 +11,8 @@ import {
     getDoc,
     orderBy,
     Timestamp,
-    writeBatch
+    writeBatch,
+    onSnapshot
 } from 'firebase/firestore';
 import { BookingDocument, BookingStatus } from '@/types/firestore-schema';
 
@@ -184,5 +185,28 @@ export const BookingService = {
     async getAll(): Promise<BookingDocument[]> {
         const snap = await getDocs(collection(db, COLLECTION_NAME));
         return snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingDocument));
+    },
+
+    /**
+     * Reat-Time Listener for Business Bookings
+     */
+    onBookingsByBusiness(businessId: string, callback: (bookings: BookingDocument[]) => void): () => void {
+        const q = query(
+            collection(db, COLLECTION_NAME),
+            where('businessId', '==', businessId)
+        );
+        
+        return onSnapshot(q, (snap) => {
+            const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingDocument));
+            // Memory sort matches the legacy getByBusiness fallback approach safely
+            const sorted = items.sort((a, b) => {
+                if (a.date === b.date) return b.time.localeCompare(a.time);
+                return b.date.localeCompare(a.date);
+            });
+            callback(sorted);
+        }, (error) => {
+            console.error('[BookingService] Error in onBookingsByBusiness:', error);
+            callback([]);
+        });
     }
 };
