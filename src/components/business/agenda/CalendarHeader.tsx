@@ -25,15 +25,25 @@ export default function CalendarHeader({
     const dateFnsLocale = locale === 'en' ? enUS : locale === 'pt-BR' ? ptBR : es;
     const handlePrev = () => {
         const newDate = new Date(currentDate);
-        if (view === 'week') newDate.setDate(newDate.getDate() - 7);
-        else newDate.setDate(newDate.getDate() - 1);
+        if (view === 'month') {
+            newDate.setMonth(newDate.getMonth() - 1);
+        } else if (view === 'week') {
+            newDate.setDate(newDate.getDate() - 7);
+        } else {
+            newDate.setDate(newDate.getDate() - 1);
+        }
         onDateChange(newDate);
     };
 
     const handleNext = () => {
         const newDate = new Date(currentDate);
-        if (view === 'week') newDate.setDate(newDate.getDate() + 7);
-        else newDate.setDate(newDate.getDate() + 1);
+        if (view === 'month') {
+            newDate.setMonth(newDate.getMonth() + 1);
+        } else if (view === 'week') {
+            newDate.setDate(newDate.getDate() + 7);
+        } else {
+            newDate.setDate(newDate.getDate() + 1);
+        }
         onDateChange(newDate);
     };
 

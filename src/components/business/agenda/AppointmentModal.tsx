@@ -30,6 +30,7 @@ export default function AppointmentModal({
     const [loading, setLoading] = useState(false);
     const [customerSearch, setCustomerSearch] = useState('');
     const [showCustomerResults, setShowCustomerResults] = useState(false);
+    const [isProofOpen, setIsProofOpen] = useState(false);
 
     const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm({
         defaultValues: {
@@ -347,6 +348,20 @@ export default function AppointmentModal({
                             className="w-full bg-slate-50 border-2 border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-900 font-medium focus:outline-none focus:bg-white focus:border-[#14B8A6] focus:shadow-[0_0_0_4px_rgba(20,184,166,0.1)] resize-none transition-all"
                             placeholder={t('notesPlaceholder')} />
                     </div>
+
+                    {/* Payment Proof */}
+                    {appointment?.paymentProof && (
+                        <div className="space-y-1 mb-2 text-left bg-slate-50 border border-slate-200 rounded-xl p-4">
+                            <label className="text-xs font-bold text-slate-800 uppercase tracking-wide mb-2 block">{t('paymentProof') || 'Comprobante de Pago'}</label>
+                            <button
+                                type="button"
+                                onClick={() => setIsProofOpen(true)}
+                                className="inline-flex items-center gap-2 text-[#0F766E] font-medium bg-[#14B8A6]/10 px-4 py-2 rounded-lg hover:bg-[#14B8A6]/20 transition-colors w-full justify-center"
+                            >
+                                Ver Archivo ({appointment.paymentProof.type})
+                            </button>
+                        </div>
+                    )}
                 </form>
 
                 {/* Footer Minimalista */}
@@ -363,6 +378,27 @@ export default function AppointmentModal({
                     </button>
                 </div>
             </div>
+
+            {/* In-App Evidence Viewer Modal */}
+            {isProofOpen && appointment?.paymentProof && (
+                <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md">
+                    <div className="w-full max-w-3xl flex flex-col h-full sm:h-auto max-h-screen">
+                        <div className="flex justify-between items-center bg-black/50 p-4 rounded-t-xl">
+                            <span className="text-white font-semibold">Comprobante de Pago</span>
+                            <button onClick={() => setIsProofOpen(false)} className="text-white hover:text-slate-300 p-2 bg-white/10 rounded-full">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="flex-1 bg-black/20 overflow-hidden flex items-center justify-center rounded-b-xl relative p-2">
+                            {appointment.paymentProof.type === 'pdf' ? (
+                                <iframe src={appointment.paymentProof.url} className="w-full h-[70vh] rounded-lg bg-white" />
+                            ) : (
+                                <img src={appointment.paymentProof.url} alt="Comprobante" className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl" />
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

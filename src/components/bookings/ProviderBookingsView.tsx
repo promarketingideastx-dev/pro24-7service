@@ -12,6 +12,7 @@ export default function ProviderBookingsView() {
     const { user } = useAuth();
     const [bookings, setBookings] = useState<BookingDocument[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedProof, setSelectedProof] = useState<{url: string, type: string} | null>(null);
 
     const loadBookings = async () => {
         if (!user?.uid) return;
@@ -163,14 +164,12 @@ export default function ProviderBookingsView() {
                                     <div className="mt-3 p-3 bg-blue-50/50 border border-blue-100 rounded-xl max-w-sm">
                                         <p className="text-xs font-bold text-blue-900 mb-2">Comprobante Adjunto</p>
                                         <div className="flex gap-2">
-                                            <a 
-                                                href={booking.paymentProof.url} 
-                                                target="_blank" 
-                                                rel="noreferrer"
+                                            <button 
+                                                onClick={() => setSelectedProof({ url: booking.paymentProof!.url, type: booking.paymentProof!.type })}
                                                 className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-medium transition-colors"
                                             >
                                                 Ver Archivo ({booking.paymentProof.type})
-                                            </a>
+                                            </button>
                                             {booking.paymentStatus === 'proof_uploaded' && (
                                                 <>
                                                     <button onClick={() => handleApproveProof(booking)} className="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-3 py-1.5 rounded-lg font-bold transition-colors">Aprobar</button>
@@ -210,6 +209,27 @@ export default function ProviderBookingsView() {
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* In-App Evidence Viewer Modal */}
+            {selectedProof && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md">
+                    <div className="w-full max-w-3xl flex flex-col h-full sm:h-auto max-h-screen">
+                        <div className="flex justify-between items-center bg-black/50 p-4 rounded-t-xl">
+                            <span className="text-white font-semibold">Comprobante de Pago</span>
+                            <button onClick={() => setSelectedProof(null)} className="text-white hover:text-slate-300 p-2 bg-white/10 rounded-full">
+                                <XCircle size={20} />
+                            </button>
+                        </div>
+                        <div className="flex-1 bg-black/20 overflow-hidden flex items-center justify-center rounded-b-xl relative p-2">
+                            {selectedProof.type === 'pdf' ? (
+                                <iframe src={selectedProof.url} className="w-full h-[70vh] rounded-lg bg-white" />
+                            ) : (
+                                <img src={selectedProof.url} alt="Comprobante" className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl" />
+                            )}
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
