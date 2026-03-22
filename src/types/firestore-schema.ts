@@ -316,7 +316,7 @@ export interface BookingDocument {
 // ==========================================
 
 export type NotificationChannel = 'push' | 'email';
-export type NotificationType = 'booking_created' | 'booking_confirmed' | 'booking_canceled' | 'booking_completed' | 'message_received' | 'booking_reminder' | 'proof_uploaded' | 'proof_approved' | 'proof_rejected';
+export type NotificationType = 'booking_created' | 'booking_created_client' | 'booking_confirmed' | 'booking_canceled' | 'booking_completed' | 'message_received' | 'booking_reminder' | 'proof_uploaded' | 'proof_uploaded_business' | 'proof_approved' | 'proof_rejected';
 export type NotificationStatus = 'pending' | 'sent' | 'cancelled';
 
 export interface NotificationQueueDocument {
@@ -327,6 +327,7 @@ export interface NotificationQueueDocument {
     type: NotificationType;
     entityId: string; // booking.id OR chatRoom.id
     payload?: any; // Additional data for template rendering
+    proofUrl?: string; // Opt for payment receipts images
     
     scheduledFor: any; // Timestamp
     attempts: number; // 0, 1, 2

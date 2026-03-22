@@ -12,6 +12,7 @@ import { BookingDocument } from '@/types/firestore-schema';
 import { format, startOfMonth, endOfMonth, startOfWeek, addDays, isSameDay, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useTranslations, useLocale } from 'next-intl';
+import { formatPrice } from '@/lib/currencyUtils';
 import NextLink from 'next/link';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -26,6 +27,7 @@ interface DashboardStats {
     confirmationRate: number;
     weeklyRevenue: { label: string; amount: number }[];
     topServices: { name: string; count: number }[];
+    currency: string;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -152,6 +154,7 @@ export default function DashboardPage() {
                 confirmationRate,
                 weeklyRevenue: buildWeeklyRevenue(allApts),
                 topServices: buildTopServices(allApts),
+                currency: allApts.length > 0 ? (allApts[0].currency || 'USD') : 'USD',
             });
             setError(null);
         } catch (err: any) {
@@ -249,7 +252,7 @@ export default function DashboardPage() {
         },
         {
             label: t('monthRevenue'),
-            value: `L ${stats.monthRevenue.toLocaleString('es-HN')}`,
+            value: formatPrice(stats.monthRevenue, stats.currency),
             sub: revenueChange !== null
                 ? `${revenueChange >= 0 ? '+' : ''}${revenueChange}% ${t('vsLastMonth')}`
                 : t('thisMonth'),
@@ -370,7 +373,7 @@ export default function DashboardPage() {
                                         return (
                                             <div key={i} className="flex-1 flex flex-col items-center gap-1 group/bar h-full justify-end">
                                                 <div className="text-[9px] text-slate-400 opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap">
-                                                    L {week.amount.toLocaleString()}
+                                                    {formatPrice(week.amount, stats.currency)}
                                                 </div>
                                                 <div
                                                     className={`w-full rounded-t-md transition-all ${isLast

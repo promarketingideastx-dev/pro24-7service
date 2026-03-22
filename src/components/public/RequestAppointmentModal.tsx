@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { ActiveCountry } from '@/lib/activeCountry';
 import { getCountryConfig } from '@/lib/locations';
+import { formatPrice } from '@/lib/currencyUtils';
 
 import { WeeklySchedule } from '@/services/employee.service';
 import { PaymentSettings } from '@/types/firestore-schema';
@@ -221,13 +222,12 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
     const localeKey = locale === 'en' ? 'en' : locale === 'pt-BR' ? 'pt' : 'es';
     const dateFnsLocale = locale === 'en' ? enUS : locale === 'pt-BR' ? ptBR : es;
 
-    const getCurrencySymbol = (code: string) => {
-        const symbols: Record<string, string> = { HNL: 'L.', USD: '$', GTQ: 'Q.', MXN: '$', COP: '$', PEN: 'S/', BOB: 'Bs.', CRC: '₡', NIO: 'C$', PAB: 'B/.', ARS: '$', CLP: '$', UYU: '$', PYG: '₲' };
-        return symbols[code] || code;
-    };
     const countryCode = ActiveCountry.get();
     const countryConfig = getCountryConfig(countryCode);
-    const currencySymbol = getCurrencySymbol(countryConfig.currency);
+    const getCurrencySymbol = (code: string) => {
+        // Fallback for edge cases, though formatPrice handles it
+        return code;
+    };
 
     const [step, setStep] = useState<Step>('service');
     const [loading, setLoading] = useState(false);
@@ -411,7 +411,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 paymentMethod: 'manual',
                 totalAmount: totalAmount,
                 depositAmount: depositAmount,
-                currency: countryConfig.currency, // Add enforced currency
+                currency: selectedService.currency || countryConfig.currency, // Force Service Currency
                 notesClient: data.notes
             });
 
@@ -431,8 +431,8 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                     });
                 } catch (e: any) {
                     console.error(`[Storage Error] Proof upload failed for bookingId: ${booking.id} | Code: ${e.code || 'unknown'} | Path: bookings/${booking.id}/${proofFile.name} | Details:`, e);
-                    const errorMsg = localeKey === 'en' ? 'We couldn’t upload the payment proof. Please try again.' 
-                                   : localeKey === 'pt' ? 'Não foi possível enviar o comprovante. Tente novamente.' 
+                    const errorMsg = localeKey === 'en' ? 'We couldn’t upload the payment proof. Please try again.'
+                                   : localeKey === 'pt' ? 'Não foi possível enviar o comprovante. Tente novamente.'
                                    : 'No pudimos subir el comprobante. Inténtalo nuevamente.';
                     toast.error(errorMsg);
                 }
@@ -445,7 +445,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 bizEmail = bDoc.data()?.email || '';
             } catch (e) {}
 
-            // 3. Queue Notifications
+            // 3. Queue Notifications (For Business)
             await NotificationQueueService.enqueueForBookingCreation(
                 booking.id,
                 businessId,
@@ -453,6 +453,15 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 data.name,
                 booking.serviceName,
                 bizEmail
+            );
+
+            // 3.5. Queue Notification (For Client - Acuse Inmediato)
+            await NotificationQueueService.enqueueForClientBookingCreated(
+                booking.id,
+                user.uid,
+                data.email || user.email || '',
+                businessName,
+                selectedService.name
             );
 
             // 4. Send Instant Push Notification to Business
@@ -477,8 +486,8 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
             setProofFile(null);
 
         } catch (error: any) {
-            console.error("[Booking Error] Falló confirmación. Detalles de debug:", { 
-                errorCode: error?.code, 
+            console.error("[Booking Error] Falló confirmación. Detalles de debug:", {
+                errorCode: error?.code,
                 errorMessage: error?.message,
                 path: 'bookings',
                 payloadSnippet: { serviceId: selectedService.id, businessId, date: selectedDate, time: selectedTime }
@@ -565,10 +574,10 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                     {localeKey === 'en' ? 'Incomplete Profile' : localeKey === 'pt' ? 'Perfil Incompleto' : 'Perfil Incompleto'}
                                 </h3>
                                 <p className="text-slate-500 text-sm">
-                                    {localeKey === 'en' 
-                                        ? 'To book an appointment, you must complete the following details in your profile:' 
-                                        : localeKey === 'pt' 
-                                        ? 'Para agendar uma consulta, você deve preencher os seguintes dados no seu perfil:' 
+                                    {localeKey === 'en'
+                                        ? 'To book an appointment, you must complete the following details in your profile:'
+                                        : localeKey === 'pt'
+                                        ? 'Para agendar uma consulta, você deve preencher os seguintes dados no seu perfil:'
                                         : 'Para agendar una cita necesitas completar los siguientes datos en tu perfil:'}
                                 </p>
                             </div>
@@ -610,7 +619,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                         >
                                             <div className="text-left">
                                                 <p className="font-bold text-slate-900 group-hover:text-[#14B8A6] transition-colors">{service.name}</p>
-                                                <p className="text-sm text-slate-400">{currencySymbol} {service.price}</p>
+                                                <p className="text-sm text-slate-400">{formatPrice(service.price, service.currency || countryConfig.currency)}</p>
                                             </div>
                                             <ChevronRight className="w-5 h-5 text-slate-500 group-hover:text-[#14B8A6]" />
                                         </button>
@@ -657,7 +666,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                                         <span className="text-slate-900 font-bold">
                                             {paymentSettings.depositType === 'percent'
                                                 ? `${paymentSettings.depositValue}%`
-                                                : `${currencySymbol} ${paymentSettings.depositValue}`
+                                                : formatPrice(paymentSettings.depositValue || 0, selectedService?.currency || countryConfig.currency)
                                             }
                                         </span>
                                     </div>

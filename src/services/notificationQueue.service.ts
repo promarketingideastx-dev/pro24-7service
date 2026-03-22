@@ -17,11 +17,8 @@ import { ClientNotificationService } from './clientNotification.service';
 
 export const NotificationQueueService = {
     /**
-     * Enqueues the standard Multi-Channel sequence for a new booking
-     * 1. Instant Push (Internal)
-     * 2. Instant Email
-     * 3. +15m Email Fallback
-     * 4. +30m Email Fallback
+     * Enqueues the standard Multi-Channel sequence for a new booking (For Business)
+     * Reminders applied: Immediate, +15m, +30m, +45m
      */
     async enqueueForBookingCreation(
         bookingId: string, 
@@ -41,53 +38,69 @@ export const NotificationQueueService = {
                 relatedName: clientName
             });
 
-            // 2. Queue Immediate Email
-            await this._enqueueDoc({
-                targetUid: businessId,
-                targetEmail: businessEmail,
-                channel: 'email',
-                type: 'booking_created',
-                entityId: bookingId,
-                status: 'pending',
-                scheduledFor: serverTimestamp(),
-                attempts: 0
-            });
-
-            // 3. Queue +15m Fallback
-            const plus15 = new Date();
-            plus15.setMinutes(plus15.getMinutes() + 15);
-            await this._enqueueDoc({
-                targetUid: businessId,
-                targetEmail: businessEmail,
-                channel: 'email',
-                type: 'booking_created',
-                entityId: bookingId,
-                status: 'pending',
-                scheduledFor: Timestamp.fromDate(plus15),
-                attempts: 0
-            });
-
-            // 4. Queue +30m Fallback
-            const plus30 = new Date();
-            plus30.setMinutes(plus30.getMinutes() + 30);
-            await this._enqueueDoc({
-                targetUid: businessId,
-                targetEmail: businessEmail,
-                channel: 'email',
-                type: 'booking_created',
-                entityId: bookingId,
-                status: 'pending',
-                scheduledFor: Timestamp.fromDate(plus30),
-                attempts: 0
-            });
-
+            // 2. Queue Multi-Reminders (Immediate, 15, 30, 45)
+            const scheduleOffsets = [0, 15, 30, 45];
+            for (const offset of scheduleOffsets) {
+                const scheduledTime = new Date();
+                scheduledTime.setMinutes(scheduledTime.getMinutes() + offset);
+                
+                await this._enqueueDoc({
+                    targetUid: businessId,
+                    targetEmail: businessEmail,
+                    channel: 'email',
+                    type: 'booking_created',
+                    entityId: bookingId,
+                    status: 'pending',
+                    scheduledFor: Timestamp.fromDate(scheduledTime),
+                    attempts: 0
+                });
+            }
         } catch (error) {
             console.error('Error enqueueing booking notifications:', error);
         }
     },
 
     /**
+     * Enqueues SINGLE email for the client confirming creation.
+     * No reminders applied.
+     */
+    async enqueueForClientBookingCreated(
+        bookingId: string,
+        clientId: string,
+        clientEmail: string,
+        businessName: string,
+        serviceName: string
+    ) {
+        try {
+            // 1. Instant Push to Client
+            await ClientNotificationService.create(clientId, {
+                title: 'Cita Solicitada',
+                body: `Tu cita para ${serviceName} con ${businessName} fue enviada.`,
+                type: 'booking_created', // Note: Make sure email template handles client perspective or use a generic notification
+                relatedId: bookingId,
+                relatedName: businessName
+            });
+
+            // 2. Queue 1 Single Immediate Email
+            await this._enqueueDoc({
+                targetUid: clientId,
+                targetEmail: clientEmail,
+                channel: 'email',
+                type: 'booking_created_client', // We map this later in cron
+                entityId: bookingId,
+                status: 'pending',
+                scheduledFor: serverTimestamp(),
+                attempts: 0
+            });
+        } catch (error) {
+             console.error('Error enqueueing booking created client notification:', error);
+        }
+    },
+
+    /**
      * Enqueues notification for the client when a booking is confirmed or canceled.
+     * Confirmed = Needs Action/Reminders? The user said "Y aplicar la misma logica de recordatorios: cada 15 min... detenerse cuando vio mensaje".
+     * Wait, if approved, it has Reminders. If canceled, NO reminders.
      */
     async enqueueForBookingStatusChange(
         bookingId: string,
@@ -103,7 +116,6 @@ export const NotificationQueueService = {
                 : `${businessName} ha cancelado tu cita.`;
 
             // 1. Instant Push to Client
-            // Ensure client notification service handles standard objects identically
             await ClientNotificationService.create(clientId, {
                 title,
                 body,
@@ -112,17 +124,38 @@ export const NotificationQueueService = {
                 relatedName: businessName
             });
 
-            // 2. Queue Immediate Email for client
-            await this._enqueueDoc({
-                targetUid: clientId,
-                targetEmail: clientEmail,
-                channel: 'email',
-                type: newStatus === 'confirmed' ? 'booking_confirmed' : 'booking_canceled',
-                entityId: bookingId,
-                status: 'pending',
-                scheduledFor: serverTimestamp(),
-                attempts: 0
-            });
+            // 2. Email Queues
+            if (newStatus === 'confirmed') {
+                // Reminders
+                const scheduleOffsets = [0, 15, 30, 45];
+                for (const offset of scheduleOffsets) {
+                    const scheduledTime = new Date();
+                    scheduledTime.setMinutes(scheduledTime.getMinutes() + offset);
+                    
+                    await this._enqueueDoc({
+                        targetUid: clientId,
+                        targetEmail: clientEmail,
+                        channel: 'email',
+                        type: 'booking_confirmed',
+                        entityId: bookingId,
+                        status: 'pending',
+                        scheduledFor: Timestamp.fromDate(scheduledTime),
+                        attempts: 0
+                    });
+                }
+            } else {
+                // Immediate Exact 1 time (Canceled)
+                await this._enqueueDoc({
+                    targetUid: clientId,
+                    targetEmail: clientEmail,
+                    channel: 'email',
+                    type: 'booking_canceled',
+                    entityId: bookingId,
+                    status: 'pending',
+                    scheduledFor: serverTimestamp(),
+                    attempts: 0
+                });
+            }
 
         } catch (error) {
             console.error('Error enqueueing status change notifications:', error);
@@ -131,6 +164,8 @@ export const NotificationQueueService = {
 
     /**
      * Enqueues notification for the client when a payment proof is approved or rejected.
+     * Rejected = Needs Reminders. Approved = No Reminders (Just instant success).
+     * Also, for Proof Uploaded (to business), it will be handled by a new function.
      */
     async enqueueForPaymentProofStatus(
         bookingId: string,
@@ -149,24 +184,86 @@ export const NotificationQueueService = {
             await ClientNotificationService.create(clientId, {
                 title,
                 body,
-                type: newStatus as any, // Typecast if schema isn't strictly updated yet
+                type: newStatus as any,
                 relatedId: bookingId,
                 relatedName: businessName
             });
 
-            // 2. Queue Immediate Email for client
-            await this._enqueueDoc({
-                targetUid: clientId,
-                targetEmail: clientEmail,
-                channel: 'email',
-                type: newStatus as any,
-                entityId: bookingId,
-                status: 'pending',
-                scheduledFor: serverTimestamp(),
-                attempts: 0
-            });
+            // 2. Email Queues
+            if (newStatus === 'proof_rejected') {
+                const scheduleOffsets = [0, 15, 30, 45];
+                for (const offset of scheduleOffsets) {
+                    const scheduledTime = new Date();
+                    scheduledTime.setMinutes(scheduledTime.getMinutes() + offset);
+                    await this._enqueueDoc({
+                        targetUid: clientId,
+                        targetEmail: clientEmail,
+                        channel: 'email',
+                        type: 'proof_rejected',
+                        entityId: bookingId,
+                        status: 'pending',
+                        scheduledFor: Timestamp.fromDate(scheduledTime),
+                        attempts: 0
+                    });
+                }
+            } else {
+                // Proof Approved = Immediate Only
+                await this._enqueueDoc({
+                    targetUid: clientId,
+                    targetEmail: clientEmail,
+                    channel: 'email',
+                    type: 'proof_approved',
+                    entityId: bookingId,
+                    status: 'pending',
+                    scheduledFor: serverTimestamp(),
+                    attempts: 0
+                });
+            }
         } catch (error) {
             console.error('Error enqueueing payment proof notifications:', error);
+        }
+    },
+
+    /**
+     * Enqueues notification for the business when a client uploads payment proof.
+     * Proof Uploaded to Business = Reminders (+15, +30, +45)
+     */
+    async enqueueForProofUploaded(
+        bookingId: string,
+        businessId: string,
+        businessEmail: string,
+        clientName: string,
+        proofUrl: string
+    ) {
+        try {
+            // 1. Push
+            await BusinessNotificationService.create(businessId, {
+                title: 'Nuevo Comprobante Recibido',
+                body: `${clientName} ha subido el pago. Requiere tu revisión.`,
+                type: 'proof_uploaded' as any,
+                relatedId: bookingId,
+                relatedName: clientName
+            });
+
+            // 2. Reminders
+            const scheduleOffsets = [0, 15, 30, 45];
+            for (const offset of scheduleOffsets) {
+                const scheduledTime = new Date();
+                scheduledTime.setMinutes(scheduledTime.getMinutes() + offset);
+                await this._enqueueDoc({
+                    targetUid: businessId,
+                    targetEmail: businessEmail,
+                    channel: 'email',
+                    type: 'proof_uploaded_business', // newly mapped
+                    entityId: bookingId,
+                    proofUrl: proofUrl, // custom property passed downwards
+                    status: 'pending',
+                    scheduledFor: Timestamp.fromDate(scheduledTime),
+                    attempts: 0
+                });
+            }
+        } catch (error) {
+            console.error('Error enqueueing proof uploaded notifications:', error);
         }
     },
 

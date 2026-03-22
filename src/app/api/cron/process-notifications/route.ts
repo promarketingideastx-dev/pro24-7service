@@ -40,7 +40,7 @@ export async function GET(request: Request) {
         const batch = db.batch();
         let processedCount = 0;
 
-        const promises = snapshot.docs.map(async (doc) => {
+        for (const doc of snapshot.docs) {
             const data = doc.data();
             
             if (data.channel === 'email') {
@@ -60,12 +60,19 @@ export async function GET(request: Request) {
                         serviceName: booking.serviceName,
                         date: booking.date,
                         time: booking.time,
-                        bookingId: data.entityId
+                        bookingId: data.entityId,
+                        proofUrl: (data as any).proofUrl // Inject if present
                     };
 
                     switch (data.type) {
                         case 'booking_created':
                             await EmailService.sendBookingCreatedEmail(emailPayload);
+                            break;
+                        case 'booking_created_client':
+                            await EmailService.sendClientBookingCreatedEmail(emailPayload);
+                            break;
+                        case 'proof_uploaded_business':
+                            await EmailService.sendProofUploadedBusinessEmail(emailPayload);
                             break;
                         case 'booking_confirmed':
                             await EmailService.sendBookingConfirmedEmail(emailPayload);
@@ -91,6 +98,10 @@ export async function GET(request: Request) {
                     });
                     processedCount++;
 
+                    // Minimum protection against Resend rate limits (5 per second)
+                    // Wait ~250ms between consecutive emails
+                    await new Promise(r => setTimeout(r, 250));
+
                 } catch (emailError: any) {
                     console.error(`[CRON] Failed to send email for doc ${doc.id}:`, emailError);
                     batch.update(doc.ref, {
@@ -109,9 +120,8 @@ export async function GET(request: Request) {
                 });
                 processedCount++;
             }
-        });
+        }
 
-        await Promise.allSettled(promises);
         await batch.commit();
 
         console.log(`[CRON] Successfully processed ${processedCount} notifications.`);

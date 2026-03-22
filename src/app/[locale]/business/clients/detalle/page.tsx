@@ -12,6 +12,7 @@ import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
 import CustomerFormModal from '@/components/business/clients/CustomerFormModal';
 import { useAuth } from '@/context/AuthContext';
+import { formatPrice } from '@/lib/currencyUtils';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
     confirmed: { label: 'Confirmada', color: 'text-green-700 bg-green-50 border-green-200', icon: <CheckCircle className="w-3 h-3" /> },
@@ -151,7 +152,7 @@ function CustomerDetailContent() {
                 <div className="bg-white border border-[#14B8A6]/20 rounded-xl p-4 text-center">
                     <TrendingUp className="w-4 h-4 text-[#14B8A6] mx-auto mb-1" />
                     <p className="text-xl font-bold text-[#0F766E]">
-                        {ltv > 0 ? `L ${ltv.toLocaleString()}` : '—'}
+                        {ltv > 0 ? formatPrice(ltv, appointments.length > 0 ? appointments[0].currency : 'USD') : '—'}
                     </p>
                     <p className="text-[10px] text-slate-500 mt-0.5">LTV Total</p>
                 </div>
@@ -273,7 +274,7 @@ function CustomerDetailContent() {
                                                     <div className="flex items-center gap-2 flex-wrap">
                                                         <span className="font-semibold text-slate-900 text-sm">{apt.serviceName}</span>
                                                         {apt.totalAmount != null && apt.totalAmount > 0 && (
-                                                            <span className="text-xs text-[#0F766E] font-bold">L {apt.totalAmount}</span>
+                                                            <span className="text-xs text-[#0F766E] font-bold">{formatPrice(apt.totalAmount, apt.currency)}</span>
                                                         )}
                                                     </div>
                                                     <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">

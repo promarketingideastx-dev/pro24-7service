@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { BookingService } from '@/services/booking.service';
 import { BookingDocument } from '@/types/firestore-schema';
 import { CalendarCheck } from 'lucide-react';
+import { formatPrice } from '@/lib/currencyUtils';
 
 export default function AdminBookingsView() {
     const [bookings, setBookings] = useState<BookingDocument[]>([]);
@@ -63,7 +64,7 @@ export default function AdminBookingsView() {
                                         {b.clientId.slice(0, 8)}...
                                     </td>
                                     <td className="p-4 text-slate-600 font-mono text-sm">
-                                        {b.currency || ''} {b.totalAmount}
+                                        {formatPrice(b.totalAmount || 0, b.currency)}
                                     </td>
                                     <td className="p-4">
                                         <span className={`text-xs px-2 py-1 rounded-full font-bold uppercase tracking-wider

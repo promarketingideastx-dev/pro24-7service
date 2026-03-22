@@ -8,6 +8,8 @@ import { format } from 'date-fns';
 import { es, enUS, ptBR } from 'date-fns/locale';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
+import { getCountryConfig } from '@/lib/locations';
+import { formatPrice } from '@/lib/currencyUtils';
 
 interface CustomerListProps {
     customers: Customer[];
@@ -17,31 +19,7 @@ interface CustomerListProps {
     onDelete: (customer: Customer) => void;
 }
 
-/** Country code → { symbol, locale } */
-const CURRENCY_MAP: Record<string, { symbol: string; locale: string }> = {
-    HN: { symbol: 'L', locale: 'es-HN' },
-    GT: { symbol: 'Q', locale: 'es-GT' },
-    SV: { symbol: '$', locale: 'es-SV' },
-    NI: { symbol: 'C$', locale: 'es-NI' },
-    CR: { symbol: '₡', locale: 'es-CR' },
-    PA: { symbol: 'B/.', locale: 'es-PA' },
-    MX: { symbol: '$', locale: 'es-MX' },
-    US: { symbol: '$', locale: 'en-US' },
-    CA: { symbol: 'CA$', locale: 'en-CA' },
-    CO: { symbol: '$', locale: 'es-CO' },
-    BR: { symbol: 'R$', locale: 'pt-BR' },
-    AR: { symbol: '$', locale: 'es-AR' },
-    CL: { symbol: '$', locale: 'es-CL' },
-    PE: { symbol: 'S/', locale: 'es-PE' },
-    EC: { symbol: '$', locale: 'es-EC' },
-    VE: { symbol: 'Bs.', locale: 'es-VE' },
-    BO: { symbol: 'Bs.', locale: 'es-BO' },
-    PY: { symbol: 'G₲', locale: 'es-PY' },
-    UY: { symbol: '$U', locale: 'es-UY' },
-    DO: { symbol: 'RD$', locale: 'es-DO' },
-    CU: { symbol: '$', locale: 'es-CU' },
-    ES: { symbol: '€', locale: 'es-ES' },
-};
+// Replaced with unified location config
 
 export default function CustomerList({ customers, appointmentStats, businessCountry = 'HN', onEdit, onDelete }: CustomerListProps) {
     const [searchTerm, setSearchTerm] = useState('');
@@ -51,7 +29,8 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
     const lp = (path: string) => `/${locale}${path}`;
     const dateFnsLocale = locale === 'en' ? enUS : locale === 'pt-BR' ? ptBR : es;
 
-    const currency = CURRENCY_MAP[businessCountry] ?? CURRENCY_MAP['HN'];
+    const countryConfig = getCountryConfig((businessCountry || 'HN') as any);
+    const currencyISO = countryConfig.currency || 'USD';
 
     const filteredCustomers = customers.filter(c =>
         c.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -64,9 +43,9 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
         return appointmentStats[key] || { ltv: 0, lastVisit: null, nextAppointment: null, appointmentCount: 0 };
     };
 
-    const formatCurrency = (amount: number) => {
+    const formatCurrencyStat = (amount: number) => {
         if (amount === 0) return '—';
-        return `${currency.symbol} ${amount.toLocaleString(currency.locale, { minimumFractionDigits: 0 })}`;
+        return formatPrice(amount, currencyISO);
     };
 
     return (
@@ -92,7 +71,7 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
                     </div>
                     <div className="bg-white border border-slate-200 rounded-xl p-3 text-center">
                         <p className="text-2xl font-bold text-[#0F766E]">
-                            L {Object.values(appointmentStats).reduce((sum, s) => sum + s.ltv, 0).toLocaleString()}
+                            {formatCurrencyStat(Object.values(appointmentStats).reduce((sum, s) => sum + s.ltv, 0))}
                         </p>
                         <p className="text-xs text-slate-500 mt-0.5">{t('ltvTotal')}</p>
                     </div>
@@ -197,7 +176,7 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
                                     <div className="w-full md:col-span-2 flex items-center gap-1.5">
                                         <TrendingUp className={`w-3 h-3 shrink-0 ${stats.ltv > 0 ? 'text-[#14B8A6]' : 'text-slate-400'}`} />
                                         <span className={`text-sm font-bold ${stats.ltv > 0 ? 'text-[#0F766E]' : 'text-slate-400'}`}>
-                                            {formatCurrency(stats.ltv)}
+                                            {formatCurrencyStat(stats.ltv)}
                                         </span>
                                     </div>
 

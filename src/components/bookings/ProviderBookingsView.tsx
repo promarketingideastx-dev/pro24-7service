@@ -7,6 +7,7 @@ import { NotificationQueueService } from '@/services/notificationQueue.service';
 import { BookingDocument } from '@/types/firestore-schema';
 import { CheckCircle, XCircle, Clock, CalendarCheck } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatPrice } from '@/lib/currencyUtils';
 
 export default function ProviderBookingsView() {
     const { user } = useAuth();
@@ -43,20 +44,32 @@ export default function ProviderBookingsView() {
 
             // If confirmed or canceled, notify the client.
             if (newStatus === 'confirmed' || newStatus === 'canceled') {
-                // To fetch client email efficiently, we might need a CustomerService call, 
-                // but for now, we'll try to find it blindly or pass generic placeholder.
-                // In a true robust setup, we'd have clientEmail stored in booking or fetched from CRM.
-                const fallbackEmail = 'cliente@example.com'; 
-                // Wait, clientEmail is not stored in BookingDocument in our Phase 1 schema? 
-                // I should add customerEmail. But for now I'll mock the email or use a placeholder.
+                const targetEmail = booking.clientEmail || '';
                 
                 await NotificationQueueService.enqueueForBookingStatusChange(
                     booking.id,
                     booking.clientId,
-                    fallbackEmail,
-                    'El Negocio', // Replace with real name if fetched
+                    targetEmail,
+                    user?.displayName || 'El Negocio',
                     newStatus
                 );
+
+                // Send Instant Push to Client
+                const title = newStatus === 'confirmed' ? 'Cita Confirmada' : 'Cita Cancelada';
+                const body = newStatus === 'confirmed' 
+                    ? `${user?.displayName || 'El negocio'} ha confirmado tu cita para ${booking.serviceName}.` 
+                    : `${user?.displayName || 'El negocio'} ha cancelado tu cita para ${booking.serviceName}.`;
+                    
+                fetch('/api/push-client', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customerUid: booking.clientId,
+                        title,
+                        body,
+                        url: `/es/user/bookings`
+                    })
+                }).catch(e => console.error('[Push Client Error]', e));
             }
 
             toast.success(`Cita marcada como ${newStatus}.`);
@@ -70,14 +83,27 @@ export default function ProviderBookingsView() {
     const handleApproveProof = async (booking: BookingDocument) => {
         try {
             await BookingService.approvePaymentProof(booking.id);
-            const fallbackEmail = 'cliente@example.com'; // Wait for CRM link in next phase
+            const targetEmail = booking.clientEmail || ''; 
             await NotificationQueueService.enqueueForPaymentProofStatus(
                 booking.id,
                 booking.clientId,
-                fallbackEmail,
+                targetEmail,
                 user?.displayName || 'El Negocio',
                 'proof_approved'
             );
+            
+            // Push Notification
+            fetch('/api/push-client', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customerUid: booking.clientId,
+                    title: 'Pago Confirmado',
+                    body: `${user?.displayName || 'El negocio'} ha verificado tu pago exitosamente.`,
+                    url: `/es/user/bookings`
+                })
+            }).catch(e => console.error('[Push Client Error]', e));
+
             toast.success("Comprobante aprobado. Cita confirmada de pago.");
             loadBookings();
         } catch (error) {
@@ -89,14 +115,27 @@ export default function ProviderBookingsView() {
     const handleRejectProof = async (booking: BookingDocument) => {
         try {
             await BookingService.rejectPaymentProof(booking.id);
-            const fallbackEmail = 'cliente@example.com'; // Wait for CRM link in next phase
+            const targetEmail = booking.clientEmail || ''; 
             await NotificationQueueService.enqueueForPaymentProofStatus(
                 booking.id,
                 booking.clientId,
-                fallbackEmail,
+                targetEmail,
                 user?.displayName || 'El Negocio',
                 'proof_rejected'
             );
+
+            // Push Notification
+            fetch('/api/push-client', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customerUid: booking.clientId,
+                    title: 'Comprobante Rechazado',
+                    body: `${user?.displayName || 'El negocio'} ha rechazado tu comprobante. Sube uno nuevo.`,
+                    url: `/es/user/bookings`
+                })
+            }).catch(e => console.error('[Push Client Error]', e));
+
             toast.success("Comprobante rechazado.");
             loadBookings();
         } catch (error) {
@@ -156,7 +195,7 @@ export default function ProviderBookingsView() {
                                 <p className="text-sm text-slate-500">ID Cliente: {booking.clientId}</p>
                                 <div className="text-sm font-medium mt-1 bg-slate-50 inline-block px-3 py-1 rounded-lg border border-slate-100">
                                     <span className="text-slate-400 text-xs mr-2">Total:</span> 
-                                    {booking.currency} {booking.totalAmount}
+                                    {formatPrice(booking.totalAmount, booking.currency)}
                                 </div>
 
                                 {/* Payment Proof Section */}

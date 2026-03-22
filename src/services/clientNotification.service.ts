@@ -10,8 +10,11 @@ export type ClientNotifType =
     | 'appointment_confirmed'    // Business confirmed the appointment
     | 'appointment_rejected'     // Business rejected the appointment
     | 'appointment_cancelled'    // Business cancelled after confirming
+    | 'booking_created'          // NEW BOOKINGS SYSTEM
     | 'booking_confirmed'        // NEW BOOKINGS SYSTEM
     | 'booking_canceled'         // NEW BOOKINGS SYSTEM
+    | 'proof_approved'           // NEW BOOKINGS SYSTEM
+    | 'proof_rejected'           // NEW BOOKINGS SYSTEM
     | 'new_message';             // Business replied in chat
 
 export interface ClientNotification {
@@ -83,12 +86,14 @@ export const ClientNotificationService = {
     },
 };
 
-// ── Icon + color meta ─────────────────────────────────────────────────────────
 export const CLIENT_NOTIF_META: Record<ClientNotifType, { emoji: string; color: string; bg: string }> = {
     appointment_confirmed: { emoji: '✅', color: '#10b981', bg: 'bg-emerald-500/10' },
     appointment_rejected: { emoji: '❌', color: '#ef4444', bg: 'bg-red-500/10' },
     appointment_cancelled: { emoji: '🚫', color: '#f97316', bg: 'bg-orange-500/10' },
+    booking_created: { emoji: '📅', color: '#3b82f6', bg: 'bg-blue-500/10' },
     booking_confirmed: { emoji: '✅', color: '#10b981', bg: 'bg-emerald-500/10' },
     booking_canceled: { emoji: '🚫', color: '#f97316', bg: 'bg-orange-500/10' },
+    proof_approved: { emoji: '🧾', color: '#10b981', bg: 'bg-emerald-500/10' },
+    proof_rejected: { emoji: '⚠️', color: '#ef4444', bg: 'bg-red-500/10' },
     new_message: { emoji: '💬', color: '#14b8a6', bg: 'bg-teal-500/10' },
 };
