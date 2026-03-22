@@ -472,7 +472,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                     businessUid: businessId,
                     title: '¡Nueva cita recibida! 📅',
                     body: `${data.name} ha solicitado agendar ${selectedService.name}.`,
-                    url: `/${localeKey}/business/agenda`
+                    url: `/${localeKey}/business/agenda?bookingId=${booking.id}`
                 })
             }).catch(e => console.error('[Push Business Error]', e));
 

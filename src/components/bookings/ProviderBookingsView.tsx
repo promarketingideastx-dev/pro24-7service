@@ -67,7 +67,7 @@ export default function ProviderBookingsView() {
                         customerUid: booking.clientId,
                         title,
                         body,
-                        url: `/es/user/bookings`
+                        url: `/es/user/profile?bookingId=${booking.id}`
                     })
                 }).catch(e => console.error('[Push Client Error]', e));
             }
@@ -100,7 +100,7 @@ export default function ProviderBookingsView() {
                     customerUid: booking.clientId,
                     title: 'Pago Confirmado',
                     body: `${user?.displayName || 'El negocio'} ha verificado tu pago exitosamente.`,
-                    url: `/es/user/bookings`
+                    url: `/es/user/profile?bookingId=${booking.id}`
                 })
             }).catch(e => console.error('[Push Client Error]', e));
 
@@ -132,7 +132,7 @@ export default function ProviderBookingsView() {
                     customerUid: booking.clientId,
                     title: 'Comprobante Rechazado',
                     body: `${user?.displayName || 'El negocio'} ha rechazado tu comprobante. Sube uno nuevo.`,
-                    url: `/es/user/bookings`
+                    url: `/es/user/profile?bookingId=${booking.id}`
                 })
             }).catch(e => console.error('[Push Client Error]', e));
 

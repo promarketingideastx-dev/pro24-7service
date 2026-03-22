@@ -10,6 +10,7 @@ interface EmailTemplatePayload {
     time: string;
     bookingId: string;
     proofUrl?: string;
+    locale?: string;
 }
 
 export const EmailService = {
@@ -41,7 +42,7 @@ export const EmailService = {
     },
 
     async sendBookingCreatedEmail(payload: EmailTemplatePayload) {
-        const { to, businessName, serviceName, date, time, bookingId } = payload;
+        const { to, businessName, serviceName, date, time, bookingId, locale } = payload;
         
         const html = `
             <div style="font-family: sans-serif; padding: 20px; color: #333;">
@@ -58,7 +59,7 @@ export const EmailService = {
                 <p>Por favor ingresa a tu agenda para confirmar o gestionar esta solicitud.</p>
                 
                 <div style="margin-top: 30px;">
-                    <a href="https://www.pro247ya.com/es/business/agenda" style="background: #14B8A6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Revisar Cita</a>
+                    <a href="https://www.pro247ya.com/${locale || 'es'}/business/agenda?bookingId=${bookingId}" style="background: #14B8A6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Revisar Cita</a>
                 </div>
             </div>
         `;
@@ -67,7 +68,7 @@ export const EmailService = {
     },
 
     async sendClientBookingCreatedEmail(payload: EmailTemplatePayload) {
-        const { to, businessName, serviceName, date, time, bookingId } = payload;
+        const { to, businessName, serviceName, date, time, bookingId, locale } = payload;
         
         const html = `
             <div style="font-family: sans-serif; padding: 20px; color: #333;">
@@ -84,7 +85,7 @@ export const EmailService = {
                 <p>El proveedor revisará tu solicitud y recibirás una notificación cuando sea confirmada.</p>
                 
                 <div style="margin-top: 30px;">
-                    <a href="https://www.pro247ya.com/es/user/bookings" style="background: #3B82F6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver mis citas</a>
+                    <a href="https://www.pro247ya.com/${locale || 'es'}/user/profile?bookingId=${bookingId}" style="background: #3B82F6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver mis citas</a>
                 </div>
             </div>
         `;
@@ -93,7 +94,7 @@ export const EmailService = {
     },
 
     async sendProofUploadedBusinessEmail(payload: EmailTemplatePayload) {
-        const { to, businessName, serviceName, date, time, proofUrl } = payload;
+        const { to, businessName, serviceName, date, time, proofUrl, bookingId, locale } = payload;
         
         const imgHtml = proofUrl ? `
             <div style="margin: 20px 0; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; background: white; text-align: center;">
@@ -117,7 +118,7 @@ export const EmailService = {
                     ${imgHtml}
 
                     <p style="text-align: center; margin-top: 25px;">
-                        <a href="https://www.pro247ya.com/es/business/agenda" style="background: #14B8A6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Revisar y Aprobar</a>
+                        <a href="https://www.pro247ya.com/${locale || 'es'}/business/agenda?bookingId=${bookingId}" style="background: #14B8A6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Revisar y Aprobar</a>
                     </p>
                 </div>
             </div>
@@ -127,7 +128,7 @@ export const EmailService = {
     },
 
     async sendBookingConfirmedEmail(payload: EmailTemplatePayload) {
-        const { to, businessName, serviceName, date, time, bookingId } = payload;
+        const { to, businessName, serviceName, date, time, bookingId, locale } = payload;
         
         const html = `
             <div style="font-family: sans-serif; padding: 20px; color: #333;">
@@ -144,7 +145,7 @@ export const EmailService = {
                 <p>Recuerda asistir a tiempo. ¡Gracias por usar PRO24/7!</p>
                 
                 <div style="margin-top: 30px;">
-                    <a href="https://www.pro247ya.com/es/user/bookings" style="background: #10B981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Detalles de la cita</a>
+                    <a href="https://www.pro247ya.com/${locale || 'es'}/user/profile?bookingId=${bookingId}" style="background: #10B981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Detalles de la cita</a>
                 </div>
             </div>
         `;
@@ -153,7 +154,7 @@ export const EmailService = {
     },
 
     async sendBookingCancelledEmail(payload: EmailTemplatePayload) {
-        const { to, businessName, serviceName, date, time, bookingId } = payload;
+        const { to, businessName, serviceName, date, time, bookingId, locale } = payload;
         
         const html = `
             <div style="font-family: sans-serif; padding: 20px; color: #333;">
@@ -175,7 +176,7 @@ export const EmailService = {
     },
 
     async sendPaymentProofApprovedEmail(payload: EmailTemplatePayload) {
-        const { to, businessName, serviceName, date, time, bookingId } = payload;
+        const { to, businessName, serviceName, date, time, bookingId, locale } = payload;
         
         const html = `
             <div style="font-family: sans-serif; padding: 20px; color: #333;">
@@ -192,7 +193,7 @@ export const EmailService = {
                 <p>Tu cita de pago está ahora debidamente confirmada. ¡Gracias por usar PRO24/7!</p>
                 
                 <div style="margin-top: 30px;">
-                    <a href="https://www.pro247ya.com/es/user/bookings" style="background: #10B981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Detalles de la cita</a>
+                    <a href="https://www.pro247ya.com/${locale || 'es'}/user/profile?bookingId=${bookingId}" style="background: #10B981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Detalles de la cita</a>
                 </div>
             </div>
         `;
@@ -201,7 +202,7 @@ export const EmailService = {
     },
 
     async sendPaymentProofRejectedEmail(payload: EmailTemplatePayload) {
-        const { to, businessName, serviceName, date, time, bookingId } = payload;
+        const { to, businessName, serviceName, date, time, bookingId, locale } = payload;
         
         const html = `
             <div style="font-family: sans-serif; padding: 20px; color: #333;">
@@ -218,7 +219,7 @@ export const EmailService = {
                 <p>Por favor, ingresa nuevamente al detalle de tu cita y vuelve a subir el comprobante correcto, o contacta directamente al proveedor para aclarar el inconveniente.</p>
                 
                  <div style="margin-top: 30px;">
-                    <a href="https://www.pro247ya.com/es/user/bookings" style="background: #EF4444; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Corregir o reenviar</a>
+                    <a href="https://www.pro247ya.com/${locale || 'es'}/user/profile?bookingId=${bookingId}" style="background: #EF4444; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Corregir o reenviar</a>
                 </div>
             </div>
         `;
