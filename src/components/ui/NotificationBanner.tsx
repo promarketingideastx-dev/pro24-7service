@@ -28,25 +28,36 @@ export default function NotificationBanner() {
         if (!VAPID_PUBLIC_KEY) return;
         if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
 
-        // Already granted or denied — don't show banner
-        if (Notification.permission !== 'default') return;
-
-        // Check if token is already fresh
-        const checkFresh = async () => {
+        const checkNeedsToken = async () => {
             try {
                 const snap = await getDoc(doc(db, 'users', user.uid));
-                const updatedAt = snap.data()?.pushTokenUpdatedAt as string | undefined;
-                if (updatedAt) {
-                    const ageMs = Date.now() - new Date(updatedAt).getTime();
-                    if (ageMs < TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000) return; // fresh — hide
-                }
-            } catch { /* ignore */ }
+                const data = snap.data();
+                
+                // If they explicitly denied, we can never show it
+                if (Notification.permission === 'denied') return;
 
-            // Show banner after 1.5 s so it doesn't compete with cookie banner
-            setTimeout(() => setVisible(true), 1500);
+                // Check if they already have an active FCM token or iOS subscription
+                const hasToken = !!data?.fcmToken || !!data?.pushSubscription;
+
+                if (Notification.permission === 'granted' && hasToken) {
+                    // Check if token is still fresh
+                    const updatedAt = data?.pushTokenUpdatedAt as string | undefined;
+                    if (updatedAt) {
+                        const ageMs = Date.now() - new Date(updatedAt).getTime();
+                        if (ageMs < TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000) return; // fresh — hide
+                    }
+                }
+
+                // If they don't have a token, OR token is stale, OR permission is 'default'
+                // Show banner after 1.5 s so it doesn't compete with cookie banner
+                setTimeout(() => setVisible(true), 1500);
+
+            } catch (err) {
+                console.error("Error checking push token:", err);
+            }
         };
 
-        checkFresh();
+        checkNeedsToken();
     }, [user?.uid]);
 
     // Don't render for non-PWA iOS or if not needed

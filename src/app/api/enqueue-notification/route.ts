@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
                 relatedId: bookingId,
                 relatedName: clientName,
                 createdAt: new Date(),
-                isRead: false
+                read: false
             });
 
             // 2. Queue Single Immediate Email to Business
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
                 relatedId: bookingId,
                 relatedName: businessName,
                 createdAt: new Date(),
-                isRead: false
+                read: false
             });
 
             // 2. Queue Single Immediate Email
@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
                 relatedId: bookingId,
                 relatedName: businessName,
                 createdAt: new Date(),
-                isRead: false
+                read: false
             });
 
             if (clientEmail) {
@@ -202,7 +202,7 @@ export async function POST(req: NextRequest) {
                 relatedId: bookingId,
                 relatedName: businessName,
                 createdAt: new Date(),
-                isRead: false
+                read: false
             });
 
             if (clientEmail) {
@@ -263,7 +263,7 @@ export async function POST(req: NextRequest) {
                 relatedId: bookingId,
                 relatedName: clientName,
                 createdAt: new Date(),
-                isRead: false
+                read: false
             });
 
             if (businessEmail) {
