@@ -32,9 +32,9 @@ export const BookingService = {
         if (!bizDoc.exists()) throw new Error('Business does not exist.');
         const bizData = bizDoc.data();
         
-        // Grab currency from any established schema spot, default if not found
-        // For strictness, if businesses didn't enforce currency previously, fallback safely.
-        const currency = bizData.currency || 'USD'; 
+        // Grab currency from the incoming bookingData first if provided (enforced from Modal/Service).
+        // If empty, fallback safely to business schema or USD as last resort.
+        const currency = bookingData.currency || bizData.currency || 'USD'; 
 
         // 2. No past bookings allowed
         // Note: We use the local TZ string 'YYYY-MM-DD' vs JS Date. 

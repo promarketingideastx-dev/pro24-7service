@@ -28,35 +28,18 @@ export const NotificationQueueService = {
         serviceName: string,
         businessEmail: string // Target of the fallback
     ) {
-        try {
-            // 1. Instant Internal Push to Business
-            await BusinessNotificationService.create(businessId, {
-                title: 'Nueva Cita Recibida',
-                body: `${clientName} ha agendado: ${serviceName}`,
-                type: 'new_appointment',
-                relatedId: bookingId,
-                relatedName: clientName
-            });
+        const res = await fetch('/api/enqueue-notification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'enqueueForBookingCreation',
+                payload: { bookingId, businessId, clientId, clientName, serviceName, businessEmail }
+            })
+        });
 
-            // 2. Queue Multi-Reminders (Immediate, 15, 30, 45)
-            const scheduleOffsets = [0, 15, 30, 45];
-            for (const offset of scheduleOffsets) {
-                const scheduledTime = new Date();
-                scheduledTime.setMinutes(scheduledTime.getMinutes() + offset);
-                
-                await this._enqueueDoc({
-                    targetUid: businessId,
-                    targetEmail: businessEmail,
-                    channel: 'email',
-                    type: 'booking_created',
-                    entityId: bookingId,
-                    status: 'pending',
-                    scheduledFor: Timestamp.fromDate(scheduledTime),
-                    attempts: 0
-                });
-            }
-        } catch (error) {
-            console.error('Error enqueueing booking notifications:', error);
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || 'Fallo crítico al encolar notificaciones en el servidor.');
         }
     },
 
@@ -71,29 +54,18 @@ export const NotificationQueueService = {
         businessName: string,
         serviceName: string
     ) {
-        try {
-            // 1. Instant Push to Client
-            await ClientNotificationService.create(clientId, {
-                title: 'Cita Solicitada',
-                body: `Tu cita para ${serviceName} con ${businessName} fue enviada.`,
-                type: 'booking_created', // Note: Make sure email template handles client perspective or use a generic notification
-                relatedId: bookingId,
-                relatedName: businessName
-            });
+        const res = await fetch('/api/enqueue-notification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'enqueueForClientBookingCreated',
+                payload: { bookingId, clientId, clientEmail, businessName, serviceName }
+            })
+        });
 
-            // 2. Queue 1 Single Immediate Email
-            await this._enqueueDoc({
-                targetUid: clientId,
-                targetEmail: clientEmail,
-                channel: 'email',
-                type: 'booking_created_client', // We map this later in cron
-                entityId: bookingId,
-                status: 'pending',
-                scheduledFor: serverTimestamp(),
-                attempts: 0
-            });
-        } catch (error) {
-             console.error('Error enqueueing booking created client notification:', error);
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || 'Server enqueue failed for client');
         }
     },
 
