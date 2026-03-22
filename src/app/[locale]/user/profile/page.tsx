@@ -5,7 +5,7 @@ import { updateProfile } from 'firebase/auth';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import {
-    User, Mail, Phone, MapPin, Calendar, Edit2, LogOut, Camera, Shield, X, Trash2, AlertTriangle, Heart, Save, ExternalLink, Building2, Lock, Clock, CheckCircle, XCircle, AlertCircle, Store
+    User, Mail, Phone, MapPin, Calendar, Edit2, LogOut, Camera, Shield, X, Trash2, AlertTriangle, Heart, Save, ExternalLink, Building2, Lock, Clock, CheckCircle, XCircle, AlertCircle, Store, MessageCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -602,6 +602,13 @@ export default function UserProfilePage() {
                                                 <Clock className="w-3 h-3 shrink-0" />
                                                 <span>{aptDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                             </div>
+                                            {/* Inyectar nota de cancelación o confirmación aquí */}
+                                            {apt.notesBusiness && (apt.status === 'canceled' || apt.status === 'confirmed') && (
+                                                <div className="flex items-start gap-1.5 mt-2 px-2.5 py-2 bg-white/60 border border-slate-200/60 rounded-lg text-[11px] leading-snug italic text-slate-600 shadow-sm w-full">
+                                                    <MessageCircle size={12} className="mt-[1px] shrink-0 text-slate-400" />
+                                                    <span className="line-clamp-3">"{apt.notesBusiness}"</span>
+                                                </div>
+                                            )}
                                         </div>
                                         {/* Right: status + cancel */}
                                         <div className="shrink-0 flex items-center gap-2">

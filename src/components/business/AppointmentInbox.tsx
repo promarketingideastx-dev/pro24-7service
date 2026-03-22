@@ -5,6 +5,7 @@ import { BookingService } from '@/services/booking.service';
 import { BookingDocument } from '@/types/firestore-schema';
 import { BusinessNotificationService } from '@/services/businessNotification.service';
 import { ClientNotificationService } from '@/services/clientNotification.service';
+import { NotificationQueueService } from '@/services/notificationQueue.service';
 import { format } from 'date-fns';
 import { es, enUS, ptBR } from 'date-fns/locale';
 import { Calendar, Clock, CheckCircle, XCircle, AlertCircle, User, MessageCircle, Trash2 } from 'lucide-react';
@@ -168,12 +169,21 @@ export default function AppointmentInbox({
         if (!apt.id) return;
         setProcessingId(apt.id);
         try {
-            await BookingService.updateStatus(apt.id, 'confirmed');
+            await BookingService.updateStatus(apt.id, 'confirmed', DEFAULT_CONFIRM_NOTE);
 
             toast.success(t('statusAccepted'));
             triggerRefresh();
 
-            // Notify business (in-app)
+            // Centralized Notification Queue Handler (Includes Push, Email, In-app bell for Client)
+            await NotificationQueueService.enqueueForBookingStatusChange(
+                apt.id,
+                apt.clientId,
+                apt.clientEmail || '',
+                businessName || 'El negocio',
+                'confirmed'
+            );
+            
+            // Re-add business local notification (for inbox awareness if needed)
             await BusinessNotificationService.create(businessId, {
                 type: 'appointment_confirmed',
                 title: `✅ Cita confirmada: ${apt.clientName || 'Cliente'}`,
@@ -181,35 +191,6 @@ export default function AppointmentInbox({
                 relatedId: apt.id,
                 relatedName: apt.clientName || 'Cliente',
             });
-
-            // Email to client
-            if (apt.clientEmail) {
-                sendEmailFf('appointment_confirmed', apt.clientEmail, {
-                    clientName: apt.clientName || 'Cliente',
-                    businessName: businessName || 'el negocio',
-                    serviceName: apt.serviceName,
-                    dateLabel: fmtDate(apt),
-                    businessPhone,
-                });
-            }
-
-            // Push notification to client (if they have FCM token)
-            sendPushToClient(
-                apt.clientId,
-                '✅ Cita confirmada',
-                `Tu cita de ${apt.serviceName} con ${businessName || 'el negocio'} fue confirmada.`
-            );
-
-            // In-app bell notification for the client
-            if (apt.clientId) {
-                ClientNotificationService.create(apt.clientId, {
-                    type: 'appointment_confirmed',
-                    title: '✅ Cita confirmada',
-                    body: `Tu cita de ${apt.serviceName} con ${businessName || 'el negocio'} fue confirmada.`,
-                    relatedId: apt.id,
-                    relatedName: businessName,
-                }).catch(() => { });
-            }
         } catch (error) {
             console.error('Error accepting:', error);
             toast.error(t('updateError'));
@@ -223,39 +204,19 @@ export default function AppointmentInbox({
         if (!rejectTarget?.id) return;
         setProcessingId(rejectTarget.id);
         try {
-            await BookingService.updateStatus(rejectTarget.id, 'canceled');
+            await BookingService.updateStatus(rejectTarget.id, 'canceled', rejectReason);
 
             toast.success(t('statusRejected'));
             triggerRefresh();
 
-            // Email to client
-            if (rejectTarget.clientEmail) {
-                sendEmailFf('appointment_rejected', rejectTarget.clientEmail, {
-                    clientName: rejectTarget.clientName || 'Cliente',
-                    businessName: businessName || 'el negocio',
-                    serviceName: rejectTarget.serviceName,
-                    reason: rejectReason,
-                    businessPhone,
-                });
-            }
-
-            // Push notification to client
-            sendPushToClient(
+            // Centralized Notification Queue Handler (Includes Push, Email, In-app bell for Client)
+            await NotificationQueueService.enqueueForBookingStatusChange(
+                rejectTarget.id,
                 rejectTarget.clientId,
-                '📋 Actualización de cita',
-                `Tu solicitud de ${rejectTarget.serviceName} con ${businessName || 'el negocio'} no pudo ser confirmada.`
+                rejectTarget.clientEmail || '',
+                businessName || 'El negocio',
+                'canceled'
             );
-
-            // In-app bell notification for the client
-            if (rejectTarget.clientId) {
-                ClientNotificationService.create(rejectTarget.clientId, {
-                    type: 'appointment_rejected',
-                    title: '❌ Cita no confirmada',
-                    body: `Tu cita de ${rejectTarget.serviceName} con ${businessName || 'el negocio'} no pudo confirmarse.`,
-                    relatedId: rejectTarget.id,
-                    relatedName: businessName,
-                }).catch(() => { });
-            }
 
             setRejectTarget(null);
             setRejectReason(DEFAULT_REJECTION_TEXT);

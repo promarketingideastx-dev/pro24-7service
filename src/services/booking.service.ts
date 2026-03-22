@@ -98,12 +98,16 @@ export const BookingService = {
     /**
      * Mutate status (Confirm/Cancel/Complete)
      */
-    async updateStatus(bookingId: string, status: BookingStatus) {
+    async updateStatus(bookingId: string, status: BookingStatus, notesBusiness?: string) {
         const ref = doc(db, COLLECTION_NAME, bookingId);
-        await updateDoc(ref, {
+        const updateData: any = {
             status,
             updatedAt: serverTimestamp()
-        });
+        };
+        if (notesBusiness !== undefined) {
+            updateData.notesBusiness = notesBusiness;
+        }
+        await updateDoc(ref, updateData);
     },
 
     /**
