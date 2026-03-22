@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
         if (action === 'enqueueForBookingCreation') {
             const { bookingId, businessId, clientId, clientName, serviceName, businessEmail } = payload;
             
-            if (!bookingId || !businessId || !businessEmail) {
+            if (!bookingId || !businessId) {
                 return NextResponse.json({ error: 'Missing critical parameters' }, { status: 400 });
             }
 
@@ -59,12 +59,8 @@ export async function POST(req: NextRequest) {
                 isRead: false
             });
 
-            // 2. Queue Multi-Reminders (Immediate, 15, 30, 45)
-            const scheduleOffsets = [0, 15, 30, 45];
-            for (const offset of scheduleOffsets) {
-                const scheduledTime = new Date();
-                scheduledTime.setMinutes(scheduledTime.getMinutes() + offset);
-                
+            // 2. Queue Single Immediate Email to Business
+            if (businessEmail) {
                 const queueRef = sdk.db.collection('notification_queue').doc();
                 batch.set(queueRef, {
                     targetUid: businessId,
@@ -73,7 +69,7 @@ export async function POST(req: NextRequest) {
                     type: 'booking_created',
                     entityId: bookingId,
                     status: 'pending',
-                    scheduledFor: scheduledTime,
+                    scheduledFor: new Date(),
                     attempts: 0,
                     createdAt: new Date()
                 });
@@ -86,7 +82,7 @@ export async function POST(req: NextRequest) {
         if (action === 'enqueueForClientBookingCreated') {
             const { bookingId, clientId, clientEmail, businessName, serviceName } = payload;
             
-            if (!bookingId || !clientId || !clientEmail) {
+            if (!bookingId || !clientId) {
                  return NextResponse.json({ error: 'Missing critical parameters' }, { status: 400 });
             }
             
@@ -105,18 +101,193 @@ export async function POST(req: NextRequest) {
             });
 
             // 2. Queue Single Immediate Email
-            const queueRef = sdk.db.collection('notification_queue').doc();
-            batch.set(queueRef, {
-                targetUid: clientId,
-                targetEmail: clientEmail,
-                channel: 'email',
-                type: 'booking_created_client',
-                entityId: bookingId,
-                status: 'pending',
-                scheduledFor: new Date(),
-                attempts: 0,
-                createdAt: new Date()
+            if (clientEmail) {
+                const queueRef = sdk.db.collection('notification_queue').doc();
+                batch.set(queueRef, {
+                    targetUid: clientId,
+                    targetEmail: clientEmail,
+                    channel: 'email',
+                    type: 'booking_created_client',
+                    entityId: bookingId,
+                    status: 'pending',
+                    scheduledFor: new Date(),
+                    attempts: 0,
+                    createdAt: new Date()
+                });
+            }
+
+            await batch.commit();
+            return NextResponse.json({ ok: true });
+        }
+
+        if (action === 'enqueueForBookingStatusChange') {
+            const { bookingId, clientId, clientEmail, businessName, newStatus } = payload;
+            
+            if (!bookingId || !clientId) {
+                return NextResponse.json({ error: 'Missing critical parameters' }, { status: 400 });
+            }
+
+            const batch = sdk.db.batch();
+
+            const clientNotifRef = sdk.db.collection('users').doc(clientId).collection('notifications').doc();
+            batch.set(clientNotifRef, {
+                title: newStatus === 'confirmed' ? 'Cita Confirmada' : 'Cita Cancelada',
+                body: newStatus === 'confirmed' 
+                    ? `${businessName} ha confirmado tu cita.` 
+                    : `${businessName} ha cancelado tu cita.`,
+                type: newStatus === 'confirmed' ? 'booking_confirmed' : 'booking_canceled',
+                relatedId: bookingId,
+                relatedName: businessName,
+                createdAt: new Date(),
+                isRead: false
             });
+
+            if (clientEmail) {
+                if (newStatus === 'confirmed') {
+                    // Reminders
+                    const scheduleOffsets = [0, 15, 30, 45];
+                    for (const offset of scheduleOffsets) {
+                        const scheduledTime = new Date();
+                        scheduledTime.setMinutes(scheduledTime.getMinutes() + offset);
+                        
+                        const queueRef = sdk.db.collection('notification_queue').doc();
+                        batch.set(queueRef, {
+                            targetUid: clientId,
+                            targetEmail: clientEmail,
+                            channel: 'email',
+                            type: 'booking_confirmed',
+                            entityId: bookingId,
+                            status: 'pending',
+                            scheduledFor: scheduledTime,
+                            attempts: 0,
+                            createdAt: new Date()
+                        });
+                    }
+                } else {
+                    const queueRef = sdk.db.collection('notification_queue').doc();
+                    batch.set(queueRef, {
+                        targetUid: clientId,
+                        targetEmail: clientEmail,
+                        channel: 'email',
+                        type: 'booking_canceled',
+                        entityId: bookingId,
+                        status: 'pending',
+                        scheduledFor: new Date(),
+                        attempts: 0,
+                        createdAt: new Date()
+                    });
+                }
+            }
+
+            await batch.commit();
+            return NextResponse.json({ ok: true });
+        }
+
+        if (action === 'enqueueForPaymentProofStatus') {
+            const { bookingId, clientId, clientEmail, businessName, newStatus } = payload;
+            
+            if (!bookingId || !clientId) {
+                 return NextResponse.json({ error: 'Missing critical parameters' }, { status: 400 });
+            }
+
+            const batch = sdk.db.batch();
+
+            const clientNotifRef = sdk.db.collection('users').doc(clientId).collection('notifications').doc();
+            batch.set(clientNotifRef, {
+                title: newStatus === 'proof_approved' ? 'Pago Confirmado' : 'Comprobante Rechazado',
+                body: newStatus === 'proof_approved'
+                    ? `${businessName} ha verificado tu pago exitosamente.`
+                    : `${businessName} ha rechazado tu comprobante. Ingresa para corregirlo.`,
+                type: newStatus === 'proof_approved' ? 'payment_approved' : 'payment_rejected',
+                relatedId: bookingId,
+                relatedName: businessName,
+                createdAt: new Date(),
+                isRead: false
+            });
+
+            if (clientEmail) {
+                if (newStatus === 'proof_rejected') {
+                    // Reminders
+                    const scheduleOffsets = [0, 15, 30, 45];
+                    for (const offset of scheduleOffsets) {
+                        const scheduledTime = new Date();
+                        scheduledTime.setMinutes(scheduledTime.getMinutes() + offset);
+                        
+                        const queueRef = sdk.db.collection('notification_queue').doc();
+                        batch.set(queueRef, {
+                            targetUid: clientId,
+                            targetEmail: clientEmail,
+                            channel: 'email',
+                            type: 'proof_rejected',
+                            entityId: bookingId,
+                            status: 'pending',
+                            scheduledFor: scheduledTime,
+                            attempts: 0,
+                            createdAt: new Date()
+                        });
+                    }
+                } else {
+                    const queueRef = sdk.db.collection('notification_queue').doc();
+                    batch.set(queueRef, {
+                        targetUid: clientId,
+                        targetEmail: clientEmail,
+                        channel: 'email',
+                        type: 'proof_approved',
+                        entityId: bookingId,
+                        status: 'pending',
+                        scheduledFor: new Date(),
+                        attempts: 0,
+                        createdAt: new Date()
+                    });
+                }
+            }
+
+            await batch.commit();
+            return NextResponse.json({ ok: true });
+        }
+
+        if (action === 'enqueueForProofUploaded') {
+            const { bookingId, businessId, businessEmail, clientName, proofUrl } = payload;
+            
+            if (!bookingId || !businessId) {
+                return NextResponse.json({ error: 'Missing critical parameters' }, { status: 400 });
+            }
+
+            const batch = sdk.db.batch();
+
+            const bizNotifRef = sdk.db.collection('businesses').doc(businessId).collection('notifications').doc();
+            batch.set(bizNotifRef, {
+                title: 'Nuevo Comprobante Recibido',
+                body: `${clientName} ha subido el pago. Requiere tu revisión.`,
+                type: 'proof_uploaded',
+                relatedId: bookingId,
+                relatedName: clientName,
+                createdAt: new Date(),
+                isRead: false
+            });
+
+            if (businessEmail) {
+                // Reminders
+                const scheduleOffsets = [0, 15, 30, 45];
+                for (const offset of scheduleOffsets) {
+                    const scheduledTime = new Date();
+                    scheduledTime.setMinutes(scheduledTime.getMinutes() + offset);
+                    
+                    const queueRef = sdk.db.collection('notification_queue').doc();
+                    batch.set(queueRef, {
+                        targetUid: businessId,
+                        targetEmail: businessEmail,
+                        channel: 'email',
+                        type: 'proof_uploaded_business',
+                        entityId: bookingId,
+                        proofUrl: proofUrl || '',
+                        status: 'pending',
+                        scheduledFor: scheduledTime,
+                        attempts: 0,
+                        createdAt: new Date()
+                    });
+                }
+            }
 
             await batch.commit();
             return NextResponse.json({ ok: true });

@@ -81,56 +81,18 @@ export const NotificationQueueService = {
         businessName: string,
         newStatus: 'confirmed' | 'canceled'
     ) {
-        try {
-            const title = newStatus === 'confirmed' ? 'Cita Confirmada' : 'Cita Cancelada';
-            const body = newStatus === 'confirmed' 
-                ? `${businessName} ha confirmado tu cita.` 
-                : `${businessName} ha cancelado tu cita.`;
+        const res = await fetch('/api/enqueue-notification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'enqueueForBookingStatusChange',
+                payload: { bookingId, clientId, clientEmail, businessName, newStatus }
+            })
+        });
 
-            // 1. Instant Push to Client
-            await ClientNotificationService.create(clientId, {
-                title,
-                body,
-                type: newStatus === 'confirmed' ? 'booking_confirmed' : 'booking_canceled',
-                relatedId: bookingId,
-                relatedName: businessName
-            });
-
-            // 2. Email Queues
-            if (newStatus === 'confirmed') {
-                // Reminders
-                const scheduleOffsets = [0, 15, 30, 45];
-                for (const offset of scheduleOffsets) {
-                    const scheduledTime = new Date();
-                    scheduledTime.setMinutes(scheduledTime.getMinutes() + offset);
-                    
-                    await this._enqueueDoc({
-                        targetUid: clientId,
-                        targetEmail: clientEmail,
-                        channel: 'email',
-                        type: 'booking_confirmed',
-                        entityId: bookingId,
-                        status: 'pending',
-                        scheduledFor: Timestamp.fromDate(scheduledTime),
-                        attempts: 0
-                    });
-                }
-            } else {
-                // Immediate Exact 1 time (Canceled)
-                await this._enqueueDoc({
-                    targetUid: clientId,
-                    targetEmail: clientEmail,
-                    channel: 'email',
-                    type: 'booking_canceled',
-                    entityId: bookingId,
-                    status: 'pending',
-                    scheduledFor: serverTimestamp(),
-                    attempts: 0
-                });
-            }
-
-        } catch (error) {
-            console.error('Error enqueueing status change notifications:', error);
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || 'Server enqueue failed for status change');
         }
     },
 
@@ -146,53 +108,18 @@ export const NotificationQueueService = {
         businessName: string,
         newStatus: 'proof_approved' | 'proof_rejected'
     ) {
-        try {
-            const title = newStatus === 'proof_approved' ? 'Pago Confirmado' : 'Comprobante Rechazado';
-            const body = newStatus === 'proof_approved' 
-                ? `${businessName} ha verificado tu pago exitosamente.` 
-                : `${businessName} ha rechazado tu comprobante. Por favor revisa y sube uno nuevo.`;
+        const res = await fetch('/api/enqueue-notification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'enqueueForPaymentProofStatus',
+                payload: { bookingId, clientId, clientEmail, businessName, newStatus }
+            })
+        });
 
-            // 1. Instant Push to Client
-            await ClientNotificationService.create(clientId, {
-                title,
-                body,
-                type: newStatus as any,
-                relatedId: bookingId,
-                relatedName: businessName
-            });
-
-            // 2. Email Queues
-            if (newStatus === 'proof_rejected') {
-                const scheduleOffsets = [0, 15, 30, 45];
-                for (const offset of scheduleOffsets) {
-                    const scheduledTime = new Date();
-                    scheduledTime.setMinutes(scheduledTime.getMinutes() + offset);
-                    await this._enqueueDoc({
-                        targetUid: clientId,
-                        targetEmail: clientEmail,
-                        channel: 'email',
-                        type: 'proof_rejected',
-                        entityId: bookingId,
-                        status: 'pending',
-                        scheduledFor: Timestamp.fromDate(scheduledTime),
-                        attempts: 0
-                    });
-                }
-            } else {
-                // Proof Approved = Immediate Only
-                await this._enqueueDoc({
-                    targetUid: clientId,
-                    targetEmail: clientEmail,
-                    channel: 'email',
-                    type: 'proof_approved',
-                    entityId: bookingId,
-                    status: 'pending',
-                    scheduledFor: serverTimestamp(),
-                    attempts: 0
-                });
-            }
-        } catch (error) {
-            console.error('Error enqueueing payment proof notifications:', error);
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || 'Server enqueue failed for payment proof status');
         }
     },
 
@@ -207,35 +134,18 @@ export const NotificationQueueService = {
         clientName: string,
         proofUrl: string
     ) {
-        try {
-            // 1. Push
-            await BusinessNotificationService.create(businessId, {
-                title: 'Nuevo Comprobante Recibido',
-                body: `${clientName} ha subido el pago. Requiere tu revisión.`,
-                type: 'proof_uploaded' as any,
-                relatedId: bookingId,
-                relatedName: clientName
-            });
+        const res = await fetch('/api/enqueue-notification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'enqueueForProofUploaded',
+                payload: { bookingId, businessId, businessEmail, clientName, proofUrl }
+            })
+        });
 
-            // 2. Reminders
-            const scheduleOffsets = [0, 15, 30, 45];
-            for (const offset of scheduleOffsets) {
-                const scheduledTime = new Date();
-                scheduledTime.setMinutes(scheduledTime.getMinutes() + offset);
-                await this._enqueueDoc({
-                    targetUid: businessId,
-                    targetEmail: businessEmail,
-                    channel: 'email',
-                    type: 'proof_uploaded_business', // newly mapped
-                    entityId: bookingId,
-                    proofUrl: proofUrl, // custom property passed downwards
-                    status: 'pending',
-                    scheduledFor: Timestamp.fromDate(scheduledTime),
-                    attempts: 0
-                });
-            }
-        } catch (error) {
-            console.error('Error enqueueing proof uploaded notifications:', error);
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || 'Server enqueue failed for proof uploaded');
         }
     },
 
