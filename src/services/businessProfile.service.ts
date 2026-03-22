@@ -560,9 +560,14 @@ export const BusinessProfileService = {
 
             batch.update(userRef, userUpdatePayload);
 
-            // 8. Write trial plan data to businesses doc (gated plan management)
+            // 8. Write critical data and trial plan to legacy `businesses` doc 
+            // This is absolutely required for Notifications Queue, Push, and Emails which still read from `businesses`
             const businessesRef = doc(db, 'businesses', userId);
             batch.set(businessesRef, {
+                name: data.businessName,
+                ownerUid: userId,
+                email: data.email || userProfile?.email || '',
+                phone: data.phone || '',
                 planData: planData,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp()
