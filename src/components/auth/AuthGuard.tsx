@@ -15,13 +15,16 @@ const PROTECTED_PREFIXES = ["/profile", "/citas", "/messages", "/account", "/fav
 const PROVIDER_ONLY_PREFIXES = ["/business/dashboard", "/business/edit"];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
-    const { user, userProfile, loading } = useAuth();
+    const { user, userProfile, loading, isResolvingAuth } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const [isAuthorized, setIsAuthorized] = useState(false);
 
     useEffect(() => {
+        console.log('[AuthGuard] AUTH GUARD EVALUATED | isResolvingAuth:', isResolvingAuth, '| loading:', loading, '| user:', user?.uid || 'null');
+        
+        if (isResolvingAuth) return; // ESCUDO MAESTRO: Bloquear evaluación si Firebase o Google están procesando redirect
         if (loading) return;
 
         const segments = pathname.split('/').filter(Boolean);
@@ -74,7 +77,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             if (!isRootAdmin) {
                 if (userProfile.accountStatus === 'blocked' || userProfile.isBanned) {
                     AuthService.logout().catch(console.error);
-                    redirect(lp('/auth/portal?error=blocked'));
+                    redirect(lp('/auth/login?error=blocked'));
                     return;
                 }
 
@@ -220,10 +223,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
     }, [user, userProfile, loading, pathname, searchParams, router]);
 
-    if (loading) {
+    if (loading || isResolvingAuth) {
         return (
-            <div className="flex h-screen w-full items-center justify-center bg-gray-50">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+            <div className="flex h-screen w-full items-center justify-center bg-[#F4F6F8]">
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#14B8A6] border-t-transparent"></div>
             </div>
         );
     }

@@ -1,0 +1,17 @@
+{
+  "createdAt": {
+    "_seconds": 1773903147,
+    "_nanoseconds": 275000000
+  },
+  "planData": {
+    "planSource": "collaborator_beta",
+    "overriddenByCRM": false,
+    "planStatus": "active",
+    "teamMemberLimit": 999,
+    "plan": "vip"
+  },
+  "updatedAt": {
+    "_seconds": 1773903147,
+    "_nanoseconds": 275000000
+  }
+}

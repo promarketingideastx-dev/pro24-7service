@@ -7,12 +7,14 @@ import { auth, db } from '@/lib/firebase';
 import { Capacitor } from '@capacitor/core';
 import { UserDocument } from '@/types/firestore-schema';
 import { UserService } from '@/services/user.service';
+import { IdentityService } from '@/services/identity.service';
 import { clearCuriousModeStorage } from '@/hooks/useCuriousMode';
 
 interface AuthContextType {
     user: User | null;
     userProfile: UserDocument | null;
     loading: boolean;
+    isResolvingAuth: boolean;
     refreshProfile: () => Promise<void>;
 }
 
@@ -20,6 +22,7 @@ const AuthContext = createContext<AuthContextType>({
     user: null,
     userProfile: null,
     loading: true,
+    isResolvingAuth: true,
     refreshProfile: async () => { }
 });
 
@@ -27,6 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [userProfile, setUserProfile] = useState<UserDocument | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isResolvingAuth, setIsResolvingAuth] = useState(true);
 
     // Fetch profile manually (one-time fetch)
     const fetchProfile = async (uid: string) => {
@@ -42,43 +46,86 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         console.log('[AuthContext] useEffect started');
         let unsubscribeFirestore: (() => void) | null = null;
+        let isRedirectResolved = false;
 
-        // Handle return from signInWithRedirect (Google/Apple on mobile/PWA)
-        // Only run this on the web. Native uses capacitor-firebase/authentication which handles its own flow.
-        if (!Capacitor.isNativePlatform()) {
-            getRedirectResult(auth)
-                .then(async (result) => {
+        // 1. Process Redirect Result centrally for Mobile/PWA
+        const resolveRedirect = async () => {
+            if (!Capacitor.isNativePlatform()) {
+                console.log('[AuthContext] REDIRECT START');
+                setIsResolvingAuth(true); // Flag global activa
+
+                try {
+                    const result = await getRedirectResult(auth);
+                    console.log('[AuthContext] REDIRECT RESOLVED');
+                    
                     if (result?.user) {
-                        // Profile creation is handled below by onAuthStateChanged
-                        // but ensure it exists here as well (belt-and-suspenders)
-                        await UserService.createUserProfile(result.user.uid, result.user.email || '')
-                            .catch(() => { /* profile may already exist */ });
+                        console.log('[AuthContext] getRedirectResult capturó una sesión válida:', result.user.uid);
+                        
+                        let providerId = 'google.com';
+                        if (result.providerId) {
+                            providerId = result.providerId;
+                        } else if (result.user.providerData && result.user.providerData.length > 0) {
+                            providerId = result.user.providerData[0].providerId;
+                        }
+
+                        // FASE 3: Aseguramos el Registro de Identidad desde el Redirect
+                        const reg = await IdentityService.getEmailRegistry(result.user.email || '');
+                        if (!reg) {
+                            await IdentityService.createEmailRegistry(result.user.email || '', result.user.uid, 'active', providerId as any);
+                        } else if (!reg.providers.includes(providerId as any)) {
+                            await IdentityService.updateProviders(result.user.email || '', providerId as any);
+                        }
+
+                        // Recuperamos el Perfil usando getProfile para no destruirlo
+                        const profile = await UserService.getUserProfile(result.user.uid);
+                        if (!profile) {
+                            const newUser = await UserService.createUserProfile(result.user.uid, result.user.email || '');
+                            if (newUser) {
+                                await UserService.updateUserProfile(result.user.uid, { accountStatus: 'active', emailVerified: true });
+                            }
+                        }
                     }
-                })
-                .catch((err) => console.error('Redirect sign-in error:', err));
-        }
+                } catch (err) {
+                    console.error('Redirect sign-in error:', err);
+                } finally {
+                    isRedirectResolved = true;
+                    // Mantenemos la bandera arriba si aún falta onAuthStateChanged. 
+                    // Se bajará en el observer principal cuando aterricen los perfiles.
+                    // Pero liberémosla si NO hubo user para que el app fluya
+                    if (auth.currentUser === null) {
+                        console.log('[AuthContext] FINAL DEL REDIRECT: No existe sesión. Liberando Guardia...');
+                        setIsResolvingAuth(false);
+                        setLoading(false); // CRÍTICO: Firebase fue silenciado por nuestro Escudo. Debemos apagar el Loading manualmente aquí.
+                    }
+                }
+            } else {
+                isRedirectResolved = true;
+                setIsResolvingAuth(false);
+            }
+        };
+
+        resolveRedirect();
 
         const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
-            console.log('[AuthContext] onAuthStateChanged fired, user:', currentUser?.uid || 'null');
+            console.log('[AuthContext] AUTH USER SET | onAuthStateChanged fired, user:', currentUser?.uid || 'null');
+            
+            // ESCUDO TOTAL: Ignorar emisiones null si el redirect aún no resuelve
+            if (!currentUser && !isRedirectResolved) {
+                console.log('[AuthContext] Ignorando pulso NULL prematuro de Firebase asumiendo redirect activo.');
+                return; 
+            }
+
             setUser(currentUser);
 
             if (currentUser) {
-                // EXTREMELY CRITICAL: Lock the application router immediately.
-                // Firebase just told us we have a user, but we do NOT have the userProfile yet.
-                // We MUST set loading to true synchronously to prevent AuthGuard from making 
-                // premature routing decisions based on an incomplete state.
                 setLoading(true);
-            }
 
+                // Clean up previous Firestore listener if exists
+                if (unsubscribeFirestore) {
+                    unsubscribeFirestore();
+                    unsubscribeFirestore = null;
+                }
 
-            // Clean up previous Firestore listener if exists
-            if (unsubscribeFirestore) {
-                unsubscribeFirestore();
-                unsubscribeFirestore = null;
-            }
-
-            if (currentUser) {
-                // Clear curious mode on successful session
                 clearCuriousModeStorage();
 
                 // Real-time Listener (Start immediately)
@@ -87,38 +134,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     if (docSnap.exists()) {
                         console.log('[AuthContext] Firestore profile loaded from server/cache');
                         setUserProfile(docSnap.data() as UserDocument);
-                        setLoading(false);
                     } else {
-                        console.log('[AuthContext] Firestore profile cache miss or missing, verifying with server...');
-                        try {
-                            // En FASE 4 / FIX: Await the response explicitly.
-                            // If user is real but cache was empty, this returns the genuine profile without mutating DB.
-                            // If user is truly missing, this creates it and returns it.
-                            const recoveredProfile = await UserService.createUserProfile(currentUser.uid, currentUser.email || '');
-                            
-                            if (recoveredProfile) {
-                                console.log('[AuthContext] Profile recovered/created successfully. Unlocking UI.');
-                                setUserProfile(recoveredProfile);
-                            } else {
-                                console.log('[AuthContext] Profile recovery returned null (missing/error).');
-                                setUserProfile(null);
-                            }
-                        } catch (e) {
-                            console.error("Profile creation/recovery failed", e);
-                            setUserProfile(null);
-                        } finally {
-                            // GARANTÍA: Siempre destrabar UI, sin excepciones, evitando spin infinito.
-                            setLoading(false);
-                        }
+                        console.warn('[AuthContext] Firestore profile missing or cache is empty.');
+                        setUserProfile(null);
                     }
+                    setLoading(false);
+                    setIsResolvingAuth(false);
                 }, (error) => {
                     console.error("AuthContext Firestore Error:", error);
                     setLoading(false);
+                    setIsResolvingAuth(false);
                 });
             } else {
-                console.log('[AuthContext] No user, setting loading to false');
+                console.log('[AuthContext] No user confirmated. Setting loading/resolving to false');
                 setUserProfile(null);
                 setLoading(false);
+                setIsResolvingAuth(false);
             }
         });
 
@@ -137,7 +168,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, userProfile, loading, refreshProfile }}>
+        <AuthContext.Provider value={{ user, userProfile, loading, isResolvingAuth, refreshProfile }}>
             {children}
         </AuthContext.Provider>
     );

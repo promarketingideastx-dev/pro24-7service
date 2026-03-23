@@ -1,0 +1,49 @@
+🔍 AUDITORÍA FORENSE DE FLUJO REAL (PRODUCCIÓN)
+
+=========================================
+🎟️ BOOKING ID: XK8cgq0seuPHAQuEUcmf
+   Creado: 2026-03-22T19:14:51.186Z
+   Client Email Grabado en Booking (booking.clientEmail): riviprohouston@gmail.com
+   Business Email Grabado en Profile (business.email): NOT FOUND
+
+📦 RASTREANDO DOCUMENTOS EN NOTIFICATION_QUEUE:
+   ❌ No hay notificaciones encoladas para esta cita.
+
+=========================================
+🎟️ BOOKING ID: epqiBwtvKACCj5rTaz3e
+   Creado: 2026-03-22T18:53:25.126Z
+   Client Email Grabado en Booking (booking.clientEmail): riviprohouston@gmail.com
+   Business Email Grabado en Profile (business.email): NOT FOUND
+
+📦 RASTREANDO DOCUMENTOS EN NOTIFICATION_QUEUE:
+   ---
+   🔔 Doc ID: Cmw9M8Y9tl3C5VYtxVIf
+   Tipo de Plantilla: booking_created
+   Target Email (Destinatario Final): soporte@pro247ya.com
+   Status: sent
+   ---
+   🔔 Doc ID: G0vUIwBGTij5vs5Cp70u
+   Tipo de Plantilla: booking_confirmed
+   Target Email (Destinatario Final): promarketingideastx@gmail.com
+   Status: sent
+   ---
+   🔔 Doc ID: HpM2ciUNBC6RUQ60kQEm
+   Tipo de Plantilla: booking_confirmed
+   Target Email (Destinatario Final): promarketingideastx@gmail.com
+   Status: sent
+   ---
+   🔔 Doc ID: Kz3eO5k6VOzMIqvXmnjr
+   Tipo de Plantilla: booking_created
+   Target Email (Destinatario Final): soporte@pro247ya.com
+   Status: sent
+   ---
+   🔔 Doc ID: OCbSmOaOoYizGJT0AVyy
+   Tipo de Plantilla: booking_created
+   Target Email (Destinatario Final): soporte@pro247ya.com
+   Status: sent
+   ---
+   🔔 Doc ID: m4V7EoQVmvQlpQXE1HM2
+   Tipo de Plantilla: booking_confirmed
+   Target Email (Destinatario Final): promarketingideastx@gmail.com
+   Status: sent
+

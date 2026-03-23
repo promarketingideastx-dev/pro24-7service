@@ -48,7 +48,7 @@ function OnboardingContent() {
         if (role === 'vip') {
             router.push(lp(`/auth/register/vip?intent=${intent}${returnParam}`));
         } else if (role === 'provider') {
-            router.push(lp(`/auth/portal?intent=${intent}${returnParam}`));
+            router.push(lp(`/auth/login?intent=${intent}${returnParam}`));
         } else if (isLoginMode) {
             router.push(lp(`/auth/login?intent=${intent}${returnParam}`));
         } else {
