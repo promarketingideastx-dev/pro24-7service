@@ -144,6 +144,7 @@ function BusinessProfileContent() {
     // Determine if team tab should be shown
     const effectivePlan = PlanService.getEffectivePlan(displayData || {});
     const showTeamTab = PlanService.canUseTeam(effectivePlan);
+    const isUnavailable = PlanService.isPlanExpired(displayData?.planData);
 
     return (
         <>
@@ -158,6 +159,7 @@ function BusinessProfileContent() {
                 }}
                 isModalOpen={isBookingOpen}
                 showTeamTab={showTeamTab}
+                isUnavailable={isUnavailable}
             >
                 {activeTab === 'services' && (
                     <ServicesTab
@@ -206,7 +208,7 @@ function BusinessProfileContent() {
                 {!isOwner && <AppInstallBanner businessName={displayData.name} />}
 
                 {/* Floating Chat Button — visible to logged-in clients (not the owner) */}
-                {user && !isOwner && (
+                {user && !isOwner && !isUnavailable && (
                     <button
                         onClick={() => setIsChatOpen(true)}
                         className="fixed bottom-24 right-5 z-[200] w-14 h-14 rounded-full bg-[#14B8A6] hover:bg-[#0F9488] shadow-[0_4px_20px_rgba(20,184,166,0.45)] flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95"

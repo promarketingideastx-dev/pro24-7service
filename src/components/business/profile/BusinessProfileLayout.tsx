@@ -21,9 +21,10 @@ interface ProfileLayoutProps {
     onBookClick: () => void;
     isModalOpen?: boolean;
     showTeamTab?: boolean; // true when business plan is plus_team or vip
+    isUnavailable?: boolean;
 }
 
-export default function BusinessProfileLayout({ business, activeTab, onTabChange, children, isOwner, onBookClick, isModalOpen, showTeamTab }: ProfileLayoutProps) {
+export default function BusinessProfileLayout({ business, activeTab, onTabChange, children, isOwner, onBookClick, isModalOpen, showTeamTab, isUnavailable }: ProfileLayoutProps) {
     const router = useRouter();
     const { user } = useAuth();
     const t = useTranslations('business.publicProfile');
@@ -159,11 +160,19 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
 
 
     const handleBookClick = (e: React.MouseEvent) => {
+        if (isUnavailable) {
+            toast.info('Temporalmente no disponible para nuevas reservas.');
+            return;
+        }
         if (!user && !isOwner) return handleRestrictedAction(e, 'booking');
         onBookClick();
     };
 
     const handleWhatsApp = () => {
+        if (isUnavailable) {
+            toast.info('Contacto temporalmente deshabilitado.');
+            return;
+        }
         if (!user && !isOwner) return handleRestrictedAction(undefined, 'contact');
         if (business.phone) {
             const phone = business.phone.replace(/\D/g, ''); // Remove non-digits
@@ -172,6 +181,10 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     };
 
     const handleCall = () => {
+        if (isUnavailable) {
+            toast.info('Contacto temporalmente deshabilitado.');
+            return;
+        }
         if (!user && !isOwner) return handleRestrictedAction(undefined, 'contact');
         if (business.phone) {
             window.open(`tel:${business.phone}`, '_self');
@@ -218,7 +231,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                             <>
                                 <button
                                     onClick={handleBookClick}
-                                    className="hidden md:flex bg-[#14B8A6] hover:bg-[#0F9488] text-white px-4 py-2 rounded-full text-sm font-bold backdrop-blur-md transition-all shadow-lg shadow-teal-500/30 items-center gap-2 border border-teal-400 hover:scale-105 active:scale-95"
+                                    className={`hidden md:flex px-4 py-2 rounded-full text-sm font-bold backdrop-blur-md transition-all items-center gap-2 ${isUnavailable ? 'bg-slate-300 text-slate-500 cursor-not-allowed border-transparent' : 'bg-[#14B8A6] hover:bg-[#0F9488] text-white shadow-lg shadow-teal-500/30 border border-teal-400 hover:scale-105 active:scale-95'}`}
                                 >
                                     <Calendar className="w-4 h-4" />
                                     {t('bookAppointment')}
@@ -312,6 +325,12 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                 </div>
             </header>
 
+            {isUnavailable && (
+                <div className="bg-slate-200/70 border-l-4 border-slate-400 text-slate-600 p-3 mx-4 mt-4 rounded-r-lg text-sm font-semibold flex items-center px-4">
+                    <span>Temporalmente no disponible para nuevas reservas</span>
+                </div>
+            )}
+
             {/* --- 2. TABS ANCLADAS --- */}
             <div className={`shrink-0 bg-[#F4F6F8]/90 backdrop-blur-xl border-b border-slate-200 mt-4 transition-all duration-300 ${contentScrolled ? 'shadow-md' : ''}`}>
                 <div className="flex overflow-x-auto no-scrollbar justify-start md:justify-center px-4">
@@ -347,7 +366,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                     {/* WhatsApp Button */}
                     <button
                         onClick={handleWhatsApp}
-                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-green-500/10 text-green-500 border border-green-500/20 hover:bg-green-500/20 active:scale-95 transition-all"
+                        className={`w-12 h-12 flex items-center justify-center rounded-xl transition-all ${isUnavailable ? 'bg-slate-200 text-slate-400' : 'bg-green-500/10 text-green-500 border border-green-500/20 hover:bg-green-500/20 active:scale-95'}`}
                     >
                         <MessageCircle className="w-6 h-6" />
                     </button>
@@ -355,7 +374,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                     {/* Call Button */}
                     <button
                         onClick={handleCall}
-                        className="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 active:scale-95 transition-all"
+                        className={`w-12 h-12 flex items-center justify-center rounded-xl transition-all ${isUnavailable ? 'bg-slate-200 text-slate-400' : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 active:scale-95'}`}
                     >
                         <Phone className="w-5 h-5" />
                     </button>
@@ -363,7 +382,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                     {/* Book Action - Main */}
                     <button
                         onClick={handleBookClick}
-                        className="flex-1 bg-[#14B8A6] hover:bg-[#0F9488] text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-teal-500/20 active:scale-95 transition-all"
+                        className={`flex-1 px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${isUnavailable ? 'bg-slate-300 text-slate-500 shadow-none' : 'bg-[#14B8A6] hover:bg-[#0F9488] text-white shadow-lg shadow-teal-500/20 active:scale-95'}`}
                     >
                         <Calendar className="w-5 h-5" />
                         {t('bookAppointment')}

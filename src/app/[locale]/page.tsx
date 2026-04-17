@@ -20,6 +20,7 @@ import SearchAutocomplete from '@/components/ui/SearchAutocomplete';
 import ClientNotifBell from '@/components/ui/ClientNotifBell';
 import UserLocationModal from '@/components/public/UserLocationModal';
 import { toast } from 'sonner';
+import { PlanService } from '@/services/plan.service';
 
 export default function Home() {
     const [showShare, setShowShare] = useState(false);
@@ -961,6 +962,7 @@ export default function Home() {
                                                 { border: '#14B8A6', bg: '#F0FDFA', avatar: '#CCFBF1', text: '#0F766E' };
 
                             const isRevealed = revealedCardId === biz.id;
+                            const isUnavailable = PlanService.isPlanExpired((biz as any).planData);
 
                             return (
                                 <div
@@ -980,6 +982,7 @@ export default function Home() {
                                     style={{ backgroundColor: catColor.bg }}
                                     className={`flex items-center p-3 transition-all cursor-pointer group overflow-hidden relative card-l2
                                 ${selectedBusiness?.id === biz.id ? 'border-[#14B8A6] shadow-[0_4px_24px_rgba(20,184,166,0.25)]' : 'border-[#E6E8EC]'}
+                                ${isUnavailable ? 'opacity-80 grayscale-[20%]' : ''}
                             `}
                                 >
                                     {/* Colored left accent bar */}
@@ -998,7 +1001,14 @@ export default function Home() {
                                         )}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="font-bold text-slate-900 text-sm truncate">{biz.name}</h3>
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                            <h3 className="font-bold text-slate-900 text-sm truncate">{biz.name}</h3>
+                                            {isUnavailable && (
+                                                <span className="shrink-0 text-[8px] font-bold px-1.5 py-0.5 bg-slate-200 text-slate-600 rounded uppercase tracking-widest border border-slate-300">
+                                                    No disponible
+                                                </span>
+                                            )}
+                                        </div>
                                         <p className="text-[10px] text-[#2563EB] font-semibold mb-0.5 truncate">
                                             {(() => {
                                                 for (const group of Object.values(TAXONOMY)) {

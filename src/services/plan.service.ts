@@ -132,6 +132,16 @@ export const PlanService = {
         return business?.planData?.plan ?? 'premium';  // beta default
     },
 
+    /** Returns true if the plan is expired or inactive or the trial ended */
+    isPlanExpired(planData?: any): boolean {
+        if (!planData) return false; // Default to active if missing
+        if (planData.planStatus === 'expired' || planData.planStatus === 'inactive' || planData.planStatus === 'cancelled') return true;
+        if ((planData.planStatus === 'trial' || planData.planStatus === 'trialing') && planData.trialEndDate) {
+            return new Date(planData.trialEndDate) < new Date();
+        }
+        return false;
+    },
+
     /** Returns badge color class for a plan */
     getPlanBadgeClass(plan: BusinessPlan): string {
         const map: Record<BusinessPlan, string> = {
