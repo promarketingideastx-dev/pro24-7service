@@ -20,12 +20,7 @@ if (!admin.apps.length) {
                     })
                 });
             } else {
-                // Fallback to strict JSON parse if regex fails 
-                const serviceAccount = JSON.parse(serviceAccountStr);
-                if (serviceAccount.private_key) {
-                    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-                }
-                admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+                throw new Error("Missing required credentials in FIREBASE_SERVICE_ACCOUNT_JSON regex match. JSON parse fallback dropped for security.");
             }
         } catch (e) {
             console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON', e);

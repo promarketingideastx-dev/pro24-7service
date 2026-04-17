@@ -25,11 +25,7 @@ async function getAdminSDK() {
                     privateKey: matchPrivateKey[1].replace(/\\n/g, '\n')
                 });
             } else {
-                const serviceAccount = JSON.parse(serviceAccountStr);
-                if (serviceAccount.private_key) {
-                    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-                }
-                credential = cert(serviceAccount);
+                throw new Error("Missing required credentials in FIREBASE_SERVICE_ACCOUNT_JSON regex match. JSON parse fallback dropped for security.");
             }
         } else {
             try {
