@@ -146,6 +146,21 @@ function BusinessProfileContent() {
     const showTeamTab = PlanService.canUseTeam(effectivePlan);
     const isUnavailable = PlanService.isPlanExpired(displayData?.planData);
 
+    if (isUnavailable) {
+        return (
+            <div className="min-h-screen bg-[#F4F6F8] flex flex-col items-center justify-center p-6 text-center">
+                <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mb-4">
+                    <span className="text-3xl grayscale">🏪</span>
+                </div>
+                <h1 className="text-xl font-bold text-slate-800 mb-2">Negocio no disponible</h1>
+                <p className="text-slate-500 max-w-sm mb-8 text-sm">El perfil de este negocio se encuentra inactivo y ya no es público en el marketplace.</p>
+                <Link href="/" className="px-6 py-3 bg-[#14B8A6] hover:bg-[#0F9488] text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-teal-500/30 active:scale-95">
+                    Buscar otros negocios
+                </Link>
+            </div>
+        );
+    }
+
     return (
         <>
             <BusinessProfileLayout
@@ -159,7 +174,6 @@ function BusinessProfileContent() {
                 }}
                 isModalOpen={isBookingOpen}
                 showTeamTab={showTeamTab}
-                isUnavailable={isUnavailable}
             >
                 {activeTab === 'services' && (
                     <ServicesTab
@@ -208,7 +222,7 @@ function BusinessProfileContent() {
                 {!isOwner && <AppInstallBanner businessName={displayData.name} />}
 
                 {/* Floating Chat Button — visible to logged-in clients (not the owner) */}
-                {user && !isOwner && !isUnavailable && (
+                {user && !isOwner && (
                     <button
                         onClick={() => setIsChatOpen(true)}
                         className="fixed bottom-24 right-5 z-[200] w-14 h-14 rounded-full bg-[#14B8A6] hover:bg-[#0F9488] shadow-[0_4px_20px_rgba(20,184,166,0.45)] flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95"

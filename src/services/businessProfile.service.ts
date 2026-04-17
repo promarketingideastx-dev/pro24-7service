@@ -639,6 +639,9 @@ export const BusinessProfileService = {
                     // Client-side: only hide explicitly suspended businesses
                     if (biz.status === 'suspended') return false;
 
+                    // NEW OFFICIAL RULE: Hide expired businesses fully from public marketplace
+                    if (PlanService.isPlanExpired(biz.planData)) return false;
+
                     // If a country parameter was provided, do an extra memory pass to ensure 
                     // older documents without 'countryCode' properly formatted are still caught
                     if (countryCode && countryCode !== 'ALL' && countryCode !== 'GLOBAL') {
