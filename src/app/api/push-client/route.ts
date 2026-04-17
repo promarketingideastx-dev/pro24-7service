@@ -15,8 +15,24 @@ async function getAdminSDK() {
     if (!getApps().length) {
         let credential;
         if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
-            const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
-            credential = cert(serviceAccount);
+            const serviceAccountStr = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+            const matchProjectId = serviceAccountStr.match(/"project_id"\s*:\s*"([^"]+)"/);
+            const matchClientEmail = serviceAccountStr.match(/"client_email"\s*:\s*"([^"]+)"/);
+            const matchPrivateKey = serviceAccountStr.match(/"private_key"\s*:\s*"([^"]+)"/);
+            
+            if (matchProjectId && matchClientEmail && matchPrivateKey) {
+                credential = cert({
+                    projectId: matchProjectId[1],
+                    clientEmail: matchClientEmail[1],
+                    privateKey: matchPrivateKey[1].replace(/\\n/g, '\n')
+                });
+            } else {
+                const serviceAccount = JSON.parse(serviceAccountStr);
+                if (serviceAccount.private_key) {
+                    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+                }
+                credential = cert(serviceAccount);
+            }
         } else {
             try {
                 // Bypass Webpack static analysis for local dev file
