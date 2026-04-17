@@ -11,7 +11,7 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isAuthenticated() && request.auth.token.admin == true;
+      return isAuthenticated() && request.auth.token.get('admin', false) == true;
     }
 
     // 1) CLIENTES (USERS)
@@ -46,7 +46,12 @@ service cloud.firestore {
       // Strict precedence
       allow delete: if isOwner(businessId) || (isAuthenticated() && resource.data.ownerId == request.auth.uid) || isAdmin();
       
-      // Subcolecciones de negocios (ej. services, portfolio)
+      // EXPLICIT SLOT_LOCKS (Allowed to all authed users to prevent booking transaction crash)
+      match /slot_locks/{slotId} {
+        allow read, write: if request.auth != null;
+      }
+
+      // Subcolecciones genéricas de negocios (ej. services, portfolio)
       match /{document=**} {
         allow read: if true;
         allow write: if isOwner(businessId) || isAdmin();

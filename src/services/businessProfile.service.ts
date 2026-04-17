@@ -133,6 +133,9 @@ export interface BusinessProfileData {
     };
     openingHours?: WeeklySchedule;
     paymentSettings?: PaymentSettings;
+    bookingSettings?: {
+        allowDoubleBooking: boolean;
+    };
 }
 
 // --- Services Subcollection Types ---

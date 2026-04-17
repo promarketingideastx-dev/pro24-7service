@@ -84,46 +84,48 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                     </div>
 
                     {/* MAP WIDGET INTEGRATION */}
-                    <div
-                        className="h-[280px] w-full rounded-2xl border border-slate-200 mt-4 relative z-0 overflow-hidden"
-                        onMouseLeave={() => setIsMapInteractive(false)}
-                    >
-                        {!isMapInteractive && (
-                            <div
-                                className="absolute inset-0 z-10 flex items-center justify-center cursor-pointer bg-transparent"
-                                onClick={() => setIsMapInteractive(true)}
-                            >
-                                <div className="bg-black/70 backdrop-blur-md px-5 py-2.5 rounded-full text-white text-sm font-bold shadow-[0_4px_15px_rgba(0,0,0,0.3)] animate-bounce hover:animate-none">
-                                    tocar para interactuar
+                    {!business.location?.isPlaceholder && (
+                        <div
+                            className="h-[280px] w-full rounded-2xl border border-slate-200 mt-4 relative z-0 overflow-hidden"
+                            onMouseLeave={() => setIsMapInteractive(false)}
+                        >
+                            {!isMapInteractive && (
+                                <div
+                                    className="absolute inset-0 z-10 flex items-center justify-center cursor-pointer bg-transparent"
+                                    onClick={() => setIsMapInteractive(true)}
+                                >
+                                    <div className="bg-black/70 backdrop-blur-md px-5 py-2.5 rounded-full text-white text-sm font-bold shadow-[0_4px_15px_rgba(0,0,0,0.3)] animate-bounce hover:animate-none">
+                                        tocar para interactuar
+                                    </div>
                                 </div>
+                            )}
+                            <div className={`w-full h-full transition-all duration-300 ${!isMapInteractive ? 'pointer-events-none' : ''}`}>
+                                <MapWidget
+                                    businesses={[{
+                                        id: business.id || 'preview',
+                                        name: business.name,
+                                        category: business.category,
+                                        subcategory: business.subcategory || '',
+                                        tags: business.tags || [],
+                                        lat: business.location?.lat && business.location.lat !== 0 ? business.location.lat : (business.lat || 15.50417),
+                                        lng: business.location?.lng && business.location.lng !== 0 ? business.location.lng : (business.lng || -88.02500),
+                                        icon: '\uD83D\uDCCD',
+                                        color: 'bg-brand-neon-cyan',
+                                        description: business.description || '',
+                                        countryCode: business.country || 'HN'
+                                    }]}
+                                    countryCoordinates={{
+                                        lat: business.location?.lat && business.location.lat !== 0 ? business.location.lat : (business.lat || 15.50417),
+                                        lng: business.location?.lng && business.location.lng !== 0 ? business.location.lng : (business.lng || -88.02500),
+                                        zoom: 15
+                                    }}
+                                />
                             </div>
-                        )}
-                        <div className={`w-full h-full transition-all duration-300 ${!isMapInteractive ? 'pointer-events-none' : ''}`}>
-                            <MapWidget
-                                businesses={[{
-                                    id: business.id || 'preview',
-                                    name: business.name,
-                                    category: business.category,
-                                    subcategory: business.subcategory || '',
-                                    tags: business.tags || [],
-                                    lat: business.locationV2?.lat || business.location?.lat || business.lat || 15.50417,
-                                    lng: business.locationV2?.lng || business.location?.lng || business.lng || -88.02500,
-                                    icon: '\uD83D\uDCCD',
-                                    color: 'bg-brand-neon-cyan',
-                                    description: business.description || '',
-                                    countryCode: business.country || 'HN'
-                                }]}
-                                countryCoordinates={{
-                                    lat: business.locationV2?.lat || business.location?.lat || business.lat || 15.50417,
-                                    lng: business.locationV2?.lng || business.location?.lng || business.lng || -88.02500,
-                                    zoom: 15
-                                }}
-                            />
                         </div>
-                    </div>
+                    )}
 
                     {/* Cómo llegar button */}
-                    {(() => {
+                    {!business.location?.isPlaceholder && (() => {
                         const lat = business.locationV2?.lat || business.location?.lat || business.lat;
                         const lng = business.locationV2?.lng || business.location?.lng || business.lng;
                         const placeId = business.locationV2?.placeId || business.location?.placeId || business.placeId;

@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { BookingService } from '@/services/booking.service';
 import { NotificationQueueService } from '@/services/notificationQueue.service';
 import { BookingDocument } from '@/types/firestore-schema';
-import { CheckCircle, XCircle, Clock, CalendarCheck } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, CalendarCheck, Trash2, Archive } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '@/lib/currencyUtils';
 
@@ -77,6 +77,17 @@ export default function ProviderBookingsView() {
         } catch (error) {
             console.error(error);
             toast.error("Error al actualizar la cita.");
+        }
+    };
+
+    const handleArchiveBooking = async (booking: BookingDocument) => {
+        try {
+            await BookingService.hideForBusiness(booking.id);
+            toast.success("Cita archivada correctamente.");
+            loadBookings();
+        } catch (error) {
+            console.error(error);
+            toast.error("Error al archivar la cita.");
         }
     };
 
@@ -183,7 +194,7 @@ export default function ProviderBookingsView() {
                                         ${booking.paymentStatus === 'confirmed' ? 'bg-[#14B8A6]/10 text-[#14B8A6]' : ''}
                                         ${booking.paymentStatus === 'rejected' ? 'bg-red-100 text-red-700' : ''}
                                     `}>
-                                        Pago: {booking.paymentStatus.replace('_', ' ')}
+                                        Pago: {(booking.paymentStatus || 'No definido').replace('_', ' ')}
                                     </span>
 
                                     <span className="text-xs text-slate-400 font-medium bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
@@ -192,11 +203,19 @@ export default function ProviderBookingsView() {
                                     </span>
                                 </div>
                                 <h3 className="font-bold text-slate-900 text-lg leading-tight">{booking.serviceName}</h3>
-                                <p className="text-sm text-slate-500">ID Cliente: {booking.clientId}</p>
+                                <p className="text-sm text-slate-500">Cliente: {booking.clientName} ({booking.clientPhone})</p>
                                 <div className="text-sm font-medium mt-1 bg-slate-50 inline-block px-3 py-1 rounded-lg border border-slate-100">
                                     <span className="text-slate-400 text-xs mr-2">Total:</span> 
                                     {formatPrice(booking.totalAmount, booking.currency)}
                                 </div>
+
+                                {/* Client Notes */}
+                                {(booking.notes || booking.notesClient) && (
+                                    <div className="mt-3 text-sm text-slate-700 bg-amber-50/50 p-3 flex-1 rounded-xl border border-amber-100/50 italic">
+                                        <span className="font-semibold not-italic block mb-1 text-amber-900/60 text-xs uppercase tracking-wide">Notas del cliente:</span>
+                                        "{booking.notes || booking.notesClient}"
+                                    </div>
+                                )}
 
                                 {/* Payment Proof Section */}
                                 {booking.paymentProof && (
@@ -243,6 +262,18 @@ export default function ProviderBookingsView() {
                                         className="px-4 py-2 bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto"
                                     >
                                         <CheckCircle size={16} /> Marcar Completada
+                                    </button>
+                                )}
+                                {(booking.status === 'canceled' || booking.status === 'completed') && (
+                                    <button 
+                                        onClick={() => {
+                                            if (window.confirm("¿Seguro que deseas archivar esta cita de tu lista? Seguirá disponible en tus analíticas globales.")) {
+                                                handleArchiveBooking(booking);
+                                            }
+                                        }}
+                                        className="px-4 py-2.5 bg-slate-50 border border-slate-200 hover:bg-slate-100/80 text-slate-500 hover:text-slate-800 text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto"
+                                    >
+                                        <Archive size={16} /> Archivar Cita
                                     </button>
                                 )}
                             </div>

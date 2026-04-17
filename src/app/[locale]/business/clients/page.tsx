@@ -115,8 +115,10 @@ export default function ClientsPage() {
                 }
             }
 
-            setCustomers(finalCustomerData);
-            setAppointmentStats(computeStats(allBookings, finalCustomerData));
+            const visibleCustomers = finalCustomerData.filter(c => !c.archived);
+
+            setCustomers(visibleCustomers);
+            setAppointmentStats(computeStats(allBookings, visibleCustomers));
             if (profile?.country) setBusinessCountry(profile.country);
         } catch (error) {
             console.error(error);

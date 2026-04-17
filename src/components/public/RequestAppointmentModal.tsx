@@ -7,7 +7,7 @@ import { CustomerService } from '@/services/customer.service';
 import { BookingService } from '@/services/booking.service';
 import { NotificationQueueService } from '@/services/notificationQueue.service';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { format } from 'date-fns';
 import { es, enUS, ptBR } from 'date-fns/locale';
 import { useLocale, useTranslations } from 'next-intl';
@@ -29,6 +29,9 @@ interface RequestAppointmentModalProps {
     businessName: string;
     openingHours?: WeeklySchedule;
     paymentSettings?: PaymentSettings;
+    bookingSettings?: {
+        allowDoubleBooking: boolean;
+    };
 }
 
 type Step = 'service' | 'datetime' | 'payment' | 'incomplete_profile' | 'contact' | 'review';
@@ -49,6 +52,8 @@ interface DateTimeStepProps {
     selectedDate: string;
     selectedTime: string;
     availableSlots: string[];
+    occupiedSlots: string[];
+    allowDoubleBooking: boolean;
     dayStatus: { isOpen: boolean; message: string };
     onDateChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onTimeSelect: (t: string) => void;
@@ -59,7 +64,7 @@ interface DateTimeStepProps {
     localeKey: string;
 }
 
-function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, onDateChange, onTimeSelect, onSubmit, minutesToTime, timeToMinutes, t, localeKey }: DateTimeStepProps) {
+function DateTimeStep({ selectedDate, selectedTime, availableSlots, occupiedSlots, allowDoubleBooking, dayStatus, onDateChange, onTimeSelect, onSubmit, minutesToTime, timeToMinutes, t, localeKey }: DateTimeStepProps) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -185,11 +190,15 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
                         {availableSlots.map(time => {
                             const display = minutesToTime(timeToMinutes(time));
                             const active = selectedTime === time;
+                            const isOccupied = !allowDoubleBooking && occupiedSlots.includes(time);
+                            
                             return (
-                                <button key={time} onClick={() => onTimeSelect(time)}
-                                    className={`py-2.5 px-1 text-sm rounded-xl border font-medium transition-all ${active
-                                        ? 'bg-[#14B8A6] text-black border-[#14B8A6] shadow-lg shadow-cyan-500/20'
-                                        : 'bg-slate-50 border-slate-200 text-slate-900 hover:bg-slate-100 hover:border-[#14B8A6]/30'
+                                <button key={time} onClick={() => onTimeSelect(time)} disabled={isOccupied}
+                                    className={`py-2.5 px-1 text-sm rounded-xl border font-medium transition-all
+                                        ${isOccupied ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed opacity-60' : 
+                                            active
+                                                ? 'bg-[#14B8A6] text-black border-[#14B8A6] shadow-lg shadow-cyan-500/20'
+                                                : 'bg-slate-50 border-slate-200 text-slate-900 hover:bg-slate-100 hover:border-[#14B8A6]/30'
                                         }`}>
                                     {display}
                                 </button>
@@ -214,8 +223,8 @@ function DateTimeStep({ selectedDate, selectedTime, availableSlots, dayStatus, o
 }
 
 
-export default function RequestAppointmentModal({ isOpen, onClose, businessId, businessName, openingHours, paymentSettings }: RequestAppointmentModalProps) {
-    const { user, userProfile, loading: authLoading } = useAuth();
+export default function RequestAppointmentModal({ isOpen, onClose, businessId, businessName, openingHours, paymentSettings, bookingSettings }: RequestAppointmentModalProps) {
+    const { user, userProfile, loading: authLoading, isResolvingAuth } = useAuth();
     const t = useTranslations('booking');
     const locale = useLocale();
     const router = useRouter();
@@ -236,6 +245,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedTime, setSelectedTime] = useState('');
     const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+    const [occupiedSlots, setOccupiedSlots] = useState<string[]>([]);
     const [dayStatus, setDayStatus] = useState<{ isOpen: boolean; message: string }>({ isOpen: true, message: '' });
     const [proofFile, setProofFile] = useState<File | null>(null);
     const [missingFields, setMissingFields] = useState<string[]>([]);
@@ -314,11 +324,12 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
     };
 
 
-    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleDateChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const dateStr = e.target.value;
         setSelectedDate(dateStr);
         setSelectedTime('');
         setAvailableSlots([]);
+        setOccupiedSlots([]);
 
         if (!openingHours || !dateStr) return;
 
@@ -345,6 +356,14 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
             slots.push(timeStr);
         }
         setAvailableSlots(slots);
+        
+        // Fetch Occupied Slots immediately
+        try {
+            const occupied = await BookingService.getOccupiedSlots(businessId, dateStr);
+            setOccupiedSlots(occupied);
+        } catch (error) {
+            console.error('[BookingService] Error fetching occupied slots:', error);
+        }
     };
 
     const handleTimeSelect = (time: string) => {
@@ -380,11 +399,33 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
             toast.error(t('loginRequired') || "Debes iniciar sesión para agendar.");
             return;
         }
+
+        const currentUser = auth.currentUser;
+        if (currentUser === null) {
+            toast.error("Tu sesión no está lista. Intenta nuevamente.");
+            return;
+        }
+
         setLoading(true);
 
         try {
             // CRM sync removed from client-side to prevent permission errors
             // The business CRM will lazily sync it when the owner views their clients.
+
+            // 1. Race condition check
+            const allowDoubleBooking = bookingSettings?.allowDoubleBooking || false;
+            if (!allowDoubleBooking) {
+                const occupiedNow = await BookingService.getOccupiedSlots(businessId, selectedDate);
+                if (occupiedNow.includes(selectedTime)) {
+                    toast.error(localeKey === 'en' ? 'Someone just booked this time slot. Please choose another.' : 
+                                localeKey === 'pt' ? 'Alguém acabou de agendar este horário. Por favor, escolha outro.' : 
+                                'Alguien acaba de reservar este espacio. Por favor elige otro horario.');
+                    setOccupiedSlots(occupiedNow);
+                    setSelectedTime('');
+                    setLoading(false);
+                    return;
+                }
+            }
 
             // Calculo de abono
             const totalAmount = selectedService.price || 0;
@@ -397,7 +438,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 }
             }
 
-            const booking = await BookingService.createBooking({
+            const bookingPayload = {
                 businessId,
                 clientId: user.uid,
                 clientName: data.name,
@@ -408,12 +449,26 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 date: selectedDate, // YYYY-MM-DD
                 time: selectedTime, // HH:mm
                 duration: selectedService.durationMinutes || 30,
-                paymentMethod: 'manual',
+                paymentMethod: 'manual' as const,
                 totalAmount: totalAmount,
                 depositAmount: depositAmount,
                 currency: selectedService.currency || countryConfig.currency, // Force Service Currency
                 notesClient: data.notes
-            });
+            };
+
+            let booking: any = null;
+            try {
+                booking = await BookingService.createBooking(bookingPayload);
+            } catch (error: any) {
+                const isPermissionError = error?.code === 'permission-denied' || error?.message?.includes('Missing or insufficient permissions');
+                if (isPermissionError) {
+                    console.log("[Booking Guard] Session rejected early. Refreshing token and retrying ONCE...");
+                    await auth.currentUser?.getIdToken(true);
+                    booking = await BookingService.createBooking(bookingPayload);
+                } else {
+                    throw error;
+                }
+            }
 
             // Upload payment proof if provided
             if (proofFile) {
@@ -486,30 +541,26 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
             setProofFile(null);
 
         } catch (error: any) {
-            console.error("[Booking Error] Falló confirmación. Detalles de debug:", {
+            console.error("DIAGNÓSTICO QUIRÚRGICO DE SUBMIT:", {
+                authUid: auth.currentUser?.uid || 'NULL',
+                authEmail: auth.currentUser?.email || 'NULL',
+                payloadSnippet: { serviceId: selectedService.id, businessId, date: selectedDate, time: selectedTime },
                 errorCode: error?.code,
                 errorMessage: error?.message,
-                path: 'bookings',
-                payloadSnippet: { serviceId: selectedService.id, businessId, date: selectedDate, time: selectedTime }
+                errorStack: error?.stack
             });
 
-            const isPermissionError = error?.code === 'permission-denied' || error?.message?.includes('Missing or insufficient permissions');
-
-            if (isPermissionError) {
-                const msgs: Record<string, string> = {
-                    es: 'No pudimos confirmar tu solicitud en este momento. Verifica tu sesión e inténtalo nuevamente.',
-                    en: 'We couldn’t confirm your request right now. Please verify your session and try again.',
-                    pt: 'Não foi possível confirmar sua solicitação agora. Verifique sua sessão e tente novamente.'
-                };
-                toast.error(msgs[localeKey] || msgs.es);
-            } else {
-                const msgs: Record<string, string> = {
-                    es: 'Ocurrió un problema al guardar tu solicitud. Inténtalo de nuevo.',
-                    en: 'There was a problem saving your request. Please try again.',
-                    pt: 'Ocorreu um problema ao salvar sua solicitação. Tente novamente.'
-                };
-                toast.error(msgs[localeKey] || msgs.es);
+            // Diagnóstico explícito del Token
+            try {
+                const testToken = await auth.currentUser?.getIdToken(true);
+                console.log("DIAGNÓSTICO TOKEN (POST-ERROR):", testToken ? "REFRESCADO EXITOSAMENTE" : "RETORNÓ NULL");
+            } catch (tError: any) {
+                console.error("DIAGNÓSTICO TOKEN FALLÓ:", tError?.message);
             }
+
+            // Exponer el error exacto a la UI para debugging en Staging/Mobile
+            toast.error(`Error Crítico en Booking: ${error?.code || 'Desconocido'} - ${error?.message}`);
+
         } finally {
             setLoading(false);
         }
@@ -635,6 +686,8 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                             selectedDate={selectedDate}
                             selectedTime={selectedTime}
                             availableSlots={availableSlots}
+                            occupiedSlots={occupiedSlots}
+                            allowDoubleBooking={bookingSettings?.allowDoubleBooking || false}
                             dayStatus={dayStatus}
                             onDateChange={handleDateChange}
                             onTimeSelect={handleTimeSelect}
@@ -807,14 +860,14 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
 
                             <button
                                 type="submit"
-                                disabled={loading || !user}
+                                disabled={loading || !user || authLoading || isResolvingAuth}
                                 className={`w-full py-4 text-black font-bold rounded-xl mt-4 transition-all flex items-center justify-center gap-2 text-base ${
-                                    !user || loading 
+                                    !user || loading || authLoading || isResolvingAuth
                                         ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
                                         : 'bg-gradient-to-r from-[#14B8A6] to-[#2563EB] hover:shadow-[0_0_15px_rgba(0,240,255,0.4)]'
                                 }`}
                             >
-                                {loading ? t('sending') : (!user ? 'Debes iniciar sesión' : t('confirmRequest'))}
+                                {loading || authLoading || isResolvingAuth ? t('sending') : (!user ? 'Debes iniciar sesión' : t('confirmRequest'))}
                             </button>
                         </form>
                     )}

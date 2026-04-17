@@ -200,6 +200,11 @@ export interface BusinessProfile {
     // Payment Settings (New)
     paymentSettings?: PaymentSettings;
 
+    // Ajustes de Agenda (Double Booking)
+    bookingSettings?: {
+        allowDoubleBooking: boolean;
+    };
+
     // Ubicación
     location: BusinessLocation;
 
@@ -306,6 +311,10 @@ export interface BookingDocument {
     // Interaction tracking for notification queues
     clientReadReceipt?: boolean;
     businessReadReceipt?: boolean;
+    
+    // Client-side visual deletion
+    hiddenByClient?: boolean;
+    hiddenByBusiness?: boolean;
     
     createdAt: any; // Timestamp
     updatedAt: any; // Timestamp

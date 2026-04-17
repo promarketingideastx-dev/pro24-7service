@@ -20,11 +20,19 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const [isAuthorized, setIsAuthorized] = useState(false);
+    const [isRedirecting, setIsRedirecting] = useState(false); // Surgical UI Fix
 
     useEffect(() => {
-        console.log('[AuthGuard] AUTH GUARD EVALUATED | isResolvingAuth:', isResolvingAuth, '| loading:', loading, '| user:', user?.uid || 'null');
+        setIsRedirecting(false); // Reset redirecting state upon actual route settlement
+    }, [pathname]);
+
+    useEffect(() => {
+        console.log('[AuthGuard] AUTHGUARD CHECK | isResolvingAuth:', isResolvingAuth, '| loading:', loading, '| user:', user?.uid || 'null');
         
-        if (isResolvingAuth) return; // ESCUDO MAESTRO: Bloquear evaluación si Firebase o Google están procesando redirect
+        if (isResolvingAuth) {
+            console.log('[AuthGuard] AUTHGUARD CHECK - isResolvingAuth is true, blocking redirect');
+            return; 
+        } // ESCUDO MAESTRO: Bloquear evaluación si Firebase o Google están procesando redirect
         if (loading) return;
 
         const segments = pathname.split('/').filter(Boolean);
@@ -38,6 +46,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
             prefixes.some(p => localelessPath === p || localelessPath.startsWith(p + "/"));
 
         const redirect = (path: string) => {
+            if (pathname === path) return; // Prevent loop
+            setIsRedirecting(true); // Maintain global spinner during the ghost transition
             setTimeout(() => {
                 router.replace(path);
             }, 0);
@@ -154,7 +164,13 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
                     const stored = sessionStorage.getItem('auth_redirect_to');
                     if (stored) {
                         sessionStorage.removeItem('auth_redirect_to');
-                        redirect(stored);
+                        
+                        if (stored === '/' && (isProvider || isOnboardingProvider)) {
+                            redirect(lp('/business'));
+                        } else {
+                            redirect(stored);
+                        }
+                        
                         return;
                     }
                 }
@@ -223,7 +239,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
     }, [user, userProfile, loading, pathname, searchParams, router]);
 
-    if (loading || isResolvingAuth) {
+    if (loading || isResolvingAuth || isRedirecting) {
         return (
             <div className="flex h-screen w-full items-center justify-center bg-[#F4F6F8]">
                 <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#14B8A6] border-t-transparent"></div>

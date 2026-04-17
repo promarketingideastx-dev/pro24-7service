@@ -8,7 +8,7 @@ import GlassPanel from '@/components/ui/GlassPanel';
 
 import { TAXONOMY } from '@/lib/taxonomy';
 import {
-    Save, Building, MapPin, Tag, Camera, ArrowLeft, Check,
+    Save, Building, MapPin, Tag, Camera, ArrowLeft, Check, CalendarCheck,
     Palette, Wrench, Sparkles, MonitorPlay, Music, Scissors, Shield,
     Zap, Droplets, PaintBucket, Truck, Key, Car, Bike, Leaf, Clock,
     Upload, Trash2, Loader2, Image as ImageIcon, Instagram, Facebook, Share2
@@ -393,6 +393,41 @@ export default function BusinessProfilePage() {
                                 className="text-xs px-3 py-1.5 bg-[rgba(20,184,166,0.10)] text-[#0F766E] border border-[#14B8A6]/50 rounded-lg hover:bg-[rgba(20,184,166,0.18)] transition-colors font-bold"
                             >
                                 {formData.openingHours ? t('editSchedule') : t('configure')}
+                            </button>
+                        </div>
+                    </GlassPanel>
+
+                    {/* Booking Settings Section */}
+                    <GlassPanel className="p-6">
+                        <div className="flex items-center gap-2 mb-4 text-[#14B8A6]">
+                            <CalendarCheck size={20} />
+                            <h2 className="font-bold text-slate-900">{t('bookingSettingsTitle') || 'Ajustes de Reserva'}</h2>
+                        </div>
+                        <p className="text-slate-400 text-sm mb-4">
+                            {t('bookingSettingsDesc') || 'Controla cómo se manejan las superposiciones de clientes en tu agenda.'}
+                        </p>
+                        
+                        <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200">
+                            <div className="flex-1 pr-4">
+                                <h4 className="text-slate-900 font-bold text-sm mb-1">
+                                    {localeKey === 'en' ? 'Allow simultaneous bookings' : localeKey === 'pt' ? 'Permitir agendamentos simultâneos' : 'Permitir citas simultáneas en el mismo horario'}
+                                </h4>
+                                <p className="text-xs text-slate-500">
+                                    {localeKey === 'en' 
+                                        ? 'If enabled, multiple clients can book the exact same time slot.' 
+                                        : localeKey === 'pt' 
+                                        ? 'Se ativado, vários clientes podem agendar no mesmo horário exato.' 
+                                        : 'Si está activado, varios clientes podrán agendar exactamente a la misma hora.'}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setFormData(prev => ({ 
+                                    ...prev, 
+                                    bookingSettings: { allowDoubleBooking: !prev.bookingSettings?.allowDoubleBooking } 
+                                }))}
+                                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors shrink-0 ${formData.bookingSettings?.allowDoubleBooking ? 'bg-[#14B8A6]' : 'bg-slate-300'}`}
+                            >
+                                <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${formData.bookingSettings?.allowDoubleBooking ? 'translate-x-8' : 'translate-x-1'}`} />
                             </button>
                         </div>
                     </GlassPanel>

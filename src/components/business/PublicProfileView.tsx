@@ -202,6 +202,8 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
                 businessId={business.id}
                 businessName={business.name}
                 openingHours={business.openingHours}
+                paymentSettings={business.paymentSettings}
+                bookingSettings={business.bookingSettings}
             />
 
         </div>

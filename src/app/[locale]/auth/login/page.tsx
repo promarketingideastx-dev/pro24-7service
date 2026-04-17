@@ -90,7 +90,7 @@ function LoginForm() {
             if ((err as any).code === 'auth/unauthorized-domain') {
                 setError('Dominio no autorizado. Contacta al administrador.');
             } else if ((err as any).code !== 'auth/popup-closed-by-user' && (err as any).code !== 'auth/cancelled-popup-request') {
-                setError(t('errorGoogle'));
+                setError(err.message || t('errorGoogle'));
             }
             setLoading(false);
         }
@@ -107,7 +107,7 @@ function LoginForm() {
         } catch (err: any) {
             console.error(err);
             if ((err as any).code !== 'auth/popup-closed-by-user') {
-                setError(t('errorGoogle'));
+                setError(err.message || t('errorGoogle'));
             }
             setLoading(false);
         }

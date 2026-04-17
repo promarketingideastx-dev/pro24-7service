@@ -12,7 +12,8 @@ import {
     orderBy,
     Timestamp,
     writeBatch,
-    onSnapshot
+    onSnapshot,
+    runTransaction
 } from 'firebase/firestore';
 import { BookingDocument, BookingStatus } from '@/types/firestore-schema';
 
@@ -64,8 +65,24 @@ export const BookingService = {
             updatedAt: serverTimestamp()
         };
 
-        const docRef = await addDoc(collection(db, COLLECTION_NAME), data);
-        return { id: docRef.id, ...data };
+        const allowDoubleBooking = bizData.bookingSettings?.allowDoubleBooking || false;
+        const slotLockRef = doc(db, 'businesses', bookingData.businessId, 'slot_locks', `${bookingData.date}_${bookingData.time}`);
+        const bookingRef = doc(collection(db, COLLECTION_NAME));
+
+        await runTransaction(db, async (transaction) => {
+            const slotDoc = await transaction.get(slotLockRef);
+            const activeCount = slotDoc.exists() ? (slotDoc.data().active || 0) : 0;
+
+            if (!allowDoubleBooking && activeCount > 0) {
+                // RACE CONDITION BLOCK!
+                throw new Error('Este horario acaba de ser ocupado.');
+            }
+
+            transaction.set(slotLockRef, { active: activeCount + 1 }, { merge: true });
+            transaction.set(bookingRef, data);
+        });
+
+        return { id: bookingRef.id, ...data };
     },
 
     /**
@@ -73,6 +90,25 @@ export const BookingService = {
      */
     async updateBooking(bookingId: string, bookingData: Partial<BookingDocument>) {
         const ref = doc(db, COLLECTION_NAME, bookingId);
+        
+        // Anti Race-Condition: Liberate the lock strictly if canceled.
+        if (bookingData.status === 'canceled') {
+            const existingSnap = await getDoc(ref);
+            if (existingSnap.exists()) {
+                const existingData = existingSnap.data() as BookingDocument;
+                if (existingData.status === 'pending' || existingData.status === 'confirmed') {
+                    const slotLockRef = doc(db, 'businesses', existingData.businessId, 'slot_locks', `${existingData.date}_${existingData.time}`);
+                    await runTransaction(db, async (trans) => {
+                        const slotDoc = await trans.get(slotLockRef);
+                        if (slotDoc.exists()) {
+                            const newCount = Math.max(0, (slotDoc.data().active || 1) - 1);
+                            trans.set(slotLockRef, { active: newCount }, { merge: true });
+                        }
+                    });
+                }
+            }
+        }
+
         const dataToUpdate = { ...bookingData, updatedAt: serverTimestamp() };
         delete dataToUpdate.id;
         await updateDoc(ref, dataToUpdate);
@@ -91,8 +127,18 @@ export const BookingService = {
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
         };
-        const docRef = await addDoc(collection(db, COLLECTION_NAME), data);
-        return { id: docRef.id, ...data };
+        
+        const slotLockRef = doc(db, 'businesses', bookingData.businessId as string, 'slot_locks', `${bookingData.date}_${bookingData.time}`);
+        const bookingRef = doc(collection(db, COLLECTION_NAME));
+
+        await runTransaction(db, async (transaction) => {
+            const slotDoc = await transaction.get(slotLockRef);
+            const activeCount = slotDoc.exists() ? (slotDoc.data().active || 0) : 0;
+            transaction.set(slotLockRef, { active: activeCount + 1 }, { merge: true });
+            transaction.set(bookingRef, data);
+        });
+
+        return { id: bookingRef.id, ...data };
     },
 
     /**
@@ -146,6 +192,28 @@ export const BookingService = {
     },
 
     /**
+     * Hide Booking for Client (Soft Delete)
+     */
+    async hideForClient(bookingId: string) {
+        const ref = doc(db, COLLECTION_NAME, bookingId);
+        await updateDoc(ref, {
+            hiddenByClient: true,
+            updatedAt: serverTimestamp()
+        });
+    },
+
+    /**
+     * Hide Booking for Business (Soft Delete)
+     */
+    async hideForBusiness(bookingId: string) {
+        const ref = doc(db, COLLECTION_NAME, bookingId);
+        await updateDoc(ref, {
+            hiddenByBusiness: true,
+            updatedAt: serverTimestamp()
+        });
+    },
+
+    /**
      * Read by Business (Provider Dashboard)
      */
     async getByBusiness(businessId: string): Promise<BookingDocument[]> {
@@ -160,16 +228,35 @@ export const BookingService = {
         // In case indexing fails on dev, fallback to unsorted get + memory sort
         try {
             const snap = await getDocs(q);
-            return snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingDocument));
+            const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingDocument));
+            return items.filter(b => b.hiddenByBusiness !== true);
         } catch (e) {
              const fallbackQ = query(collection(db, COLLECTION_NAME), where('businessId', '==', businessId));
              const snap = await getDocs(fallbackQ);
              const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingDocument));
-             return items.sort((a, b) => {
+             const visibleItems = items.filter(b => b.hiddenByBusiness !== true);
+             return visibleItems.sort((a, b) => {
                  if (a.date === b.date) return b.time.localeCompare(a.time);
                  return b.date.localeCompare(a.date);
              });
         }
+    },
+
+    /**
+     * Get Occupied Slots for a specific date (used for Double Booking check)
+     */
+    async getOccupiedSlots(businessId: string, date: string): Promise<string[]> {
+        const q = query(
+            collection(db, COLLECTION_NAME),
+            where('businessId', '==', businessId),
+            where('date', '==', date)
+        );
+        const snap = await getDocs(q);
+        const docs = snap.docs.map(doc => doc.data() as BookingDocument);
+        
+        // Strict filtering: ONLY pending or confirmed block the slot
+        const occupied = docs.filter(b => b.status === 'pending' || b.status === 'confirmed');
+        return occupied.map(b => b.time);
     },
 
     /**
@@ -178,8 +265,12 @@ export const BookingService = {
     async getByClient(clientId: string): Promise<BookingDocument[]> {
         const fallbackQ = query(collection(db, COLLECTION_NAME), where('clientId', '==', clientId));
         const snap = await getDocs(fallbackQ);
-        const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingDocument));
-        return items.sort((a, b) => {
+        const docs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingDocument));
+        
+        // Filter out those hidden by the client
+        const visibleItems = docs.filter(b => !b.hiddenByClient);
+        
+        return visibleItems.sort((a, b) => {
             if (a.date === b.date) return b.time.localeCompare(a.time);
             return b.date.localeCompare(a.date);
         });

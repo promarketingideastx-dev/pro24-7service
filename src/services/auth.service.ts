@@ -3,8 +3,6 @@ import {
     GoogleAuthProvider,
     OAuthProvider,
     signInWithPopup,
-    signInWithRedirect,
-    getRedirectResult,
     signOut,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
@@ -33,7 +31,7 @@ export const AuthService = {
         }
     },
 
-    // Detect mobile browser or PWA standalone mode (popups are blocked in these contexts)
+    // Detect mobile browser or PWA standalone mode (kept for reference but unused for auth flow)
     _isMobileOrPWA: (): boolean => {
         if (typeof window === 'undefined') return false;
         return (
@@ -42,9 +40,6 @@ export const AuthService = {
             /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
         );
     },
-
-    // Get pending redirect result (call on app mount to capture Google/Apple redirect)
-    getRedirectResult: () => getRedirectResult(auth),
 
     loginWithGoogle: async (returnTo?: string) => {
         if (Capacitor.isNativePlatform()) {
@@ -74,31 +69,35 @@ export const AuthService = {
         }
 
         const provider = new GoogleAuthProvider();
-        if (AuthService._isMobileOrPWA()) {
-            // Mobile/PWA: store returnTo and use redirect (popup is blocked)
-            if (returnTo) sessionStorage.setItem('auth_redirect_to', returnTo);
-            await signInWithRedirect(auth, provider);
-            return null; // page navigates away — caller should not expect a return value
-        }
-        // Desktop: use popup
-        const result = await signInWithPopup(auth, provider);
         
-        // FASE 3: Enforce Identity Registry
-        const reg = await IdentityService.getEmailRegistry(result.user.email || '');
-        if (!reg) {
-            await IdentityService.createEmailRegistry(result.user.email || '', result.user.uid, 'active', 'google.com');
-        } else if (!reg.providers.includes('google.com')) {
-            await IdentityService.updateProviders(result.user.email || '', 'google.com');
-        }
+        if (returnTo) sessionStorage.setItem('auth_redirect_to', returnTo);
 
-        const profile = await UserService.getUserProfile(result.user.uid);
-        if (!profile) {
-            const newUser = await UserService.createUserProfile(result.user.uid, result.user.email || '');
-            if (newUser) {
-                await UserService.updateUserProfile(result.user.uid, { accountStatus: 'active', emailVerified: true });
+        try {
+            const result = await signInWithPopup(auth, provider);
+            
+            // FASE 3: Enforce Identity Registry
+            const reg = await IdentityService.getEmailRegistry(result.user.email || '');
+            if (!reg) {
+                await IdentityService.createEmailRegistry(result.user.email || '', result.user.uid, 'active', 'google.com');
+            } else if (!reg.providers.includes('google.com')) {
+                await IdentityService.updateProviders(result.user.email || '', 'google.com');
             }
+
+            const profile = await UserService.getUserProfile(result.user.uid);
+            if (!profile) {
+                const newUser = await UserService.createUserProfile(result.user.uid, result.user.email || '');
+                if (newUser) {
+                    await UserService.updateUserProfile(result.user.uid, { accountStatus: 'active', emailVerified: true });
+                }
+            }
+            return result.user;
+        } catch (error: any) {
+            console.error('[AuthService] Google Popup Error:', error);
+            if (error?.code === 'auth/popup-blocked') {
+                throw new Error('Tu navegador bloqueó la ventana de login. Por favor, permite las ventanas emergentes en tu navegador.');
+            }
+            throw error;
         }
-        return result.user;
     },
 
     loginWithApple: async (returnTo?: string) => {
@@ -135,29 +134,35 @@ export const AuthService = {
         const provider = new OAuthProvider('apple.com');
         provider.addScope('email');
         provider.addScope('name');
-        if (AuthService._isMobileOrPWA()) {
-            if (returnTo) sessionStorage.setItem('auth_redirect_to', returnTo);
-            await signInWithRedirect(auth, provider);
-            return null;
-        }
-        const result = await signInWithPopup(auth, provider);
         
-        // FASE 3: Enforce Identity Registry
-        const reg = await IdentityService.getEmailRegistry(result.user.email || '');
-        if (!reg) {
-            await IdentityService.createEmailRegistry(result.user.email || '', result.user.uid, 'active', 'apple.com');
-        } else if (!reg.providers.includes('apple.com')) {
-            await IdentityService.updateProviders(result.user.email || '', 'apple.com');
-        }
+        if (returnTo) sessionStorage.setItem('auth_redirect_to', returnTo);
 
-        const profile = await UserService.getUserProfile(result.user.uid);
-        if (!profile) {
-             const newUser = await UserService.createUserProfile(result.user.uid, result.user.email || '');
-             if (newUser) {
-                 await UserService.updateUserProfile(result.user.uid, { accountStatus: 'active', emailVerified: true });
-             }
+        try {
+            const result = await signInWithPopup(auth, provider);
+            
+            // FASE 3: Enforce Identity Registry
+            const reg = await IdentityService.getEmailRegistry(result.user.email || '');
+            if (!reg) {
+                await IdentityService.createEmailRegistry(result.user.email || '', result.user.uid, 'active', 'apple.com');
+            } else if (!reg.providers.includes('apple.com')) {
+                await IdentityService.updateProviders(result.user.email || '', 'apple.com');
+            }
+
+            const profile = await UserService.getUserProfile(result.user.uid);
+            if (!profile) {
+                 const newUser = await UserService.createUserProfile(result.user.uid, result.user.email || '');
+                 if (newUser) {
+                     await UserService.updateUserProfile(result.user.uid, { accountStatus: 'active', emailVerified: true });
+                 }
+            }
+            return result.user;
+        } catch (error: any) {
+            console.error('[AuthService] Apple Popup Error:', error);
+            if (error?.code === 'auth/popup-blocked') {
+                throw new Error('Tu navegador bloqueó la ventana de login. Por favor, permite las ventanas emergentes en tu navegador.');
+            }
+            throw error;
         }
-        return result.user;
     },
 
     loginWithEmail: async (email: string, pass: string) => {

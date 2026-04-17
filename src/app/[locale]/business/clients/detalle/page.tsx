@@ -102,10 +102,10 @@ function CustomerDetailContent() {
     useEffect(() => { fetchData(); }, [user, id]);
 
     const handleSaveNotes = async () => {
-        if (!customer?.id) return;
+        if (!customer?.id || !user) return;
         setSavingNotes(true);
         try {
-            await CustomerService.updateCustomer(customer.id, { notes });
+            await CustomerService.updateCustomer(user.uid, customer.id, { notes });
             setNotesDirty(false);
             toast.success("Notas guardadas");
         } catch {

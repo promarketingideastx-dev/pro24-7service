@@ -55,7 +55,7 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
         setLoading(true);
         try {
             if (customerToEdit && customerToEdit.id) {
-                await CustomerService.updateCustomer(customerToEdit.id, { ...formData, businessId });
+                await CustomerService.updateCustomer(businessId, customerToEdit.id, { ...formData, businessId });
                 toast.success(t('updated'));
             } else {
                 await CustomerService.createCustomer({ ...formData, businessId, tags: [] });

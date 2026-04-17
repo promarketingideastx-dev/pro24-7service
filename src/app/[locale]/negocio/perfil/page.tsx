@@ -199,6 +199,7 @@ function BusinessProfileContent() {
                     businessName={displayData.name}
                     openingHours={displayData.openingHours}
                     paymentSettings={displayData.paymentSettings}
+                    bookingSettings={displayData.bookingSettings}
                 />
 
                 {/* App Install Banner — shows to mobile visitors who don't have the app */}

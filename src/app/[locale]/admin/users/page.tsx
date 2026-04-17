@@ -124,11 +124,10 @@ function ActionMenu({ user, onRefresh }: { user: UserRecord; onRefresh: () => vo
                     isVip: true
                 });
             } else {
-                // If they are a client (or a provider without a valid profile reference), create a skeleton VIP profile for them.
-                // We use their user ID as the business document ID for simplicity, or we can just let Firestore generate one. 
-                // Let's use user.id to be safe and avoid duplicates.
+                // If they are a client, create a skeleton VIP profile for them with strict canonical fallbacks.
                 const newBizId = user.id;
                 const newBizRef = doc(db, 'businesses_public', newBizId);
+                const baseCountry = user.country_code || 'HN';
 
                 await setDoc(newBizRef, {
                     ownerUid: user.id,
@@ -136,11 +135,37 @@ function ActionMenu({ user, onRefresh }: { user: UserRecord; onRefresh: () => vo
                     ownerName: user.displayName || 'Usuario',
                     brandName: user.displayName || 'Negocio de ' + (user.email?.split('@')[0] || 'Usuario'),
                     businessName: user.displayName || 'Negocio de ' + (user.email?.split('@')[0] || 'Usuario'),
-                    country: user.country_code || 'HN',
+                    country: baseCountry,
                     status: 'active',
                     createdAt: serverTimestamp(),
                     updatedAt: serverTimestamp(),
+                    // --- CANONICAL SCHEMA FALLBACKS ---
                     category: 'servicios_profesionales',
+                    subcategory: 'general',
+                    subcategories: ['general'],
+                    specialtiesBySubcategory: { general: [] },
+                    additionalCategories: [],
+                    additionalSpecialties: [],
+                    tags: [],
+                    modality: 'home',
+                    address: 'Pendiente',
+                    city: 'Pendiente',
+                    department: '',
+                    lat: 0,
+                    lng: 0,
+                    location: {
+                        placeId: null,
+                        lat: 0,
+                        lng: 0,
+                        address: 'Pendiente',
+                        city: 'Pendiente',
+                        region: '',
+                        country: baseCountry,
+                        isPlaceholder: true
+                    },
+                    shortDescription: 'Perfil generado por administrador. Pendiente de actualización.',
+                    createdByAdmin: true,
+                    profileCompletionRequired: true,
                     planData: {
                         plan: 'vip',
                         planStatus: 'active',
@@ -154,17 +179,17 @@ function ActionMenu({ user, onRefresh }: { user: UserRecord; onRefresh: () => vo
                     }
                 });
 
-                // Set up the required private and root documents to prevent updateProfile crashes
+                // Set up the required private and root documents
                 await setDoc(doc(db, 'businesses_private', newBizId), {
                     id: newBizId,
                     email: user.email || '',
                     phone: '',
-                    address: '',
+                    address: 'Pendiente',
                     department: '',
                     gallery: [],
                     socialMedia: { instagram: '', facebook: '', tiktok: '' },
                     verificationStatus: 'pending',
-                    fullDescription: '',
+                    fullDescription: 'Perfil generado por administrador. Pendiente de actualización.',
                     updatedAt: serverTimestamp()
                 });
 
@@ -180,12 +205,22 @@ function ActionMenu({ user, onRefresh }: { user: UserRecord; onRefresh: () => vo
                     updatedAt: serverTimestamp()
                 }, { merge: true });
 
-                // Update the user record to reflect they are now a provider with this profile
+                // Synchronize the User Profile tightly to skip BusinessGuard setup traps
                 await updateDoc(doc(db, 'users', user.id), {
                     isProvider: true,
                     isVip: true,
                     businessProfileId: newBizId,
-                    'roles.provider': true
+                    currentRole: 'provider',
+                    providerOnboardingStatus: 'completed',
+                    'roles.provider': true,
+                    'roles.client': true,
+                    subscription: {
+                        plan: 'vip',
+                        status: 'active',
+                        trialStartAt: Date.now(),
+                        trialEndAt: Date.now(),
+                        isActive: true
+                    }
                 });
             }
 

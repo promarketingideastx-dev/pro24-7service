@@ -61,6 +61,8 @@ export default function UserProfilePage() {
     const [aptsLoading, setAptsLoading] = useState(true);
     const [cancellingId, setCancellingId] = useState<string | null>(null); // id being cancelled
     const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null); // id waiting inline confirm
+    const [hidingId, setHidingId] = useState<string | null>(null);
+    const [confirmHideId, setConfirmHideId] = useState<string | null>(null);
 
     // Load initial data + favorites + appointments
     useEffect(() => {
@@ -114,6 +116,21 @@ export default function UserProfilePage() {
         } finally {
             setCancellingId(null);
             setConfirmCancelId(null);
+        }
+    };
+
+    const handleHideAppointment = async (aptId: string) => {
+        if (!aptId) return;
+        setHidingId(aptId);
+        try {
+            await BookingService.hideForClient(aptId);
+            setAppointments(prev => prev.filter(a => a.id !== aptId));
+            toast.success(t('aptHidden'), { icon: '👁️' });
+        } catch {
+            toast.error(t('aptHideError'));
+        } finally {
+            setHidingId(null);
+            setConfirmHideId(null);
         }
     };
 
@@ -580,6 +597,8 @@ export default function UserProfilePage() {
                                 const canCancel = apt.status === 'pending' || apt.status === 'confirmed';
                                 const isConfirmingCancel = confirmCancelId === apt.id;
                                 const isCancelling = cancellingId === apt.id;
+                                const isConfirmingHide = confirmHideId === apt.id;
+                                const isHiding = hidingId === apt.id;
                                 return (
                                     <div
                                         key={apt.id}
@@ -610,25 +629,25 @@ export default function UserProfilePage() {
                                                 </div>
                                             )}
                                         </div>
-                                        {/* Right: status + cancel */}
                                         <div className="shrink-0 flex items-center gap-2">
                                             {isConfirmingCancel ? (
-                                                // Inline confirmation
                                                 <div className="flex items-center gap-1.5 animate-in fade-in duration-150">
                                                     <span className="text-[10px] text-slate-500 font-medium">{t('aptCancelConfirm')}</span>
-                                                    <button
-                                                        onClick={() => handleCancelAppointment(apt.id!)}
-                                                        disabled={isCancelling}
-                                                        className="px-2.5 py-1 bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold rounded-full transition-all disabled:opacity-60"
-                                                    >
+                                                    <button onClick={() => handleCancelAppointment(apt.id!)} disabled={isCancelling} className="px-2.5 py-1 bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold rounded-full transition-all disabled:opacity-60">
                                                         {isCancelling ? '...' : t('aptCancelYes')}
                                                     </button>
-                                                    <button
-                                                        onClick={() => setConfirmCancelId(null)}
-                                                        disabled={isCancelling}
-                                                        className="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-bold rounded-full transition-all"
-                                                    >
+                                                    <button onClick={() => setConfirmCancelId(null)} disabled={isCancelling} className="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-bold rounded-full transition-all">
                                                         {t('aptCancelNo')}
+                                                    </button>
+                                                </div>
+                                            ) : isConfirmingHide ? (
+                                                <div className="flex items-center gap-1.5 animate-in fade-in duration-150">
+                                                    <span className="text-[10px] text-slate-500 font-medium">{t('aptHideConfirm')}</span>
+                                                    <button onClick={() => handleHideAppointment(apt.id!)} disabled={isHiding} className="px-2.5 py-1 bg-slate-700 hover:bg-slate-800 text-white text-[10px] font-bold rounded-full transition-all disabled:opacity-60">
+                                                        {isHiding ? '...' : t('aptHideYes')}
+                                                    </button>
+                                                    <button onClick={() => setConfirmHideId(null)} disabled={isHiding} className="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-bold rounded-full transition-all">
+                                                        {t('aptHideNo')}
                                                     </button>
                                                 </div>
                                             ) : (
@@ -637,14 +656,13 @@ export default function UserProfilePage() {
                                                         {t(statusKey)}
                                                     </span>
                                                     {canCancel && (
-                                                        <button
-                                                            onClick={() => setConfirmCancelId(apt.id!)}
-                                                            title={t('aptCancelBtn')}
-                                                            className="p-1 rounded-full text-slate-400 hover:text-red-400 hover:bg-red-50 transition-all"
-                                                        >
+                                                        <button onClick={() => setConfirmCancelId(apt.id!)} title={t('aptCancelBtn')} className="p-1 rounded-full text-slate-400 hover:text-red-400 hover:bg-red-50 transition-all">
                                                             <X className="w-3.5 h-3.5" />
                                                         </button>
                                                     )}
+                                                    <button onClick={() => setConfirmHideId(apt.id!)} title={t('aptHideBtn')} className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all">
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </button>
                                                 </>
                                             )}
                                         </div>

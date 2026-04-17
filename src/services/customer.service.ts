@@ -51,7 +51,6 @@ export const CustomerService = {
 
             // Exclude archived, sort by name
             return customers
-                .filter(c => !c.archived)
                 .sort((a, b) => a.fullName.localeCompare(b.fullName));
         } catch (error) {
             console.error("Error fetching customers:", error);
@@ -143,26 +142,56 @@ export const CustomerService = {
     },
 
     /**
+     * Reconstructs an orphan memory client into a physically backed CRM entity.
+     * Looks up Global Firebase Users to fix 'Cliente Online' contaminants.
+     */
+    async normalizeLegacyCustomer(businessId: string, customer: Customer | Partial<Customer>, originalId: string): Promise<string> {
+        let normalizedData = { ...customer };
+
+        // If it's a global UID (28 chars standard for Firebase Auth)
+        if (originalId && originalId.length >= 28 && !originalId.startsWith('temp-')) {
+            try {
+                const userRef = doc(db, 'users', originalId);
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    normalizedData.fullName = userData.displayName || customer.fullName || 'Cliente Existente';
+                    normalizedData.email = userData.email || customer.email || '';
+                    normalizedData.phone = userData.phoneNumber || customer.phone || '';
+                }
+            } catch (err) {
+                console.warn("Could not retrieve global user data for normalization.", err);
+            }
+        }
+
+        // Force creation in our local CRM DB
+        const realLocalDocId = await this.upsertFromAppointment(businessId, {
+            fullName: normalizedData.fullName as string,
+            email: normalizedData.email || undefined,
+            phone: normalizedData.phone || undefined
+        });
+
+        return realLocalDocId;
+    },
+
+    /**
      * Update a customer
      */
-    async updateCustomer(id: string, updates: Partial<Customer>): Promise<void> {
+    async updateCustomer(businessId: string, id: string, updates: Partial<Customer>): Promise<void> {
         try {
-            // If phone or email is being updated, check duplicates
-            if (updates.phone || updates.email) {
-                // We need businessId to check duplicates. 
-                // If not passed in updates, we'd theoretically need to fetch it or rely on caller compliance.
-                // For MVP, assuming caller handles this or we fetch if critical.
-                // Ideally, we fetch existing doc first to get businessId...
-                /* 
-                const current = await this.getCustomer(id);
-                if (current) {
-                   const isDup = await this.checkDuplicate(current.businessId, updates.phone, updates.email, id);
-                   if (isDup) throw new Error("Duplicate phone/email");
-                }
-                */
+            let docId = id;
+            let existsLocally = false;
+
+            if (docId && !docId.startsWith('temp-')) {
+                const docSnap = await getDoc(doc(db, COLLECTION_NAME, docId));
+                existsLocally = docSnap.exists();
             }
 
-            const docRef = doc(db, COLLECTION_NAME, id);
+            if (!existsLocally) {
+                docId = await this.normalizeLegacyCustomer(businessId, updates, id);
+            }
+
+            const docRef = doc(db, COLLECTION_NAME, docId);
             await updateDoc(docRef, {
                 ...updates,
                 updatedAt: serverTimestamp()
@@ -187,11 +216,26 @@ export const CustomerService = {
 
     /**
      * Archive a customer (soft-delete). Hides from CRM list but preserves all data.
-     * Use instead of deleting when the customer has appointment history.
+     * Checks database existence explicitly to handle transient/in-memory clients structurally.
      */
-    async archiveCustomer(id: string): Promise<void> {
+    async archiveCustomer(businessId: string, customer: Customer): Promise<void> {
         try {
-            const docRef = doc(db, COLLECTION_NAME, id);
+            let docId = customer.id;
+            let existsLocally = false;
+
+            if (docId && !docId.startsWith('temp-')) {
+                const docSnap = await getDoc(doc(db, COLLECTION_NAME, docId));
+                existsLocally = docSnap.exists();
+            }
+
+            if (!existsLocally) {
+                // Escalate to normalization to pull true DB Profile and upsert locally
+                docId = await this.normalizeLegacyCustomer(businessId, customer, docId || '');
+            }
+
+            if (!docId) throw new Error("Could not determine or create a valid customer ID.");
+
+            const docRef = doc(db, COLLECTION_NAME, docId);
             await updateDoc(docRef, {
                 archived: true,
                 updatedAt: serverTimestamp()
@@ -221,9 +265,10 @@ export const CustomerService = {
                 const snap = await getDocs(qEmail);
                 if (!snap.empty) {
                     const existing = snap.docs[0];
-                    // Update lastInteractionAt and fill in any missing fields
+                    // Update lastInteractionAt and ensure it is NOT archived
                     await updateDoc(doc(db, COLLECTION_NAME, existing.id), {
                         lastInteractionAt: serverTimestamp(),
+                        archived: false,
                         ...(data.phone && !existing.data().phone ? { phone: data.phone } : {}),
                         updatedAt: serverTimestamp()
                     });
@@ -239,6 +284,7 @@ export const CustomerService = {
                     const existing = snap.docs[0];
                     await updateDoc(doc(db, COLLECTION_NAME, existing.id), {
                         lastInteractionAt: serverTimestamp(),
+                        archived: false,
                         ...(data.email && !existing.data().email ? { email: data.email } : {}),
                         updatedAt: serverTimestamp()
                     });
