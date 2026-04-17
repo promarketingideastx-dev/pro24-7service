@@ -16,19 +16,27 @@ async function getAdminSDK() {
         let credential;
         if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
             const serviceAccountStr = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-            const matchProjectId = serviceAccountStr.match(/"project_id"\s*:\s*"([^"]+)"/);
-            const matchClientEmail = serviceAccountStr.match(/"client_email"\s*:\s*"([^"]+)"/);
-            const matchPrivateKey = serviceAccountStr.match(/"private_key"\s*:\s*"([^"]+)"/);
-            
-            if (matchProjectId && matchClientEmail && matchPrivateKey) {
-                credential = cert({
-                    projectId: matchProjectId[1],
-                    clientEmail: matchClientEmail[1],
-                    privateKey: matchPrivateKey[1].replace(/\\n/g, '\n')
-                });
-            } else {
-                throw new Error("Missing required credentials in FIREBASE_SERVICE_ACCOUNT_JSON regex match. JSON parse fallback dropped for security.");
+            let parsedCreds;
+            try {
+                parsedCreds = JSON.parse(serviceAccountStr);
+            } catch (e1) {
+                try {
+                    const sanitized = serviceAccountStr.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
+                    parsedCreds = JSON.parse(sanitized);
+                } catch (e2) {
+                    const matchProjectId = serviceAccountStr.match(/"project_id"\s*:\s*"([^"]+)"/);
+                    const matchClientEmail = serviceAccountStr.match(/"client_email"\s*:\s*"([^"]+)"/);
+                    const matchPrivateKey = serviceAccountStr.match(/"private_key"\s*:\s*"([^"]+)"/);
+                    if (matchProjectId && matchClientEmail && matchPrivateKey) {
+                        parsedCreds = { project_id: matchProjectId[1], client_email: matchClientEmail[1], private_key: matchPrivateKey[1] };
+                    } else { throw new Error("CRITICAL: FIREBASE_SERVICE_ACCOUNT_JSON is malformed."); }
+                }
             }
+            credential = cert({
+                projectId: parsedCreds.project_id,
+                clientEmail: parsedCreds.client_email,
+                privateKey: parsedCreds.private_key.replace(/\\n/g, '\n')
+            });
         } else {
             try {
                 // Bypass Webpack static analysis for local dev file

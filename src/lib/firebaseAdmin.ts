@@ -6,22 +6,29 @@ if (!admin.apps.length) {
     
     if (serviceAccountStr) {
         try {
-            // Unbreakable parser using Regex to avoid JSON stringify/literal collision
-            const matchProjectId = serviceAccountStr.match(/"project_id"\s*:\s*"([^"]+)"/);
-            const matchClientEmail = serviceAccountStr.match(/"client_email"\s*:\s*"([^"]+)"/);
-            const matchPrivateKey = serviceAccountStr.match(/"private_key"\s*:\s*"([^"]+)"/);
-            
-            if (matchProjectId && matchClientEmail && matchPrivateKey) {
-                admin.initializeApp({
-                    credential: admin.credential.cert({
-                        projectId: matchProjectId[1],
-                        clientEmail: matchClientEmail[1],
-                        privateKey: matchPrivateKey[1].replace(/\\n/g, '\n')
-                    })
-                });
-            } else {
-                throw new Error("Missing required credentials in FIREBASE_SERVICE_ACCOUNT_JSON regex match. JSON parse fallback dropped for security.");
+            let parsedCreds;
+            try {
+                parsedCreds = JSON.parse(serviceAccountStr);
+            } catch (e1) {
+                try {
+                    const sanitized = serviceAccountStr.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
+                    parsedCreds = JSON.parse(sanitized);
+                } catch (e2) {
+                    const matchProjectId = serviceAccountStr.match(/"project_id"\s*:\s*"([^"]+)"/);
+                    const matchClientEmail = serviceAccountStr.match(/"client_email"\s*:\s*"([^"]+)"/);
+                    const matchPrivateKey = serviceAccountStr.match(/"private_key"\s*:\s*"([^"]+)"/);
+                    if (matchProjectId && matchClientEmail && matchPrivateKey) {
+                        parsedCreds = { project_id: matchProjectId[1], client_email: matchClientEmail[1], private_key: matchPrivateKey[1] };
+                    } else { throw new Error("CRITICAL: FIREBASE_SERVICE_ACCOUNT_JSON is malformed."); }
+                }
             }
+            admin.initializeApp({
+                credential: admin.credential.cert({
+                    projectId: parsedCreds.project_id,
+                    clientEmail: parsedCreds.client_email,
+                    privateKey: parsedCreds.private_key.replace(/\\n/g, '\n')
+                })
+            });
         } catch (e) {
             console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON', e);
             admin.initializeApp({ credential: admin.credential.applicationDefault() });
