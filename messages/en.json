@@ -250,6 +250,9 @@
       "searchPlaceholder": "Search by name, email, city, phone...",
       "active": "Active",
       "suspended": "Suspended",
+      "statusTrial": "On Trial",
+      "statusExpired": "Expired",
+      "statusCanceled": "Canceled",
       "planFree": "Free",
       "planPremium": "Premium",
       "planPlusTeam": "Plus Team",
@@ -342,9 +345,16 @@
       "emptySubtitle": "Admin actions will be automatically recorded here."
     },
     "map": {
-      "title": "Business Map",
+      "title": "Business & CRM Map",
       "businesses": "businesses",
+      "users": "users",
       "panelOpen": "Panel open",
+      "filterTodos": "All",
+      "filterNegocios": "Businesses",
+      "filterClient": "Seeking Services",
+      "filterProvider": "Offering Services",
+      "filterVip": "VIP",
+      "filterTrialExpired": "Trial Expired",
       "all": "All",
       "active": "Active",
       "suspended": "Suspended",
@@ -1110,7 +1120,10 @@
     "selectCountry": "Select your country to get started",
     "searchPlaceholder": "Search country (Mexico, Honduras, USA...)",
     "noResults": "No results found for",
-    "languageLabel": "Language"
+    "languageLabel": "Language",
+    "inactiveTitle": "Country coming soon",
+    "inactiveDesc": "We are sorry, this country is not available yet. We will be active here soon.",
+    "availableNow": "Currently available in:"
   },
   "collaborators": {
     "title": "VIP Collaborators",
