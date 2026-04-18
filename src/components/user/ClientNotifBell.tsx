@@ -43,7 +43,7 @@ export default function ClientNotifBell({ clientId }: ClientNotifBellProps) {
         if (!clientId) return;
         const unsub = ClientNotificationService.onUnreadCount(clientId, (count) => {
             if (count > prevUnread.current && prevUnread.current !== -1) {
-                playNotificationSound();
+                // playNotificationSound();
             }
             prevUnread.current = count;
             setUnread(count);

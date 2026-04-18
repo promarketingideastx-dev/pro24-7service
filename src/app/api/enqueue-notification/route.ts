@@ -1,60 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/firebaseAdmin';
 
 // Force Node.js runtime required for firebase-admin
 export const runtime = 'nodejs';
-declare var __non_webpack_require__: (id: string) => any;
-
-async function getAdminSDK() {
-    const { getApps, initializeApp, cert } = await import('firebase-admin/app');
-    const { getFirestore } = await import('firebase-admin/firestore');
-
-    if (!getApps().length) {
-        let credential;
-        if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
-            const serviceAccountStr = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-            let parsedCreds;
-            try {
-                parsedCreds = JSON.parse(serviceAccountStr);
-            } catch (e1) {
-                try {
-                    const sanitized = serviceAccountStr.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
-                    parsedCreds = JSON.parse(sanitized);
-                } catch (e2) {
-                    const matchProjectId = serviceAccountStr.match(/"project_id"\s*:\s*"([^"]+)"/);
-                    const matchClientEmail = serviceAccountStr.match(/"client_email"\s*:\s*"([^"]+)"/);
-                    const matchPrivateKey = serviceAccountStr.match(/"private_key"\s*:\s*"([^"]+)"/);
-                    if (matchProjectId && matchClientEmail && matchPrivateKey) {
-                        parsedCreds = { project_id: matchProjectId[1], client_email: matchClientEmail[1], private_key: matchPrivateKey[1] };
-                    } else { throw new Error("CRITICAL: FIREBASE_SERVICE_ACCOUNT_JSON is malformed."); }
-                }
-            }
-            credential = cert({
-                projectId: parsedCreds.project_id,
-                clientEmail: parsedCreds.client_email,
-                privateKey: parsedCreds.private_key.replace(/\\n/g, '\n')
-            });
-        } else {
-            try {
-                // eslint-disable-next-line @typescript-eslint/no-require-imports
-                const serviceAccount = __non_webpack_require__('../../../../../serviceAccountKey.json');
-                credential = cert(serviceAccount);
-            } catch {
-                return null;
-            }
-        }
-        initializeApp({ credential });
-    }
-    return { db: getFirestore() };
-}
 
 export async function POST(req: NextRequest) {
     try {
-        const sdk = await getAdminSDK();
-        if (!sdk) {
-            console.error('[enqueue-notification] Firebase Admin SDK init failed');
-            return NextResponse.json({ error: 'System Error: Internal Admin SDK failed' }, { status: 500 });
-        }
-
+        
         const body = await req.json();
         const { action, payload } = body;
 
@@ -65,10 +17,10 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ error: 'Missing critical parameters' }, { status: 400 });
             }
 
-            const batch = sdk.db.batch();
+            const batch = db.batch();
 
             // 1. Instant Internal Push to Business
-            const bizNotifRef = sdk.db.collection('business_notifications').doc(businessId).collection('items').doc();
+            const bizNotifRef = db.collection('business_notifications').doc(businessId).collection('items').doc();
             batch.set(bizNotifRef, {
                 title: 'Nueva Cita Recibida',
                 body: `${clientName} ha agendado: ${serviceName}`,
@@ -83,7 +35,7 @@ export async function POST(req: NextRequest) {
             // FASE 1: DESHABILITADO SEGÚN APROBACIÓN (No emails/push todavía)
             /*
             if (businessEmail) {
-                const queueRef = sdk.db.collection('notification_queue').doc();
+                const queueRef = db.collection('notification_queue').doc();
                 batch.set(queueRef, {
                     targetUid: businessId,
                     targetEmail: businessEmail,
@@ -109,10 +61,10 @@ export async function POST(req: NextRequest) {
                  return NextResponse.json({ error: 'Missing critical parameters' }, { status: 400 });
             }
             
-            const batch = sdk.db.batch();
+            const batch = db.batch();
 
             // 1. Instant Push to Client
-            const clientNotifRef = sdk.db.collection('client_notifications').doc(clientId).collection('items').doc();
+            const clientNotifRef = db.collection('client_notifications').doc(clientId).collection('items').doc();
             batch.set(clientNotifRef, {
                 title: 'Cita Solicitada',
                 body: `Tu cita para ${serviceName} con ${businessName} fue enviada.`,
@@ -127,7 +79,7 @@ export async function POST(req: NextRequest) {
             // FASE 1: DESHABILITADO SEGÚN APROBACIÓN
             /*
             if (clientEmail) {
-                const queueRef = sdk.db.collection('notification_queue').doc();
+                const queueRef = db.collection('notification_queue').doc();
                 batch.set(queueRef, {
                     targetUid: clientId,
                     targetEmail: clientEmail,
@@ -153,9 +105,9 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ error: 'Missing critical parameters' }, { status: 400 });
             }
 
-            const batch = sdk.db.batch();
+            const batch = db.batch();
 
-            const clientNotifRef = sdk.db.collection('client_notifications').doc(clientId).collection('items').doc();
+            const clientNotifRef = db.collection('client_notifications').doc(clientId).collection('items').doc();
             batch.set(clientNotifRef, {
                 title: newStatus === 'confirmed' ? 'Cita Confirmada' : 'Cita Cancelada',
                 body: newStatus === 'confirmed' 
@@ -178,7 +130,7 @@ export async function POST(req: NextRequest) {
                         const scheduledTime = new Date();
                         scheduledTime.setMinutes(scheduledTime.getMinutes() + offset);
                         
-                        const queueRef = sdk.db.collection('notification_queue').doc();
+                        const queueRef = db.collection('notification_queue').doc();
                         batch.set(queueRef, {
                             targetUid: clientId,
                             targetEmail: clientEmail,
@@ -192,7 +144,7 @@ export async function POST(req: NextRequest) {
                         });
                     }
                 } else {
-                    const queueRef = sdk.db.collection('notification_queue').doc();
+                    const queueRef = db.collection('notification_queue').doc();
                     batch.set(queueRef, {
                         targetUid: clientId,
                         targetEmail: clientEmail,
@@ -219,9 +171,9 @@ export async function POST(req: NextRequest) {
                  return NextResponse.json({ error: 'Missing critical parameters' }, { status: 400 });
             }
 
-            const batch = sdk.db.batch();
+            const batch = db.batch();
 
-            const clientNotifRef = sdk.db.collection('client_notifications').doc(clientId).collection('items').doc();
+            const clientNotifRef = db.collection('client_notifications').doc(clientId).collection('items').doc();
             batch.set(clientNotifRef, {
                 title: newStatus === 'proof_approved' ? 'Pago Confirmado' : 'Comprobante Rechazado',
                 body: newStatus === 'proof_approved'
@@ -244,7 +196,7 @@ export async function POST(req: NextRequest) {
                         const scheduledTime = new Date();
                         scheduledTime.setMinutes(scheduledTime.getMinutes() + offset);
                         
-                        const queueRef = sdk.db.collection('notification_queue').doc();
+                        const queueRef = db.collection('notification_queue').doc();
                         batch.set(queueRef, {
                             targetUid: clientId,
                             targetEmail: clientEmail,
@@ -258,7 +210,7 @@ export async function POST(req: NextRequest) {
                         });
                     }
                 } else {
-                    const queueRef = sdk.db.collection('notification_queue').doc();
+                    const queueRef = db.collection('notification_queue').doc();
                     batch.set(queueRef, {
                         targetUid: clientId,
                         targetEmail: clientEmail,
@@ -285,9 +237,9 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ error: 'Missing critical parameters' }, { status: 400 });
             }
 
-            const batch = sdk.db.batch();
+            const batch = db.batch();
 
-            const bizNotifRef = sdk.db.collection('business_notifications').doc(businessId).collection('items').doc();
+            const bizNotifRef = db.collection('business_notifications').doc(businessId).collection('items').doc();
             batch.set(bizNotifRef, {
                 title: 'Nuevo Comprobante Recibido',
                 body: `${clientName} ha subido el pago. Requiere tu revisión.`,
@@ -307,7 +259,7 @@ export async function POST(req: NextRequest) {
                     const scheduledTime = new Date();
                     scheduledTime.setMinutes(scheduledTime.getMinutes() + offset);
                     
-                    const queueRef = sdk.db.collection('notification_queue').doc();
+                    const queueRef = db.collection('notification_queue').doc();
                     batch.set(queueRef, {
                         targetUid: businessId,
                         targetEmail: businessEmail,

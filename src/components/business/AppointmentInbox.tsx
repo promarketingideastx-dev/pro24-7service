@@ -87,14 +87,9 @@ export default function AppointmentInbox({
         if (activeTab === 'pending') {
             data = allBookings.filter(b => b.status === 'pending');
         } else if (activeTab === 'upcoming') {
-            const now = new Date();
-            data = allBookings.filter(b => b.status === 'confirmed' && new Date(b.date + 'T' + b.time) >= now);
+            data = allBookings.filter(b => b.status === 'confirmed');
         } else {
-            const now = new Date();
-            data = allBookings.filter(b => 
-                b.status === 'canceled' || b.status === 'completed' ||
-                (b.status === 'confirmed' && new Date(b.date + 'T' + b.time) < now)
-            );
+            data = allBookings.filter(b => b.status === 'canceled' || b.status === 'completed');
         }
 
         data.sort((a, b) => {

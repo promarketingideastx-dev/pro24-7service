@@ -44,7 +44,7 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
         if (!businessId) return;
         const unsub = BusinessNotificationService.onUnreadCount(businessId, (count) => {
             if (count > prevUnread.current && prevUnread.current !== -1) {
-                playNotificationSound();
+                // playNotificationSound();
             }
             prevUnread.current = count;
             setUnread(count);
