@@ -6,11 +6,12 @@ import { useTranslations } from 'next-intl';
 import { useAdminContext } from '@/context/AdminContext';
 import { onSnapshot, query, collection, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Map, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Map, ToggleLeft, ToggleRight, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 import 'leaflet/dist/leaflet.css';
 import type { MapPoint } from '@/components/admin/BusinessMap';
 import BusinessPreviewPanel from '@/components/admin/BusinessPreviewPanel';
+import UserPreviewPanel from '@/components/admin/UserPreviewPanel';
 
 const BusinessMap = dynamic(() => import('@/components/admin/BusinessMap'), { ssr: false });
 
@@ -53,6 +54,9 @@ export default function AdminMapPage() {
         { key: 'active', label: t('active'), dot: '#22c55e' },
         { key: 'suspended', label: t('suspended'), dot: '#ef4444' },
         { key: 'pending', label: t('pending'), dot: '#f59e0b' },
+        { key: 'client', label: t('filterClient') || 'Client', dot: '#3b82f6' },
+        { key: 'provider', label: t('filterProvider') || 'Provider', dot: '#10b981' },
+        { key: 'expired', label: t('filterTrialExpired') || 'Trial Expired', dot: '#9ca3af' },
     ];
     const PLAN_LEGEND = [
         { key: 'free', label: 'Free', dot: '#94a3b8' },
@@ -64,150 +68,284 @@ export default function AdminMapPage() {
     const [allPoints, setAllPoints] = useState<MapPoint[]>([]);
     const [filtered, setFiltered] = useState<MapPoint[]>([]);
     const [colorBy, setColorBy] = useState<'status' | 'plan'>('status');
-    const [statusFilter, setStatusFilter] = useState('all');
-    const [loading, setLoading] = useState(true);
+    const [loadingBiz, setLoadingBiz] = useState(true);
+    const [loadingUsr, setLoadingUsr] = useState(true);
+    
+    // UI selection
     const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [selectedType, setSelectedType] = useState<'business' | 'user' | null>(null);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-    // ── Real-time Firestore listener — auto-refreshes on every change ──
+    // Filters
+    // 1. Entities
+    const [showBusinesses, setShowBusinesses] = useState(true);
+    const [showClients, setShowClients] = useState(false);
+    const [showProviders, setShowProviders] = useState(false);
+    // 2. Attributes (Stackable overlays)
+    const [filterVip, setFilterVip] = useState(false);
+    const [filterTrialExpired, setFilterTrialExpired] = useState(false);
+
+    // ── Real-time Firestore listeners ──
     useEffect(() => {
-        setLoading(true);
-        const q = query(collection(db, 'businesses_public'), limit(500));
-        const unsub = onSnapshot(q, (snap) => {
+        setLoadingBiz(true);
+        setLoadingUsr(true);
+
+        const activeBizIds = new Set<string>();
+
+        // Listener 1: Businesses
+        const qBiz = query(collection(db, 'businesses_public'), limit(500));
+        const unsubBiz = onSnapshot(qBiz, (snap) => {
             const pts: MapPoint[] = [];
             snap.docs.forEach((d) => {
                 const data = d.data();
+                activeBizIds.add(d.id);
+
                 let lat = data.location?.lat ?? data.lat;
                 let lng = data.location?.lng ?? data.lng;
 
-                // Fallback to department/country coords when location is missing or zero
+                // Fallback for business
                 if (!lat || !lng || lat === 0 || lng === 0) {
                     const fb = getDeptCoords(data.department, data.country);
-                    if (fb) {
-                        [lat, lng] = fb;
-                    } else {
+                    if (fb) { [lat, lng] = fb; } 
+                    else {
                         const cc = (data.country || 'HN').toUpperCase();
                         [lat, lng] = COUNTRY_CENTER[cc] ?? COUNTRY_CENTER.ALL;
                     }
                 }
 
+                const plan = data.planData?.plan ?? 'free';
+                const planSource = data.planData?.planSource;
+                const isVip = plan === 'vip' || planSource === 'collaborator_beta';
+                
+                let isTrialExpired = data.planData?.planStatus === 'expired';
+                if (data.planData?.trialEndDate) {
+                    const trialEndMs = data.planData.trialEndDate.toMillis 
+                        ? data.planData.trialEndDate.toMillis() 
+                        : (typeof data.planData.trialEndDate === 'number' ? data.planData.trialEndDate : data.planData.trialEndDate.seconds * 1000);
+                    if (trialEndMs && trialEndMs < Date.now()) isTrialExpired = true;
+                }
+
                 pts.push({
                     id: d.id,
+                    type: 'business',
                     lat, lng,
                     name: data.name ?? '—',
                     city: data.city,
                     country: data.country,
-                    plan: data.planData?.plan ?? 'free',
-                    planSource: data.planData?.planSource ?? undefined,
+                    plan: plan,
+                    planSource: planSource,
                     category: data.category,
                     status: data.status ?? 'active',
                     suspended: data.suspended === true,
                     coverImage: data.logoUrl || data.coverImage || undefined,
+                    isVip,
+                    isTrialExpired,
                 });
             });
-            setAllPoints(pts);
+
+            setAllPoints(prev => {
+                const nonBiz = prev.filter(p => p.type !== 'business');
+                return [...pts, ...nonBiz];
+            });
             setLastUpdated(new Date());
-            setLoading(false);
+            setLoadingBiz(false);
         }, () => {
-            toast.error('Error cargando mapa');
-            setLoading(false);
+            toast.error('Error cargando negocios');
+            setLoadingBiz(false);
         });
-        return () => unsub();
+
+        // Listener 2: Users
+        const qUsr = query(collection(db, 'users'), limit(500));
+        const unsubUsr = onSnapshot(qUsr, (snap) => {
+            const pts: MapPoint[] = [];
+            snap.docs.forEach((d) => {
+                const data = d.data();
+                
+                // CRITICAL: Deduplication. If user is provider and has an active business, 
+                // the business map already shows them. We skip user render to avoid duplicates.
+                if (data.roles?.provider === true && data.isBusinessActive === true && data.businessProfileId) {
+                    return; 
+                }
+
+                const loc = data.userLocation;
+                // CRITICAL: Strict requirement. No fallback coords for users! If missing, they don't map.
+                if (!loc || !loc.lat || !loc.lng || loc.lat === 0 || loc.lng === 0) {
+                    return;
+                }
+
+                // VIP Source of truth
+                const isVip = data.isVip === true || data.subscription?.plan === 'vip' || data.selectedPlan === 'vip';
+                
+                // Trial Expired Source of truth
+                const subStatus = data.subscription?.status || 'active';
+                const isTrialExpired = subStatus === 'expired' || (data.subscription?.trialEndAt && data.subscription.trialEndAt < Date.now());
+
+                pts.push({
+                    id: d.id,
+                    type: 'user',
+                    lat: loc.lat, 
+                    lng: loc.lng,
+                    name: data.displayName || data.clientProfile?.fullName || data.email || '—',
+                    country: data.country_code || loc.countryCode || 'HN',
+                    userRole: data.roles?.provider ? 'provider' : 'client',
+                    isVip: isVip,
+                    isTrialExpired: isTrialExpired === true,
+                });
+            });
+
+            setAllPoints(prev => {
+                const bizOnly = prev.filter(p => p.type === 'business');
+                return [...bizOnly, ...pts];
+            });
+            setLastUpdated(new Date());
+            setLoadingUsr(false);
+        }, () => {
+            toast.error('Error cargando usuarios');
+            setLoadingUsr(false);
+        });
+
+        return () => { unsubBiz(); unsubUsr(); };
     }, []);
 
     useEffect(() => {
         let pts = allPoints;
-        if (selectedCountry !== 'ALL') pts = pts.filter(p => p.country === selectedCountry);
-        if (statusFilter !== 'all') {
+        
+        // 1. Geographic isolation
+        if (selectedCountry !== 'ALL') {
+            pts = pts.filter(p => p.country === selectedCountry);
+        }
+
+        // 2. Entity Type Filters & Independent Modifiers Overlays
+        pts = pts.filter(p => {
+            let matchesType = false;
+            
+            // Base layer checks
+            if (p.type === 'business' && showBusinesses) matchesType = true;
+            if (p.type === 'user' && p.userRole === 'client' && showClients) matchesType = true;
+            if (p.type === 'user' && p.userRole === 'provider' && showProviders) matchesType = true;
+
+            // Opción A: auto-incluir temporalmente capas relevantes si coincide con el filtro activo
+            if (filterVip && p.isVip) matchesType = true;
+            if (filterTrialExpired && p.isTrialExpired) matchesType = true;
+
+            return matchesType;
+        });
+
+        // 3. Attribute Filters (VIP / Trial Expired)
+        if (filterVip || filterTrialExpired) {
             pts = pts.filter(p => {
-                if (statusFilter === 'suspended') return p.suspended || p.status === 'suspended';
-                if (statusFilter === 'active') return !p.suspended && p.status !== 'suspended' && p.status !== 'pending';
-                if (statusFilter === 'pending') return p.status === 'pending';
-                return true;
+                // If any modifier is active, the point must match at least one of the active modifiers
+                // This ensures VIP + Trial behave as an independent union overlay, not a strict intersection.
+                if (filterVip && p.isVip) return true;
+                if (filterTrialExpired && p.isTrialExpired) return true;
+                return false;
             });
         }
+
         setFiltered(pts);
-    }, [allPoints, selectedCountry, statusFilter]);
+    }, [allPoints, selectedCountry, showBusinesses, showClients, showProviders, filterVip, filterTrialExpired]);
 
-    const base = selectedCountry === 'ALL' ? allPoints : allPoints.filter(p => p.country === selectedCountry);
-    const activeCount = base.filter(p => !p.suspended && p.status !== 'suspended' && p.status !== 'pending').length;
-    const suspendedCount = base.filter(p => p.suspended || p.status === 'suspended').length;
-    const pendingCount = base.filter(p => p.status === 'pending').length;
-
+    const activeCount = filtered.length;
     const center: [number, number] = COUNTRY_CENTER[selectedCountry] ?? COUNTRY_CENTER.ALL;
     const zoom = COUNTRY_ZOOM[selectedCountry] ?? 5;
     const legend = colorBy === 'status' ? STATUS_LEGEND : PLAN_LEGEND;
+    const isLoading = loadingBiz || loadingUsr;
+
+    const toggleAllEntities = () => {
+        const anyOff = !showBusinesses || !showClients || !showProviders;
+        setShowBusinesses(anyOff);
+        setShowClients(anyOff);
+        setShowProviders(anyOff);
+        if (anyOff) {
+            setFilterVip(false);
+            setFilterTrialExpired(false);
+        }
+    };
 
     return (
         <>
             <div className="flex flex-col gap-3" style={{ height: 'calc(100vh - 110px)' }}>
 
                 {/* ── Header ── */}
-                <div className="flex flex-wrap items-center gap-3">
-                    <div>
+                <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
+                    <div className="mr-2">
                         <h1 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                             <Map size={20} className="text-[#14B8A6]" />
-                            {t('title')}
+                            {t('title') || 'CRM Visual Map'}
                             {/* Live indicator */}
                             <span className="flex items-center gap-1.5 text-[10px] font-normal text-green-400 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded-full">
                                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                                En vivo
+                                Live
                             </span>
                         </h1>
                         <p className="text-[11px] text-slate-500">
-                            {filtered.length} de {base.length} {t('businesses')}
+                            {activeCount} {t('businesses') || 'entidades'}
                             {selectedCountry !== 'ALL' && ` · ${selectedCountry}`}
-                            {lastUpdated && (
-                                <span className="ml-2 text-slate-600">
-                                    · Actualizado {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                                </span>
-                            )}
-                            {selectedId && <span className="ml-2 text-[#14B8A6]">· {t('panelOpen')}</span>}
                         </p>
                     </div>
 
-                    {/* Status filter pills */}
-                    <div className="flex gap-1.5 flex-wrap flex-1">
-                        {[
-                            { key: 'all', label: t('all'), count: base.length, dot: null },
-                            { key: 'active', label: t('active'), count: activeCount, dot: '#22c55e' },
-                            { key: 'suspended', label: t('suspended'), count: suspendedCount, dot: '#ef4444' },
-                            { key: 'pending', label: t('pending'), count: pendingCount, dot: '#f59e0b' },
-                        ].map(f => (
-                            <button key={f.key} onClick={() => setStatusFilter(f.key)}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all border ${statusFilter === f.key
-                                    ? 'border-slate-300 bg-slate-100 text-white'
-                                    : 'bg-white/3 border-slate-200 text-slate-400 hover:text-slate-800'
-                                    }`}>
-                                {f.dot && <span className="w-2 h-2 rounded-full" style={{ background: f.dot }} />}
-                                {f.label}
-                                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${f.count > 0 ? 'bg-slate-100 text-white' : 'bg-slate-50 text-slate-600'}`}>
-                                    {f.count}
-                                </span>
-                            </button>
-                        ))}
+                    <div className="h-8 w-px bg-slate-200 mx-1 hidden sm:block"></div>
+
+                    {/* Types Filters */}
+                    <div className="flex gap-1.5 flex-wrap">
+                        <button onClick={toggleAllEntities}
+                            className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">
+                            {t('filterTodos') || 'Todos'}
+                        </button>
+                        <button onClick={() => setShowBusinesses(!showBusinesses)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all border ${showBusinesses ? 'border-[#14B8A6] bg-[#14B8A6] text-white' : 'bg-white border-slate-200 text-slate-500'}`}>
+                            {t('filterNegocios') || 'Negocios'}
+                        </button>
+                        <button onClick={() => setShowClients(!showClients)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all border ${showClients ? 'border-blue-500 bg-blue-500 text-white' : 'bg-white border-slate-200 text-slate-500'}`}>
+                            {t('filterClient') || 'Clientes'}
+                        </button>
+                        <button onClick={() => setShowProviders(!showProviders)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all border ${showProviders ? 'border-emerald-500 bg-emerald-500 text-white' : 'bg-white border-slate-200 text-slate-500'}`}>
+                            {t('filterProvider') || 'Proveedores'}
+                        </button>
+                    </div>
+
+                    <div className="h-8 w-px bg-slate-200 mx-1 hidden sm:block"></div>
+
+                    {/* Attributes Filters */}
+                    <div className="flex gap-1.5 flex-wrap">
+                        <button onClick={() => setFilterVip(!filterVip)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${filterVip ? 'border-amber-500 bg-amber-500 text-white shadow-md shadow-amber-500/20' : 'bg-white border-amber-200 text-amber-600'}`}>
+                            👑 {t('filterVip') || 'VIP'}
+                        </button>
+                        <button onClick={() => setFilterTrialExpired(!filterTrialExpired)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${filterTrialExpired ? 'border-red-500 bg-red-500 text-white shadow-md shadow-red-500/20' : 'bg-white border-slate-200 text-slate-500'}`}>
+                            ⚠️ {t('filterTrialExpired') || 'Trial Expirado'}
+                        </button>
                     </div>
 
                     {/* ColorBy toggle */}
-                    <button onClick={() => setColorBy(c => c === 'status' ? 'plan' : 'status')}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-xl text-xs text-slate-600 transition-colors">
-                        {colorBy === 'status'
-                            ? <ToggleRight size={14} className="text-[#14B8A6]" />
-                            : <ToggleLeft size={14} />}
-                        {t('colorBy')}: <strong className="text-white">{colorBy === 'status' ? t('colorByStatus') : t('colorByPlan')}</strong>
-                    </button>
+                    <div className="ml-auto">
+                        <button onClick={() => setColorBy(c => c === 'status' ? 'plan' : 'status')}
+                            className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-xl text-xs text-slate-600 transition-colors">
+                            {colorBy === 'status' ? <ToggleRight size={14} className="text-[#14B8A6]" /> : <ToggleLeft size={14} />}
+                            {t('colorBy')}: <strong className="text-slate-900">{colorBy === 'status' ? t('colorByStatus') : t('colorByPlan')}</strong>
+                        </button>
+                    </div>
                 </div>
 
                 {/* ── Map ── */}
-                <div className="flex-1 border border-slate-200 rounded-2xl overflow-hidden relative shadow-xl">
-                    {loading ? (
+                <div className="flex-1 border border-slate-200 rounded-2xl overflow-hidden relative shadow-lg">
+                    {isLoading && filtered.length === 0 ? (
                         <div className="flex items-center justify-center h-full bg-slate-100">
-                            <div className="w-8 h-8 border-2 border-[#14B8A6]/30 border-t-[#14B8A6] rounded-full animate-spin" />
+                            <div className="flex flex-col items-center gap-3">
+                                <div className="w-8 h-8 border-2 border-[#14B8A6]/30 border-t-[#14B8A6] rounded-full animate-spin" />
+                                <p className="text-sm font-medium text-slate-500">Escaneando base de datos mundial...</p>
+                            </div>
                         </div>
                     ) : filtered.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-full bg-slate-100 gap-2">
-                            <Map size={32} className="text-slate-400" />
-                            <p className="text-sm text-slate-500">{t('noBusinesses')}</p>
+                        <div className="flex flex-col items-center justify-center h-full bg-slate-100 gap-2 p-6 text-center">
+                            <Map size={32} className="text-slate-300" />
+                            <p className="text-sm text-slate-600 font-semibold">{t('noResults') || 'No hay resultados con los filtros actuales'}</p>
+                            <p className="text-xs text-slate-400 max-w-sm">
+                                Verifica si has seleccionado un país donde estos datos existan o si la combinación de filtros devuelve un estado vacío.
+                            </p>
                         </div>
                     ) : (
                         <BusinessMap
@@ -215,12 +353,15 @@ export default function AdminMapPage() {
                             center={center}
                             zoom={zoom}
                             colorBy={colorBy}
-                            onSelect={(id) => setSelectedId(id)}
+                            onSelect={(id, pt) => {
+                                setSelectedId(id);
+                                setSelectedType(pt.type);
+                            }}
                         />
                     )}
 
                     {/* Floating legend */}
-                    <div className="absolute bottom-8 right-3 z-[1000] bg-white/95 backdrop-blur shadow-lg border border-slate-200 rounded-xl px-3 py-2.5 flex flex-col gap-1.5 text-[11px]">
+                    <div className="absolute bottom-8 right-3 z-[1000] bg-white/95 backdrop-blur shadow-lg border border-slate-200 rounded-xl px-3 py-2.5 flex flex-col gap-1.5 text-[11px] pointer-events-none">
                         <p className="text-slate-400 font-semibold uppercase tracking-wider text-[9px] mb-0.5">
                             {colorBy === 'status' ? t('byStatus') : t('byPlan')}
                         </p>
@@ -234,8 +375,8 @@ export default function AdminMapPage() {
                     </div>
 
                     {/* Click hint */}
-                    {!selectedId && !loading && filtered.length > 0 && (
-                        <div className="absolute bottom-8 left-4 z-[1000] bg-[#F4F6F8]/40 backdrop-blur text-slate-900 text-xs px-3 py-1.5 rounded-full">
+                    {!selectedId && !isLoading && filtered.length > 0 && (
+                        <div className="absolute bottom-8 left-4 z-[1000] bg-[#F4F6F8]/60 backdrop-blur text-slate-900 shadow-sm border border-slate-200 text-xs px-3 py-1.5 rounded-full pointer-events-none">
                             {t('clickHint')}
                         </div>
                     )}
@@ -243,8 +384,13 @@ export default function AdminMapPage() {
             </div>
 
             <BusinessPreviewPanel
-                businessId={selectedId}
-                onClose={() => setSelectedId(null)}
+                businessId={selectedType === 'business' && selectedId ? selectedId : null}
+                onClose={() => { setSelectedId(null); setSelectedType(null); }}
+            />
+
+            <UserPreviewPanel 
+                userId={selectedType === 'user' && selectedId ? selectedId : null}
+                onClose={() => { setSelectedId(null); setSelectedType(null); }}
             />
         </>
     );

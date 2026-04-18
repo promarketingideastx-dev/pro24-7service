@@ -4,17 +4,25 @@ import { useEffect, useRef } from 'react';
 
 export interface MapPoint {
     id?: string;
+    type: 'business' | 'user';
     lat: number;
     lng: number;
     name: string;
     city?: string;
     country?: string;
+    
+    // Business specific
     plan?: string;
     planSource?: string;
     category?: string;
     status?: string;
     suspended?: boolean;
     coverImage?: string;
+    
+    // User specific
+    userRole?: 'client' | 'provider';
+    isVip?: boolean;
+    isTrialExpired?: boolean;
 }
 
 type ColorBy = 'status' | 'plan';
@@ -32,6 +40,9 @@ const STATUS_COLOR: Record<string, string> = {
     suspended: '#ef4444',
     pending: '#f59e0b',
     default: '#60a5fa',
+    client: '#3b82f6',
+    provider: '#10b981',
+    expired: '#9ca3af',
 };
 
 const PLAN_COLOR: Record<string, string> = {
@@ -42,12 +53,20 @@ const PLAN_COLOR: Record<string, string> = {
 };
 
 function getStatusColor(p: MapPoint): string {
+    if (p.isVip) return PLAN_COLOR.vip;
+    
+    if (p.type === 'user') {
+        if (p.isTrialExpired) return STATUS_COLOR.expired;
+        return p.userRole === 'provider' ? STATUS_COLOR.provider : STATUS_COLOR.client;
+    }
     if (p.suspended || p.status === 'suspended') return STATUS_COLOR.suspended;
     if (p.status === 'pending') return STATUS_COLOR.pending;
     return STATUS_COLOR.active;
 }
 
 function getColor(p: MapPoint, colorBy: ColorBy): string {
+    if (p.isVip) return PLAN_COLOR.vip;
+    
     if (colorBy === 'plan') return PLAN_COLOR[p.plan ?? 'free'] ?? PLAN_COLOR.free;
     return getStatusColor(p);
 }
@@ -64,6 +83,11 @@ function categoryEmoji(cat?: string): string {
     if (c.includes('edu') || c.includes('school') || c.includes('acad')) return '📚';
     if (c.includes('legal') || c.includes('law')) return '⚖️';
     return '💼';
+}
+
+function getUserEmoji(role?: string): string {
+    if (role === 'provider') return '🧑‍🔧';
+    return '👤';
 }
 
 export default function BusinessMap({ points, center = [14.5, -86.5], zoom = 7, colorBy = 'status', onSelect }: BusinessMapProps) {
@@ -104,10 +128,12 @@ export default function BusinessMap({ points, center = [14.5, -86.5], zoom = 7, 
             // Add markers
             points.forEach(p => {
                 const color = getColor(p, colorBy);
-                const emoji = categoryEmoji(p.category);
-                const statusColor = getStatusColor(p);
+                const isUser = p.type === 'user';
+                const emoji = isUser ? getUserEmoji(p.userRole) : categoryEmoji(p.category);
                 const plan = p.plan?.toUpperCase() ?? 'FREE';
-                const statusLabel = p.suspended || p.status === 'suspended' ? 'Suspendido' : p.status === 'pending' ? 'Pendiente' : 'Activo';
+                
+                const isVip = p.isVip === true;
+                const isWarning = p.isTrialExpired === true || p.suspended === true || p.status === 'suspended';
 
                 // Marker: emoji icon with animated ripple — same as landing style
                 const icon = L.divIcon({
@@ -126,6 +152,7 @@ export default function BusinessMap({ points, center = [14.5, -86.5], zoom = 7, 
                                 border-radius:50%;
                                 background:${color}50;
                                 animation:mapPulse 2s ease-out infinite 0.4s;
+                                ${isWarning ? 'box-shadow: inset 0 0 10px rgba(239, 68, 68, 0.8); border: 2px solid #ef4444;' : ''}
                             "></div>
                             <!-- Icon circle -->
                             <div style="
@@ -138,12 +165,12 @@ export default function BusinessMap({ points, center = [14.5, -86.5], zoom = 7, 
                                 display:flex; align-items:center; justify-content:center;
                                 font-size:14px; line-height:1;
                                 overflow:hidden;
-                            ">${p.coverImage
+                            ">${p.coverImage && !isUser
                             ? `<img src="${p.coverImage}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display='none';this.nextSibling.style.display='flex';"/><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;">${emoji}</span>`
                             : emoji
                         }</div>
                             <!-- Crown badge for VIP collaborators -->
-                            ${p.planSource === 'collaborator_beta' ? `
+                            ${isVip ? `
                             <div style="
                                 position:absolute; top:-2px; right:-2px;
                                 width:16px; height:16px;
@@ -175,7 +202,7 @@ export default function BusinessMap({ points, center = [14.5, -86.5], zoom = 7, 
                     .bindTooltip(`
                         <div style="font-family:system-ui;padding:4px 2px;">
                             <strong style="font-size:13px;color:#111;">${p.name}</strong><br/>
-                            <span style="font-size:11px;color:#6b7280;">${p.city ?? ''}${p.city && p.country ? ', ' : ''}${p.country ?? ''}</span>
+                            <span style="font-size:11px;color:#6b7280;">${isUser ? (p.userRole === 'provider' ? 'Proveedor' : 'Cliente') : (p.city ?? '')}</span>
                         </div>`, { direction: 'top', offset: [0, -26], opacity: 1 });
             });
         })();
