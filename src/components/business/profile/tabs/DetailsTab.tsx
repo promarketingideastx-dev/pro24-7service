@@ -8,6 +8,7 @@ import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { AuthRequiredModal, AuthRequiredContext } from '@/components/public/AuthRequiredModal';
+import { getCountryConfig } from '@/lib/locations';
 
 const MapWidget = dynamic(() => import('@/components/ui/MapWidget'), {
     ssr: false,
@@ -78,7 +79,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                         <div>
                             <span className="block text-white font-medium mb-1">{t('location')}</span>
                             <span className="text-slate-400 text-sm">
-                                {business.locationV2?.displayAddress || business.locationV2?.address || business.location?.address || business.address || `${business.city || ''}, ${business.department || 'Honduras'}`}
+                                {business.locationV2?.displayAddress || business.locationV2?.address || business.location?.address || business.address || `${business.city || ''}, ${getCountryConfig((business.countryCode || business.country) as any)?.name || business.country || 'Honduras'}`}
                             </span>
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 import { X, MapPin, Star, MessageSquare, Phone, Lock, UserPlus, LogIn } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
+import { getCountryConfig } from '@/lib/locations';
 
 interface PublicBusinessPreviewModalProps {
     isOpen: boolean;
@@ -83,7 +84,7 @@ export default function PublicBusinessPreviewModal({ isOpen, onClose, business }
                     {/* Location */}
                     <div className="flex items-center gap-2 text-slate-300 text-sm">
                         <MapPin className="w-4 h-4 text-slate-500" />
-                        <span>{business.city || t('locationNotSpecified')}, Honduras</span>
+                        <span>{business.city || t('locationNotSpecified')}, {getCountryConfig((business.countryCode || business.country) as any)?.name || business.country || 'Honduras'}</span>
                     </div>
 
                     {/* Description */}

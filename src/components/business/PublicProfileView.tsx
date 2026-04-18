@@ -5,6 +5,7 @@ import RequestAppointmentModal from '@/components/public/RequestAppointmentModal
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { TAXONOMY } from '@/lib/taxonomy';
+import { getCountryConfig } from '@/lib/locations';
 
 interface PublicProfileViewProps {
     business: any;
@@ -77,7 +78,7 @@ export default function PublicProfileView({ business, onLogin, onRegister }: Pub
                 <div className="flex flex-col gap-2 text-slate-300 text-sm">
                     <div className="flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-slate-500" />
-                        <span>{business.city || 'Ubicación no especificada'}, Honduras</span>
+                        <span>{business.city || 'Ubicación no especificada'}, {getCountryConfig((business.countryCode || business.country) as any)?.name || business.country || 'Honduras'}</span>
                     </div>
                     {/* Website Link (Added) */}
                     {business.website && (
