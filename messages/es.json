@@ -1124,7 +1124,8 @@
     "languageLabel": "Idioma",
     "inactiveTitle": "País en preparación",
     "inactiveDesc": "Lo sentimos, este país aún no está disponible. Próximamente estaremos activos aquí.",
-    "availableNow": "Actualmente disponibles en:"
+    "availableNow": "Actualmente disponibles en:",
+    "inactiveLabel": "Pronto"
   },
   "collaborators": {
     "title": "VIP Colaboradores",

@@ -8,6 +8,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
+import { useAuth } from '@/context/AuthContext';
 
 const LOCALES = [
     { code: 'es', label: 'ES', flag: '🇪🇸' },
@@ -36,11 +37,13 @@ const COUNTRY_NAMES_PT: Record<string, string> = {
 
 export default function CountrySelector() {
     const { selectCountry } = useCountry();
+    const { userProfile, loading: authLoading } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
     const t = useTranslations('countrySelector');
     const locale = useLocale();
     const router = useRouter();
     const pathname = usePathname();
+    const isAdmin = userProfile?.roles?.admin === true;
 
     const [activeCountries, setActiveCountries] = useState<string[]>([]);
     const [settingsLoaded, setSettingsLoaded] = useState(false);
@@ -90,8 +93,8 @@ export default function CountrySelector() {
         : uniqueCountries;
 
     const handleSelect = (code: CountryCode, name: string, isAvailable: boolean) => {
-        if (!settingsLoaded) return;
-        if (isAvailable) {
+        if (!settingsLoaded || authLoading) return;
+        if (isAvailable || isAdmin) {
             selectCountry(code);
         } else {
             setInactiveModalItem({ code, name });
@@ -201,8 +204,8 @@ export default function CountrySelector() {
                                     
                                     {/* Inactive PRONTO badge */}
                                     {!isAvailable && (
-                                        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-1.5 py-[2px] rounded text-[8px] font-bold text-slate-500 shadow-sm border border-slate-100/80 z-10 transition-colors group-hover:text-cyan-600">
-                                            PRONTO
+                                        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-1.5 py-[2px] rounded text-[8px] font-bold text-slate-500 shadow-sm border border-slate-100/80 z-10 transition-colors group-hover:text-cyan-600 uppercase tracking-wider">
+                                            {t('inactiveLabel') || 'PRONTO'}
                                         </div>
                                     )}
 

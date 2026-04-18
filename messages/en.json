@@ -1123,7 +1123,8 @@
     "languageLabel": "Language",
     "inactiveTitle": "Country coming soon",
     "inactiveDesc": "We are sorry, this country is not available yet. We will be active here soon.",
-    "availableNow": "Currently available in:"
+    "availableNow": "Currently available in:",
+    "inactiveLabel": "Soon"
   },
   "collaborators": {
     "title": "VIP Collaborators",
