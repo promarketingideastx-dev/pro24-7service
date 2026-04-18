@@ -408,11 +408,17 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
 
         setLoading(true);
 
+        let bookingPayload: any = null;
         try {
             // CRM sync removed from client-side to prevent permission errors
             // The business CRM will lazily sync it when the owner views their clients.
 
-            // 1. Race condition check
+            // 1. Race condition check DELEGADA
+            // IMPORTANTE: El bloqueo prematuro causaba `permission-denied` porque el cliente no puede leer `bookings` del negocio
+            // TODO: El pintado gris de horarios ocupados en frontend (al elegir horario) deberá migrarse
+            // a una fuente permitida (idealmente la colección pública `slot_locks`) para no depender de lectura
+            // directa de `bookings` por parte del cliente.
+            /*
             const allowDoubleBooking = bookingSettings?.allowDoubleBooking || false;
             if (!allowDoubleBooking) {
                 const occupiedNow = await BookingService.getOccupiedSlots(businessId, selectedDate);
@@ -426,6 +432,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                     return;
                 }
             }
+            */
 
             // Calculo de abono
             const totalAmount = selectedService.price || 0;
@@ -438,7 +445,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 }
             }
 
-            const bookingPayload = {
+            bookingPayload = {
                 businessId,
                 clientId: user.uid,
                 clientName: data.name,
@@ -520,6 +527,8 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
             );
 
             // 4. Send Instant Push Notification to Business
+            // FASE 1: DESHABILITADO
+            /*
             fetch('/api/push-business', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -530,6 +539,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                     url: `/${localeKey}/business/agenda?bookingId=${booking.id}`
                 })
             }).catch(e => console.error('[Push Business Error]', e));
+            */
 
             toast.success(t('requestSent'));
             onClose();
@@ -541,13 +551,19 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
             setProofFile(null);
 
         } catch (error: any) {
+            // ======================================
+            // DIAGNÓSTICO QUIRÚRGICO OBLIGATORIO
+            // ======================================
             console.error("DIAGNÓSTICO QUIRÚRGICO DE SUBMIT:", {
-                authUid: auth.currentUser?.uid || 'NULL',
-                authEmail: auth.currentUser?.email || 'NULL',
-                payloadSnippet: { serviceId: selectedService.id, businessId, date: selectedDate, time: selectedTime },
-                errorCode: error?.code,
-                errorMessage: error?.message,
-                errorStack: error?.stack
+                uid_cliente: user?.uid || 'NULL',
+                pais_cliente: userProfile?.country_code || userProfile?.userLocation?.countryCode || 'DESCONOCIDO',
+                businessId: businessId,
+                // Request country info could be added if populated
+                payload_final_createBooking: bookingPayload,
+                error_code: error?.code,
+                error_message: error?.message,
+                path_exacto: error?.customData?.method || 'N/A', // If visible in error
+                error_stack: error?.stack
             });
 
             // Diagnóstico explícito del Token

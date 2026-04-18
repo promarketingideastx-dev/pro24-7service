@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
             const batch = sdk.db.batch();
 
             // 1. Instant Internal Push to Business
-            const bizNotifRef = sdk.db.collection('businesses').doc(businessId).collection('notifications').doc();
+            const bizNotifRef = sdk.db.collection('business_notifications').doc(businessId).collection('items').doc();
             batch.set(bizNotifRef, {
                 title: 'Nueva Cita Recibida',
                 body: `${clientName} ha agendado: ${serviceName}`,
@@ -80,6 +80,8 @@ export async function POST(req: NextRequest) {
             });
 
             // 2. Queue Single Immediate Email to Business
+            // FASE 1: DESHABILITADO SEGÚN APROBACIÓN (No emails/push todavía)
+            /*
             if (businessEmail) {
                 const queueRef = sdk.db.collection('notification_queue').doc();
                 batch.set(queueRef, {
@@ -94,6 +96,7 @@ export async function POST(req: NextRequest) {
                     createdAt: new Date()
                 });
             }
+            */
             
             await batch.commit();
             return NextResponse.json({ ok: true });
@@ -109,7 +112,7 @@ export async function POST(req: NextRequest) {
             const batch = sdk.db.batch();
 
             // 1. Instant Push to Client
-            const clientNotifRef = sdk.db.collection('users').doc(clientId).collection('notifications').doc();
+            const clientNotifRef = sdk.db.collection('client_notifications').doc(clientId).collection('items').doc();
             batch.set(clientNotifRef, {
                 title: 'Cita Solicitada',
                 body: `Tu cita para ${serviceName} con ${businessName} fue enviada.`,
@@ -121,6 +124,8 @@ export async function POST(req: NextRequest) {
             });
 
             // 2. Queue Single Immediate Email
+            // FASE 1: DESHABILITADO SEGÚN APROBACIÓN
+            /*
             if (clientEmail) {
                 const queueRef = sdk.db.collection('notification_queue').doc();
                 batch.set(queueRef, {
@@ -135,6 +140,7 @@ export async function POST(req: NextRequest) {
                     createdAt: new Date()
                 });
             }
+            */
 
             await batch.commit();
             return NextResponse.json({ ok: true });
@@ -149,7 +155,7 @@ export async function POST(req: NextRequest) {
 
             const batch = sdk.db.batch();
 
-            const clientNotifRef = sdk.db.collection('users').doc(clientId).collection('notifications').doc();
+            const clientNotifRef = sdk.db.collection('client_notifications').doc(clientId).collection('items').doc();
             batch.set(clientNotifRef, {
                 title: newStatus === 'confirmed' ? 'Cita Confirmada' : 'Cita Cancelada',
                 body: newStatus === 'confirmed' 
@@ -162,6 +168,8 @@ export async function POST(req: NextRequest) {
                 read: false
             });
 
+            // FASE 1: DESHABILITADO SEGÚN APROBACIÓN
+            /*
             if (clientEmail) {
                 if (newStatus === 'confirmed') {
                     // Reminders
@@ -198,6 +206,7 @@ export async function POST(req: NextRequest) {
                     });
                 }
             }
+            */
 
             await batch.commit();
             return NextResponse.json({ ok: true });
@@ -212,7 +221,7 @@ export async function POST(req: NextRequest) {
 
             const batch = sdk.db.batch();
 
-            const clientNotifRef = sdk.db.collection('users').doc(clientId).collection('notifications').doc();
+            const clientNotifRef = sdk.db.collection('client_notifications').doc(clientId).collection('items').doc();
             batch.set(clientNotifRef, {
                 title: newStatus === 'proof_approved' ? 'Pago Confirmado' : 'Comprobante Rechazado',
                 body: newStatus === 'proof_approved'
@@ -225,6 +234,8 @@ export async function POST(req: NextRequest) {
                 read: false
             });
 
+            // FASE 1: DESHABILITADO SEGÚN APROBACIÓN
+            /*
             if (clientEmail) {
                 if (newStatus === 'proof_rejected') {
                     // Reminders
@@ -261,6 +272,7 @@ export async function POST(req: NextRequest) {
                     });
                 }
             }
+            */
 
             await batch.commit();
             return NextResponse.json({ ok: true });
@@ -275,7 +287,7 @@ export async function POST(req: NextRequest) {
 
             const batch = sdk.db.batch();
 
-            const bizNotifRef = sdk.db.collection('businesses').doc(businessId).collection('notifications').doc();
+            const bizNotifRef = sdk.db.collection('business_notifications').doc(businessId).collection('items').doc();
             batch.set(bizNotifRef, {
                 title: 'Nuevo Comprobante Recibido',
                 body: `${clientName} ha subido el pago. Requiere tu revisión.`,
@@ -286,6 +298,8 @@ export async function POST(req: NextRequest) {
                 read: false
             });
 
+            // FASE 1: DESHABILITADO SEGÚN APROBACIÓN
+            /*
             if (businessEmail) {
                 // Reminders
                 const scheduleOffsets = [0, 15, 30, 45];
@@ -308,6 +322,7 @@ export async function POST(req: NextRequest) {
                     });
                 }
             }
+            */
 
             await batch.commit();
             return NextResponse.json({ ok: true });

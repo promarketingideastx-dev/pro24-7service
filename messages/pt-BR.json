@@ -1039,6 +1039,10 @@
     }
   },
   "userProfile": {
+    "notifications": {
+      "title": "Notificações",
+      "empty": "Sem notificações no momento"
+    },
     "reauth": {
       "confirmIdentity": "Confirme sua identidade",
       "deleteAccount": "Excluir conta"

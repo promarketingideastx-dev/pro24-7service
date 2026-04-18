@@ -22,6 +22,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { PlacesLocationPicker, LocationResult } from '@/components/business/setup/PlacesLocationPicker';
 import { getCountryConfig } from '@/lib/locations';
 import { ActiveCountry } from '@/lib/activeCountry';
+import ClientNotifBell from '@/components/user/ClientNotifBell';
 
 export default function UserProfilePage() {
     const { user, userProfile } = useAuth();
@@ -339,9 +340,12 @@ export default function UserProfilePage() {
                 <Link href="/">
                     <img src="/logo-header.png" alt="Pro24/7" className="h-10 w-auto object-contain drop-shadow-sm" style={{ maxWidth: '160px' }} />
                 </Link>
-                <button type="button" onClick={() => router.push(`/${locale}`)} className="text-sm font-bold text-slate-500 hover:text-[#14B8A6] transition-colors">
-                    {t('back')}
-                </button>
+                <div className="flex items-center gap-4">
+                    {user?.uid && <ClientNotifBell clientId={user.uid} />}
+                    <button type="button" onClick={() => router.push(`/${locale}`)} className="text-sm font-bold text-slate-500 hover:text-[#14B8A6] transition-colors">
+                        {t('back')}
+                    </button>
+                </div>
             </div>
 
             <div className="max-w-3xl mx-auto px-6 py-10 space-y-8">
