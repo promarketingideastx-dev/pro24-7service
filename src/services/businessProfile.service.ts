@@ -515,7 +515,17 @@ export const BusinessProfileService = {
                 openingHours: data.openingHours || null,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
-                planData: planData
+                planData: planData,
+                paymentSettings: {
+                    acceptsCash: true,
+                    acceptsBankTransfer: false,
+                    acceptsDigitalWallet: false,
+                    requiresDeposit: false,
+                    depositType: 'fixed',
+                    depositValue: 0,
+                    paymentProofRequired: false,
+                    depositNotes: ''
+                }
             };
 
             // 6. Prepare Private Payload (Sensitive info)
@@ -531,7 +541,17 @@ export const BusinessProfileService = {
                 coverImage: data.coverImage || null,
                 socialMedia: data.socialMedia || { instagram: '', facebook: '', tiktok: '' },
                 verificationStatus: 'pending',
-                updatedAt: serverTimestamp()
+                updatedAt: serverTimestamp(),
+                paymentSettings: {
+                    acceptsCash: true,
+                    acceptsBankTransfer: false,
+                    acceptsDigitalWallet: false,
+                    requiresDeposit: false,
+                    depositType: 'fixed',
+                    depositValue: 0,
+                    paymentProofRequired: false,
+                    depositNotes: ''
+                }
             };
 
             // 7. Batch Writes
