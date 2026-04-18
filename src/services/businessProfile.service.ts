@@ -652,7 +652,17 @@ export const BusinessProfileService = {
                         icon: '💼',
                         logoUrl: data.logoUrl || null, // Real business photo from Firebase Storage
                         color: 'bg-blue-500',
-                        description: data.shortDescription || ''
+                        description: data.shortDescription || '',
+                        paymentSettings: data.paymentSettings || {
+                            acceptsCash: true,
+                            acceptsBankTransfer: false,
+                            acceptsDigitalWallet: false,
+                            requiresDeposit: false,
+                            depositType: 'fixed',
+                            depositValue: 0,
+                            paymentProofRequired: false,
+                            depositNotes: ''
+                        }
                     } as any;
                 })
                 .filter(biz => {
@@ -714,7 +724,17 @@ export const BusinessProfileService = {
                     // Ensure these fields exist or are consistent
                     website: data.website || '',
                     gallery: data.gallery || [], // Map if needed, but usually images/gallery
-                    description: data.shortDescription || data.description || ''
+                    description: data.shortDescription || data.description || '',
+                    paymentSettings: data.paymentSettings || {
+                        acceptsCash: true,
+                        acceptsBankTransfer: false,
+                        acceptsDigitalWallet: false,
+                        requiresDeposit: false,
+                        depositType: 'fixed',
+                        depositValue: 0,
+                        paymentProofRequired: false,
+                        depositNotes: ''
+                    }
                 };
             }
 
