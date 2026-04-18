@@ -58,8 +58,12 @@ export default function CountrySelector() {
                 }
             } else {
                 // Fallback safe visual set if no settings exist
-                setActiveCountries(['HN', 'MX', 'US', 'ES']);
+                setActiveCountries(['HN', 'US']);
             }
+            setSettingsLoaded(true);
+        }, (err) => {
+            console.error("Firestore Error on crm_settings:", err);
+            setActiveCountries(['HN', 'US']);
             setSettingsLoaded(true);
         });
         return () => unsub();

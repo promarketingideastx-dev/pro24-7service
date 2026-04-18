@@ -143,6 +143,8 @@ service cloud.firestore {
         allow create: if isAuthenticated() && request.resource.data.authorId == request.auth.uid;
         // Strict precedence
         allow update, delete: if (isAuthenticated() && resource.data.authorId == request.auth.uid) || isAdmin();
+    }
+    
     // 6) CRM SETTINGS
     match /crm_settings/{document=**} {
         allow read: if true;
