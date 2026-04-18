@@ -229,34 +229,51 @@ export const BookingService = {
         try {
             const snap = await getDocs(q);
             const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingDocument));
-            return items.filter(b => b.hiddenByBusiness !== true);
+            const visibleItems = items.filter(b => b.hiddenByBusiness !== true);
+            return visibleItems.sort((a, b) => {
+                if (a.date === b.date) return (b.time || '').localeCompare(a.time || '');
+                return (b.date || '').localeCompare(a.date || '');
+            });
         } catch (e) {
              const fallbackQ = query(collection(db, COLLECTION_NAME), where('businessId', '==', businessId));
              const snap = await getDocs(fallbackQ);
              const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingDocument));
              const visibleItems = items.filter(b => b.hiddenByBusiness !== true);
              return visibleItems.sort((a, b) => {
-                 if (a.date === b.date) return b.time.localeCompare(a.time);
-                 return b.date.localeCompare(a.date);
+                 if (a.date === b.date) return (b.time || '').localeCompare(a.time || '');
+                 return (b.date || '').localeCompare(a.date || '');
              });
         }
     },
 
     /**
      * Get Occupied Slots for a specific date (used for Double Booking check)
+     * SECURE FIX: Now calls the internal Next.js API directly to bypass Firestore client rules securely.
      */
     async getOccupiedSlots(businessId: string, date: string): Promise<string[]> {
-        const q = query(
-            collection(db, COLLECTION_NAME),
-            where('businessId', '==', businessId),
-            where('date', '==', date)
-        );
-        const snap = await getDocs(q);
-        const docs = snap.docs.map(doc => doc.data() as BookingDocument);
-        
-        // Strict filtering: ONLY pending or confirmed block the slot
-        const occupied = docs.filter(b => b.status === 'pending' || b.status === 'confirmed');
-        return occupied.map(b => b.time);
+        try {
+            const response = await fetch(`/api/booking/occupied?businessId=${businessId}&date=${date}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                // Next.js App Router specific options to avoid caching availability
+                cache: 'no-store' 
+            });
+
+            if (!response.ok) {
+                console.error('[BookingService] Failed to validate occupied slots via secure API. Status:', response.status);
+                return []; // fallback so frontend doesn't crash, but it acts as open. (backend still protects)
+            }
+
+            const data = await response.json();
+            return data.occupied || [];
+            
+        } catch (error) {
+            console.error('[BookingService] Error fetching occupied slots from API:', error);
+            // Default to empty so the UI doesn't crash on network failure
+            return [];
+        }
     },
 
     /**
@@ -293,10 +310,11 @@ export const BookingService = {
         
         return onSnapshot(q, (snap) => {
             const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingDocument));
+            const visibleItems = items.filter(b => b.hiddenByBusiness !== true);
             // Memory sort matches the legacy getByBusiness fallback approach safely
-            const sorted = items.sort((a, b) => {
-                if (a.date === b.date) return b.time.localeCompare(a.time);
-                return b.date.localeCompare(a.date);
+            const sorted = visibleItems.sort((a, b) => {
+                if (a.date === b.date) return (b.time || '').localeCompare(a.time || '');
+                return (b.date || '').localeCompare(a.date || '');
             });
             callback(sorted);
         }, (error) => {

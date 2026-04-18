@@ -413,26 +413,23 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
             // CRM sync removed from client-side to prevent permission errors
             // The business CRM will lazily sync it when the owner views their clients.
 
-            // 1. Race condition check DELEGADA
-            // IMPORTANTE: El bloqueo prematuro causaba `permission-denied` porque el cliente no puede leer `bookings` del negocio
-            // TODO: El pintado gris de horarios ocupados en frontend (al elegir horario) deberá migrarse
-            // a una fuente permitida (idealmente la colección pública `slot_locks`) para no depender de lectura
-            // directa de `bookings` por parte del cliente.
-            /*
+            // 1. Race condition check (NOW SECURE via Server API)
+            // Evaluamos la disponibilidad real un instante antes de enviar el payload
             const allowDoubleBooking = bookingSettings?.allowDoubleBooking || false;
             if (!allowDoubleBooking) {
                 const occupiedNow = await BookingService.getOccupiedSlots(businessId, selectedDate);
                 if (occupiedNow.includes(selectedTime)) {
-                    toast.error(localeKey === 'en' ? 'Someone just booked this time slot. Please choose another.' : 
-                                localeKey === 'pt' ? 'Alguém acabou de agendar este horário. Por favor, escolha outro.' : 
-                                'Alguien acaba de reservar este espacio. Por favor elige otro horario.');
                     setOccupiedSlots(occupiedNow);
                     setSelectedTime('');
+                    
+                    // Retrocedemos visualmente al calendario si el usuario estaba en Payment o Contact
+                    if (step !== 'datetime') {
+                        setStep('datetime');
+                    }
                     setLoading(false);
                     return;
                 }
             }
-            */
 
             // Calculo de abono
             const totalAmount = selectedService.price || 0;
