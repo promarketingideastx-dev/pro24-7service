@@ -339,15 +339,45 @@ export default function AdminBusinessesPage() {
                                                     <PlanDropdown business={b} planLabels={planLabels} planOptions={planOptions} onChanged={load} />
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    {isSuspended ? (
-                                                        <span className="flex items-center gap-1 text-xs text-red-400">
-                                                            <XCircle size={12} /> {t('suspended')}
-                                                        </span>
-                                                    ) : (
-                                                        <span className="flex items-center gap-1 text-xs text-green-400">
-                                                            <CheckCircle size={12} /> {t('active')}
-                                                        </span>
-                                                    )}
+                                                    {(() => {
+                                                        const pStatus = b.planData?.planStatus || 'active';
+                                                        const isTrialExpired = pStatus === 'trial' && (b.planData as any)?.trialEndDate && new Date((b.planData as any).trialEndDate).getTime() < Date.now();
+                                                        
+                                                        if (isSuspended) {
+                                                            return (
+                                                                <span className="flex items-center gap-1 text-xs text-red-400">
+                                                                    <XCircle size={12} /> {t('suspended')}
+                                                                </span>
+                                                            );
+                                                        }
+                                                        if (pStatus === 'canceled') {
+                                                            return (
+                                                                <span className="flex items-center gap-1 text-xs font-semibold text-amber-500">
+                                                                    <XCircle size={12} /> {t('statusCanceled')}
+                                                                </span>
+                                                            );
+                                                        }
+                                                        if (pStatus === 'expired' || isTrialExpired) {
+                                                            return (
+                                                                <span className="flex items-center gap-1 text-xs font-semibold text-orange-400">
+                                                                    <XCircle size={12} /> {t('statusExpired')}
+                                                                </span>
+                                                            );
+                                                        }
+                                                        if (pStatus === 'trial') {
+                                                            return (
+                                                                <span className="flex items-center gap-1 text-xs font-semibold text-blue-400">
+                                                                    <CheckCircle size={12} /> {t('statusTrial')}
+                                                                </span>
+                                                            );
+                                                        }
+                                                        
+                                                        return (
+                                                            <span className="flex items-center gap-1 text-xs text-green-400">
+                                                                <CheckCircle size={12} /> {t('active')}
+                                                            </span>
+                                                        );
+                                                    })()}
                                                 </td>
                                                 <td className="px-4 py-3 text-xs text-slate-500">{createdDate ?? '—'}</td>
                                                 <td className="px-4 py-3 text-right">

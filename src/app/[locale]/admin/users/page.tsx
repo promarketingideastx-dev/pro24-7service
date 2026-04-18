@@ -315,8 +315,8 @@ export default function AdminUsersPage() {
                 u.displayName?.toLowerCase().includes(q)
             );
         }
-        if (filter === 'providers') result = result.filter(u => u.isProvider === true);
-        if (filter === 'clients') result = result.filter(u => !u.isProvider);
+        if (filter === 'providers') result = result.filter(u => u.roles?.provider === true || u.isProvider === true);
+        if (filter === 'clients') result = result.filter(u => !u.roles?.provider && !u.isProvider);
         if (filter === 'banned') result = result.filter(u => u.isBanned === true);
         if (filter === 'new') result = result.filter(u => toMs(u.createdAt) > thirtyDaysAgo);
         setFiltered(result);
@@ -326,8 +326,8 @@ export default function AdminUsersPage() {
     const now = Date.now();
     const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
     const toMs = (ts: any) => ts?.toMillis?.() ?? (ts?.seconds ? ts.seconds * 1000 : 0);
-    const providers = users.filter(u => u.isProvider).length;
-    const clients = users.filter(u => !u.isProvider).length;
+    const providers = users.filter(u => u.roles?.provider === true || u.isProvider === true).length;
+    const clients = users.filter(u => !u.roles?.provider && !u.isProvider).length;
     const newLast30 = users.filter(u => toMs(u.createdAt) > thirtyDaysAgo).length;
     const banned = users.filter(u => u.isBanned).length;
 
@@ -414,7 +414,7 @@ export default function AdminUsersPage() {
                             </thead>
                             <tbody className="divide-y divide-white/5">
                                 {filtered.map(u => {
-                                    const role = u.isAdmin ? 'admin' : u.isProvider ? 'provider' : 'client';
+                                    const role = ((u.roles as any)?.ceo || u.roles?.admin || u.isAdmin) ? 'admin' : (u.roles?.provider || u.isProvider) ? 'provider' : 'client';
                                     const createdDate = u.createdAt?.toDate?.()?.toLocaleDateString('es-HN', { day: 'numeric', month: 'short', year: 'numeric' });
                                     const lastLogin = u.lastLogin?.toDate?.()?.toLocaleDateString('es-HN', { day: 'numeric', month: 'short' });
                                     const initial = u.displayName?.charAt(0) ?? u.email?.charAt(0) ?? '?';
@@ -442,7 +442,7 @@ export default function AdminUsersPage() {
                                                     <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${ROLE_BADGE[role]}`}>
                                                         {role === 'admin' ? '🛡️ Admin' : role === 'provider' ? '🏢 Proveedor' : '👤 Cliente'}
                                                     </span>
-                                                    {u.isVip && (
+                                                    {(u.isVip || ((u as any).subscription && (u as any).subscription.plan === 'vip')) && (
                                                         <span title="VIP Colaborador">
                                                             <Crown size={14} className="text-amber-500" />
                                                         </span>
