@@ -188,15 +188,22 @@ export default function CountrySelector() {
                                     onClick={() => handleSelect(country.code, cName, isAvailable)}
                                     className={`
                                         group relative flex flex-col items-center gap-2 p-2 sm:p-3 rounded-2xl
-                                        bg-white border transition-all duration-200
+                                        border transition-all duration-200
                                         ${isAvailable 
-                                            ? 'border-slate-200 hover:bg-slate-50 hover:border-[#14B8A6]/30 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(20,184,166,0.12)] active:scale-95' 
-                                            : 'border-slate-100 opacity-60 hover:opacity-100 grayscale hover:grayscale-0 hover:border-slate-200 hover:bg-slate-50 active:scale-95'}
+                                            ? 'bg-white border-slate-200 hover:bg-slate-50 hover:border-[#14B8A6]/30 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(20,184,166,0.12)] active:scale-95' 
+                                            : 'bg-slate-50/50 border-slate-100/50 opacity-80 hover:opacity-100 hover:bg-slate-50 active:scale-95'}
                                     `}
                                 >
                                     {/* Active launch dot */}
                                     {isAvailable && (
                                         <span className="absolute top-2 right-2 w-[5px] h-[5px] rounded-full bg-cyan-400 align-top shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+                                    )}
+                                    
+                                    {/* Inactive PRONTO badge */}
+                                    {!isAvailable && (
+                                        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-1.5 py-[2px] rounded text-[8px] font-bold text-slate-500 shadow-sm border border-slate-100/80 z-10 transition-colors group-hover:text-cyan-600">
+                                            PRONTO
+                                        </div>
                                     )}
 
                                     {/* Flag — Scaled down for 3-col grid */}
