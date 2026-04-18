@@ -69,9 +69,10 @@ export default function SettingsPage() {
             await setDoc(doc(db, 'crm_settings', 'global'), {
                 ...settings,
                 updatedAt: serverTimestamp(),
-            });
+            }, { merge: true });
             toast.success(t('saved'));
-        } catch {
+        } catch (e) {
+            console.error('[Settings] Error saving:', e);
             toast.error(t('saveError'));
         } finally {
             setSaving(false);
