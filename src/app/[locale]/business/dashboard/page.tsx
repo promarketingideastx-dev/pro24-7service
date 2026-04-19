@@ -35,12 +35,12 @@ function buildWeeklyRevenue(appointments: BookingDocument[]): { label: string; a
     const now = new Date();
     const weeks: { label: string; amount: number }[] = [];
     for (let i = 7; i >= 0; i--) {
-        const weekStart = startOfWeek(addDays(now, -i * 7), { weekStartsOn: 1 });
-        const weekEnd = addDays(weekStart, 6);
+        const weekStart = startOfDay(startOfWeek(addDays(now, -i * 7), { weekStartsOn: 1 }));
+        const weekEnd = endOfDay(addDays(weekStart, 6));
         const label = format(weekStart, 'd MMM', { locale: es });
         const amount = appointments
             .filter(a => {
-                const d = new Date(a.date + 'T' + (a.time || '00:00'));
+                const d = new Date(`${a.date}T12:00:00`);
                 return (a.status === 'confirmed' || a.status === 'completed') &&
                     d >= weekStart && d <= weekEnd;
             })
@@ -104,41 +104,38 @@ export default function DashboardPage() {
         if (!user?.uid) return;
         try {
             const now = new Date();
-            const todayStart = new Date(now); todayStart.setHours(0, 0, 0, 0);
-            const todayEnd = new Date(now); todayEnd.setHours(23, 59, 59, 999);
+            const todayStr = format(now, 'yyyy-MM-dd');
+            const thisMonthPrefix = format(now, 'yyyy-MM');
+            const prevMonthPrefix = format(subMonths(now, 1), 'yyyy-MM');
 
-            const thisMonthStart = startOfMonth(now);
-            const thisMonthEnd = endOfMonth(now);
-            const prevMonthStart = startOfMonth(subMonths(now, 1));
-            const prevMonthEnd = endOfMonth(subMonths(now, 1));
-
-            const customers = await CustomerService.getCustomers(user.uid);
+            // Use only active customers
+            const rawCustomers = await CustomerService.getCustomers(user.uid);
+            const activeCustomers = rawCustomers.filter(c => !c.archived);
 
             const pending = allApts.filter(b => b.status === 'pending');
 
+            // Today's appointments (confirmed or completed)
             const todayCount = allApts.filter(a => {
-                const d = new Date(a.date + 'T' + (a.time || '00:00'));
-                return a.status === 'confirmed' && d >= todayStart && d <= todayEnd;
+                return (a.status === 'confirmed' || a.status === 'completed') && a.date === todayStr;
             }).length;
 
+            // This month's revenue
             const monthRevenue = allApts
                 .filter(a => {
-                    const d = new Date(a.date + 'T' + (a.time || '00:00'));
-                    return (a.status === 'confirmed' || a.status === 'completed') &&
-                        d >= thisMonthStart && d <= thisMonthEnd;
+                    return (a.status === 'confirmed' || a.status === 'completed') && a.date.startsWith(thisMonthPrefix);
                 })
                 .reduce((sum, a) => sum + (a.totalAmount || 0), 0);
 
+            // Previous month's revenue
             const prevMonthRevenue = allApts
                 .filter(a => {
-                    const d = new Date(a.date + 'T' + (a.time || '00:00'));
-                    return (a.status === 'confirmed' || a.status === 'completed') &&
-                        d >= prevMonthStart && d <= prevMonthEnd;
+                    return (a.status === 'confirmed' || a.status === 'completed') && a.date.startsWith(prevMonthPrefix);
                 })
                 .reduce((sum, a) => sum + (a.totalAmount || 0), 0);
 
+            // Last 30 days for confirmation rate
             const last30 = allApts.filter(a => {
-                const d = new Date(a.date + 'T' + (a.time || '00:00'));
+                const d = new Date(`${a.date}T12:00:00`);
                 const ago = new Date(); ago.setDate(ago.getDate() - 30);
                 return d >= ago;
             });
@@ -148,7 +145,7 @@ export default function DashboardPage() {
             setStats({
                 todayCount,
                 pendingCount: pending.length,
-                clientCount: customers.length,
+                clientCount: activeCustomers.length,
                 monthRevenue,
                 prevMonthRevenue,
                 confirmationRate,

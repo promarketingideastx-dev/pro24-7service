@@ -420,7 +420,7 @@
     },
     "nav": {
       "dashboard": "Dashboard",
-      "agenda": "Agenda",
+      "agenda": "Calendario de Citas",
       "clients": "Clientes",
       "services": "Mis Servicios",
       "team": "Equipo",
@@ -459,7 +459,7 @@
       "appts": "citas",
       "quickActions": "Acciones Rápidas",
       "viewClients": "Ver Clientes",
-      "goToAgenda": "Ir a Agenda"
+      "goToAgenda": "Calendario de Citas"
     },
     "clients": {
       "title": "Clientes",
