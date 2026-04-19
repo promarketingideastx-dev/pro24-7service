@@ -96,7 +96,7 @@ export default function NotificationBanner() {
     };
 
     return (
-        <div className="fixed bottom-20 left-4 right-4 z-50 bg-slate-900 border border-teal-500/30 rounded-2xl shadow-2xl p-4 flex items-start gap-3 animate-slide-up">
+        <div className="fixed bottom-20 left-4 right-4 md:bottom-8 md:left-auto md:right-8 md:w-96 z-50 bg-slate-900 border border-teal-500/30 rounded-2xl shadow-2xl p-4 flex items-start gap-3 animate-slide-up">
             <div className="w-9 h-9 rounded-full bg-teal-500/20 flex items-center justify-center shrink-0 mt-0.5">
                 <Bell className="w-4 h-4 text-teal-400" />
             </div>
