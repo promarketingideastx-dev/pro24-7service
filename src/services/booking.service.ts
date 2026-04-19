@@ -69,25 +69,6 @@ export const BookingService = {
         const slotLockRef = doc(db, 'businesses', bookingData.businessId, 'slot_locks', `${bookingData.date}_${bookingData.time}`);
         const bookingRef = doc(collection(db, COLLECTION_NAME));
 
-        // FASE B - AUTOHEAL GHOST SLOTS
-        if (!allowDoubleBooking) {
-            const currentLock = await getDoc(slotLockRef);
-            if (currentLock.exists() && (currentLock.data().active || 0) > 0) {
-                const q = query(
-                     collection(db, COLLECTION_NAME), 
-                     where('businessId', '==', bookingData.businessId),
-                     where('date', '==', bookingData.date),
-                     where('time', '==', bookingData.time),
-                     where('status', 'in', ['pending', 'confirmed'])
-                );
-                const snap = await getDocs(q);
-                if (snap.empty) {
-                     // Ghost Slot Detected! The UI was right, the transaction lock is orphaned. Heal it explicitly.
-                     await updateDoc(slotLockRef, { active: 0 });
-                }
-            }
-        }
-
         await runTransaction(db, async (transaction) => {
             const slotDoc = await transaction.get(slotLockRef);
             const activeCount = slotDoc.exists() ? (slotDoc.data().active || 0) : 0;
@@ -149,22 +130,6 @@ export const BookingService = {
         
         const slotLockRef = doc(db, 'businesses', bookingData.businessId as string, 'slot_locks', `${bookingData.date}_${bookingData.time}`);
         const bookingRef = doc(collection(db, COLLECTION_NAME));
-
-        // FASE B - AUTOHEAL GHOST SLOTS (Admin bypass fallback healing)
-        const currentLock = await getDoc(slotLockRef);
-        if (currentLock.exists() && (currentLock.data().active || 0) > 0) {
-            const q = query(
-                 collection(db, COLLECTION_NAME), 
-                 where('businessId', '==', bookingData.businessId),
-                 where('date', '==', bookingData.date),
-                 where('time', '==', bookingData.time),
-                 where('status', 'in', ['pending', 'confirmed'])
-            );
-            const snap = await getDocs(q);
-            if (snap.empty) {
-                 await updateDoc(slotLockRef, { active: 0 });
-            }
-        }
 
         await runTransaction(db, async (transaction) => {
             const slotDoc = await transaction.get(slotLockRef);
@@ -320,9 +285,10 @@ export const BookingService = {
      * Get Occupied Slots for a specific date (used for Double Booking check)
      * SECURE FIX: Now calls the internal Next.js API directly to bypass Firestore client rules securely.
      */
-    async getOccupiedSlots(businessId: string, date: string): Promise<string[]> {
+    async getOccupiedSlots(businessId: string, date: string, time?: string): Promise<string[]> {
         try {
-            const response = await fetch(`/api/booking/occupied?businessId=${businessId}&date=${date}`, {
+            const url = `/api/booking/occupied?businessId=${businessId}&date=${date}${time ? `&time=${time}` : ''}`;
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

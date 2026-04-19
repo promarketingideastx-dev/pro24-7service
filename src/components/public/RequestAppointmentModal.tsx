@@ -417,7 +417,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
             // Evaluamos la disponibilidad real un instante antes de enviar el payload
             const allowDoubleBooking = bookingSettings?.allowDoubleBooking || false;
             if (!allowDoubleBooking) {
-                const occupiedNow = await BookingService.getOccupiedSlots(businessId, selectedDate);
+                const occupiedNow = await BookingService.getOccupiedSlots(businessId, selectedDate, selectedTime);
                 if (occupiedNow.includes(selectedTime)) {
                     setOccupiedSlots(occupiedNow);
                     setSelectedTime('');

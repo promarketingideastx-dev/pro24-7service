@@ -8,6 +8,7 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const businessId = searchParams.get('businessId');
         const date = searchParams.get('date');
+        const time = searchParams.get('time');
 
         if (!businessId || !date) {
             return NextResponse.json({ error: 'Faltan parámetros businessId o date' }, { status: 400 });
@@ -24,6 +25,12 @@ export async function GET(request: Request) {
             .get();
 
         if (snapshot.empty) {
+            // === AUTO-HEAL GHOST SLOTS (Server Side) ===
+            // If completely empty, but they queried a specific time, heal that specific slot lock
+            if (time) {
+                 const slotLockRef = db.collection('businesses').doc(businessId).collection('slot_locks').doc(`${date}_${time}`);
+                 await slotLockRef.update({ active: 0 }).catch(() => {});
+            }
             return NextResponse.json({ occupied: [] }, { status: 200 });
         }
 
@@ -31,6 +38,13 @@ export async function GET(request: Request) {
             const data = doc.data();
             return data.time as string;
         });
+
+        // === AUTO-HEAL GHOST SLOTS (Server Side) ===
+        // If they queried a specific time, and it's NOT genuinely occupied, heal its lock
+        if (time && !occupiedTimes.includes(time)) {
+             const slotLockRef = db.collection('businesses').doc(businessId).collection('slot_locks').doc(`${date}_${time}`);
+             await slotLockRef.update({ active: 0 }).catch(() => {});
+        }
 
         return NextResponse.json({ occupied: occupiedTimes }, { status: 200 });
     } catch (error: any) {
