@@ -69,11 +69,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     if (docSnap.exists()) {
                         console.log('[AuthContext] Firestore profile loaded from server/cache');
                         setUserProfile(docSnap.data() as UserDocument);
+                        setLoading(false);
                     } else {
                         console.warn('[AuthContext] Firestore profile missing or cache is empty.');
                         setUserProfile(null);
+                        
+                        // FASE A STABILIZATION: Prevent premature AuthGuard redirect loop by allowing login flow to finish doc creation.
+                        setTimeout(() => {
+                            setLoading(false);
+                        }, 1250);
                     }
-                    setLoading(false);
                 }, (error) => {
                     console.error("AuthContext Firestore Error:", error);
                     setLoading(false);

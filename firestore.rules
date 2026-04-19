@@ -14,6 +14,11 @@ service cloud.firestore {
       return request.auth != null && request.auth.token.admin == true;
     }
 
+    // 0.5) REGISTRO DE IDENTIDAD UNIFICADA
+    match /email_registry/{email} {
+      allow read, write: if isAuthenticated();
+    }
+
     // 1) CLIENTES (USERS)
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
