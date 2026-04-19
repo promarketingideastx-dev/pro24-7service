@@ -27,28 +27,23 @@ export default function NotificationBanner() {
         if (!user) return;
         if (!VAPID_PUBLIC_KEY) return;
         if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+        
+        // 1. Initial Validation: Dismiss flag
+        if (localStorage.getItem('notif_banner_dismissed') === 'true') {
+            return;
+        }
+
+        // 2. Initial Validation: Browser Permission
+        // If granted, we don't need to ask again with a banner
+        if (Notification.permission === 'granted' || Notification.permission === 'denied') {
+            return;
+        }
 
         const checkNeedsToken = async () => {
             try {
                 const snap = await getDoc(doc(db, 'users', user.uid));
                 const data = snap.data();
                 
-                // If they explicitly denied, we can never show it
-                if (Notification.permission === 'denied') return;
-
-                // Check if they already have an active FCM token or iOS subscription
-                const hasToken = !!data?.fcmToken || !!data?.pushSubscription;
-
-                if (Notification.permission === 'granted' && hasToken) {
-                    // Check if token is still fresh
-                    const updatedAt = data?.pushTokenUpdatedAt as string | undefined;
-                    if (updatedAt) {
-                        const ageMs = Date.now() - new Date(updatedAt).getTime();
-                        if (ageMs < TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000) return; // fresh — hide
-                    }
-                }
-
-                // If they don't have a token, OR token is stale, OR permission is 'default'
                 // Show banner after 1.5 s so it doesn't compete with cookie banner
                 setTimeout(() => setVisible(true), 1500);
 
@@ -68,10 +63,14 @@ export default function NotificationBanner() {
         try {
             // ⚡ This MUST be called synchronously inside a click handler on iOS
             const permission = await Notification.requestPermission();
+            
             if (permission !== 'granted') {
                 setVisible(false);
                 return;
             }
+
+            // Save permanence flag if they accepted
+            localStorage.setItem('notif_banner_dismissed', 'true');
 
             const swReg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
             await navigator.serviceWorker.ready;
@@ -95,6 +94,11 @@ export default function NotificationBanner() {
         }
     };
 
+    const handleClose = () => {
+        localStorage.setItem('notif_banner_dismissed', 'true');
+        setVisible(false);
+    };
+
     return (
         <div className="fixed bottom-20 left-4 right-4 md:bottom-8 md:left-auto md:right-8 md:w-96 z-50 bg-slate-900 border border-teal-500/30 rounded-2xl shadow-2xl p-4 flex items-start gap-3 animate-slide-up">
             <div className="w-9 h-9 rounded-full bg-teal-500/20 flex items-center justify-center shrink-0 mt-0.5">
@@ -102,17 +106,17 @@ export default function NotificationBanner() {
             </div>
             <div className="flex-1 min-w-0">
                 <p className="text-white text-sm font-semibold">{t('activate')}</p>
-                <p className="text-slate-400 text-xs mt-0.5">Recibe alertas de citas y mensajes en tiempo real.</p>
+                <p className="text-slate-400 text-xs mt-0.5">{t('bannerDesc')}</p>
                 <button
                     onClick={handleEnable}
                     disabled={loading}
                     className="mt-2 px-3 py-1.5 bg-teal-500 hover:bg-teal-400 text-white text-xs font-semibold rounded-full transition-colors disabled:opacity-60"
                 >
-                    {loading ? 'Activando...' : 'Activar ahora'}
+                    {loading ? t('bannerBtnLoading') : t('bannerBtn')}
                 </button>
             </div>
             <button
-                onClick={() => setVisible(false)}
+                onClick={handleClose}
                 className="text-slate-500 hover:text-slate-300 transition-colors shrink-0"
             >
                 <X className="w-4 h-4" />

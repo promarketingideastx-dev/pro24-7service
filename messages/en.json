@@ -1218,6 +1218,9 @@
   "common": {
     "notifications": {
       "activate": "Turn on notifications",
+      "bannerDesc": "Receive real-time alerts for appointments and messages.",
+      "bannerBtn": "Enable now",
+      "bannerBtnLoading": "Enabling...",
       "title": "My Notifications",
       "emptyState": "No notifications yet",
       "allRead": "All read",

@@ -1219,6 +1219,9 @@
   "common": {
     "notifications": {
       "activate": "Activa las notificaciones",
+      "bannerDesc": "Recibe alertas de citas y mensajes en tiempo real.",
+      "bannerBtn": "Activar ahora",
+      "bannerBtnLoading": "Activando...",
       "title": "Mis Notificaciones",
       "emptyState": "Sin notificaciones aún",
       "allRead": "Todo leído",

@@ -1216,6 +1216,9 @@
   "common": {
     "notifications": {
       "activate": "Ativar notificações",
+      "bannerDesc": "Receba alertas de consultas e mensagens em tempo real.",
+      "bannerBtn": "Ativar agora",
+      "bannerBtnLoading": "Ativando...",
       "title": "Minhas Notificações",
       "emptyState": "Nenhuma notificação ainda",
       "allRead": "Tudo lido",
