@@ -18,6 +18,9 @@ export default function ProviderBookingsView() {
     const [bookings, setBookings] = useState<BookingDocument[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedProof, setSelectedProof] = useState<{url: string, type: string} | null>(null);
+    const [cancelModalBooking, setCancelModalBooking] = useState<BookingDocument | null>(null);
+    const [cancelNote, setCancelNote] = useState('');
+    const [isCanceling, setIsCanceling] = useState(false);
 
     const loadBookings = async () => {
         if (!user?.uid) return;
@@ -37,14 +40,14 @@ export default function ProviderBookingsView() {
         loadBookings();
     }, [user?.uid]);
 
-    const handleMutateStatus = async (booking: BookingDocument, newStatus: 'confirmed' | 'canceled' | 'completed') => {
+    const handleMutateStatus = async (booking: BookingDocument, newStatus: 'confirmed' | 'canceled' | 'completed', cancelNote?: string) => {
         try {
             // Unify: If confirming booking, automatically approve pending proof
             if (newStatus === 'confirmed' && booking.paymentStatus === 'proof_uploaded') {
                 await BookingService.approvePaymentProof(booking.id);
             }
 
-            await BookingService.updateStatus(booking.id, newStatus);
+            await BookingService.updateStatus(booking.id, newStatus, cancelNote);
             
             // Interaction Tracking Hook: Canceling the queue since the business opened/interacted with the booking.
             if (user?.uid) {
@@ -65,9 +68,13 @@ export default function ProviderBookingsView() {
 
                 // Send Instant Push to Client
                 const title = newStatus === 'confirmed' ? 'Cita Confirmada' : 'Cita Cancelada';
-                const body = newStatus === 'confirmed' 
+                let body = newStatus === 'confirmed' 
                     ? `${user?.displayName || 'El negocio'} ha confirmado tu cita para ${booking.serviceName}.` 
                     : `${user?.displayName || 'El negocio'} ha cancelado tu cita para ${booking.serviceName}.`;
+                
+                if (newStatus === 'canceled' && cancelNote) {
+                    body += ` (Mensaje adjunto, revisalo aquí)`;
+                }
                     
                 fetch('/api/push-client', {
                     method: 'POST',
@@ -266,7 +273,10 @@ export default function ProviderBookingsView() {
                                             <CheckCircle size={16} /> {tInbox('accept')}
                                         </button>
                                         <button 
-                                            onClick={() => handleMutateStatus(booking, 'canceled')}
+                                            onClick={() => {
+                                                setCancelModalBooking(booking);
+                                                setCancelNote('');
+                                            }}
                                             className="px-4 py-2.5 bg-white border border-red-200 hover:bg-red-50 text-red-600 text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto"
                                         >
                                             <XCircle size={16} /> {tInbox('reject')}
@@ -283,13 +293,12 @@ export default function ProviderBookingsView() {
                                         </button>
                                         <button 
                                             onClick={() => {
-                                                if (window.confirm("¿Estás seguro de cancelar esta cita? Entrará a un estado inactivo y el horario será liberado.")) {
-                                                    handleMutateStatus(booking, 'canceled');
-                                                }
+                                                setCancelModalBooking(booking);
+                                                setCancelNote('');
                                             }}
                                             className="px-4 py-2 bg-white border border-red-200 hover:bg-red-50 text-red-600 text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto mt-2 md:mt-0"
                                         >
-                                            <XCircle size={16} /> Anular Reserva
+                                            <XCircle size={16} /> {tInbox('cancelModal.title') || 'Anular Reserva'}
                                         </button>
                                     </>
                                 )}
@@ -308,6 +317,62 @@ export default function ProviderBookingsView() {
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Cancel / Reject Modal */}
+            {cancelModalBooking && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
+                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200">
+                        <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                            <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
+                                <XCircle className="w-5 h-5 text-red-500" />
+                                {tInbox('cancelModal.title') || 'Anular Reserva'}
+                            </h3>
+                            <button 
+                                onClick={() => setCancelModalBooking(null)}
+                                className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200/50 text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition-colors"
+                            >
+                                <XCircle size={18} />
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            <p className="text-sm text-slate-600 mb-5 leading-relaxed">
+                                {tInbox('cancelModal.description') || 'El horario será liberado y se notificará al cliente.'}
+                            </p>
+                            
+                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                {tInbox('cancelModal.noteLabel') || 'Mensaje para el cliente (Opcional)'}
+                            </label>
+                            <textarea 
+                                value={cancelNote}
+                                onChange={e => setCancelNote(e.target.value)}
+                                placeholder={tInbox('cancelModal.notePlaceholder') || 'Ej: Tuvimos un imprevisto...'}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all resize-none h-24"
+                            />
+                        </div>
+                        <div className="p-6 bg-slate-50 border-t border-slate-100 flex flex-col-reverse sm:flex-row gap-3">
+                            <button 
+                                onClick={() => setCancelModalBooking(null)}
+                                className="w-full sm:w-1/2 px-4 py-2.5 rounded-xl font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-800 transition-colors"
+                            >
+                                {tInbox('cancelModal.close') || 'Volver'}
+                            </button>
+                            <button 
+                                onClick={async () => {
+                                    setIsCanceling(true);
+                                    await handleMutateStatus(cancelModalBooking, 'canceled', cancelNote);
+                                    setCancelModalBooking(null);
+                                    setCancelNote('');
+                                    setIsCanceling(false);
+                                }}
+                                disabled={isCanceling}
+                                className="w-full sm:w-1/2 px-4 py-2.5 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:opacity-50 transition-colors shadow-sm"
+                            >
+                                {isCanceling ? t('processing') : (tInbox('cancelModal.confirm') || 'Confirmar Anulación')}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
 

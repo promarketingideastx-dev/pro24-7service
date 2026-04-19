@@ -861,6 +861,14 @@
     "submitError": "Error publishing review. Please try again."
   },
   "inbox": {
+    "cancelModal": {
+      "title": "Cancel Booking",
+      "description": "The time slot will be released and the client will be notified.",
+      "noteLabel": "Message for the client (Optional)",
+      "notePlaceholder": "e.g., We had an unforeseen event and need to reschedule. Please contact us at...",
+      "confirm": "Confirm Cancellation",
+      "close": "Go Back"
+    },
     "tabPending": "Pending",
     "tabUpcoming": "Upcoming",
     "tabHistory": "History",

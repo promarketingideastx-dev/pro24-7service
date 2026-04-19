@@ -859,6 +859,14 @@
     "submitError": "Erro ao publicar avaliação. Tente novamente."
   },
   "inbox": {
+    "cancelModal": {
+      "title": "Cancelar Reserva",
+      "description": "O horário será liberado e o cliente será notificado.",
+      "noteLabel": "Mensagem para o cliente (Opcional)",
+      "notePlaceholder": "Ex: Tivemos um imprevisto e precisamos reagendar. Entre em contato...",
+      "confirm": "Confirmar Cancelamento",
+      "close": "Voltar"
+    },
     "tabPending": "Pendentes",
     "tabUpcoming": "Próximas",
     "tabHistory": "Histórico",

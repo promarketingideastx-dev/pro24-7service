@@ -862,6 +862,14 @@
     "submitError": "Error al publicar reseña. Intenta de nuevo."
   },
   "inbox": {
+    "cancelModal": {
+      "title": "Anular Reserva",
+      "description": "El horario será liberado y se notificará al cliente.",
+      "noteLabel": "Mensaje para el cliente (Opcional)",
+      "notePlaceholder": "Ej: Tuvimos un imprevisto y debemos reprogramar. Por favor contáctanos al...",
+      "confirm": "Confirmar Anulación",
+      "close": "Volver"
+    },
     "tabPending": "Pendientes",
     "tabUpcoming": "Próximas",
     "tabHistory": "Historial",
