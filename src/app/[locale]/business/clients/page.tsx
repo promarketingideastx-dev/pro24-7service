@@ -10,6 +10,9 @@ import { BusinessProfileService } from '@/services/businessProfile.service';
 import CustomerList from '@/components/business/clients/CustomerList';
 import CustomerFormModal from '@/components/business/clients/CustomerFormModal';
 import SmartDeleteCustomerModal from '@/components/business/clients/SmartDeleteCustomerModal';
+import AppointmentModal from '@/components/business/agenda/AppointmentModal';
+import { EmployeeService, EmployeeData } from '@/services/employee.service';
+import { ServiceData } from '@/services/businessProfile.service';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 
@@ -78,16 +81,27 @@ export default function ClientsPage() {
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+    
+    // Booking Manual State
+    const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+    const [customerToBook, setCustomerToBook] = useState<Customer | undefined>();
+    const [services, setServices] = useState<ServiceData[]>([]);
+    const [employees, setEmployees] = useState<EmployeeData[]>([]);
 
     const fetchData = async () => {
         if (!user) return;
         try {
             setLoading(true);
-            const [initialCustomerData, allBookings, profile] = await Promise.all([
+            const [initialCustomerData, allBookings, profile, servicesData, employeesData] = await Promise.all([
                 CustomerService.getCustomers(user.uid),
                 BookingService.getByBusiness(user.uid),
                 BusinessProfileService.getProfile(user.uid),
+                BusinessProfileService.getServices(user.uid),
+                EmployeeService.getEmployees(user.uid)
             ]);
+            
+            setServices(servicesData);
+            setEmployees(employeesData);
             
             let finalCustomerData = [...initialCustomerData];
             
@@ -134,9 +148,25 @@ export default function ClientsPage() {
 
     const handleCreate = () => { setSelectedCustomer(null); setIsFormOpen(true); };
     const handleEdit = (customer: Customer) => { setSelectedCustomer(customer); setIsFormOpen(true); };
-    const handleSave = () => { fetchData(); };
+    const handleSave = (customer?: Customer, shouldBook?: boolean) => { 
+        fetchData(); 
+        if (shouldBook && customer) {
+            setCustomerToBook(customer);
+            setIsBookingModalOpen(true);
+        }
+    };
     const handleDelete = (customer: Customer) => { setCustomerToDelete(customer); setIsDeleteModalOpen(true); };
     const handleDeleteSuccess = () => { fetchData(); };
+    
+    const handleSaveAppointment = async (appointmentData: any) => {
+        try {
+            await BookingService.createBooking(appointmentData);
+            toast.success(t('appointmentCreated') || "Cita agendada exitosamente");
+            fetchData();
+        } catch (err: any) {
+             toast.error(err.message || "Error al agendar cita");
+        }
+    };
 
     if (!user) return null;
 
@@ -194,6 +224,22 @@ export default function ClientsPage() {
                 customer={customerToDelete}
                 businessId={user.uid}
             />
+            
+            {isBookingModalOpen && (
+                <AppointmentModal
+                    isOpen={isBookingModalOpen}
+                    onClose={() => setIsBookingModalOpen(false)}
+                    onSave={handleSaveAppointment}
+                    services={services}
+                    employees={employees}
+                    customers={customers}
+                    appointment={customerToBook ? ({
+                         clientId: customerToBook.id,
+                         clientName: customerToBook.fullName,
+                         clientPhone: customerToBook.phone
+                    } as any) : undefined}
+                />
+            )}
         </div>
     );
 }

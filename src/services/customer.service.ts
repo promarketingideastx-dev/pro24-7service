@@ -155,9 +155,10 @@ export const CustomerService = {
                 const userSnap = await getDoc(userRef);
                 if (userSnap.exists()) {
                     const userData = userSnap.data();
-                    normalizedData.fullName = userData.displayName || customer.fullName || 'Cliente Existente';
-                    normalizedData.email = userData.email || customer.email || '';
-                    normalizedData.phone = userData.phoneNumber || customer.phone || '';
+                    // Fix: prioritize customer edits over the global user data
+                    normalizedData.fullName = customer.fullName || userData.displayName || 'Cliente Existente';
+                    normalizedData.email = customer.email || userData.email || '';
+                    normalizedData.phone = customer.phone || userData.phoneNumber || '';
                 }
             } catch (err) {
                 console.warn("Could not retrieve global user data for normalization.", err);

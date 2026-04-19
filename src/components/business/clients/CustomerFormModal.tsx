@@ -9,7 +9,7 @@ import { useTranslations } from 'next-intl';
 interface CustomerFormModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: () => void;
+    onSave: (customer?: Customer, shouldBook?: boolean) => void;
     businessId: string;
     customerToEdit?: Customer | null;
 }
@@ -17,6 +17,7 @@ interface CustomerFormModalProps {
 export default function CustomerFormModal({ isOpen, onClose, onSave, businessId, customerToEdit }: CustomerFormModalProps) {
     const t = useTranslations('clients.form');
     const [loading, setLoading] = useState(false);
+    const [actionType, setActionType] = useState<'save' | 'saveAndBook'>('save');
     const [formData, setFormData] = useState({
         fullName: '',
         phone: '',
@@ -57,11 +58,12 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
             if (customerToEdit && customerToEdit.id) {
                 await CustomerService.updateCustomer(businessId, customerToEdit.id, { ...formData, businessId });
                 toast.success(t('updated'));
+                onSave({ id: customerToEdit.id, ...formData, businessId }, actionType === 'saveAndBook');
             } else {
-                await CustomerService.createCustomer({ ...formData, businessId, tags: [] });
+                const newCustomer = await CustomerService.createCustomer({ ...formData, businessId, tags: [] });
                 toast.success(t('created'));
+                onSave(newCustomer, actionType === 'saveAndBook');
             }
-            onSave();
             onClose();
         } catch (error: any) {
             console.error(error);
@@ -167,25 +169,43 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
                     </div>
 
                     {/* Footer Clean Light */}
-                    <div className="pt-2 pb-6 flex items-center justify-end gap-3 mt-4">
+                    <div className="pt-2 pb-6 flex items-center justify-end gap-3 mt-4 flex-wrap sm:flex-nowrap">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-5 py-3.5 text-sm font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+                            className="px-5 py-3.5 text-sm font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors sm:w-auto w-full order-last sm:order-first"
                         >
                             {t('cancel')}
                         </button>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="flex-1 py-3.5 bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold rounded-xl text-sm shadow-[0_4px_14px_rgba(20,184,166,0.30)] flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {loading ? (
-                                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            ) : (
-                                <span>{customerToEdit ? t('saveChanges') : t('createClient')}</span>
+                        <div className="flex-1 flex gap-2 w-full sm:w-auto">
+                            <button
+                                type="submit"
+                                onClick={() => setActionType('save')}
+                                disabled={loading}
+                                className={`flex-1 py-3.5 text-sm font-bold rounded-xl shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center ${customerToEdit ? 'bg-[#14B8A6] hover:bg-[#0F9488] text-white shadow-[#14B8A6]/20' : 'bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200'}`}
+                            >
+                                {loading && actionType === 'save' ? (
+                                    <span className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                    <span>{customerToEdit ? t('saveChanges') : t('createClient')}</span>
+                                )}
+                            </button>
+                            
+                            {!customerToEdit && (
+                                <button
+                                    type="submit"
+                                    onClick={() => setActionType('saveAndBook')}
+                                    disabled={loading}
+                                    className="flex-[1.5] py-3.5 bg-[#14B8A6] hover:bg-[#0F9488] text-white font-bold rounded-xl text-sm shadow-[0_4px_14px_rgba(20,184,166,0.30)] flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {loading && actionType === 'saveAndBook' ? (
+                                        <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    ) : (
+                                        <span>Guardar y Agendar Cita</span>
+                                    )}
+                                </button>
                             )}
-                        </button>
+                        </div>
                     </div>
                 </form>
             </div>
