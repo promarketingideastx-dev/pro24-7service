@@ -417,7 +417,8 @@
     },
     "nav": {
       "dashboard": "Dashboard",
-      "agenda": "Agenda",
+      "agenda": "Gestão de Consultas",
+      "calendarView": "Calendário de Consultas",
       "clients": "Clientes",
       "services": "Meus Serviços",
       "team": "Equipe",

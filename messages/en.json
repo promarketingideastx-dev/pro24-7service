@@ -419,7 +419,8 @@
     },
     "nav": {
       "dashboard": "Dashboard",
-      "agenda": "Schedule",
+      "agenda": "Appointment Management",
+      "calendarView": "Appointment Calendar",
       "clients": "Clients",
       "services": "My Services",
       "team": "Team",

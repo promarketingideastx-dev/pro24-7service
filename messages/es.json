@@ -421,6 +421,7 @@
     "nav": {
       "dashboard": "Dashboard",
       "agenda": "Gestión de Citas",
+      "calendarView": "Calendario de Citas",
       "clients": "Clientes",
       "services": "Mis Servicios",
       "team": "Equipo",
