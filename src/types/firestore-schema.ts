@@ -277,6 +277,7 @@ export interface BookingDocument {
     id: string;
     businessId: string;
     clientId: string;
+    crmCustomerId?: string; // Internal CRM representation hook
     clientName?: string;
     clientEmail?: string;
     clientPhone?: string;

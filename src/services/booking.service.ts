@@ -188,8 +188,9 @@ export const BookingService = {
                     });
                     
                     // FASE C1.5 FIX: Link the real ID back to the Booking so CRM History works accurately.
-                    if (realCustomerId && data.clientId !== realCustomerId) {
-                        await updateDoc(ref, { clientId: realCustomerId });
+                    // DO NOT overwrite `clientId`! That breaks the client's own profile. Store in `crmCustomerId`.
+                    if (realCustomerId) {
+                        await updateDoc(ref, { crmCustomerId: realCustomerId });
                     }
                 } catch (e) {
                     console.error("Error syncing customer on confirm:", e);
@@ -282,8 +283,9 @@ export const BookingService = {
 
     /**
      * Read by Business (Provider Dashboard)
+     * Retrieves all bookings for a business
      */
-    async getByBusiness(businessId: string): Promise<BookingDocument[]> {
+    async getByBusiness(businessId: string, options?: { includeHidden?: boolean }): Promise<BookingDocument[]> {
         const q = query(
             collection(db, COLLECTION_NAME),
             where('businessId', '==', businessId),
@@ -296,8 +298,11 @@ export const BookingService = {
         try {
             const snap = await getDocs(q);
             const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingDocument));
-            // FASE C1.5 FIX: Exclude hidden features AND Soft-Deleted (status === deleted) globally.
-            const visibleItems = items.filter(b => b.hiddenByBusiness !== true && b.status !== 'deleted');
+            // FASE C1.5 FIX: Exclude hidden features AND Soft-Deleted (status === deleted) globally UNLESS requested
+            const visibleItems = options?.includeHidden 
+                ? items 
+                : items.filter(b => b.hiddenByBusiness !== true && b.status !== 'deleted');
+                
             return visibleItems.sort((a, b) => {
                 if (a.date === b.date) return (b.time || '').localeCompare(a.time || '');
                 return (b.date || '').localeCompare(a.date || '');
@@ -306,7 +311,9 @@ export const BookingService = {
              const fallbackQ = query(collection(db, COLLECTION_NAME), where('businessId', '==', businessId));
              const snap = await getDocs(fallbackQ);
              const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingDocument));
-             const visibleItems = items.filter(b => b.hiddenByBusiness !== true && b.status !== 'deleted');
+             const visibleItems = options?.includeHidden 
+                ? items 
+                : items.filter(b => b.hiddenByBusiness !== true && b.status !== 'deleted');
              return visibleItems.sort((a, b) => {
                  if (a.date === b.date) return (b.time || '').localeCompare(a.time || '');
                  return (b.date || '').localeCompare(a.date || '');

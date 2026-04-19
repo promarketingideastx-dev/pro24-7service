@@ -47,12 +47,12 @@ function CustomerDetailContent() {
         }
         setLoading(true);
         try {
-            // Reemplazo In-Memory: Leer todas las Bookings del negocio
-            const allBookings = await BookingService.getByBusiness(user.uid);
+            // Reemplazo In-Memory: Leer todas las Bookings del negocio (incluyendo ocultas para mantener el historial real)
+            const allBookings = await BookingService.getByBusiness(user.uid, { includeHidden: true });
             
-            // Filtrar las bookings que le pertenecen a este ID (ya sea id fisico en customers o temp-id virtual)
+            // Filtrar las bookings que le pertenecen a este ID (ya sea id fisico en customers o auth uid o crmCustomerId)
             const clientApts = allBookings.filter(b => 
-                b.clientId === id || `temp-${b.id}` === id || b.clientId === id.replace('temp-', '')
+                b.crmCustomerId === id || b.clientId === id || `temp-${b.id}` === id || b.clientId === id.replace('temp-', '')
             );
 
             // Intento de buscar si físicamente el cliente Legacy existe en BD
