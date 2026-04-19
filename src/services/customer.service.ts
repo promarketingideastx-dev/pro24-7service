@@ -78,11 +78,12 @@ export const CustomerService = {
     /**
      * Check for duplicates (Phone or Email) within the same business
      */
-    async checkDuplicate(businessId: string, phone?: string, email?: string, excludeId?: string): Promise<boolean> {
-        if (!phone && !email) return false;
+    async checkDuplicate(businessId: string, phone?: string, email?: string, excludeId?: string): Promise<{isDuplicate: boolean, reason?: 'phone' | 'email' | 'both'}> {
+        if (!phone && !email) return { isDuplicate: false };
 
         const customersRef = collection(db, COLLECTION_NAME);
-        const checks = [];
+        let phoneDuplicate = false;
+        let emailDuplicate = false;
 
         if (phone) {
             const qPhone = query(
@@ -90,7 +91,10 @@ export const CustomerService = {
                 where('businessId', '==', businessId),
                 where('phone', '==', phone)
             );
-            checks.push(getDocs(qPhone));
+            const snap = await getDocs(qPhone);
+            if (snap.docs.some(d => d.id !== excludeId && d.data().archived !== true)) {
+                phoneDuplicate = true;
+            }
         }
 
         if (email) {
@@ -99,15 +103,17 @@ export const CustomerService = {
                 where('businessId', '==', businessId),
                 where('email', '==', email)
             );
-            checks.push(getDocs(qEmail));
+            const snap = await getDocs(qEmail);
+            if (snap.docs.some(d => d.id !== excludeId && d.data().archived !== true)) {
+                emailDuplicate = true;
+            }
         }
 
-        const results = await Promise.all(checks);
+        if (phoneDuplicate && emailDuplicate) return { isDuplicate: true, reason: 'both' };
+        if (phoneDuplicate) return { isDuplicate: true, reason: 'phone' };
+        if (emailDuplicate) return { isDuplicate: true, reason: 'email' };
 
-        // Check if any result has docs that are NOT the excludeId
-        return results.some(snap =>
-            snap.docs.some(d => d.id !== excludeId)
-        );
+        return { isDuplicate: false };
     },
 
     /**
@@ -116,14 +122,16 @@ export const CustomerService = {
     async createCustomer(customer: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>): Promise<Customer> {
         try {
             // Duplication check
-            const isDuplicate = await this.checkDuplicate(
+            const dupCheck = await this.checkDuplicate(
                 customer.businessId,
                 customer.phone,
                 customer.email
             );
 
-            if (isDuplicate) {
-                throw new Error("Customer with this phone or email already exists.");
+            if (dupCheck.isDuplicate) {
+                if (dupCheck.reason === 'phone') throw new Error("DUPLICATE_PHONE");
+                if (dupCheck.reason === 'email') throw new Error("DUPLICATE_EMAIL");
+                throw new Error("DUPLICATE_BOTH");
             }
 
             const data = {
@@ -180,6 +188,20 @@ export const CustomerService = {
      */
     async updateCustomer(businessId: string, id: string, updates: Partial<Customer>): Promise<void> {
         try {
+            // Duplication check for updates
+            const dupCheck = await this.checkDuplicate(
+                businessId,
+                updates.phone,
+                updates.email,
+                id
+            );
+
+            if (dupCheck.isDuplicate) {
+                if (dupCheck.reason === 'phone') throw new Error("DUPLICATE_PHONE");
+                if (dupCheck.reason === 'email') throw new Error("DUPLICATE_EMAIL");
+                throw new Error("DUPLICATE_BOTH");
+            }
+
             let docId = id;
             let existsLocally = false;
 

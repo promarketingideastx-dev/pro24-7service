@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, User, Phone, Mail, MapPin, FileText } from 'lucide-react';
+import { X, User, Phone, Mail, MapPin, FileText, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { CustomerService, Customer } from '@/services/customer.service';
 import { useTranslations } from 'next-intl';
@@ -17,6 +17,7 @@ interface CustomerFormModalProps {
 export default function CustomerFormModal({ isOpen, onClose, onSave, businessId, customerToEdit }: CustomerFormModalProps) {
     const t = useTranslations('clients.form');
     const [loading, setLoading] = useState(false);
+    const [fieldError, setFieldError] = useState<string | null>(null);
     const [actionType, setActionType] = useState<'save' | 'saveAndBook'>('save');
     const [formData, setFormData] = useState({
         fullName: '',
@@ -53,6 +54,7 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
             toast.error(t('nameRequired'));
             return;
         }
+        setFieldError(null);
         setLoading(true);
         try {
             if (customerToEdit && customerToEdit.id) {
@@ -67,7 +69,15 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
             onClose();
         } catch (error: any) {
             console.error(error);
-            toast.error(error.message || t('saveError'));
+            if (error.message === 'DUPLICATE_PHONE') {
+                setFieldError("Ya existe un cliente con este teléfono.");
+            } else if (error.message === 'DUPLICATE_EMAIL') {
+                setFieldError("Ya existe un cliente con este correo electrónico.");
+            } else if (error.message === 'DUPLICATE_BOTH') {
+                setFieldError("Ya existe un cliente con este teléfono y correo.");
+            } else {
+                toast.error(error.message || t('saveError'));
+            }
         } finally {
             setLoading(false);
         }
@@ -91,6 +101,13 @@ export default function CustomerFormModal({ isOpen, onClose, onSave, businessId,
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="flex-1 p-6 space-y-4 overflow-y-auto">
+
+                    {fieldError && (
+                        <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm p-3 rounded-xl flex items-start gap-2 animate-in slide-in-from-top-2">
+                             <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                             <span>{fieldError}</span>
+                        </div>
+                    )}
 
                     {/* Name */}
                     <div className="space-y-1 mb-2">

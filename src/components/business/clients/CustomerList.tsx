@@ -144,7 +144,7 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
                                         {customer.email && (
                                             <div className="flex items-center gap-1.5 text-slate-400 text-xs">
                                                 <Mail className="w-3 h-3 text-slate-500 shrink-0" />
-                                                <span className="truncate max-w-[120px]">{customer.email}</span>
+                                                <span className="truncate">{customer.email}</span>
                                             </div>
                                         )}
                                         {!customer.phone && !customer.email && (
