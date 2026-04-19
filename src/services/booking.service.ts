@@ -181,11 +181,16 @@ export const BookingService = {
                 const data = snap.data() as BookingDocument;
                 try {
                     const { CustomerService } = await import('@/services/customer.service');
-                    await CustomerService.upsertFromAppointment(data.businessId, {
+                    const realCustomerId = await CustomerService.upsertFromAppointment(data.businessId, {
                         fullName: data.clientName,
                         email: data.clientEmail,
                         phone: data.clientPhone
                     });
+                    
+                    // FASE C1.5 FIX: Link the real ID back to the Booking so CRM History works accurately.
+                    if (realCustomerId && data.clientId !== realCustomerId) {
+                        await updateDoc(ref, { clientId: realCustomerId });
+                    }
                 } catch (e) {
                     console.error("Error syncing customer on confirm:", e);
                 }
@@ -291,7 +296,8 @@ export const BookingService = {
         try {
             const snap = await getDocs(q);
             const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingDocument));
-            const visibleItems = items.filter(b => b.hiddenByBusiness !== true);
+            // FASE C1.5 FIX: Exclude hidden features AND Soft-Deleted (status === deleted) globally.
+            const visibleItems = items.filter(b => b.hiddenByBusiness !== true && b.status !== 'deleted');
             return visibleItems.sort((a, b) => {
                 if (a.date === b.date) return (b.time || '').localeCompare(a.time || '');
                 return (b.date || '').localeCompare(a.date || '');
@@ -300,7 +306,7 @@ export const BookingService = {
              const fallbackQ = query(collection(db, COLLECTION_NAME), where('businessId', '==', businessId));
              const snap = await getDocs(fallbackQ);
              const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingDocument));
-             const visibleItems = items.filter(b => b.hiddenByBusiness !== true);
+             const visibleItems = items.filter(b => b.hiddenByBusiness !== true && b.status !== 'deleted');
              return visibleItems.sort((a, b) => {
                  if (a.date === b.date) return (b.time || '').localeCompare(a.time || '');
                  return (b.date || '').localeCompare(a.date || '');
@@ -373,7 +379,8 @@ export const BookingService = {
         
         return onSnapshot(q, (snap) => {
             const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as BookingDocument));
-            const visibleItems = items.filter(b => b.hiddenByBusiness !== true);
+            // FASE C1.5 FIX: Hide Soft-Deleted globally from all listeners
+            const visibleItems = items.filter(b => b.hiddenByBusiness !== true && b.status !== 'deleted');
             // Memory sort matches the legacy getByBusiness fallback approach safely
             const sorted = visibleItems.sort((a, b) => {
                 if (a.date === b.date) return (b.time || '').localeCompare(a.time || '');

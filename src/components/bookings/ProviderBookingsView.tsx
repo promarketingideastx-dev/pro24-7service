@@ -259,12 +259,24 @@ export default function ProviderBookingsView() {
                                     </>
                                 )}
                                 {booking.status === 'confirmed' && (
-                                    <button 
-                                        onClick={() => handleMutateStatus(booking, 'completed')}
-                                        className="px-4 py-2 bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto"
-                                    >
-                                        <CheckCircle size={16} /> Marcar Completada
-                                    </button>
+                                    <>
+                                        <button 
+                                            onClick={() => handleMutateStatus(booking, 'completed')}
+                                            className="px-4 py-2 bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto"
+                                        >
+                                            <CheckCircle size={16} /> Marcar Completada
+                                        </button>
+                                        <button 
+                                            onClick={() => {
+                                                if (window.confirm("¿Estás seguro de cancelar esta cita? Entrará a un estado inactivo y el horario será liberado.")) {
+                                                    handleMutateStatus(booking, 'canceled');
+                                                }
+                                            }}
+                                            className="px-4 py-2 bg-white border border-red-200 hover:bg-red-50 text-red-600 text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto mt-2 md:mt-0"
+                                        >
+                                            <XCircle size={16} /> Cancelar Cita
+                                        </button>
+                                    </>
                                 )}
                                 {(booking.status === 'canceled' || booking.status === 'completed') && (
                                     <button 
