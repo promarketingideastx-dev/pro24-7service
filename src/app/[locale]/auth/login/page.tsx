@@ -25,6 +25,7 @@ function LoginForm() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [suggestGoogleLink, setSuggestGoogleLink] = useState(false);
+    const [passwordSent, setPasswordSent] = useState(false);
 
     // Auto-redirect handles entirely in AuthGuard now
 
@@ -51,9 +52,10 @@ function LoginForm() {
                     const reg = await IdentityService.getEmailRegistry(normalized);
                     
                     if (!reg) {
-                        setError('No existe ninguna cuenta registrada con este correo electrónico.');
+                        setError(t('errorUserNotFound') || 'No existe ninguna cuenta registrada con este correo electrónico.');
                     } else if (reg.providers && reg.providers.includes('google.com') && !reg.providers.includes('password')) {
-                        setError('Esta cuenta se creó usando Google. No puedes usar contraseña. Por favor, presiona el botón "Continuar con Google" de abajo.');
+                        // friction-free flow
+                        setError(null);
                         setSuggestGoogleLink(true);
                     } else if (reg.providers && reg.providers.includes('apple.com') && !reg.providers.includes('password')) {
                         setError('Esta cuenta se creó usando Apple. Por favor, usa el botón de "Continuar con Apple" de abajo.');
@@ -68,6 +70,21 @@ function LoginForm() {
             } else {
                 setError(err.message || 'Error inesperado al iniciar sesión.');
             }
+            setLoading(false);
+        }
+    };
+
+    const handleCreatePassword = async () => {
+        setLoading(true);
+        try {
+            await AuthService.sendPasswordReset(email);
+            setPasswordSent(true);
+            setSuggestGoogleLink(false);
+            setError(null);
+        } catch (err: any) {
+            console.error(err);
+            setError("No pudimos enviar el correo de creación de contraseña. Intenta de nuevo.");
+        } finally {
             setLoading(false);
         }
     };
@@ -125,17 +142,46 @@ function LoginForm() {
 
             {error && !suggestGoogleLink && (
                 <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 flex items-center gap-2 text-red-700 text-sm">
-                    <AlertCircle className="w-4 h-4" />
-                    {error}
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{error}</span>
                 </div>
             )}
 
-            {error && suggestGoogleLink && (
+            {!error && suggestGoogleLink && (
+                <div className="mb-6 p-5 rounded-xl bg-[#F0FDF4] border border-[#BBF7D0] shadow-sm animate-in fade-in zoom-in-95 duration-300">
+                    <div className="flex items-start gap-3 mb-4">
+                        <AlertCircle className="w-5 h-5 text-[#16A34A] shrink-0 mt-0.5" />
+                        <p className="text-[#166534] text-sm leading-snug font-medium">
+                            {t('suggestGoogleOnly')} <b>{t('continueWithGoogle')}</b> {t('suggestCreatePassword')}
+                        </p>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <button
+                            type="button"
+                            onClick={handleGoogleLogin}
+                            disabled={loading}
+                            className="w-full py-2.5 rounded-lg bg-[#16A34A] text-white font-bold text-sm shadow-sm hover:bg-[#15803D] transition-colors"
+                        >
+                            {t('continueWithGoogle')}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleCreatePassword}
+                            disabled={loading}
+                            className="w-full py-2.5 rounded-lg bg-white border border-[#BBF7D0] text-[#166534] font-bold text-sm shadow-sm hover:bg-[#DCFCE7] transition-colors"
+                        >
+                            {t('buttonCreatePassword')}
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {passwordSent && (
                 <div className="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-200 shadow-sm animate-in fade-in zoom-in-95 duration-300">
-                    <div className="flex items-start gap-3 mb-3">
+                    <div className="flex items-start gap-3">
                         <AlertCircle className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                         <p className="text-blue-800 text-sm leading-snug font-medium">
-                            {error}
+                            {t('passwordSentMsg')}
                         </p>
                     </div>
                 </div>
