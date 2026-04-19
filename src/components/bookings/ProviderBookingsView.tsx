@@ -289,7 +289,7 @@ export default function ProviderBookingsView() {
                                             }}
                                             className="px-4 py-2 bg-white border border-red-200 hover:bg-red-50 text-red-600 text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto mt-2 md:mt-0"
                                         >
-                                            <XCircle size={16} /> {tCommon('cancel')}
+                                            <XCircle size={16} /> Anular Reserva
                                         </button>
                                     </>
                                 )}
