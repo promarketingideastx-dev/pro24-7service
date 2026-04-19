@@ -12,7 +12,7 @@ interface DayViewProps {
 }
 
 export default function DayView({ date, appointments, onAppointmentClick, onSlotClick, timeFormat = '12h' }: DayViewProps) {
-    const dayAppointments = appointments.filter(apt => isSameDay(new Date(apt.date + 'T' + (apt.time || '00:00')), date) && apt.status !== 'canceled');
+    const dayAppointments = appointments.filter(apt => isSameDay(new Date(apt.date + 'T' + (apt.time || '00:00')), date) && (apt.status === 'confirmed' || apt.status === 'completed'));
     const timeSlots = getTimeSlots(timeFormat);
 
     return (

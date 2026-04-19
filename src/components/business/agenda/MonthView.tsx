@@ -38,7 +38,7 @@ export default function MonthView({ date, appointments, onAppointmentClick, onSl
                 {days.map((day, idx) => {
                     const dayBookings = appointments.filter(apt => {
                         const aptDate = new Date(apt.date + 'T' + (apt.time || '00:00'));
-                        return isSameDay(aptDate, day) && apt.status !== 'canceled'; 
+                        return isSameDay(aptDate, day) && (apt.status === 'confirmed' || apt.status === 'completed'); 
                     }).sort((a, b) => new Date(a.date + 'T' + a.time).getTime() - new Date(b.date + 'T' + b.time).getTime());
 
                     return (

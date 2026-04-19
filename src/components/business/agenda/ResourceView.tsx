@@ -101,7 +101,7 @@ export default function ResourceView({ date, appointments, onAppointmentClick, o
                     ))}
 
                     {/* Events */}
-                    {appointments.filter(apt => isSameDay(new Date(apt.date + 'T' + (apt.time || '00:00')), date) && (apt.employeeId === 'pending' || !apt.employeeId) && apt.status !== 'canceled').map(apt => {
+                    {appointments.filter(apt => isSameDay(new Date(apt.date + 'T' + (apt.time || '00:00')), date) && (apt.employeeId === 'pending' || !apt.employeeId) && (apt.status === 'confirmed' || apt.status === 'completed')).map(apt => {
                         const aptDate = new Date(apt.date + 'T' + (apt.time || '00:00'));
                         const top = getTopOffset(format(aptDate, 'HH:mm'));
                         const height = ((apt.duration || 60) / 30) * SLOT_HEIGHT;
@@ -125,7 +125,7 @@ export default function ResourceView({ date, appointments, onAppointmentClick, o
                 {/* Employee Columns */}
                 {employees.map((emp) => {
                     const empAppointments = appointments.filter(apt =>
-                        isSameDay(new Date(apt.date + 'T' + (apt.time || '00:00')), date) && apt.employeeId === emp.id && apt.status !== 'canceled'
+                        isSameDay(new Date(apt.date + 'T' + (apt.time || '00:00')), date) && apt.employeeId === emp.id && (apt.status === 'confirmed' || apt.status === 'completed')
                     );
 
                     return (

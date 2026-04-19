@@ -55,7 +55,7 @@ export default function WeekView({ date, appointments, onAppointmentClick, onSlo
 
                 {/* Day Columns */}
                 {weekDays.map((day, i) => {
-                    const dayAppointments = appointments.filter(apt => isSameDay(new Date(apt.date + 'T' + (apt.time || '00:00')), day) && apt.status !== 'canceled');
+                    const dayAppointments = appointments.filter(apt => isSameDay(new Date(apt.date + 'T' + (apt.time || '00:00')), day) && (apt.status === 'confirmed' || apt.status === 'completed'));
 
                     return (
                         <div

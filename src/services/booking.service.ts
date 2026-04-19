@@ -173,6 +173,24 @@ export const BookingService = {
             updateData.notesBusiness = notesBusiness;
         }
         await updateDoc(ref, updateData);
+
+        // FASE C1 FIX: Sync customer if confirmed.
+        if (status === 'confirmed') {
+            const snap = await getDoc(ref);
+            if (snap.exists()) {
+                const data = snap.data() as BookingDocument;
+                try {
+                    const { CustomerService } = await import('@/services/customer.service');
+                    await CustomerService.upsertFromAppointment(data.businessId, {
+                        fullName: data.clientName,
+                        email: data.clientEmail,
+                        phone: data.clientPhone
+                    });
+                } catch (e) {
+                    console.error("Error syncing customer on confirm:", e);
+                }
+            }
+        }
     },
 
     /**
