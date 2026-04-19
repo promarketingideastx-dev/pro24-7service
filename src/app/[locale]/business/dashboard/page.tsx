@@ -9,7 +9,7 @@ import { Activity, Users, CalendarCheck, TrendingUp, Loader2, RefreshCw, XCircle
 import { BookingService } from '@/services/booking.service';
 import { CustomerService } from '@/services/customer.service';
 import { BookingDocument } from '@/types/firestore-schema';
-import { format, startOfMonth, endOfMonth, startOfWeek, addDays, isSameDay, subMonths } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfWeek, addDays, isSameDay, subMonths, startOfDay, endOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useTranslations, useLocale } from 'next-intl';
 import { formatPrice } from '@/lib/currencyUtils';
