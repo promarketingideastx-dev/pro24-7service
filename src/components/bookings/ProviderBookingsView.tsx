@@ -12,6 +12,8 @@ import { useTranslations } from 'next-intl';
 
 export default function ProviderBookingsView() {
     const t = useTranslations('common.states');
+    const tInbox = useTranslations('inbox');
+    const tCommon = useTranslations('common');
     const { user } = useAuth();
     const [bookings, setBookings] = useState<BookingDocument[]>([]);
     const [loading, setLoading] = useState(true);
@@ -37,6 +39,11 @@ export default function ProviderBookingsView() {
 
     const handleMutateStatus = async (booking: BookingDocument, newStatus: 'confirmed' | 'canceled' | 'completed') => {
         try {
+            // Unify: If confirming booking, automatically approve pending proof
+            if (newStatus === 'confirmed' && booking.paymentStatus === 'proof_uploaded') {
+                await BookingService.approvePaymentProof(booking.id);
+            }
+
             await BookingService.updateStatus(booking.id, newStatus);
             
             // Interaction Tracking Hook: Canceling the queue since the business opened/interacted with the booking.
@@ -95,7 +102,15 @@ export default function ProviderBookingsView() {
 
     const handleApproveProof = async (booking: BookingDocument) => {
         try {
+            // Unify: Approving proof automatically confirms the booking
             await BookingService.approvePaymentProof(booking.id);
+            if (booking.status === 'pending') {
+                await BookingService.updateStatus(booking.id, 'confirmed');
+                if (user?.uid) {
+                    await NotificationQueueService.cancelByEntity(user.uid, booking.id);
+                }
+            }
+
             const targetEmail = booking.clientEmail || ''; 
             await NotificationQueueService.enqueueForPaymentProofStatus(
                 booking.id,
@@ -230,10 +245,10 @@ export default function ProviderBookingsView() {
                                             >
                                                 Ver Archivo ({booking.paymentProof.type})
                                             </button>
-                                            {booking.paymentStatus === 'proof_uploaded' && (
+                                            {booking.paymentStatus === 'proof_uploaded' && booking.status === 'pending' && (
                                                 <>
-                                                    <button onClick={() => handleApproveProof(booking)} className="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-3 py-1.5 rounded-lg font-bold transition-colors">Aprobar</button>
-                                                    <button onClick={() => handleRejectProof(booking)} className="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-lg font-bold transition-colors">Rechazar</button>
+                                                    <button onClick={() => handleApproveProof(booking)} className="text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-3 py-1.5 rounded-lg font-bold transition-colors">{tInbox('accept')}</button>
+                                                    <button onClick={() => handleRejectProof(booking)} className="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-lg font-bold transition-colors">{tInbox('reject')}</button>
                                                 </>
                                             )}
                                         </div>
@@ -248,13 +263,13 @@ export default function ProviderBookingsView() {
                                             onClick={() => handleMutateStatus(booking, 'confirmed')}
                                             className="px-4 py-2.5 bg-[#14B8A6] hover:bg-[#0F9488] text-white text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto shadow-sm shadow-cyan-900/10"
                                         >
-                                            <CheckCircle size={16} /> Aprobar
+                                            <CheckCircle size={16} /> {tInbox('accept')}
                                         </button>
                                         <button 
                                             onClick={() => handleMutateStatus(booking, 'canceled')}
                                             className="px-4 py-2.5 bg-white border border-red-200 hover:bg-red-50 text-red-600 text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto"
                                         >
-                                            <XCircle size={16} /> Rechazar
+                                            <XCircle size={16} /> {tInbox('reject')}
                                         </button>
                                     </>
                                 )}
@@ -274,7 +289,7 @@ export default function ProviderBookingsView() {
                                             }}
                                             className="px-4 py-2 bg-white border border-red-200 hover:bg-red-50 text-red-600 text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto mt-2 md:mt-0"
                                         >
-                                            <XCircle size={16} /> Cancelar Cita
+                                            <XCircle size={16} /> {tCommon('cancel')}
                                         </button>
                                     </>
                                 )}
