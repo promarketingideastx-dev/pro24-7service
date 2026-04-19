@@ -102,6 +102,7 @@ export default function AppointmentModal({
                 serviceId: data.serviceId,
                 serviceName: service.name,
                 duration: service.durationMinutes || 30,
+                totalAmount: service.price || 0,
                 employeeId: data.employeeId || 'pending',
                 date: data.date,
                 time: data.time,

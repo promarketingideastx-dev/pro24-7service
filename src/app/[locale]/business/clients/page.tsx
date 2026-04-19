@@ -158,9 +158,14 @@ export default function ClientsPage() {
     const handleDeleteSuccess = () => { fetchData(); };
     
     const handleSaveAppointment = async (appointmentData: any) => {
+        if (!user) return;
         try {
-            await BookingService.createBooking(appointmentData);
+            await BookingService.createManualBooking({
+                ...appointmentData,
+                businessId: user.uid
+            });
             toast.success(t('appointmentCreated') || "Cita agendada exitosamente");
+            setIsBookingModalOpen(false);
             fetchData();
         } catch (err: any) {
              toast.error(err.message || "Error al agendar cita");
