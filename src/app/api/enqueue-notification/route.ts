@@ -31,24 +31,27 @@ export async function POST(req: NextRequest) {
                 read: false
             });
 
-            // 2. Queue Single Immediate Email to Business
-            // FASE 1: DESHABILITADO SEGÚN APROBACIÓN (No emails/push todavía)
-            /*
-            if (businessEmail) {
-                const queueRef = db.collection('notification_queue').doc();
-                batch.set(queueRef, {
-                    targetUid: businessId,
-                    targetEmail: businessEmail,
-                    channel: 'email',
-                    type: 'booking_created',
-                    entityId: bookingId,
-                    status: 'pending',
-                    scheduledFor: new Date(),
-                    attempts: 0,
-                    createdAt: new Date()
-                });
+            // 2. Queue Multi-Reminder Emails to Business
+            if (businessEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(businessEmail)) {
+                const scheduleOffsets = [0, 15, 30, 45];
+                for (const offset of scheduleOffsets) {
+                    const scheduledTime = new Date();
+                    scheduledTime.setMinutes(scheduledTime.getMinutes() + offset);
+                    
+                    const queueRef = db.collection('notification_queue').doc();
+                    batch.set(queueRef, {
+                        targetUid: businessId,
+                        targetEmail: businessEmail,
+                        channel: 'email',
+                        type: 'booking_created',
+                        entityId: bookingId,
+                        status: 'pending',
+                        scheduledFor: scheduledTime,
+                        attempts: 0,
+                        createdAt: new Date()
+                    });
+                }
             }
-            */
             
             await batch.commit();
             return NextResponse.json({ ok: true });
@@ -75,10 +78,8 @@ export async function POST(req: NextRequest) {
                 read: false
             });
 
-            // 2. Queue Single Immediate Email
-            // FASE 1: DESHABILITADO SEGÚN APROBACIÓN
-            /*
-            if (clientEmail) {
+            // 2. Queue Single Immediate Email to Client (Acknowledge)
+            if (clientEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientEmail)) {
                 const queueRef = db.collection('notification_queue').doc();
                 batch.set(queueRef, {
                     targetUid: clientId,
@@ -92,7 +93,6 @@ export async function POST(req: NextRequest) {
                     createdAt: new Date()
                 });
             }
-            */
 
             await batch.commit();
             return NextResponse.json({ ok: true });
@@ -120,11 +120,9 @@ export async function POST(req: NextRequest) {
                 read: false
             });
 
-            // FASE 1: DESHABILITADO SEGÚN APROBACIÓN
-            /*
-            if (clientEmail) {
+            if (clientEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientEmail)) {
                 if (newStatus === 'confirmed') {
-                    // Reminders
+                    // Reminders for Client to Upload Proof
                     const scheduleOffsets = [0, 15, 30, 45];
                     for (const offset of scheduleOffsets) {
                         const scheduledTime = new Date();
@@ -158,7 +156,6 @@ export async function POST(req: NextRequest) {
                     });
                 }
             }
-            */
 
             await batch.commit();
             return NextResponse.json({ ok: true });
@@ -186,11 +183,9 @@ export async function POST(req: NextRequest) {
                 read: false
             });
 
-            // FASE 1: DESHABILITADO SEGÚN APROBACIÓN
-            /*
-            if (clientEmail) {
+            if (clientEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientEmail)) {
                 if (newStatus === 'proof_rejected') {
-                    // Reminders
+                    // Reminders for Client to re-upload proof
                     const scheduleOffsets = [0, 15, 30, 45];
                     for (const offset of scheduleOffsets) {
                         const scheduledTime = new Date();
@@ -224,7 +219,6 @@ export async function POST(req: NextRequest) {
                     });
                 }
             }
-            */
 
             await batch.commit();
             return NextResponse.json({ ok: true });
@@ -250,10 +244,8 @@ export async function POST(req: NextRequest) {
                 read: false
             });
 
-            // FASE 1: DESHABILITADO SEGÚN APROBACIÓN
-            /*
-            if (businessEmail) {
-                // Reminders
+            if (businessEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(businessEmail)) {
+                // Reminders to Business to review proof
                 const scheduleOffsets = [0, 15, 30, 45];
                 for (const offset of scheduleOffsets) {
                     const scheduledTime = new Date();
@@ -274,7 +266,6 @@ export async function POST(req: NextRequest) {
                     });
                 }
             }
-            */
 
             await batch.commit();
             return NextResponse.json({ ok: true });

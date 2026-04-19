@@ -454,6 +454,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
 }
 
 export function PlacesLocationPicker(props: Props) {
+    const tStates = useTranslations('common.states');
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
     const { isLoaded, loadError } = useJsApiLoader({
@@ -466,7 +467,7 @@ export function PlacesLocationPicker(props: Props) {
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 flex items-start gap-3 shadow-sm">
                 <AlertTriangle size={20} className="text-amber-500 shrink-0 mt-0.5" />
                 <div>
-                    <h3 className="text-slate-800 font-medium text-sm">El mapa está cargando</h3>
+                    <h3 className="text-slate-800 font-medium text-sm">{tStates('loadingMap')}</h3>
                     <p className="text-slate-600 text-xs mt-1">Si no aparece, verifica tu conexión a internet o recarga la página.</p>
                 </div>
             </div>
@@ -476,7 +477,7 @@ export function PlacesLocationPicker(props: Props) {
     if (!isLoaded) {
         return (
             <div className="flex items-center gap-2 text-slate-400 text-sm py-4">
-                <Loader2 size={16} className="animate-spin text-teal-500" /> Cargando mapa...
+                <Loader2 size={16} className="animate-spin text-teal-500" /> {tStates('loadingMap')}
             </div>
         );
     }

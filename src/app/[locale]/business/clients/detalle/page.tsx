@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import CustomerFormModal from '@/components/business/clients/CustomerFormModal';
 import { useAuth } from '@/context/AuthContext';
 import { formatPrice } from '@/lib/currencyUtils';
+import { useTranslations } from 'next-intl';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
     confirmed: { label: 'Confirmada', color: 'text-green-700 bg-green-50 border-green-200', icon: <CheckCircle className="w-3 h-3" /> },
@@ -26,6 +27,7 @@ function CustomerDetailContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const { user } = useAuth();
+    const tStates = useTranslations('common.states');
     const id = searchParams.get('id') as string;
 
     const [customer, setCustomer] = useState<Customer | null>(null);
@@ -128,7 +130,7 @@ function CustomerDetailContent() {
         .filter(a => a.status === 'confirmed' && (new Date(a.date + 'T' + a.time) >= new Date()))
         .sort((a, b) => new Date(a.date + 'T' + a.time).getTime() - new Date(b.date + 'T' + b.time).getTime())[0];
 
-    if (loading) return <div className="p-8 text-center text-slate-500 animate-pulse">Cargando perfil...</div>;
+    if (loading) return <div className="p-8 text-center text-slate-500 animate-pulse">{tStates('loading')}</div>;
     if (!customer) return null;
 
     return (
@@ -319,8 +321,9 @@ function CustomerDetailContent() {
 }
 
 export default function CustomerDetailPage() {
+    const tStates = useTranslations('common.states');
     return (
-        <Suspense fallback={<div className="p-8 text-center text-slate-500 animate-pulse">Cargando perfil...</div>}>
+        <Suspense fallback={<div className="p-8 text-center text-slate-500 animate-pulse">{tStates('loading')}</div>}>
             <CustomerDetailContent />
         </Suspense>
     );

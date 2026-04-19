@@ -77,6 +77,9 @@ export default function AppointmentInbox({
         const unsubscribe = BookingService.onBookingsByBusiness(businessId, (bookings) => {
             setAllBookings(bookings);
             setLoading(false);
+            
+            // Stop-At-Sight: Clear all pending active email reminders because business is viewing inbox
+            NotificationQueueService.cancelAllPendingForTarget(businessId).catch(() => {});
         });
         return () => unsubscribe();
     }, [businessId]);

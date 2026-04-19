@@ -40,6 +40,8 @@ function BusinessProfileContent() {
     const [isChatOpen, setIsChatOpen] = useState(false);
 
     const tCurious = useTranslations('curiousMode');
+    const tStates = useTranslations('common.states');
+    const tNotFound = useTranslations('common.notFound');
     const locale = useLocale();
 
     // 1. Hooks MUST be at the top unconditionally
@@ -104,19 +106,19 @@ function BusinessProfileContent() {
     }, [user, id]);
 
     if (loading || pageLoading) {
-        return <div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center text-slate-400">Cargando perfil...</div>;
+        return <div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center text-slate-400">{tStates('loadingProfile')}</div>;
     }
 
     // 0. Invalid ID
     if (!id) {
-        return <div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center text-slate-600 font-bold text-lg">Negocio no encontrado</div>;
+        return <div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center text-slate-600 font-bold text-lg">{tNotFound('title')}</div>;
     }
 
     // 1. Error State
     if (error) {
         return (
             <div className="min-h-screen bg-[#F4F6F8] flex flex-col items-center justify-center text-slate-900 gap-4">
-                <p className="text-red-400">Ocurrió un error al cargar el negocio.</p>
+                <p className="text-red-400">{tStates('errorLoading')}</p>
                 <button
                     onClick={loadPublic}
                     className="px-4 py-2 bg-slate-100 rounded-lg hover:bg-slate-100 transition-colors"
@@ -129,7 +131,7 @@ function BusinessProfileContent() {
 
     // 2. If no public data found -> 404 (Real 404, no mocks)
     if (!publicData) {
-        return <div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center text-slate-600">Negocio no encontrado</div>;
+        return <div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center text-slate-600">{tNotFound('title')}</div>;
     }
 
     // 3. Curious Mode Analytics (No longer blocks access)
@@ -245,8 +247,9 @@ function BusinessProfileContent() {
 }
 
 export default function BusinessProfilePage() {
+    const tStates = useTranslations('common.states');
     return (
-        <Suspense fallback={<div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center text-slate-400">Cargando perfil...</div>}>
+        <Suspense fallback={<div className="min-h-screen bg-[#F4F6F8] flex items-center justify-center text-slate-400">{tStates('loadingProfile')}</div>}>
             <BusinessProfileContent />
         </Suspense>
     );

@@ -61,6 +61,7 @@ function StatusBadge({ status, t }: { status: CollabStatus; t: any }) {
 
 export default function CollaboratorsPage() {
     const t = useTranslations('collaborators');
+    const tStates = useTranslations('common.states');
     const { selectedCountry } = useAdminContext();
     const { user } = useAuth();
 
@@ -343,7 +344,7 @@ export default function CollaboratorsPage() {
 
             {/* Table */}
             {loading ? (
-                <div className="text-center py-20 text-slate-500">Cargando...</div>
+                <div className="text-center py-20 text-slate-500">{tStates('loading')}</div>
             ) : filtered.length === 0 ? (
                 <div className="text-center py-20 text-slate-500">
                     <Crown className="w-10 h-10 mx-auto mb-3 opacity-20" />

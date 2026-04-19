@@ -8,8 +8,10 @@ import { BookingDocument } from '@/types/firestore-schema';
 import { CheckCircle, XCircle, Clock, CalendarCheck, Trash2, Archive } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '@/lib/currencyUtils';
+import { useTranslations } from 'next-intl';
 
 export default function ProviderBookingsView() {
+    const t = useTranslations('common.states');
     const { user } = useAuth();
     const [bookings, setBookings] = useState<BookingDocument[]>([]);
     const [loading, setLoading] = useState(true);
@@ -23,7 +25,7 @@ export default function ProviderBookingsView() {
             setBookings(data);
         } catch (error) {
             console.error(error);
-            toast.error("Error al cargar citas.");
+            toast.error(t('errorLoading'));
         } finally {
             setLoading(false);
         }
@@ -72,22 +74,22 @@ export default function ProviderBookingsView() {
                 }).catch(e => console.error('[Push Client Error]', e));
             }
 
-            toast.success(`Cita marcada como ${newStatus}.`);
+            toast.success(t('successUpdated'));
             loadBookings();
         } catch (error) {
             console.error(error);
-            toast.error("Error al actualizar la cita.");
+            toast.error(t('errorUpdating'));
         }
     };
 
     const handleArchiveBooking = async (booking: BookingDocument) => {
         try {
             await BookingService.hideForBusiness(booking.id);
-            toast.success("Cita archivada correctamente.");
+            toast.success(t('successUpdated'));
             loadBookings();
         } catch (error) {
             console.error(error);
-            toast.error("Error al archivar la cita.");
+            toast.error(t('errorUpdating'));
         }
     };
 
@@ -115,11 +117,11 @@ export default function ProviderBookingsView() {
                 })
             }).catch(e => console.error('[Push Client Error]', e));
 
-            toast.success("Comprobante aprobado. Cita confirmada de pago.");
+            toast.success(t('successUpdated'));
             loadBookings();
         } catch (error) {
             console.error(error);
-            toast.error("Error al aprobar comprobante.");
+            toast.error(t('errorUpdating'));
         }
     };
 
@@ -147,16 +149,16 @@ export default function ProviderBookingsView() {
                 })
             }).catch(e => console.error('[Push Client Error]', e));
 
-            toast.success("Comprobante rechazado.");
+            toast.success(t('successUpdated'));
             loadBookings();
         } catch (error) {
             console.error(error);
-            toast.error("Error al rechazar comprobante.");
+            toast.error(t('errorUpdating'));
         }
     };
 
     if (loading) {
-        return <div className="p-8 text-center text-slate-500">Cargando sistema de citas...</div>;
+        return <div className="p-8 text-center text-slate-500">{t('loadingSystem')}</div>;
     }
 
     return (

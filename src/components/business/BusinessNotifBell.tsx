@@ -78,6 +78,11 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
         setOpen(o => !o);
         if (!open && unread > 0) {
             BusinessNotificationService.markAllRead(businessId).catch(() => { });
+            
+            // Stop-At-Sight: If business opens bell, cancel all pending email reminders
+            import('@/services/notificationQueue.service').then(({ NotificationQueueService }) => {
+                NotificationQueueService.cancelAllPendingForTarget(businessId).catch(() => {});
+            });
         }
     };
 

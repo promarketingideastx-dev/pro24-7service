@@ -29,6 +29,7 @@ export default function UserProfilePage() {
     const router = useRouter();
     const locale = useLocale();
     const t = useTranslations('userProfile');
+    const tStates = useTranslations('common.states');
 
     const [loading, setLoading] = useState(false);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -175,11 +176,11 @@ export default function UserProfilePage() {
 
             // Set local preview
             setAvatarPreview(downloadURL);
-            toast.success('Foto actualizada correctamente');
+            toast.success(tStates('successUpdated'));
 
         } catch (error: any) {
             console.error("Error uploading avatar:", error);
-            toast.error("Error al subir la imagen.");
+            toast.error(tStates('errorGeneral'));
         } finally {
             setLoading(false);
             setUploadingAvatar(false);
@@ -195,10 +196,10 @@ export default function UserProfilePage() {
         try {
             await UserService.updateUserProfile(user.uid, formData);
             // Non-intrusive success feedback
-            toast.success('Perfil actualizado correctamente');
+            toast.success(tStates('successUpdated'));
         } catch (error) {
             console.error("Error updating profile:", error);
-            toast.error('Error al actualizar perfil');
+            toast.error(tStates('errorUpdating'));
         } finally {
             setLoading(false);
         }
@@ -221,12 +222,12 @@ export default function UserProfilePage() {
                     const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
                     await UserService.updateUserProfile(user.uid, { userLocation: { lat: pos.coords.latitude, lng: pos.coords.longitude, timestamp: Date.now() } } as any);
                     AnalyticsService.track({ type: 'user_location_permission_granted', businessId: 'system', userUid: user.uid, country: userProfile?.country_code });
-                    toast.success('Ubicación actualizada correctamente');
+                    toast.success(tStates('successUpdated'));
                 } else {
-                    toast.error('Permiso denegado');
+                    toast.error(tStates('errorPermission'));
                 }
             } catch (e) {
-                toast.error('Error obteniendo ubicación');
+                toast.error(tStates('errorLocation'));
             }
         } else {
             if (!navigator.geolocation) {
@@ -237,11 +238,11 @@ export default function UserProfilePage() {
                 async (pos) => {
                     await UserService.updateUserProfile(user.uid, { userLocation: { lat: pos.coords.latitude, lng: pos.coords.longitude, timestamp: Date.now() } } as any);
                     AnalyticsService.track({ type: 'user_location_permission_granted', businessId: 'system', userUid: user.uid, country: userProfile?.country_code });
-                    toast.success('Ubicación actualizada correctamente');
+                    toast.success(tStates('successUpdated'));
                     setLoading(false);
                 },
                 (err) => {
-                    toast.error('Permiso GPS denegado');
+                    toast.error(tStates('errorPermission'));
                     setLoading(false);
                 },
                 { enableHighAccuracy: true }
@@ -256,7 +257,7 @@ export default function UserProfilePage() {
             const { AuthService } = await import('@/services/auth.service');
             await AuthService.deleteAccount();
             // Success — Firebase Auth is deleted, signOut is implicit
-            toast.success('Cuenta eliminada correctamente');
+            toast.success(tStates('successDeleted'));
             router.push('/');
         } catch (error: any) {
             setIsDeleting(false);
@@ -299,11 +300,11 @@ export default function UserProfilePage() {
                 providerOnboardingStatus: null
             } as any);
             
-            toast.success('Negocio cerrado cerrado. Sigues siendo un usuario normal.');
+            toast.success(tStates('successUpdated'));
             setTimeout(() => window.location.reload(), 1500);
         } catch (error) {
             console.error(error);
-            toast.error('Error al cerrar negocio');
+            toast.error(tStates('errorUpdating'));
         } finally {
             setIsClosingBiz(false);
             setShowCloseBizModal(false);
@@ -316,7 +317,7 @@ export default function UserProfilePage() {
         try {
             const { AuthService } = await import('@/services/auth.service');
             await AuthService.reauthAndDelete(reauthPassword);
-            toast.success('Cuenta eliminada correctamente');
+            toast.success(tStates('successDeleted'));
             router.push('/');
         } catch (error: any) {
             setIsDeleting(false);

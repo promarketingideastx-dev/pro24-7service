@@ -90,6 +90,7 @@ export default function Home() {
     const locale = useLocale();
     const localeKey = locale === 'en' ? 'en' : locale === 'pt-BR' ? 'pt' : 'es';
     const t = useTranslations('home');
+    const tStates = useTranslations('common.states');
     // Helper: prefixes any path with the current locale
     const lp = (path: string) => `/${locale}${path}`;
     // Categories (after t() is declared)
@@ -316,7 +317,7 @@ export default function Home() {
     const selectedTaxonomy = selectedCategory ? TAXONOMY[selectedCategory as keyof typeof TAXONOMY] : null;
 
     // Show Loader or Country Selector
-    if (isCountryLoading) return <div className="h-screen bg-[#F4F6F8] flex items-center justify-center text-slate-700">Cargando...</div>;
+    if (isCountryLoading) return <div className="h-screen bg-[#F4F6F8] flex items-center justify-center text-slate-700">{tStates('loading')}</div>;
     if (!selectedCountry) return <CountrySelector />;
 
     return (

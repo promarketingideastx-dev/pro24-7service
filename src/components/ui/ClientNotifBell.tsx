@@ -77,6 +77,11 @@ export default function ClientNotifBell({ clientUid }: ClientNotifBellProps) {
         setOpen(o => !o);
         if (!open && unread > 0) {
             ClientNotificationService.markAllRead(clientUid).catch(() => { });
+            
+            // Stop-At-Sight: If user opens bell, cancel all pending email reminders
+            import('@/services/notificationQueue.service').then(({ NotificationQueueService }) => {
+                NotificationQueueService.cancelAllPendingForTarget(clientUid).catch(() => {});
+            });
         }
     };
 

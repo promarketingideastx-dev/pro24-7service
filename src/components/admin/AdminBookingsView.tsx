@@ -8,8 +8,10 @@ import { formatPrice } from '@/lib/currencyUtils';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 export default function AdminBookingsView() {
+    const tStates = useTranslations('common.states');
     const [bookings, setBookings] = useState<BookingDocument[]>([]);
     const [loading, setLoading] = useState(true);
     
@@ -99,18 +101,18 @@ export default function AdminBookingsView() {
         setIsDeleting(true);
         try {
             await BookingService.deleteBookings(selectedIds);
-            toast.success(`${selectedIds.length} citas eliminadas exitosamente.`);
+            toast.success(tStates('successDeleted'));
             await loadBookings();
         } catch (error) {
             console.error("Error deleting bookings:", error);
-            toast.error("Ocurrió un error al eliminar las citas.");
+            toast.error(tStates('errorDeleting'));
         } finally {
             setIsDeleting(false);
         }
     };
 
     if (loading && bookings.length === 0) {
-        return <div className="p-8 text-center text-slate-500">Cargando todas las citas del sistema...</div>;
+        return <div className="p-8 text-center text-slate-500">{tStates('loadingSystem')}</div>;
     }
 
     return (
@@ -209,7 +211,7 @@ export default function AdminBookingsView() {
                                 <tr>
                                     <td colSpan={8} className="p-12 text-center text-slate-500 flex flex-col items-center justify-center">
                                         <CheckSquare size={32} className="text-slate-300 mb-3" />
-                                        La tabla global de reservas está vacía.
+                                        {tStates('emptyData')}
                                     </td>
                                 </tr>
                             )}

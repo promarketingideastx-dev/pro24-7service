@@ -217,5 +217,33 @@ export const NotificationQueueService = {
         } catch (error) {
             console.error('[NotificationQueue] Error bulk cancelling queue:', error);
         }
+    },
+
+    /** Cancel ALL pending notifications for a specific user regardless of sender (True Stop-At-Sight) */
+    async cancelAllPendingForTarget(targetUid: string): Promise<void> {
+        try {
+            const q = query(
+                collection(db, 'notification_queue'),
+                where('targetUid', '==', targetUid),
+                where('status', '==', 'pending')
+            );
+            
+            const snap = await getDocs(q);
+            if (snap.empty) return;
+
+            const batch = writeBatch(db);
+            snap.docs.forEach(d => {
+                batch.update(d.ref, {
+                    status: 'canceled',
+                    canceledAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    reason: 'interaction_detected'
+                });
+            });
+            await batch.commit();
+            console.log(`[NotificationQueue] Cancelled ${snap.size} pending emails for ${targetUid}`);
+        } catch (error) {
+            console.error('[NotificationQueue] Error bulk cancelling queue:', error);
+        }
     }
 };

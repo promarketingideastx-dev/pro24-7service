@@ -15,6 +15,7 @@ import { es } from 'date-fns/locale';
 export default function BusinessNotificationsPage() {
     const { user } = useAuth();
     const t = useTranslations('business.notifications');
+    const tStates = useTranslations('common.states');
     const [items, setItems] = useState<BusinessNotification[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<'all' | 'appointment' | 'payment'>('all');
@@ -91,7 +92,7 @@ export default function BusinessNotificationsPage() {
 
             {/* Notification list */}
             {loading ? (
-                <div className="text-center py-20 text-slate-500">Cargando...</div>
+                <div className="text-center py-20 text-slate-500">{tStates('loading')}</div>
             ) : filtered.length === 0 ? (
                 <div className="text-center py-20 text-slate-500">
                     <Bell size={32} className="mx-auto mb-3 opacity-20" />
