@@ -6,13 +6,12 @@ import { useAuth } from '@/context/AuthContext';
 import { CustomerService, Customer } from '@/services/customer.service';
 import { BookingService } from '@/services/booking.service';
 import { BookingDocument } from '@/types/firestore-schema';
-import { BusinessProfileService } from '@/services/businessProfile.service';
+import { BusinessProfileService, ServicesService, ServiceData } from '@/services/businessProfile.service';
 import CustomerList from '@/components/business/clients/CustomerList';
 import CustomerFormModal from '@/components/business/clients/CustomerFormModal';
 import SmartDeleteCustomerModal from '@/components/business/clients/SmartDeleteCustomerModal';
 import AppointmentModal from '@/components/business/agenda/AppointmentModal';
 import { EmployeeService, EmployeeData } from '@/services/employee.service';
-import { ServiceData } from '@/services/businessProfile.service';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 
@@ -96,7 +95,7 @@ export default function ClientsPage() {
                 CustomerService.getCustomers(user.uid),
                 BookingService.getByBusiness(user.uid),
                 BusinessProfileService.getProfile(user.uid),
-                BusinessProfileService.getServices(user.uid),
+                ServicesService.getServices(user.uid),
                 EmployeeService.getEmployees(user.uid)
             ]);
             
