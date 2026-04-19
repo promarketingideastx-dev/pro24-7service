@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Edit2, Phone, Mail, Trash2, TrendingUp, Calendar, Clock, ChevronRight } from 'lucide-react';
+import { Search, Edit2, Phone, Mail, Trash2, TrendingUp, Calendar, Clock, ChevronRight, Archive } from 'lucide-react';
 import { Customer } from '@/services/customer.service';
 import { CustomerStats } from '@/app/[locale]/business/clients/page';
 import { format } from 'date-fns';
@@ -17,12 +17,14 @@ interface CustomerListProps {
     businessCountry?: string;
     onEdit: (customer: Customer) => void;
     onDelete: (customer: Customer) => void;
+    onBatchDelete?: (customerIds: string[]) => void;
 }
 
 // Replaced with unified location config
 
-export default function CustomerList({ customers, appointmentStats, businessCountry = 'HN', onEdit, onDelete }: CustomerListProps) {
+export default function CustomerList({ customers, appointmentStats, businessCountry = 'HN', onEdit, onDelete, onBatchDelete }: CustomerListProps) {
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const router = useRouter();
     const locale = useLocale();
     const t = useTranslations('business.clients');
@@ -46,6 +48,22 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
     const formatCurrencyStat = (amount: number) => {
         if (amount === 0) return '—';
         return formatPrice(amount, currencyISO);
+    };
+
+    const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.checked) {
+            setSelectedIds(new Set(filteredCustomers.map(c => c.id!)));
+        } else {
+            setSelectedIds(new Set());
+        }
+    };
+
+    const handleToggleSelect = (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        const next = new Set(selectedIds);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        setSelectedIds(next);
     };
 
     return (
@@ -85,14 +103,44 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
             )}
 
             {/* List Header (Desktop) */}
-            <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                <div className="col-span-3">{t('colClient')}</div>
+            <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider items-center">
+                <div className="col-span-3 flex items-center gap-3">
+                    <input 
+                        type="checkbox" 
+                        className="rounded border-slate-300 text-[#14B8A6] focus:ring-[#14B8A6]"
+                        checked={filteredCustomers.length > 0 && selectedIds.size === filteredCustomers.length}
+                        onChange={handleSelectAll}
+                    />
+                    {t('colClient')}
+                </div>
                 <div className="col-span-2">{t('colContact')}</div>
                 <div className="col-span-2">{t('colLastVisit')}</div>
                 <div className="col-span-2">{t('colNextAppt')}</div>
                 <div className="col-span-2 text-[#0F766E] font-semibold">LTV</div>
                 <div className="col-span-1 text-right">Acc.</div>
             </div>
+
+            {/* Batch ActionBar */}
+            {selectedIds.size > 0 && onBatchDelete && (
+                <div className="sticky top-4 z-20 bg-slate-800 text-white rounded-xl shadow-xl p-4 flex items-center justify-between animate-in slide-in-from-bottom-5">
+                    <div className="flex items-center gap-3">
+                        <span className="bg-slate-700 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">
+                            {selectedIds.size}
+                        </span>
+                        <span className="font-medium text-sm">seleccionados</span>
+                    </div>
+                    <button 
+                        onClick={() => {
+                            onBatchDelete(Array.from(selectedIds));
+                            setSelectedIds(new Set());
+                        }}
+                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors"
+                    >
+                        <Archive size={16} /> {/* Use Trash icon if archive missing */}
+                        <span>Quitar Lista</span>
+                    </button>
+                </div>
+            )}
 
             {/* List */}
             <div className="space-y-2">
@@ -113,6 +161,19 @@ export default function CustomerList({ customers, appointmentStats, businessCoun
 
                                     {/* Client Info */}
                                     <div className="w-full md:col-span-3 flex items-center gap-3">
+                                        <div className="hidden md:block" onClick={(e) => e.stopPropagation()}>
+                                            <input 
+                                                type="checkbox" 
+                                                className="rounded border-slate-300 text-[#14B8A6] focus:ring-[#14B8A6]"
+                                                checked={selectedIds.has(customer.id!)}
+                                                onChange={(e) => {
+                                                    const next = new Set(selectedIds);
+                                                    if (e.target.checked) next.add(customer.id!);
+                                                    else next.delete(customer.id!);
+                                                    setSelectedIds(next);
+                                                }}
+                                            />
+                                        </div>
                                         <div className="relative shrink-0">
                                             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center border border-slate-200 shadow-inner">
                                                 <span className="font-bold text-white text-sm">

@@ -216,18 +216,22 @@ export const BookingService = {
     },
 
     /**
-     * Batch Delete Bookings
+     * Batch Delete Bookings (Soft Delete)
+     * Mutates status to 'deleted' instead of physical destruction to preserve CRM integrity.
      */
     async deleteBookings(bookingIds: string[]) {
         if (!bookingIds.length) return;
         
-        // FASE B FIX: Find properties before deleting to liberate slot_locks
+        // FASE C Fix: Don't physically delete! Transition to status 'deleted'.
+        // This ensures CRM metrics (if needed) are backed up, and listeners die cleanly.
         const batch = writeBatch(db);
         for (const id of bookingIds) {
             const ref = doc(db, COLLECTION_NAME, id);
             const snap = await getDoc(ref);
             if (snap.exists()) {
                 const data = snap.data() as BookingDocument;
+                
+                // If the booking is occupying a lock, liberate it immediately.
                 if (data.status === 'pending' || data.status === 'confirmed') {
                      const slotLockRef = doc(db, 'businesses', data.businessId, 'slot_locks', `${data.date}_${data.time}`);
                      await runTransaction(db, async (trans) => {
@@ -238,8 +242,13 @@ export const BookingService = {
                          }
                      });
                 }
+                
+                // Soft-Delete mutation
+                batch.update(ref, { 
+                    status: 'deleted',
+                    updatedAt: serverTimestamp() 
+                });
             }
-            batch.delete(ref);
         }
         await batch.commit();
     },

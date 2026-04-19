@@ -270,6 +270,38 @@ export const CustomerService = {
     },
 
     /**
+     * Batch Archive Customers (Soft Delete).
+     * Bypasses normalization for temp- since a batch delete shouldn't reconstruct DB objects to instantly delete them. 
+     * It just handles the ones strictly in the database.
+     */
+    async archiveCustomers(customerIds: string[]): Promise<void> {
+        if (!customerIds.length) return;
+        try {
+            const { writeBatch } = await import('firebase/firestore');
+            const batch = writeBatch(db);
+            let operationCount = 0;
+
+            for (const id of customerIds) {
+                // We only batch archive physical DB entities. Temp clients vanish from array automatically.
+                if (!id.startsWith('temp-')) {
+                    const docRef = doc(db, COLLECTION_NAME, id);
+                    batch.update(docRef, {
+                        archived: true,
+                        updatedAt: serverTimestamp()
+                    });
+                    operationCount++;
+                }
+            }
+            if (operationCount > 0) {
+                await batch.commit();
+            }
+        } catch (error) {
+            console.error("Error batch archiving customers:", error);
+            throw error;
+        }
+    },
+
+    /**
      * Upsert a customer from booking data.
      * Looks up by email (preferred) or phone. Creates if not found, updates if found.
      * Returns the customer ID for linking to the appointment.

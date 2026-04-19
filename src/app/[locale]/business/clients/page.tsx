@@ -157,6 +157,18 @@ export default function ClientsPage() {
     const handleDelete = (customer: Customer) => { setCustomerToDelete(customer); setIsDeleteModalOpen(true); };
     const handleDeleteSuccess = () => { fetchData(); };
     
+    const handleBatchDelete = async (customerIds: string[]) => {
+        if (!user) return;
+        try {
+            await CustomerService.archiveCustomers(customerIds);
+            toast.success(`${customerIds.length} clientes ocultados correctamente`);
+            fetchData();
+        } catch (error) {
+            console.error('Error in batch delete:', error);
+            toast.error("Error al ocultar clientes múltiples");
+        }
+    };
+    
     const handleSaveAppointment = async (appointmentData: any) => {
         if (!user) return;
         try {
@@ -210,6 +222,7 @@ export default function ClientsPage() {
                     businessCountry={businessCountry}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
+                    onBatchDelete={handleBatchDelete}
                 />
             )}
 
