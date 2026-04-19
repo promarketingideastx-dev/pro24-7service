@@ -248,13 +248,13 @@ export default function ProviderBookingsView() {
                                             onClick={() => handleMutateStatus(booking, 'confirmed')}
                                             className="px-4 py-2.5 bg-[#14B8A6] hover:bg-[#0F9488] text-white text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto shadow-sm shadow-cyan-900/10"
                                         >
-                                            <CheckCircle size={16} /> Confirmar Cita
+                                            <CheckCircle size={16} /> Aprobar
                                         </button>
                                         <button 
                                             onClick={() => handleMutateStatus(booking, 'canceled')}
                                             className="px-4 py-2.5 bg-white border border-red-200 hover:bg-red-50 text-red-600 text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto"
                                         >
-                                            <XCircle size={16} /> Cancelar Cita
+                                            <XCircle size={16} /> Rechazar
                                         </button>
                                     </>
                                 )}
