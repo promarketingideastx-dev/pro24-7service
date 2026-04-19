@@ -67,21 +67,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 const userRef = doc(db, 'users', currentUser.uid);
                 unsubscribeFirestore = onSnapshot(userRef, async (docSnap) => {
                     if (docSnap.exists()) {
-                        console.log('[AuthContext] Firestore profile loaded from server/cache');
+                        console.log('[AuthContext] Firestore profile loaded');
                         setUserProfile(docSnap.data() as UserDocument);
                         setLoading(false);
                     } else {
-                        console.warn('[AuthContext] Firestore profile missing or cache is empty.');
-                        setUserProfile(null);
-                        
-                        // FASE A STABILIZATION: Prevent premature AuthGuard redirect loop by allowing login flow to finish doc creation.
-                        setTimeout(() => {
-                            setLoading(false);
-                        }, 1250);
+                        console.warn('[AuthContext] Profile missing in snapshot. Forcing direct network fetch...');
+                        try {
+                            // Bypass local cache entirely to prevent false-positives
+                            const { getDocFromServer } = await import('firebase/firestore');
+                            const directSnap = await getDocFromServer(userRef);
+                            if (directSnap.exists()) {
+                                setUserProfile(directSnap.data() as UserDocument);
+                            } else {
+                                setUserProfile(null);
+                            }
+                        } catch (err) {
+                            console.error('[AuthContext] Network fetch failed:', err);
+                            setUserProfile(null);
+                        }
+                        setLoading(false);
                     }
                 }, (error) => {
                     console.error("AuthContext Firestore Error:", error);
                     setLoading(false);
+                    // Critical fallback if Snapshot fails permission checks
+                    setUserProfile(null); 
                 });
             } else {
                 console.log('[AuthContext] No user confirmed. Setting loading to false');
