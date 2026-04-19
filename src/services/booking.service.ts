@@ -69,6 +69,25 @@ export const BookingService = {
         const slotLockRef = doc(db, 'businesses', bookingData.businessId, 'slot_locks', `${bookingData.date}_${bookingData.time}`);
         const bookingRef = doc(collection(db, COLLECTION_NAME));
 
+        // FASE B - AUTOHEAL GHOST SLOTS
+        if (!allowDoubleBooking) {
+            const currentLock = await getDoc(slotLockRef);
+            if (currentLock.exists() && (currentLock.data().active || 0) > 0) {
+                const q = query(
+                     collection(db, COLLECTION_NAME), 
+                     where('businessId', '==', bookingData.businessId),
+                     where('date', '==', bookingData.date),
+                     where('time', '==', bookingData.time),
+                     where('status', 'in', ['pending', 'confirmed'])
+                );
+                const snap = await getDocs(q);
+                if (snap.empty) {
+                     // Ghost Slot Detected! The UI was right, the transaction lock is orphaned. Heal it explicitly.
+                     await updateDoc(slotLockRef, { active: 0 });
+                }
+            }
+        }
+
         await runTransaction(db, async (transaction) => {
             const slotDoc = await transaction.get(slotLockRef);
             const activeCount = slotDoc.exists() ? (slotDoc.data().active || 0) : 0;
@@ -131,6 +150,22 @@ export const BookingService = {
         const slotLockRef = doc(db, 'businesses', bookingData.businessId as string, 'slot_locks', `${bookingData.date}_${bookingData.time}`);
         const bookingRef = doc(collection(db, COLLECTION_NAME));
 
+        // FASE B - AUTOHEAL GHOST SLOTS (Admin bypass fallback healing)
+        const currentLock = await getDoc(slotLockRef);
+        if (currentLock.exists() && (currentLock.data().active || 0) > 0) {
+            const q = query(
+                 collection(db, COLLECTION_NAME), 
+                 where('businessId', '==', bookingData.businessId),
+                 where('date', '==', bookingData.date),
+                 where('time', '==', bookingData.time),
+                 where('status', 'in', ['pending', 'confirmed'])
+            );
+            const snap = await getDocs(q);
+            if (snap.empty) {
+                 await updateDoc(slotLockRef, { active: 0 });
+            }
+        }
+
         await runTransaction(db, async (transaction) => {
             const slotDoc = await transaction.get(slotLockRef);
             const activeCount = slotDoc.exists() ? (slotDoc.data().active || 0) : 0;
@@ -146,6 +181,25 @@ export const BookingService = {
      */
     async updateStatus(bookingId: string, status: BookingStatus, notesBusiness?: string) {
         const ref = doc(db, COLLECTION_NAME, bookingId);
+        
+        // FASE B FIX: Anti Race-Condition, Liberate the lock if canceled.
+        if (status === 'canceled') {
+            const snap = await getDoc(ref);
+            if (snap.exists()) {
+                const data = snap.data() as BookingDocument;
+                if (data.status === 'pending' || data.status === 'confirmed') {
+                    const slotLockRef = doc(db, 'businesses', data.businessId, 'slot_locks', `${data.date}_${data.time}`);
+                    await runTransaction(db, async (trans) => {
+                        const slotDoc = await trans.get(slotLockRef);
+                        if (slotDoc.exists()) {
+                            const newCount = Math.max(0, (slotDoc.data().active || 1) - 1);
+                            trans.set(slotLockRef, { active: newCount }, { merge: true });
+                        }
+                    });
+                }
+            }
+        }
+
         const updateData: any = {
             status,
             updatedAt: serverTimestamp()
@@ -183,11 +237,27 @@ export const BookingService = {
      */
     async deleteBookings(bookingIds: string[]) {
         if (!bookingIds.length) return;
+        
+        // FASE B FIX: Find properties before deleting to liberate slot_locks
         const batch = writeBatch(db);
-        bookingIds.forEach(id => {
+        for (const id of bookingIds) {
             const ref = doc(db, COLLECTION_NAME, id);
+            const snap = await getDoc(ref);
+            if (snap.exists()) {
+                const data = snap.data() as BookingDocument;
+                if (data.status === 'pending' || data.status === 'confirmed') {
+                     const slotLockRef = doc(db, 'businesses', data.businessId, 'slot_locks', `${data.date}_${data.time}`);
+                     await runTransaction(db, async (trans) => {
+                         const slotDoc = await trans.get(slotLockRef);
+                         if (slotDoc.exists()) {
+                             const newCount = Math.max(0, (slotDoc.data().active || 1) - 1);
+                             trans.set(slotLockRef, { active: newCount }, { merge: true });
+                         }
+                     });
+                }
+            }
             batch.delete(ref);
-        });
+        }
         await batch.commit();
     },
 
