@@ -188,13 +188,13 @@ export default function ProviderBookingsView() {
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
                     <CalendarCheck className="text-[#14B8A6]" />
-                    Gestión de Citas (Bookings)
+                    {tInbox('pageTitle') || 'Gestión de Citas (Bookings)'}
                 </h1>
             </div>
 
             {bookings.length === 0 ? (
                 <div className="p-12 text-center text-slate-500 bg-white rounded-2xl shadow-sm border border-slate-100">
-                    No tienes citas registradas.
+                    {tInbox('noBookings') || 'No tienes citas registradas.'}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-4">
@@ -208,7 +208,10 @@ export default function ProviderBookingsView() {
                                         ${booking.status === 'canceled' ? 'bg-red-100 text-red-700' : ''}
                                         ${booking.status === 'completed' ? 'bg-blue-100 text-blue-700' : ''}
                                     `}>
-                                        {booking.status}
+                                        {booking.status === 'pending' ? tInbox('badgePending') : 
+                                         booking.status === 'confirmed' ? tInbox('badgeConfirmed') :
+                                         booking.status === 'canceled' ? tInbox('badgeCancelled') :
+                                         booking.status === 'completed' ? tInbox('badgeCompleted') : booking.status}
                                     </span>
                                     
                                     {/* Payment Status Badge */}
@@ -218,7 +221,7 @@ export default function ProviderBookingsView() {
                                         ${booking.paymentStatus === 'confirmed' ? 'bg-[#14B8A6]/10 text-[#14B8A6]' : ''}
                                         ${booking.paymentStatus === 'rejected' ? 'bg-red-100 text-red-700' : ''}
                                     `}>
-                                        Pago: {(booking.paymentStatus || 'No definido').replace('_', ' ')}
+                                        {tInbox('payment') || 'Pago'}: {(booking.paymentStatus || 'No definido').replace('proof_uploaded', 'PROOF UPLOADED')}
                                     </span>
 
                                     <span className="text-xs text-slate-400 font-medium bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
@@ -227,16 +230,16 @@ export default function ProviderBookingsView() {
                                     </span>
                                 </div>
                                 <h3 className="font-bold text-slate-900 text-lg leading-tight">{booking.serviceName}</h3>
-                                <p className="text-sm text-slate-500">Cliente: {booking.clientName} ({booking.clientPhone})</p>
+                                <p className="text-sm text-slate-500">{tInbox('client') || 'Cliente'}: {booking.clientName} ({booking.clientPhone})</p>
                                 <div className="text-sm font-medium mt-1 bg-slate-50 inline-block px-3 py-1 rounded-lg border border-slate-100">
-                                    <span className="text-slate-400 text-xs mr-2">Total:</span> 
+                                    <span className="text-slate-400 text-xs mr-2">{tInbox('total') || 'Total'}:</span> 
                                     {formatPrice(booking.totalAmount, booking.currency)}
                                 </div>
 
                                 {/* Client Notes */}
                                 {(booking.notes || booking.notesClient) && (
                                     <div className="mt-3 text-sm text-slate-700 bg-amber-50/50 p-3 flex-1 rounded-xl border border-amber-100/50 italic">
-                                        <span className="font-semibold not-italic block mb-1 text-amber-900/60 text-xs uppercase tracking-wide">Notas del cliente:</span>
+                                        <span className="font-semibold not-italic block mb-1 text-amber-900/60 text-xs uppercase tracking-wide">{tInbox('clientNotes') || 'Notas del cliente:'}</span>
                                         "{booking.notes || booking.notesClient}"
                                     </div>
                                 )}
@@ -244,13 +247,13 @@ export default function ProviderBookingsView() {
                                 {/* Payment Proof Section */}
                                 {booking.paymentProof && (
                                     <div className="mt-3 p-3 bg-blue-50/50 border border-blue-100 rounded-xl max-w-sm">
-                                        <p className="text-xs font-bold text-blue-900 mb-2">Comprobante Adjunto</p>
+                                        <p className="text-xs font-bold text-blue-900 mb-2">{tInbox('attachedProof') || 'Comprobante Adjunto'}</p>
                                         <div className="flex gap-2">
                                             <button 
                                                 onClick={() => setSelectedProof({ url: booking.paymentProof!.url, type: booking.paymentProof!.type })}
                                                 className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-medium transition-colors"
                                             >
-                                                Ver Archivo ({booking.paymentProof.type})
+                                                {tInbox('viewFile') || 'Ver Archivo'} ({booking.paymentProof.type})
                                             </button>
                                             {booking.paymentStatus === 'proof_uploaded' && booking.status === 'pending' && (
                                                 <>
@@ -305,13 +308,13 @@ export default function ProviderBookingsView() {
                                 {(booking.status === 'canceled' || booking.status === 'completed') && (
                                     <button 
                                         onClick={() => {
-                                            if (window.confirm("¿Seguro que deseas archivar esta cita de tu lista? Seguirá disponible en tus analíticas globales.")) {
+                                            if (window.confirm(tInbox('archiveConfirm') || "¿Seguro que deseas archivar esta cita de tu lista? Seguirá disponible en tus analíticas globales.")) {
                                                 handleArchiveBooking(booking);
                                             }
                                         }}
                                         className="px-4 py-2.5 bg-slate-50 border border-slate-200 hover:bg-slate-100/80 text-slate-500 hover:text-slate-800 text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto"
                                     >
-                                        <Archive size={16} /> Archivar Cita
+                                        <Archive size={16} /> {tInbox('archiveBtn') || 'Archivar Cita'}
                                     </button>
                                 )}
                             </div>
@@ -381,7 +384,7 @@ export default function ProviderBookingsView() {
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md">
                     <div className="w-full max-w-3xl flex flex-col h-full sm:h-auto max-h-screen">
                         <div className="flex justify-between items-center bg-black/50 p-4 rounded-t-xl">
-                            <span className="text-white font-semibold">Comprobante de Pago</span>
+                            <span className="text-white font-semibold">{tInbox('attachedProof') || 'Comprobante Adjunto'}</span>
                             <button onClick={() => setSelectedProof(null)} className="text-white hover:text-slate-300 p-2 bg-white/10 rounded-full">
                                 <XCircle size={20} />
                             </button>
