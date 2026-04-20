@@ -33,11 +33,6 @@ export default async function LocaleLayout({
     // Forcefully require strictly the JSON dictionary scoped to this invocation's `validLocale`
     const messages = (await import(`../../../messages/${validLocale}.json`)).default;
 
-    console.log('--- NEXT-INTL DIAGNOSTIC ROOT ---');
-    console.log('LOADED LOCALE:', validLocale);
-    console.log('LOADED cancelModal.title:', (messages as any)?.inbox?.cancelModal?.title);
-    console.log('---------------------------------');
-
     return (
         <NextIntlClientProvider locale={validLocale} messages={messages}>
             <Providers>
