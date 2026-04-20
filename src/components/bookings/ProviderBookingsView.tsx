@@ -253,7 +253,7 @@ export default function ProviderBookingsView() {
                                                 onClick={() => setSelectedProof({ url: booking.paymentProof!.url, type: booking.paymentProof!.type })}
                                                 className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-medium transition-colors"
                                             >
-                                                {tInbox('viewFile') || 'Ver Archivo'} ({booking.paymentProof.type})
+                                                {tInbox('viewFile') || 'Ver Archivo'} ({booking.paymentProof?.type || ''})
                                             </button>
                                             {booking.paymentStatus === 'proof_uploaded' && booking.status === 'pending' && (
                                                 <>
