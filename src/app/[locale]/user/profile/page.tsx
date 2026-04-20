@@ -628,8 +628,11 @@ export default function UserProfilePage() {
                                             </div>
                                             {/* Inyectar nota de cancelación o confirmación aquí */}
                                             {apt.notesBusiness && (apt.status === 'canceled' || apt.status === 'confirmed') && (
-                                                <div className="flex items-start gap-1.5 mt-2 px-2.5 py-2 bg-white/60 border border-slate-200/60 rounded-lg text-[11px] leading-snug italic text-slate-600 shadow-sm w-full">
-                                                    <MessageCircle size={12} className="mt-[1px] shrink-0 text-slate-400" />
+                                                <div className="mt-2 text-[11px] text-slate-700 bg-amber-50/50 p-2.5 flex-1 rounded-xl border border-amber-100/50 italic w-full">
+                                                    <span className="font-semibold not-italic flex items-center gap-1.5 mb-1 text-amber-900/60 text-[10px] uppercase tracking-wide">
+                                                        <MessageCircle size={10} className="shrink-0" />
+                                                        {t('businessNote')}
+                                                    </span>
                                                     <span className="line-clamp-3">"{apt.notesBusiness}"</span>
                                                 </div>
                                             )}
