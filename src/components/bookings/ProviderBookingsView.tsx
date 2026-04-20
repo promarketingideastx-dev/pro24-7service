@@ -8,7 +8,7 @@ import { BookingDocument } from '@/types/firestore-schema';
 import { CheckCircle, XCircle, Clock, CalendarCheck, Trash2, Archive } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '@/lib/currencyUtils';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function ProviderBookingsView() {
     const t = useTranslations('common.states');
@@ -22,6 +22,20 @@ export default function ProviderBookingsView() {
     const [cancelModalBooking, setCancelModalBooking] = useState<BookingDocument | null>(null);
     const [cancelNote, setCancelNote] = useState('');
     const [isCanceling, setIsCanceling] = useState(false);
+    
+    // --- DIAGNOSTIC LOGS ---
+    const locale = useLocale();
+    useEffect(() => {
+        console.group('🔍 DIAGNÓSTICO I18N: ProviderBookingsView (Módulo de Cancelación)');
+        console.log('1. Locale activo en este componente:', locale);
+        console.log('2. Componente exacto montado: ProviderBookingsView.tsx');
+        console.log('3. Llave cancelModal.title resolvió como:', tCancelModal('title'));
+        console.log('4. Llave cancelModal.confirm resolvió como:', tCancelModal('confirm'));
+        console.log('5. Llave cancelModal.noteLabel resolvió como:', tCancelModal('noteLabel'));
+        console.log('6. Pathname actual:', window.location.pathname);
+        console.groupEnd();
+    }, [locale]);
+    // -----------------------
 
     const loadBookings = async () => {
         if (!user?.uid) return;

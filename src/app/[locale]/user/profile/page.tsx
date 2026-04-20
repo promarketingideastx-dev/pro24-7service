@@ -31,6 +31,17 @@ export default function UserProfilePage() {
     const t = useTranslations('userProfile');
     const tStates = useTranslations('common.states');
 
+    // --- DIAGNOSTIC LOGS ---
+    useEffect(() => {
+        console.group('🔍 DIAGNÓSTICO I18N: User Profile (Banner de Cliente)');
+        console.log('1. Locale activo en este componente:', locale);
+        console.log('2. Componente exacto montado: user/profile/page.tsx');
+        console.log('3. Llave businessNote resolvió como:', t('businessNote'));
+        console.log('4. Pathname actual:', window.location.pathname);
+        console.groupEnd();
+    }, [locale]);
+    // -----------------------
+
     const [loading, setLoading] = useState(false);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
