@@ -1,5 +1,5 @@
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, setRequestLocale } from 'next-intl/server';
+import { setRequestLocale } from 'next-intl/server';
 import { Providers } from '../providers';
 import { Toaster } from 'sonner';
 import CookieConsent from '@/components/ui/CookieConsent';
@@ -29,8 +29,14 @@ export default async function LocaleLayout({
     // Tell next-intl which locale to use for server-side rendering
     setRequestLocale(validLocale);
 
-    // Load messages for the current locale
-    const messages = await getMessages();
+    // EXPERIMENTAL DIRECT INGESTION: Bypass next-intl getMessages() Edge cache overlap
+    // Forcefully require strictly the JSON dictionary scoped to this invocation's `validLocale`
+    const messages = (await import(`../../../messages/${validLocale}.json`)).default;
+
+    console.log('--- NEXT-INTL DIAGNOSTIC ROOT ---');
+    console.log('LOADED LOCALE:', validLocale);
+    console.log('LOADED cancelModal.title:', (messages as any)?.inbox?.cancelModal?.title);
+    console.log('---------------------------------');
 
     return (
         <NextIntlClientProvider locale={validLocale} messages={messages}>
