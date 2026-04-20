@@ -13,6 +13,7 @@ import { useTranslations } from 'next-intl';
 export default function ProviderBookingsView() {
     const t = useTranslations('common.states');
     const tInbox = useTranslations('inbox');
+    const tCancelModal = useTranslations('inbox.cancelModal');
     const tCommon = useTranslations('common');
     const { user } = useAuth();
     const [bookings, setBookings] = useState<BookingDocument[]>([]);
@@ -188,13 +189,13 @@ export default function ProviderBookingsView() {
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
                     <CalendarCheck className="text-[#14B8A6]" />
-                    {tInbox('pageTitle') || 'Gestión de Citas (Bookings)'}
+                    {tInbox('pageTitle')}
                 </h1>
             </div>
 
             {bookings.length === 0 ? (
                 <div className="p-12 text-center text-slate-500 bg-white rounded-2xl shadow-sm border border-slate-100">
-                    {tInbox('noBookings') || 'No tienes citas registradas.'}
+                    {tInbox('noBookings')}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-4">
@@ -221,7 +222,7 @@ export default function ProviderBookingsView() {
                                         ${booking.paymentStatus === 'confirmed' ? 'bg-[#14B8A6]/10 text-[#14B8A6]' : ''}
                                         ${booking.paymentStatus === 'rejected' ? 'bg-red-100 text-red-700' : ''}
                                     `}>
-                                        {tInbox('payment') || 'Pago'}: {(booking.paymentStatus || 'No definido').replace('proof_uploaded', 'PROOF UPLOADED')}
+                                        {tInbox('payment')}: {(booking.paymentStatus || 'No definido').replace('proof_uploaded', 'PROOF UPLOADED')}
                                     </span>
 
                                     <span className="text-xs text-slate-400 font-medium bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
@@ -230,16 +231,16 @@ export default function ProviderBookingsView() {
                                     </span>
                                 </div>
                                 <h3 className="font-bold text-slate-900 text-lg leading-tight">{booking.serviceName}</h3>
-                                <p className="text-sm text-slate-500">{tInbox('client') || 'Cliente'}: {booking.clientName} ({booking.clientPhone})</p>
+                                <p className="text-sm text-slate-500">{tInbox('client')}: {booking.clientName} ({booking.clientPhone})</p>
                                 <div className="text-sm font-medium mt-1 bg-slate-50 inline-block px-3 py-1 rounded-lg border border-slate-100">
-                                    <span className="text-slate-400 text-xs mr-2">{tInbox('total') || 'Total'}:</span> 
+                                    <span className="text-slate-400 text-xs mr-2">{tInbox('total')}:</span> 
                                     {formatPrice(booking.totalAmount, booking.currency)}
                                 </div>
 
                                 {/* Client Notes */}
                                 {(booking.notes || booking.notesClient) && (
                                     <div className="mt-3 text-sm text-slate-700 bg-amber-50/50 p-3 flex-1 rounded-xl border border-amber-100/50 italic">
-                                        <span className="font-semibold not-italic block mb-1 text-amber-900/60 text-xs uppercase tracking-wide">{tInbox('clientNotes') || 'Notas del cliente:'}</span>
+                                        <span className="font-semibold not-italic block mb-1 text-amber-900/60 text-xs uppercase tracking-wide">{tInbox('clientNotes')}</span>
                                         "{booking.notes || booking.notesClient}"
                                     </div>
                                 )}
@@ -247,13 +248,13 @@ export default function ProviderBookingsView() {
                                 {/* Payment Proof Section */}
                                 {booking.paymentProof && (
                                     <div className="mt-3 p-3 bg-blue-50/50 border border-blue-100 rounded-xl max-w-sm">
-                                        <p className="text-xs font-bold text-blue-900 mb-2">{tInbox('attachedProof') || 'Comprobante Adjunto'}</p>
+                                        <p className="text-xs font-bold text-blue-900 mb-2">{tInbox('attachedProof')}</p>
                                         <div className="flex gap-2">
                                             <button 
                                                 onClick={() => setSelectedProof({ url: booking.paymentProof!.url, type: booking.paymentProof!.type })}
                                                 className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-medium transition-colors"
                                             >
-                                                {tInbox('viewFile') || 'Ver Archivo'} ({booking.paymentProof?.type || ''})
+                                                {tInbox('viewFile')} ({booking.paymentProof?.type || ''})
                                             </button>
                                             {booking.paymentStatus === 'proof_uploaded' && booking.status === 'pending' && (
                                                 <>
@@ -292,7 +293,7 @@ export default function ProviderBookingsView() {
                                             onClick={() => handleMutateStatus(booking, 'completed')}
                                             className="px-4 py-2 bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto"
                                         >
-                                            <CheckCircle size={16} /> Marcar Completada
+                                            <CheckCircle size={16} /> {tInbox('badgeCompleted')}
                                         </button>
                                         <button 
                                             onClick={() => {
@@ -301,20 +302,20 @@ export default function ProviderBookingsView() {
                                             }}
                                             className="px-4 py-2 bg-white border border-red-200 hover:bg-red-50 text-red-600 text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto mt-2 md:mt-0"
                                         >
-                                            <XCircle size={16} /> {tInbox('cancelModal.title') || 'Anular Reserva'}
+                                            <XCircle size={16} /> {tCancelModal('title')}
                                         </button>
                                     </>
                                 )}
                                 {(booking.status === 'canceled' || booking.status === 'completed') && (
                                     <button 
                                         onClick={() => {
-                                            if (window.confirm(tInbox('archiveConfirm') || "¿Seguro que deseas archivar esta cita de tu lista? Seguirá disponible en tus analíticas globales.")) {
+                                            if (window.confirm(tInbox('archiveConfirm'))) {
                                                 handleArchiveBooking(booking);
                                             }
                                         }}
                                         className="px-4 py-2.5 bg-slate-50 border border-slate-200 hover:bg-slate-100/80 text-slate-500 hover:text-slate-800 text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 w-full md:w-auto"
                                     >
-                                        <Archive size={16} /> {tInbox('archiveBtn') || 'Archivar Cita'}
+                                        <Archive size={16} /> {tInbox('archiveBtn')}
                                     </button>
                                 )}
                             </div>
@@ -330,7 +331,7 @@ export default function ProviderBookingsView() {
                         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                             <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
                                 <XCircle className="w-5 h-5 text-red-500" />
-                                {tInbox('cancelModal.title') || 'Anular Reserva'}
+                                {tCancelModal('title')}
                             </h3>
                             <button 
                                 onClick={() => setCancelModalBooking(null)}
@@ -341,16 +342,16 @@ export default function ProviderBookingsView() {
                         </div>
                         <div className="p-6">
                             <p className="text-sm text-slate-600 mb-5 leading-relaxed">
-                                {tInbox('cancelModal.description') || 'El horario será liberado y se notificará al cliente.'}
+                                {tCancelModal('description')}
                             </p>
                             
                             <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                {tInbox('cancelModal.noteLabel') || 'Mensaje para el cliente (Opcional)'}
+                                {tCancelModal('noteLabel')}
                             </label>
                             <textarea 
                                 value={cancelNote}
                                 onChange={e => setCancelNote(e.target.value)}
-                                placeholder={tInbox('cancelModal.notePlaceholder') || 'Ej: Tuvimos un imprevisto...'}
+                                placeholder={tCancelModal('notePlaceholder')}
                                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all resize-none h-24"
                             />
                         </div>
@@ -359,7 +360,7 @@ export default function ProviderBookingsView() {
                                 onClick={() => setCancelModalBooking(null)}
                                 className="w-full sm:w-1/2 px-4 py-2.5 rounded-xl font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-800 transition-colors"
                             >
-                                {tInbox('cancelModal.close') || 'Volver'}
+                                {tCancelModal('close')}
                             </button>
                             <button 
                                 onClick={async () => {
@@ -372,7 +373,7 @@ export default function ProviderBookingsView() {
                                 disabled={isCanceling}
                                 className="w-full sm:w-1/2 px-4 py-2.5 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:opacity-50 transition-colors shadow-sm"
                             >
-                                {isCanceling ? t('processing') : (tInbox('cancelModal.confirm') || 'Confirmar Anulación')}
+                                {isCanceling ? t('processing') : tCancelModal('confirm')}
                             </button>
                         </div>
                     </div>
@@ -384,7 +385,7 @@ export default function ProviderBookingsView() {
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md">
                     <div className="w-full max-w-3xl flex flex-col h-full sm:h-auto max-h-screen">
                         <div className="flex justify-between items-center bg-black/50 p-4 rounded-t-xl">
-                            <span className="text-white font-semibold">{tInbox('attachedProof') || 'Comprobante Adjunto'}</span>
+                            <span className="text-white font-semibold">{tInbox('attachedProof')}</span>
                             <button onClick={() => setSelectedProof(null)} className="text-white hover:text-slate-300 p-2 bg-white/10 rounded-full">
                                 <XCircle size={20} />
                             </button>
