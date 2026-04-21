@@ -155,5 +155,14 @@ service cloud.firestore {
         allow read: if true;
         allow write: if isAdmin();
     }
+
+    // 7) SISTEMA DE NOTIFICACIONES
+    match /business_notifications/{businessId}/items/{itemId} {
+      allow read, write: if isOwner(businessId) || isAdmin();
+    }
+    
+    match /client_notifications/{clientId}/items/{itemId} {
+      allow read, write: if isOwner(clientId) || isAdmin();
+    }
   }
 }
