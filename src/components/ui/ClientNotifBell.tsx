@@ -8,7 +8,7 @@ import {
     CLIENT_NOTIF_META,
 } from '@/services/clientNotification.service';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { enUS, es, ptBR } from 'date-fns/locale';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { unlockAudio, playNotificationSound } from '@/lib/audioUtils';
@@ -19,6 +19,7 @@ interface ClientNotifBellProps {
 
 export default function ClientNotifBell({ clientUid }: ClientNotifBellProps) {
     const locale = useLocale();
+    const dateLocale = locale === 'en' ? enUS : (locale === 'pt' || locale === 'pt-BR') ? ptBR : es;
     const t = useTranslations('common.notifications');
     const router = useRouter();
     const lp = (path: string) => `/${locale}${path}`;
@@ -140,7 +141,7 @@ export default function ClientNotifBell({ clientUid }: ClientNotifBellProps) {
                                             <p className="text-slate-400 text-xs mt-0.5 line-clamp-2">{body}</p>
                                             {item.createdAt?.toDate && (
                                                 <p className="text-slate-600 text-[10px] mt-1">
-                                                    {formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true, locale: es })}
+                                                    {formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true, locale: dateLocale })}
                                                 </p>
                                             )}
                                         </div>
