@@ -137,7 +137,21 @@ export default function BusinessNotificationsPage() {
                                     </div>
                                     <p className="text-slate-400 text-xs mt-1 leading-relaxed">
                                         {item.i18nKey 
-                                            ? tRoot(item.i18nKey as any, item.variables) 
+                                            ? (() => {
+                                                console.log("NOTIF:", item);
+                                                try {
+                                                    const safeVariables = {
+                                                        ...item.variables,
+                                                        clientName: item.variables?.clientName || "Cliente",
+                                                        serviceName: item.variables?.serviceName || "Servicio",
+                                                        businessName: item.variables?.businessName || "Negocio"
+                                                    };
+                                                    return tRoot(item.i18nKey as any, safeVariables);
+                                                } catch (e) {
+                                                    console.error("i18n error:", e, item);
+                                                    return item.body || "Notification";
+                                                }
+                                            })()
                                             : (() => {
                                                 try {
                                                     const params = { 
