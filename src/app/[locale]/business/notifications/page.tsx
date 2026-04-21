@@ -10,12 +10,20 @@ import {
 } from '@/services/businessNotification.service';
 import { Bell, CheckCheck } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { es, enUS, ptBR } from 'date-fns/locale';
+
+const dateLocales: Record<string, any> = {
+    es,
+    en: enUS,
+    'pt-BR': ptBR,
+    pt: ptBR
+};
 
 export default function BusinessNotificationsPage() {
     const { user } = useAuth();
     const t = useTranslations('business.notifications');
     const tStates = useTranslations('common.states');
+    const locale = useLocale();
     const [items, setItems] = useState<BusinessNotification[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<'all' | 'appointment' | 'payment'>('all');
@@ -119,15 +127,33 @@ export default function BusinessNotificationsPage() {
                                 {/* Content */}
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-start justify-between gap-2">
-                                        <p className="text-slate-900 font-semibold text-sm leading-tight">{item.title}</p>
+                                        <p className="text-slate-900 font-semibold text-sm leading-tight">
+                                            {t(`types.${item.type}.title`)}
+                                        </p>
                                         {!item.read && (
                                             <div className="w-2 h-2 rounded-full bg-cyan-400 shrink-0 mt-1" />
                                         )}
                                     </div>
-                                    <p className="text-slate-400 text-xs mt-1 leading-relaxed">{item.body}</p>
+                                    <p className="text-slate-400 text-xs mt-1 leading-relaxed">
+                                        {item.i18nKey 
+                                            ? t(`${item.i18nKey}.body` as any, item.variables) 
+                                            : (() => {
+                                                try {
+                                                    const params = { 
+                                                        clientName: item.variables?.clientName || item.relatedName || 'Cliente', 
+                                                        serviceName: item.variables?.serviceName || item.serviceName || 'Servicio' 
+                                                    };
+                                                    const tBody = t(`types.${item.type}.body` as any, params);
+                                                    return tBody && !tBody.includes('.body') ? tBody : (item.body || '');
+                                                } catch(err) {
+                                                    return item.body || '';
+                                                }
+                                            })()
+                                        }
+                                    </p>
                                     {item.createdAt?.toDate && (
                                         <p className="text-slate-600 text-[10px] mt-1.5">
-                                            {formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true, locale: es })}
+                                            {formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true, locale: dateLocales[locale] || enUS })}
                                         </p>
                                     )}
                                 </div>

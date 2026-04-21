@@ -123,18 +123,24 @@ export default function ClientNotifBell({ clientId }: ClientNotifBellProps) {
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             {(() => {
-                                                let title = item.title;
-                                                let body = item.body;
-                                                try {
-                                                    const params = { 
-                                                        businessName: item.relatedName || 'Negocio', 
-                                                        serviceName: item.serviceName || 'Servicio' 
-                                                    };
-                                                    const tTitle = t(`types.${item.type}.title` as any, params);
-                                                    const tBody = t(`types.${item.type}.body` as any, params);
-                                                    if (tTitle && !tTitle.includes('.title')) title = tTitle;
-                                                    if (tBody && !tBody.includes('.body')) body = tBody;
-                                                } catch (err) {}
+                                                let title = t(`types.${item.type}.title`);
+                                                let body = '';
+                                                
+                                                if (item.i18nKey) {
+                                                    body = t(`${item.i18nKey}.body` as any, item.variables);
+                                                } else {
+                                                    try {
+                                                        const params = { 
+                                                            businessName: item.variables?.businessName || item.relatedName || 'Negocio', 
+                                                            serviceName: item.variables?.serviceName || item.serviceName || 'Servicio' 
+                                                        };
+                                                        const tBody = t(`types.${item.type}.body` as any, params);
+                                                        body = tBody && !tBody.includes('.body') ? tBody : (item.body || '');
+                                                    } catch (err) {
+                                                        body = item.body || '';
+                                                    }
+                                                }
+                                                
                                                 return (
                                                     <>
                                                         <p className="text-slate-800 text-sm font-semibold leading-tight truncate">{title}</p>

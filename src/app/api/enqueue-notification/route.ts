@@ -22,12 +22,13 @@ export async function POST(req: NextRequest) {
             // 1. Instant Internal Push to Business
             const bizNotifRef = db.collection('business_notifications').doc(businessId).collection('items').doc();
             batch.set(bizNotifRef, {
-                title: 'Nueva Cita Recibida',
-                body: `${clientName} ha agendado: ${serviceName}`,
                 type: 'new_appointment',
                 relatedId: bookingId,
-                relatedName: clientName,
-                serviceName: serviceName,
+                i18nKey: 'types.new_appointment',
+                variables: {
+                    clientName: clientName || 'Cliente',
+                    serviceName: serviceName || 'Servicio'
+                },
                 createdAt: new Date(),
                 read: false
             });
@@ -70,12 +71,13 @@ export async function POST(req: NextRequest) {
             // 1. Instant Push to Client
             const clientNotifRef = db.collection('client_notifications').doc(clientId).collection('items').doc();
             batch.set(clientNotifRef, {
-                title: 'Cita Solicitada',
-                body: `Tu cita para ${serviceName} con ${businessName} fue enviada.`,
                 type: 'booking_created',
                 relatedId: bookingId,
-                relatedName: businessName,
-                serviceName: serviceName,
+                i18nKey: 'types.booking_created',
+                variables: {
+                    businessName: businessName || 'El proveedor',
+                    serviceName: serviceName || 'Servicio'
+                },
                 createdAt: new Date(),
                 read: false
             });
@@ -111,14 +113,13 @@ export async function POST(req: NextRequest) {
 
             const clientNotifRef = db.collection('client_notifications').doc(clientId).collection('items').doc();
             batch.set(clientNotifRef, {
-                title: newStatus === 'confirmed' ? 'Cita Confirmada' : 'Cita Cancelada',
-                body: newStatus === 'confirmed' 
-                    ? `${businessName} ha confirmado tu cita.` 
-                    : `${businessName} ha cancelado tu cita.`,
                 type: newStatus === 'confirmed' ? 'booking_confirmed' : 'booking_canceled',
                 relatedId: bookingId,
-                relatedName: businessName,
-                serviceName: payload.serviceName || '',
+                i18nKey: newStatus === 'confirmed' ? 'types.booking_confirmed' : 'types.booking_canceled',
+                variables: {
+                    businessName: businessName || 'El proveedor',
+                    serviceName: payload.serviceName || 'Servicio'
+                },
                 createdAt: new Date(),
                 read: false
             });
@@ -175,13 +176,12 @@ export async function POST(req: NextRequest) {
 
             const clientNotifRef = db.collection('client_notifications').doc(clientId).collection('items').doc();
             batch.set(clientNotifRef, {
-                title: newStatus === 'proof_approved' ? 'Pago Confirmado' : 'Comprobante Rechazado',
-                body: newStatus === 'proof_approved'
-                    ? `${businessName} ha verificado tu pago exitosamente.`
-                    : `${businessName} ha rechazado tu comprobante. Ingresa para corregirlo.`,
                 type: newStatus === 'proof_approved' ? 'payment_approved' : 'payment_rejected',
                 relatedId: bookingId,
-                relatedName: businessName,
+                i18nKey: newStatus === 'proof_approved' ? 'types.payment_approved' : 'types.payment_rejected',
+                variables: {
+                    businessName: businessName || 'El proveedor'
+                },
                 createdAt: new Date(),
                 read: false
             });
@@ -238,11 +238,12 @@ export async function POST(req: NextRequest) {
 
             const bizNotifRef = db.collection('business_notifications').doc(businessId).collection('items').doc();
             batch.set(bizNotifRef, {
-                title: 'Nuevo Comprobante Recibido',
-                body: `${clientName} ha subido el pago. Requiere tu revisión.`,
                 type: 'proof_uploaded',
                 relatedId: bookingId,
-                relatedName: clientName,
+                i18nKey: 'types.proof_uploaded',
+                variables: {
+                    clientName: clientName || 'Cliente'
+                },
                 createdAt: new Date(),
                 read: false
             });

@@ -18,11 +18,12 @@ export interface BusinessNotification {
     id: string;
     businessId: string;           // Receiver (provider)
     type: BusinessNotifType;
-    title: string;
-    body: string;
     read: boolean;
     relatedId?: string;           // appointmentId, paymentId, etc.
-    relatedName?: string;         // clientName
+    i18nKey?: string;
+    variables?: Record<string, string>;
+    title?: string;               // Legacy fallback
+    body?: string;                // Legacy fallback
     serviceName?: string;         // Name of the booked service
     clientEmail?: string;         // For sending email to client
     createdAt: any;               // Timestamp

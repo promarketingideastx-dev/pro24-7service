@@ -11,7 +11,14 @@ import {
     BUSINESS_NOTIF_META
 } from '@/services/businessNotification.service';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { es, enUS, ptBR } from 'date-fns/locale';
+
+const dateLocales: Record<string, any> = {
+    es,
+    en: enUS,
+    'pt-BR': ptBR,
+    pt: ptBR
+};
 
 interface BusinessNotifBellProps {
     businessId: string;
@@ -122,18 +129,24 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
                             {items.map(item => {
                                 const meta = BUSINESS_NOTIF_META[item.type as any] || { emoji: '🔔', color: '#94a3b8', bg: 'bg-slate-500/10' };
                                 
-                                let title = item.title;
-                                let body = item.body;
-                                try {
-                                    const params = { 
-                                        clientName: item.relatedName || 'Cliente', 
-                                        serviceName: item.serviceName || 'Servicio' 
-                                    };
-                                    const tTitle = t(`types.${item.type}.title` as any, params);
-                                    const tBody = t(`types.${item.type}.body` as any, params);
-                                    if (tTitle && !tTitle.includes('.title')) title = tTitle;
-                                    if (tBody && !tBody.includes('.body')) body = tBody;
-                                } catch (err) {}
+                                let title = t(`types.${item.type}.title`);
+                                let body = '';
+                                
+                                if (item.i18nKey) {
+                                    body = t(`${item.i18nKey}.body` as any, item.variables);
+                                } else {
+                                    // Legacy fallback support
+                                    try {
+                                        const params = { 
+                                            clientName: item.variables?.clientName || item.relatedName || 'Cliente', 
+                                            serviceName: item.variables?.serviceName || item.serviceName || 'Servicio' 
+                                        };
+                                        const tBody = t(`types.${item.type}.body` as any, params);
+                                        body = tBody && !tBody.includes('.body') ? tBody : (item.body || '');
+                                    } catch (err) {
+                                        body = item.body || '';
+                                    }
+                                }
 
                                 return (
                                     <div
@@ -148,7 +161,7 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
                                             <p className="text-slate-400 text-xs mt-0.5 line-clamp-2">{body}</p>
                                             {item.createdAt?.toDate && (
                                                 <p className="text-slate-600 text-[10px] mt-1">
-                                                    {formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true, locale: es })}
+                                                    {formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true, locale: dateLocales[locale] || enUS })}
                                                 </p>
                                             )}
                                         </div>

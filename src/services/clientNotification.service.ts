@@ -23,11 +23,12 @@ export interface ClientNotification {
     id: string;
     clientUid: string;
     type: ClientNotifType;
-    title: string;
-    body: string;
     read: boolean;
     relatedId?: string;           // appointmentId or chatId
-    relatedName?: string;         // businessName
+    i18nKey?: string;
+    variables?: Record<string, string>;
+    title?: string;               // Legacy fallback
+    body?: string;                // Legacy fallback
     serviceName?: string;         // Name of the booked service
     createdAt: any;
     readAt?: any;
