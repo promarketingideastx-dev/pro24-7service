@@ -1529,6 +1529,16 @@
       }
     }
   },
+  "notification": {
+    "booking": {
+      "created": "{clientName} ha agendado: {serviceName}",
+      "confirmed": "{businessName} ha confirmado tu cita",
+      "canceled": "Cita cancelada",
+      "proof_uploaded": "{clientName} ha subido un comprobante",
+      "payment_approved": "Tu pago ha sido verificado",
+      "payment_rejected": "Comprobante rechazado"
+    }
+  },
   "dashboardTrial": {
     "title": "Estás en tu periodo de prueba",
     "descPart1": "Aprovecha todas las herramientas de tu plan",

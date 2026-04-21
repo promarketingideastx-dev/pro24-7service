@@ -22,6 +22,7 @@ const dateLocales: Record<string, any> = {
 export default function BusinessNotificationsPage() {
     const { user } = useAuth();
     const t = useTranslations('business.notifications');
+    const tRoot = useTranslations();
     const tStates = useTranslations('common.states');
     const locale = useLocale();
     const [items, setItems] = useState<BusinessNotification[]>([]);
@@ -136,7 +137,7 @@ export default function BusinessNotificationsPage() {
                                     </div>
                                     <p className="text-slate-400 text-xs mt-1 leading-relaxed">
                                         {item.i18nKey 
-                                            ? t(`${item.i18nKey}.body` as any, item.variables) 
+                                            ? tRoot(item.i18nKey as any, item.variables) 
                                             : (() => {
                                                 try {
                                                     const params = { 

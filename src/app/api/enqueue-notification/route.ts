@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
             batch.set(bizNotifRef, {
                 type: 'new_appointment',
                 relatedId: bookingId,
-                i18nKey: 'types.new_appointment',
+                i18nKey: 'notification.booking.created',
                 variables: {
                     clientName: clientName || 'Cliente',
                     serviceName: serviceName || 'Servicio'
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
             batch.set(clientNotifRef, {
                 type: 'booking_created',
                 relatedId: bookingId,
-                i18nKey: 'types.booking_created',
+                i18nKey: 'notification.booking.created',
                 variables: {
                     businessName: businessName || 'El proveedor',
                     serviceName: serviceName || 'Servicio'
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
             batch.set(clientNotifRef, {
                 type: newStatus === 'confirmed' ? 'booking_confirmed' : 'booking_canceled',
                 relatedId: bookingId,
-                i18nKey: newStatus === 'confirmed' ? 'types.booking_confirmed' : 'types.booking_canceled',
+                i18nKey: newStatus === 'confirmed' ? 'notification.booking.confirmed' : 'notification.booking.canceled',
                 variables: {
                     businessName: businessName || 'El proveedor',
                     serviceName: payload.serviceName || 'Servicio'
@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
             batch.set(clientNotifRef, {
                 type: newStatus === 'proof_approved' ? 'payment_approved' : 'payment_rejected',
                 relatedId: bookingId,
-                i18nKey: newStatus === 'proof_approved' ? 'types.payment_approved' : 'types.payment_rejected',
+                i18nKey: newStatus === 'proof_approved' ? 'notification.booking.payment_approved' : 'notification.booking.payment_rejected',
                 variables: {
                     businessName: businessName || 'El proveedor'
                 },
@@ -240,7 +240,7 @@ export async function POST(req: NextRequest) {
             batch.set(bizNotifRef, {
                 type: 'proof_uploaded',
                 relatedId: bookingId,
-                i18nKey: 'types.proof_uploaded',
+                i18nKey: 'notification.booking.proof_uploaded',
                 variables: {
                     clientName: clientName || 'Cliente'
                 },

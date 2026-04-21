@@ -1525,6 +1525,16 @@
       }
     }
   },
+  "notification": {
+    "booking": {
+      "created": "{clientName} agendou: {serviceName}",
+      "confirmed": "{businessName} confirmou sua consulta",
+      "canceled": "Consulta cancelada",
+      "proof_uploaded": "{clientName} enviou um comprovante",
+      "payment_approved": "Seu pagamento foi aprovado",
+      "payment_rejected": "Comprovante rejeitado"
+    }
+  },
   "dashboardTrial": {
     "title": "Você está no período de teste",
     "descPart1": "Aproveite todas as ferramentas do seu plano",

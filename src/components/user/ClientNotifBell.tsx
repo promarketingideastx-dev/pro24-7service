@@ -18,6 +18,7 @@ interface ClientNotifBellProps {
 
 export default function ClientNotifBell({ clientId }: ClientNotifBellProps) {
     const t = useTranslations('userProfile.notifications');
+    const tRoot = useTranslations();
     const locale = useLocale();
     const dateLocale = locale === 'en' ? enUS : locale === 'pt-BR' ? ptBR : es;
     
@@ -127,7 +128,7 @@ export default function ClientNotifBell({ clientId }: ClientNotifBellProps) {
                                                 let body = '';
                                                 
                                                 if (item.i18nKey) {
-                                                    body = t(`${item.i18nKey}.body` as any, item.variables);
+                                                    body = tRoot(item.i18nKey as any, item.variables);
                                                 } else {
                                                     try {
                                                         const params = { 

@@ -26,6 +26,7 @@ interface BusinessNotifBellProps {
 
 export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps) {
     const t = useTranslations('business.notifications');
+    const tRoot = useTranslations();
     const locale = useLocale();
     const router = useRouter();
     const lp = (path: string) => `/${locale}${path}`;
@@ -133,7 +134,7 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
                                 let body = '';
                                 
                                 if (item.i18nKey) {
-                                    body = t(`${item.i18nKey}.body` as any, item.variables);
+                                    body = tRoot(item.i18nKey as any, item.variables);
                                 } else {
                                     // Legacy fallback support
                                     try {

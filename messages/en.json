@@ -1527,6 +1527,16 @@
       }
     }
   },
+  "notification": {
+    "booking": {
+      "created": "{clientName} booked: {serviceName}",
+      "confirmed": "{businessName} has confirmed your appointment",
+      "canceled": "Appointment canceled",
+      "proof_uploaded": "{clientName} has uploaded a payment proof",
+      "payment_approved": "Your payment has been verified",
+      "payment_rejected": "Payment proof rejected"
+    }
+  },
   "dashboardTrial": {
     "title": "You are on your trial period",
     "descPart1": "Enjoy all tools of your",
