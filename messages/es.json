@@ -799,7 +799,65 @@
       "empty": "Sin notificaciones por ahora",
       "filter_all": "Todas",
       "filter_appointment": "Citas",
-      "filter_payment": "Pagos"
+      "filter_payment": "Pagos",
+      "types": {
+        "new_appointment": {
+          "title": "Nueva Cita",
+          "body": "Han agendado un nuevo servicio"
+        },
+        "appointment_confirmed": {
+          "title": "Cita Confirmada",
+          "body": "La cita ha sido confirmada"
+        },
+        "appointment_rejected": {
+          "title": "Cita Rechazada",
+          "body": "La cita ha sido rechazada"
+        },
+        "appointment_cancelled": {
+          "title": "Cita Cancelada",
+          "body": "La cita ha sido cancelada"
+        },
+        "booking_created": {
+          "title": "Cita Recibida",
+          "body": "Se ha recibido una nueva solicitud"
+        },
+        "booking_confirmed": {
+          "title": "Cita Confirmada",
+          "body": "Tu cita fue confirmada"
+        },
+        "booking_canceled": {
+          "title": "Cita Cancelada",
+          "body": "Tu cita fue cancelada"
+        },
+        "payment_received": {
+          "title": "Pago Recibido",
+          "body": "Has recibido un pago"
+        },
+        "proof_uploaded": {
+          "title": "Comprobante Subido",
+          "body": "Se ha subido un comprobante de pago"
+        },
+        "payment_approved": {
+          "title": "Pago Confirmado",
+          "body": "Tu pago ha sido verificado verificó"
+        },
+        "proof_approved": {
+          "title": "Pago Confirmado",
+          "body": "Tu pago ha sido verificado"
+        },
+        "payment_rejected": {
+          "title": "Comprobante Rechazado",
+          "body": "El comprobante fue rechazado"
+        },
+        "proof_rejected": {
+          "title": "Comprobante Rechazado",
+          "body": "El comprobante fue rechazado"
+        },
+        "new_message": {
+          "title": "Nuevo Mensaje",
+          "body": "Tienes un mensaje sin leer"
+        }
+      }
     }
   },
   "booking": {
@@ -1250,7 +1308,65 @@
       "emptyState": "Sin notificaciones aún",
       "allRead": "Todo leído",
       "viewAllMessages": "Ver todos mis mensajes",
-      "ariaLabel": "Notificaciones"
+      "ariaLabel": "Notificaciones",
+      "types": {
+        "new_appointment": {
+          "title": "Nueva Cita",
+          "body": "Han agendado un nuevo servicio"
+        },
+        "appointment_confirmed": {
+          "title": "Cita Confirmada",
+          "body": "La cita ha sido confirmada"
+        },
+        "appointment_rejected": {
+          "title": "Cita Rechazada",
+          "body": "La cita ha sido rechazada"
+        },
+        "appointment_cancelled": {
+          "title": "Cita Cancelada",
+          "body": "La cita ha sido cancelada"
+        },
+        "booking_created": {
+          "title": "Cita Recibida",
+          "body": "Se ha recibido una nueva solicitud"
+        },
+        "booking_confirmed": {
+          "title": "Cita Confirmada",
+          "body": "Tu cita fue confirmada"
+        },
+        "booking_canceled": {
+          "title": "Cita Cancelada",
+          "body": "Tu cita fue cancelada"
+        },
+        "payment_received": {
+          "title": "Pago Recibido",
+          "body": "Has recibido un pago"
+        },
+        "proof_uploaded": {
+          "title": "Comprobante Subido",
+          "body": "Se ha subido un comprobante de pago"
+        },
+        "payment_approved": {
+          "title": "Pago Confirmado",
+          "body": "Tu pago ha sido verificado verificó"
+        },
+        "proof_approved": {
+          "title": "Pago Confirmado",
+          "body": "Tu pago ha sido verificado"
+        },
+        "payment_rejected": {
+          "title": "Comprobante Rechazado",
+          "body": "El comprobante fue rechazado"
+        },
+        "proof_rejected": {
+          "title": "Comprobante Rechazado",
+          "body": "El comprobante fue rechazado"
+        },
+        "new_message": {
+          "title": "Nuevo Mensaje",
+          "body": "Tienes un mensaje sin leer"
+        }
+      }
     },
     "states": {
       "loading": "Cargando...",

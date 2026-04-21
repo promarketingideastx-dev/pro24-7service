@@ -10,6 +10,7 @@ import { BookingDocument } from '@/types/firestore-schema';
 import { ServicesService, ServiceData } from '@/services/businessProfile.service';
 import { EmployeeService, EmployeeData } from '@/services/employee.service';
 import { CustomerService, Customer } from '@/services/customer.service';
+import { NotificationQueueService } from '@/services/notificationQueue.service';
 import { startOfWeek, endOfWeek, startOfDay, endOfDay } from 'date-fns';
 import { toast } from 'sonner';
 import { ActiveCountry } from '@/lib/activeCountry';
@@ -52,12 +53,14 @@ export default function AgendaPage() {
         fetchDependencies();
     }, [user]);
 
-    // Fetch Appointments
     const fetchAppointments = async () => {
         if (!user) return;
         try {
             const data = await BookingService.getByBusiness(user.uid);
             setAppointments(data);
+            
+            // Stop-At-Sight: Clear pending reminders since business is viewing their agenda
+            NotificationQueueService.cancelAllPendingForTarget(user.uid).catch(() => {});
         } catch (error) {
             console.error("Error fetching appointments:", error);
             toast.error("Error al cargar reservas");

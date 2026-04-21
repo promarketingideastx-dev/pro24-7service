@@ -796,7 +796,65 @@
       "empty": "Sem notificações ainda",
       "filter_all": "Todas",
       "filter_appointment": "Agendamentos",
-      "filter_payment": "Pagamentos"
+      "filter_payment": "Pagamentos",
+      "types": {
+        "new_appointment": {
+          "title": "Novo Agendamento",
+          "body": "Um novo serviço foi agendado"
+        },
+        "appointment_confirmed": {
+          "title": "Agendamento Confirmado",
+          "body": "O agendamento foi confirmado"
+        },
+        "appointment_rejected": {
+          "title": "Agendamento Rejeitado",
+          "body": "O agendamento foi rejeitado"
+        },
+        "appointment_cancelled": {
+          "title": "Agendamento Cancelado",
+          "body": "O agendamento foi cancelado"
+        },
+        "booking_created": {
+          "title": "Reserva Recebida",
+          "body": "Uma nova reserva foi recebida"
+        },
+        "booking_confirmed": {
+          "title": "Reserva Confirmada",
+          "body": "Sua reserva foi confirmada"
+        },
+        "booking_canceled": {
+          "title": "Reserva Cancelada",
+          "body": "Sua reserva foi cancelada"
+        },
+        "payment_received": {
+          "title": "Pagamento Recebido",
+          "body": "Você recebeu um pagamento"
+        },
+        "proof_uploaded": {
+          "title": "Comprovante Enviado",
+          "body": "Um comprovante foi enviado"
+        },
+        "payment_approved": {
+          "title": "Pagamento Confirmado",
+          "body": "Seu pagamento foi verificado"
+        },
+        "proof_approved": {
+          "title": "Pagamento Confirmado",
+          "body": "Seu pagamento foi verificado"
+        },
+        "payment_rejected": {
+          "title": "Comprovante Rejeitado",
+          "body": "O comprovante foi rejeitado"
+        },
+        "proof_rejected": {
+          "title": "Comprovante Rejeitado",
+          "body": "O comprovante foi rejeitado"
+        },
+        "new_message": {
+          "title": "Nova Mensagem",
+          "body": "Você tem uma mensagem não lida"
+        }
+      }
     }
   },
   "booking": {
@@ -1247,7 +1305,65 @@
       "emptyState": "Nenhuma notificação ainda",
       "allRead": "Tudo lido",
       "viewAllMessages": "Ver todas as minhas mensagens",
-      "ariaLabel": "Notificações"
+      "ariaLabel": "Notificações",
+      "types": {
+        "new_appointment": {
+          "title": "Novo Agendamento",
+          "body": "Um novo serviço foi agendado"
+        },
+        "appointment_confirmed": {
+          "title": "Agendamento Confirmado",
+          "body": "O agendamento foi confirmado"
+        },
+        "appointment_rejected": {
+          "title": "Agendamento Rejeitado",
+          "body": "O agendamento foi rejeitado"
+        },
+        "appointment_cancelled": {
+          "title": "Agendamento Cancelado",
+          "body": "O agendamento foi cancelado"
+        },
+        "booking_created": {
+          "title": "Reserva Recebida",
+          "body": "Uma nova reserva foi recebida"
+        },
+        "booking_confirmed": {
+          "title": "Reserva Confirmada",
+          "body": "Sua reserva foi confirmada"
+        },
+        "booking_canceled": {
+          "title": "Reserva Cancelada",
+          "body": "Sua reserva foi cancelada"
+        },
+        "payment_received": {
+          "title": "Pagamento Recebido",
+          "body": "Você recebeu um pagamento"
+        },
+        "proof_uploaded": {
+          "title": "Comprovante Enviado",
+          "body": "Um comprovante foi enviado"
+        },
+        "payment_approved": {
+          "title": "Pagamento Confirmado",
+          "body": "Seu pagamento foi verificado"
+        },
+        "proof_approved": {
+          "title": "Pagamento Confirmado",
+          "body": "Seu pagamento foi verificado"
+        },
+        "payment_rejected": {
+          "title": "Comprovante Rejeitado",
+          "body": "O comprovante foi rejeitado"
+        },
+        "proof_rejected": {
+          "title": "Comprovante Rejeitado",
+          "body": "O comprovante foi rejeitado"
+        },
+        "new_message": {
+          "title": "Nova Mensagem",
+          "body": "Você tem uma mensagem não lida"
+        }
+      }
     },
     "states": {
       "loading": "Carregando...",

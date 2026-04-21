@@ -17,6 +17,7 @@ import ImageUploader from '@/components/ui/ImageUploader';
 import ImageCropModal from '@/components/ui/ImageCropModal';
 import { FavoritesService, FavoriteRecord } from '@/services/favorites.service';
 import { BookingService } from '@/services/booking.service';
+import { NotificationQueueService } from '@/services/notificationQueue.service';
 import { BookingDocument } from '@/types/firestore-schema';
 import { useLocale, useTranslations } from 'next-intl';
 import { PlacesLocationPicker, LocationResult } from '@/components/business/setup/PlacesLocationPicker';
@@ -104,6 +105,9 @@ export default function UserProfilePage() {
                     const bookings = await BookingService.getByClient(user.uid);
                     // Items are already sorted by BookingsService (date desc, time desc)
                     setAppointments(bookings.slice(0, 10));
+                    
+                    // Stop-At-Sight: Clear pending reminders since client is viewing their portal
+                    NotificationQueueService.cancelAllPendingForTarget(user.uid).catch(() => {});
                 } catch {
                     // Silent — empty state shown
                 } finally {

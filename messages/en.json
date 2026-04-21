@@ -798,7 +798,65 @@
       "empty": "No notifications yet",
       "filter_all": "All",
       "filter_appointment": "Appointments",
-      "filter_payment": "Payments"
+      "filter_payment": "Payments",
+      "types": {
+        "new_appointment": {
+          "title": "New Appointment",
+          "body": "A new service has been booked"
+        },
+        "appointment_confirmed": {
+          "title": "Appointment Confirmed",
+          "body": "Your appointment was confirmed"
+        },
+        "appointment_rejected": {
+          "title": "Appointment Rejected",
+          "body": "Your appointment was rejected"
+        },
+        "appointment_cancelled": {
+          "title": "Appointment Cancelled",
+          "body": "Your appointment was cancelled"
+        },
+        "booking_created": {
+          "title": "Booking Received",
+          "body": "A new reservation was received"
+        },
+        "booking_confirmed": {
+          "title": "Booking Confirmed",
+          "body": "Your booking was confirmed"
+        },
+        "booking_canceled": {
+          "title": "Booking Cancelled",
+          "body": "Your booking was cancelled"
+        },
+        "payment_received": {
+          "title": "Payment Received",
+          "body": "You have received a payment"
+        },
+        "proof_uploaded": {
+          "title": "Proof Uploaded",
+          "body": "A payment proof was uploaded"
+        },
+        "payment_approved": {
+          "title": "Payment Confirmed",
+          "body": "Your payment was verified"
+        },
+        "proof_approved": {
+          "title": "Payment Confirmed",
+          "body": "Your payment was verified"
+        },
+        "payment_rejected": {
+          "title": "Proof Rejected",
+          "body": "Your proof was rejected"
+        },
+        "proof_rejected": {
+          "title": "Proof Rejected",
+          "body": "Your proof was rejected"
+        },
+        "new_message": {
+          "title": "New Message",
+          "body": "You have an unread message"
+        }
+      }
     }
   },
   "booking": {
@@ -1249,7 +1307,65 @@
       "emptyState": "No notifications yet",
       "allRead": "All read",
       "viewAllMessages": "View all my messages",
-      "ariaLabel": "Notifications"
+      "ariaLabel": "Notifications",
+      "types": {
+        "new_appointment": {
+          "title": "New Appointment",
+          "body": "A new service has been booked"
+        },
+        "appointment_confirmed": {
+          "title": "Appointment Confirmed",
+          "body": "Your appointment was confirmed"
+        },
+        "appointment_rejected": {
+          "title": "Appointment Rejected",
+          "body": "Your appointment was rejected"
+        },
+        "appointment_cancelled": {
+          "title": "Appointment Cancelled",
+          "body": "Your appointment was cancelled"
+        },
+        "booking_created": {
+          "title": "Booking Received",
+          "body": "A new reservation was received"
+        },
+        "booking_confirmed": {
+          "title": "Booking Confirmed",
+          "body": "Your booking was confirmed"
+        },
+        "booking_canceled": {
+          "title": "Booking Cancelled",
+          "body": "Your booking was cancelled"
+        },
+        "payment_received": {
+          "title": "Payment Received",
+          "body": "You have received a payment"
+        },
+        "proof_uploaded": {
+          "title": "Proof Uploaded",
+          "body": "A payment proof was uploaded"
+        },
+        "payment_approved": {
+          "title": "Payment Confirmed",
+          "body": "Your payment was verified"
+        },
+        "proof_approved": {
+          "title": "Payment Confirmed",
+          "body": "Your payment was verified"
+        },
+        "payment_rejected": {
+          "title": "Proof Rejected",
+          "body": "Your proof was rejected"
+        },
+        "proof_rejected": {
+          "title": "Proof Rejected",
+          "body": "Your proof was rejected"
+        },
+        "new_message": {
+          "title": "New Message",
+          "body": "You have an unread message"
+        }
+      }
     },
     "states": {
       "loading": "Loading...",

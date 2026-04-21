@@ -120,8 +120,17 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
                     ) : (
                         <div className="divide-y divide-white/4">
                             {items.map(item => {
-                                const meta = BUSINESS_NOTIF_META[item.type];
-                                const isMessage = item.type === 'new_message' && item.relatedId;
+                                const meta = BUSINESS_NOTIF_META[item.type as any] || { emoji: '🔔', color: '#94a3b8', bg: 'bg-slate-500/10' };
+                                
+                                let title = item.title;
+                                let body = item.body;
+                                try {
+                                    const tTitle = t(`types.${item.type}.title` as any);
+                                    const tBody = t(`types.${item.type}.body` as any);
+                                    if (tTitle && !tTitle.includes('.title')) title = tTitle;
+                                    if (tBody && !tBody.includes('.body')) body = tBody;
+                                } catch (err) {}
+
                                 return (
                                     <div
                                         key={item.id}
@@ -131,8 +140,8 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
                                             {meta.emoji}
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-white text-sm font-semibold leading-tight truncate">{item.title}</p>
-                                            <p className="text-slate-400 text-xs mt-0.5 line-clamp-2">{item.body}</p>
+                                            <p className="text-white text-sm font-semibold leading-tight truncate">{title}</p>
+                                            <p className="text-slate-400 text-xs mt-0.5 line-clamp-2">{body}</p>
                                             {item.createdAt?.toDate && (
                                                 <p className="text-slate-600 text-[10px] mt-1">
                                                     {formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true, locale: es })}

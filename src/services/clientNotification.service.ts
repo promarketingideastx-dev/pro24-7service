@@ -13,8 +13,10 @@ export type ClientNotifType =
     | 'booking_created'          // NEW BOOKINGS SYSTEM
     | 'booking_confirmed'        // NEW BOOKINGS SYSTEM
     | 'booking_canceled'         // NEW BOOKINGS SYSTEM
-    | 'proof_approved'           // NEW BOOKINGS SYSTEM
-    | 'proof_rejected'           // NEW BOOKINGS SYSTEM
+    | 'proof_approved'           // Legacy
+    | 'proof_rejected'           // Legacy
+    | 'payment_approved'         // NEW BOOKINGS SYSTEM
+    | 'payment_rejected'         // NEW BOOKINGS SYSTEM
     | 'new_message';             // Business replied in chat
 
 export interface ClientNotification {
@@ -95,5 +97,7 @@ export const CLIENT_NOTIF_META: Record<ClientNotifType, { emoji: string; color: 
     booking_canceled: { emoji: '🚫', color: '#f97316', bg: 'bg-orange-500/10' },
     proof_approved: { emoji: '🧾', color: '#10b981', bg: 'bg-emerald-500/10' },
     proof_rejected: { emoji: '⚠️', color: '#ef4444', bg: 'bg-red-500/10' },
+    payment_approved: { emoji: '🧾', color: '#10b981', bg: 'bg-emerald-500/10' },
+    payment_rejected: { emoji: '⚠️', color: '#ef4444', bg: 'bg-red-500/10' },
     new_message: { emoji: '💬', color: '#14b8a6', bg: 'bg-teal-500/10' },
 };
