@@ -95,6 +95,7 @@ export const BusinessNotificationService = {
         return onSnapshot(q, snap => {
             cb(snap.docs.map(d => ({ id: d.id, ...d.data() } as BusinessNotification)));
         }, () => cb([]));
+    },
     /** Delete selected notifications */
     async deleteSelected(businessId: string, notifIds: string[]): Promise<void> {
         if (!notifIds || notifIds.length === 0) return;
