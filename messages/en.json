@@ -799,6 +799,11 @@
       "filter_all": "All",
       "filter_appointment": "Appointments",
       "filter_payment": "Payments",
+      "delete_selected": "Delete Selected",
+      "delete_all": "Delete All",
+      "cancel": "Cancel",
+      "select": "Select",
+      "select_all": "Select All",
       "types": {
         "new_appointment": {
           "title": "New Appointment",

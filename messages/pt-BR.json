@@ -795,8 +795,13 @@
       "seeAll": "Ver todas",
       "empty": "Sem notificações ainda",
       "filter_all": "Todas",
-      "filter_appointment": "Agendamentos",
+      "filter_appointment": "Consultas",
       "filter_payment": "Pagamentos",
+      "delete_selected": "Excluir selecionadas",
+      "delete_all": "Excluir todas",
+      "cancel": "Cancelar",
+      "select": "Selecionar",
+      "select_all": "Selecionar todas",
       "types": {
         "new_appointment": {
           "title": "Novo Agendamento",

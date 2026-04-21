@@ -1,7 +1,7 @@
 import { db } from '@/lib/firebase';
 import {
     collection, addDoc, updateDoc, doc, query, where,
-    onSnapshot, orderBy, limit, serverTimestamp, getDocs, writeBatch
+    onSnapshot, orderBy, limit, serverTimestamp, getDocs, writeBatch, deleteDoc
 } from 'firebase/firestore';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -95,6 +95,21 @@ export const BusinessNotificationService = {
         return onSnapshot(q, snap => {
             cb(snap.docs.map(d => ({ id: d.id, ...d.data() } as BusinessNotification)));
         }, () => cb([]));
+    /** Delete selected notifications */
+    async deleteSelected(businessId: string, notifIds: string[]): Promise<void> {
+        if (!notifIds || notifIds.length === 0) return;
+        try {
+            const batch = writeBatch(db);
+            // Firestore batch has a max of 500 operations, chunk if needed
+            // For UI, 50 is the limit we fetch so it's safe without chunking
+            notifIds.forEach(id => {
+                const ref = doc(db, 'business_notifications', businessId, 'items', id);
+                batch.delete(ref);
+            });
+            await batch.commit();
+        } catch (err) {
+            console.warn('[BusinessNotif] deleteSelected failed:', err);
+        }
     },
 };
 

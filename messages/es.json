@@ -801,6 +801,11 @@
       "filter_all": "Todas",
       "filter_appointment": "Citas",
       "filter_payment": "Pagos",
+      "delete_selected": "Borrar selección",
+      "delete_all": "Borrar todas",
+      "cancel": "Cancelar",
+      "select": "Seleccionar",
+      "select_all": "Seleccionar todas",
       "types": {
         "new_appointment": {
           "title": "Nueva Cita",
