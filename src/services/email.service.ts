@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { getEmailDict } from '@/lib/emailTranslations';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_fallback_for_build');
 
@@ -6,6 +7,7 @@ interface EmailTemplatePayload {
     to: string;
     businessName: string;
     serviceName: string;
+    clientName?: string;
     date: string;
     time: string;
     bookingId: string;
@@ -42,55 +44,59 @@ export const EmailService = {
     },
 
     async sendBookingCreatedEmail(payload: EmailTemplatePayload) {
-        const { to, businessName, serviceName, date, time, bookingId, locale } = payload;
+        const { to, businessName, serviceName, clientName, date, time, bookingId, locale } = payload;
+        const dict = getEmailDict(locale);
+        const t = dict.t('bookingCreated', {
+            businessName,
+            serviceName,
+            clientName: clientName || 'un cliente'
+        });
         
         const html = `
             <div style="font-family: sans-serif; padding: 20px; color: #333;">
-                <h2 style="color: #14B8A6;">Nueva Cita Recibida</h2>
-                <p>Hola,</p>
-                <p>Se ha recibido una nueva solicitud de cita para <strong>${businessName}</strong>.</p>
+                <h2 style="color: #14B8A6;">${t.title}</h2>
+                <p>${t.body}</p>
                 
                 <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
                     <p style="margin: 5px 0;"><strong>Servicio:</strong> ${serviceName}</p>
                     <p style="margin: 5px 0;"><strong>Fecha:</strong> ${date}</p>
                     <p style="margin: 5px 0;"><strong>Hora:</strong> ${time}</p>
                 </div>
-
-                <p>Por favor ingresa a tu agenda para confirmar o gestionar esta solicitud.</p>
                 
                 <div style="margin-top: 30px;">
-                    <a href="https://www.pro247ya.com/${locale || 'es'}/business/agenda?bookingId=${bookingId}" style="background: #14B8A6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Revisar Cita</a>
+                    <a href="https://www.pro247ya.com/${locale || 'es'}/business/agenda?bookingId=${bookingId}" style="background: #14B8A6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">${t.button}</a>
                 </div>
+                <p style="font-size: 12px; color: #94a3b8; margin-top: 40px;">${t.footer}</p>
             </div>
         `;
 
-        return this.sendEmail(to, `Nueva cita solicitada: ${serviceName}`, html);
+        return this.sendEmail(to, t.subject as string, html);
     },
 
     async sendClientBookingCreatedEmail(payload: EmailTemplatePayload) {
         const { to, businessName, serviceName, date, time, bookingId, locale } = payload;
+        const dict = getEmailDict(locale);
+        const t = dict.t('bookingClientAcknowledged', { businessName, serviceName });
         
         const html = `
             <div style="font-family: sans-serif; padding: 20px; color: #333;">
-                <h2 style="color: #3B82F6;">Cita Solicitada Exitosamente</h2>
-                <p>Hola,</p>
-                <p>Tu solicitud de cita con <strong>${businessName}</strong> ha sido recibida y está pendiente de confirmación.</p>
+                <h2 style="color: #3B82F6;">${t.title}</h2>
+                <p>${t.body}</p>
                 
                 <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
                     <p style="margin: 5px 0;"><strong>Servicio:</strong> ${serviceName}</p>
                     <p style="margin: 5px 0;"><strong>Fecha:</strong> ${date}</p>
                     <p style="margin: 5px 0;"><strong>Hora:</strong> ${time}</p>
                 </div>
-
-                <p>El proveedor revisará tu solicitud y recibirás una notificación cuando sea confirmada.</p>
                 
                 <div style="margin-top: 30px;">
-                    <a href="https://www.pro247ya.com/${locale || 'es'}/user/profile?bookingId=${bookingId}" style="background: #3B82F6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver mis citas</a>
+                    <a href="https://www.pro247ya.com/${locale || 'es'}/user/profile?bookingId=${bookingId}" style="background: #3B82F6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">${t.button}</a>
                 </div>
+                <p style="font-size: 12px; color: #94a3b8; margin-top: 40px;">${t.footer}</p>
             </div>
         `;
 
-        return this.sendEmail(to, `Reservación solicitada: ${businessName}`, html);
+        return this.sendEmail(to, t.subject as string, html);
     },
 
     async sendProofUploadedBusinessEmail(payload: EmailTemplatePayload) {
@@ -98,7 +104,6 @@ export const EmailService = {
         
         const imgHtml = proofUrl ? `
             <div style="margin: 20px 0; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; background: white; text-align: center;">
-                <p style="margin-top: 0; font-size: 14px; color: #64748b;">Comprobante adjunto:</p>
                 <img src="${proofUrl}" style="max-width: 100%; max-height: 400px; border-radius: 4px;" alt="Comprobante de Pago" />
             </div>
         ` : '';
@@ -106,9 +111,8 @@ export const EmailService = {
         const html = `
             <div style="font-family: sans-serif; padding: 20px; color: #333; background: #f8fafc;">
                 <div style="background: white; padding: 20px; border-radius: 12px; max-width: 500px; margin: 0 auto; border: 1px solid #e2e8f0;">
-                    <h2 style="color: #0F172A; text-align: center;">Nuevo Comprobante Recibido</h2>
-                    <p>Hola,</p>
-                    <p>El cliente ha subido un nuevo comprobante de pago para la cita de <strong>${serviceName}</strong>.</p>
+                    <h2 style="color: #0F172A; text-align: center;">Comprobante Recibido</h2>
+                    <p>El cliente ha subido un nuevo comprobante para la cita de <strong>${serviceName}</strong>.</p>
                     
                     <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
                         <p style="margin: 5px 0;"><strong>Fecha:</strong> ${date}</p>
@@ -129,50 +133,54 @@ export const EmailService = {
 
     async sendBookingConfirmedEmail(payload: EmailTemplatePayload) {
         const { to, businessName, serviceName, date, time, bookingId, locale } = payload;
+        const dict = getEmailDict(locale);
+        const t = dict.t('bookingConfirmed', { businessName, serviceName });
         
         const html = `
             <div style="font-family: sans-serif; padding: 20px; color: #333;">
-                <h2 style="color: #10B981;">¡Tu cita ha sido confirmada!</h2>
-                <p>Hola,</p>
-                <p>El proveedor <strong>${businessName}</strong> ha confirmado tu cita.</p>
+                <h2 style="color: #10B981;">${t.title}</h2>
+                <p>${t.body}</p>
                 
                 <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
                     <p style="margin: 5px 0;"><strong>Servicio:</strong> ${serviceName}</p>
                     <p style="margin: 5px 0;"><strong>Fecha:</strong> ${date}</p>
                     <p style="margin: 5px 0;"><strong>Hora:</strong> ${time}</p>
                 </div>
-
-                <p>Recuerda asistir a tiempo. ¡Gracias por usar PRO24/7!</p>
                 
                 <div style="margin-top: 30px;">
-                    <a href="https://www.pro247ya.com/${locale || 'es'}/user/profile?bookingId=${bookingId}" style="background: #10B981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Detalles de la cita</a>
+                    <a href="https://www.pro247ya.com/${locale || 'es'}/user/profile?bookingId=${bookingId}" style="background: #10B981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">${t.button}</a>
                 </div>
+                <p style="font-size: 12px; color: #94a3b8; margin-top: 40px;">${t.footer}</p>
             </div>
         `;
 
-        return this.sendEmail(to, `Cita Confirmada con ${businessName}`, html);
+        return this.sendEmail(to, t.subject as string, html);
     },
 
     async sendBookingCancelledEmail(payload: EmailTemplatePayload) {
         const { to, businessName, serviceName, date, time, bookingId, locale } = payload;
+        const dict = getEmailDict(locale);
+        const t = dict.t('bookingCanceled', { businessName, serviceName });
         
         const html = `
             <div style="font-family: sans-serif; padding: 20px; color: #333;">
-                <h2 style="color: #EF4444;">Aviso de Cancelación</h2>
-                <p>Hola,</p>
-                <p>Lamentamos informarte que tu cita con <strong>${businessName}</strong> ha sido cancelada.</p>
+                <h2 style="color: #EF4444;">${t.title}</h2>
+                <p>${t.body}</p>
                 
                 <div style="background: #fef2f2; padding: 15px; border-radius: 8px; border: 1px solid #fecaca; margin: 20px 0;">
                     <p style="margin: 5px 0;"><strong>Servicio:</strong> ${serviceName}</p>
                     <p style="margin: 5px 0;"><strong>Fecha:</strong> ${date}</p>
                     <p style="margin: 5px 0;"><strong>Hora:</strong> ${time}</p>
                 </div>
-
-                <p>Si fue un error o necesitas reprogramar, por favor contacta al proveedor directamente.</p>
+                
+                <div style="margin-top: 30px;">
+                    <a href="https://www.pro247ya.com/${locale || 'es'}/?search=${encodeURIComponent(serviceName)}" style="background: #EF4444; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">${t.button}</a>
+                </div>
+                <p style="font-size: 12px; color: #94a3b8; margin-top: 40px;">${t.footer}</p>
             </div>
         `;
 
-        return this.sendEmail(to, `Cita Cancelada: ${businessName}`, html);
+        return this.sendEmail(to, t.subject as string, html);
     },
 
     async sendPaymentProofApprovedEmail(payload: EmailTemplatePayload) {
@@ -189,8 +197,6 @@ export const EmailService = {
                     <p style="margin: 5px 0;"><strong>Fecha:</strong> ${date}</p>
                     <p style="margin: 5px 0;"><strong>Hora:</strong> ${time}</p>
                 </div>
-
-                <p>Tu cita de pago está ahora debidamente confirmada. ¡Gracias por usar PRO24/7!</p>
                 
                 <div style="margin-top: 30px;">
                     <a href="https://www.pro247ya.com/${locale || 'es'}/user/profile?bookingId=${bookingId}" style="background: #10B981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Detalles de la cita</a>
@@ -215,8 +221,6 @@ export const EmailService = {
                     <p style="margin: 5px 0;"><strong>Fecha:</strong> ${date}</p>
                     <p style="margin: 5px 0;"><strong>Hora:</strong> ${time}</p>
                 </div>
-
-                <p>Por favor, ingresa nuevamente al detalle de tu cita y vuelve a subir el comprobante correcto, o contacta directamente al proveedor para aclarar el inconveniente.</p>
                 
                  <div style="margin-top: 30px;">
                     <a href="https://www.pro247ya.com/${locale || 'es'}/user/profile?bookingId=${bookingId}" style="background: #EF4444; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Corregir o reenviar</a>

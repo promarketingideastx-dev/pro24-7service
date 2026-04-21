@@ -352,6 +352,7 @@
     "buttonCreatePassword": "Crear una contraseña",
     "passwordSentMsg": "¡Te hemos enviado un enlace para crear tu contraseña! Revisa tu bandeja de entrada.",
     "errorEmailExists": "Este email ya está registrado.",
+    "errorInvalidEmailFormat": "El formato del correo electrónico no es válido.",
     "errorWeakPassword": "La contraseña es demasiado débil.",
     "errorRegister": "Error al crear cuenta.",
     "showPassword": "Mostrar contraseña",
@@ -803,59 +804,59 @@
       "types": {
         "new_appointment": {
           "title": "Nueva Cita",
-          "body": "Han agendado un nuevo servicio"
+          "body": "{clientName} ha agendado: {serviceName}"
         },
         "appointment_confirmed": {
           "title": "Cita Confirmada",
-          "body": "La cita ha sido confirmada"
+          "body": "Se ha confirmado la cita de {clientName}"
         },
         "appointment_rejected": {
           "title": "Cita Rechazada",
-          "body": "La cita ha sido rechazada"
+          "body": "Se ha rechazado la cita de {clientName}"
         },
         "appointment_cancelled": {
           "title": "Cita Cancelada",
-          "body": "La cita ha sido cancelada"
+          "body": "Se ha cancelado la cita de {clientName}"
         },
         "booking_created": {
-          "title": "Cita Recibida",
-          "body": "Se ha recibido una nueva solicitud"
+          "title": "Solicitud Enviada",
+          "body": "Tu cita para {serviceName} con {businessName} fue enviada"
         },
         "booking_confirmed": {
           "title": "Cita Confirmada",
-          "body": "Tu cita fue confirmada"
+          "body": "{businessName} ha confirmado tu cita"
         },
         "booking_canceled": {
           "title": "Cita Cancelada",
-          "body": "Tu cita fue cancelada"
+          "body": "{businessName} ha cancelado tu cita"
         },
         "payment_received": {
           "title": "Pago Recibido",
-          "body": "Has recibido un pago"
+          "body": "Has recibido un pago de {clientName}"
         },
         "proof_uploaded": {
           "title": "Comprobante Subido",
-          "body": "Se ha subido un comprobante de pago"
+          "body": "{clientName} ha subido un comprobante de pago"
         },
         "payment_approved": {
           "title": "Pago Confirmado",
-          "body": "Tu pago ha sido verificado verificó"
+          "body": "Tu pago a {businessName} ha sido verificado"
         },
         "proof_approved": {
           "title": "Pago Confirmado",
-          "body": "Tu pago ha sido verificado"
+          "body": "Tu pago a {businessName} ha sido verificado"
         },
         "payment_rejected": {
           "title": "Comprobante Rechazado",
-          "body": "El comprobante fue rechazado"
+          "body": "{businessName} no pudo validar tu comprobante"
         },
         "proof_rejected": {
           "title": "Comprobante Rechazado",
-          "body": "El comprobante fue rechazado"
+          "body": "{businessName} no pudo validar tu comprobante"
         },
         "new_message": {
           "title": "Nuevo Mensaje",
-          "body": "Tienes un mensaje sin leer"
+          "body": "Tienes un nuevo mensaje"
         }
       }
     }

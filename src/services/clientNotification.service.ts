@@ -27,7 +27,8 @@ export interface ClientNotification {
     body: string;
     read: boolean;
     relatedId?: string;           // appointmentId or chatId
-    relatedName?: string;         // businessName or serviceName
+    relatedName?: string;         // businessName
+    serviceName?: string;         // Name of the booked service
     createdAt: any;
     readAt?: any;
 }

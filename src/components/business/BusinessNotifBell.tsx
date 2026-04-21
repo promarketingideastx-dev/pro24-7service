@@ -125,8 +125,12 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
                                 let title = item.title;
                                 let body = item.body;
                                 try {
-                                    const tTitle = t(`types.${item.type}.title` as any);
-                                    const tBody = t(`types.${item.type}.body` as any);
+                                    const params = { 
+                                        clientName: item.relatedName || 'Cliente', 
+                                        serviceName: item.serviceName || 'Servicio' 
+                                    };
+                                    const tTitle = t(`types.${item.type}.title` as any, params);
+                                    const tBody = t(`types.${item.type}.body` as any, params);
                                     if (tTitle && !tTitle.includes('.title')) title = tTitle;
                                     if (tBody && !tBody.includes('.body')) body = tBody;
                                 } catch (err) {}

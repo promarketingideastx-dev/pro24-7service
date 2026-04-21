@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
                 type: 'new_appointment',
                 relatedId: bookingId,
                 relatedName: clientName,
+                serviceName: serviceName,
                 createdAt: new Date(),
                 read: false
             });
@@ -74,6 +75,7 @@ export async function POST(req: NextRequest) {
                 type: 'booking_created',
                 relatedId: bookingId,
                 relatedName: businessName,
+                serviceName: serviceName,
                 createdAt: new Date(),
                 read: false
             });
@@ -116,6 +118,7 @@ export async function POST(req: NextRequest) {
                 type: newStatus === 'confirmed' ? 'booking_confirmed' : 'booking_canceled',
                 relatedId: bookingId,
                 relatedName: businessName,
+                serviceName: payload.serviceName || '',
                 createdAt: new Date(),
                 read: false
             });

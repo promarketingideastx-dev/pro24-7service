@@ -22,7 +22,8 @@ export interface BusinessNotification {
     body: string;
     read: boolean;
     relatedId?: string;           // appointmentId, paymentId, etc.
-    relatedName?: string;         // clientName or serviceName
+    relatedName?: string;         // clientName
+    serviceName?: string;         // Name of the booked service
     clientEmail?: string;         // For sending email to client
     createdAt: any;               // Timestamp
     readAt?: any;

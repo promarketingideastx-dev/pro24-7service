@@ -800,55 +800,55 @@
       "types": {
         "new_appointment": {
           "title": "Novo Agendamento",
-          "body": "Um novo serviço foi agendado"
+          "body": "{clientName} agendou um novo serviço: {serviceName}"
         },
         "appointment_confirmed": {
           "title": "Agendamento Confirmado",
-          "body": "O agendamento foi confirmado"
+          "body": "O agendamento de {clientName} foi confirmado"
         },
         "appointment_rejected": {
           "title": "Agendamento Rejeitado",
-          "body": "O agendamento foi rejeitado"
+          "body": "O agendamento de {clientName} foi rejeitado"
         },
         "appointment_cancelled": {
           "title": "Agendamento Cancelado",
-          "body": "O agendamento foi cancelado"
+          "body": "O agendamento de {clientName} foi cancelado"
         },
         "booking_created": {
           "title": "Reserva Recebida",
-          "body": "Uma nova reserva foi recebida"
+          "body": "Sua reserva para {serviceName} com {businessName} foi enviada"
         },
         "booking_confirmed": {
           "title": "Reserva Confirmada",
-          "body": "Sua reserva foi confirmada"
+          "body": "{businessName} confirmou sua reserva"
         },
         "booking_canceled": {
           "title": "Reserva Cancelada",
-          "body": "Sua reserva foi cancelada"
+          "body": "{businessName} cancelou sua reserva"
         },
         "payment_received": {
           "title": "Pagamento Recebido",
-          "body": "Você recebeu um pagamento"
+          "body": "Você recebeu um pagamento de {clientName}"
         },
         "proof_uploaded": {
           "title": "Comprovante Enviado",
-          "body": "Um comprovante foi enviado"
+          "body": "{clientName} enviou um comprovante de pagamento"
         },
         "payment_approved": {
           "title": "Pagamento Confirmado",
-          "body": "Seu pagamento foi verificado"
+          "body": "Seu pagamento para {businessName} foi verificado"
         },
         "proof_approved": {
           "title": "Pagamento Confirmado",
-          "body": "Seu pagamento foi verificado"
+          "body": "Seu pagamento para {businessName} foi verificado"
         },
         "payment_rejected": {
           "title": "Comprovante Rejeitado",
-          "body": "O comprovante foi rejeitado"
+          "body": "{businessName} não pôde validar seu comprovante"
         },
         "proof_rejected": {
           "title": "Comprovante Rejeitado",
-          "body": "O comprovante foi rejeitado"
+          "body": "{businessName} não pôde validar seu comprovante"
         },
         "new_message": {
           "title": "Nova Mensagem",

@@ -122,8 +122,26 @@ export default function ClientNotifBell({ clientId }: ClientNotifBellProps) {
                                             {meta.emoji}
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-slate-800 text-sm font-semibold leading-tight truncate">{item.title}</p>
-                                            <p className="text-slate-500 text-xs mt-1 leading-snug line-clamp-2">{item.body}</p>
+                                            {(() => {
+                                                let title = item.title;
+                                                let body = item.body;
+                                                try {
+                                                    const params = { 
+                                                        businessName: item.relatedName || 'Negocio', 
+                                                        serviceName: item.serviceName || 'Servicio' 
+                                                    };
+                                                    const tTitle = t(`types.${item.type}.title` as any, params);
+                                                    const tBody = t(`types.${item.type}.body` as any, params);
+                                                    if (tTitle && !tTitle.includes('.title')) title = tTitle;
+                                                    if (tBody && !tBody.includes('.body')) body = tBody;
+                                                } catch (err) {}
+                                                return (
+                                                    <>
+                                                        <p className="text-slate-800 text-sm font-semibold leading-tight truncate">{title}</p>
+                                                        <p className="text-slate-500 text-xs mt-1 leading-snug line-clamp-2">{body}</p>
+                                                    </>
+                                                );
+                                            })()}
                                             {item.createdAt?.toDate && (
                                                 <p className="text-slate-400 text-[10px] mt-1.5 font-medium">
                                                     {formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true, locale: dateLocale })}

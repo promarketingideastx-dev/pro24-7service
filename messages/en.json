@@ -802,55 +802,55 @@
       "types": {
         "new_appointment": {
           "title": "New Appointment",
-          "body": "A new service has been booked"
+          "body": "{clientName} booked a new service: {serviceName}"
         },
         "appointment_confirmed": {
           "title": "Appointment Confirmed",
-          "body": "Your appointment was confirmed"
+          "body": "The appointment for {clientName} was confirmed"
         },
         "appointment_rejected": {
           "title": "Appointment Rejected",
-          "body": "Your appointment was rejected"
+          "body": "The appointment for {clientName} was rejected"
         },
         "appointment_cancelled": {
           "title": "Appointment Cancelled",
-          "body": "Your appointment was cancelled"
+          "body": "The appointment for {clientName} was cancelled"
         },
         "booking_created": {
           "title": "Booking Received",
-          "body": "A new reservation was received"
+          "body": "Your booking for {serviceName} with {businessName} was sent"
         },
         "booking_confirmed": {
           "title": "Booking Confirmed",
-          "body": "Your booking was confirmed"
+          "body": "{businessName} confirmed your booking"
         },
         "booking_canceled": {
           "title": "Booking Cancelled",
-          "body": "Your booking was cancelled"
+          "body": "{businessName} cancelled your booking"
         },
         "payment_received": {
           "title": "Payment Received",
-          "body": "You have received a payment"
+          "body": "You have received a payment from {clientName}"
         },
         "proof_uploaded": {
           "title": "Proof Uploaded",
-          "body": "A payment proof was uploaded"
+          "body": "{clientName} uploaded a payment proof"
         },
         "payment_approved": {
           "title": "Payment Confirmed",
-          "body": "Your payment was verified"
+          "body": "Your payment to {businessName} was verified"
         },
         "proof_approved": {
           "title": "Payment Confirmed",
-          "body": "Your payment was verified"
+          "body": "Your payment to {businessName} was verified"
         },
         "payment_rejected": {
           "title": "Proof Rejected",
-          "body": "Your proof was rejected"
+          "body": "{businessName} rejected your payment proof"
         },
         "proof_rejected": {
           "title": "Proof Rejected",
-          "body": "Your proof was rejected"
+          "body": "{businessName} rejected your payment proof"
         },
         "new_message": {
           "title": "New Message",

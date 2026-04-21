@@ -139,7 +139,7 @@ function RegisterForm() {
                 setEmailCheckStatus('exists');
                 setError(null);
             } else if (err.code === 'auth/invalid-email') {
-                setError(t('errorEmailExists'));
+                setError(t('errorInvalidEmailFormat') || 'El formato del correo electrónico no es válido.');
             } else if (err.code === 'auth/weak-password') {
                 setError(t('errorWeakPassword'));
             } else {
@@ -236,6 +236,9 @@ function RegisterForm() {
                             >
                                 Iniciar Sesión con este correo
                             </Link>
+                            <p className="text-blue-600 text-xs mt-3">
+                                💡 Tip: Si usabas Google y quieres entrar con contraseña, ve a Iniciar Sesión y haz clic en <strong>¿Olvidaste tu contraseña?</strong>
+                            </p>
                         </div>
                     </div>
                 </div>

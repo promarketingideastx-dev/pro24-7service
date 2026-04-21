@@ -58,10 +58,12 @@ export async function GET(request: Request) {
                         to: data.targetEmail,
                         businessName: bizName,
                         serviceName: booking.serviceName,
+                        clientName: booking.clientName || booking.clientInfo?.name || 'Cliente',
                         date: booking.date,
                         time: booking.time,
                         bookingId: data.entityId,
-                        proofUrl: (data as any).proofUrl // Inject if present
+                        proofUrl: (data as any).proofUrl, // Inject if present
+                        locale: booking.locale || 'es'
                     };
 
                     switch (data.type) {
