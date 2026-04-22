@@ -95,35 +95,35 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
                     {/* Sidebar (Desktop + Mobile Drawer) */}
                     <aside className={`
                     fixed inset-y-0 left-0 z-[60] w-[280px] bg-white/95 backdrop-blur-xl border-r border-slate-200 transform transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none
-                    md:sticky md:top-0 md:h-[100dvh] md:overflow-y-auto no-scrollbar md:translate-x-0
+                    md:sticky md:top-0 md:h-[100dvh] md:translate-x-0 flex flex-col overflow-visible
                     ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
                 `}>
-                        <div className="flex flex-col h-full px-4 pt-[calc(max(env(safe-area-inset-top),20px)+20px)] pb-[calc(env(safe-area-inset-bottom)+24px)] md:py-6 overflow-y-auto no-scrollbar">
-                            {/* Logo (Desktop) */}
-                            <div className="hidden md:flex flex-col gap-4 mb-6 px-2">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center">
-                                        <Link href={lp('/business/dashboard')} className="active:scale-95 transition-transform hover:opacity-80">
-                                            <img src="/logo-header.png" alt="Pro24/7" className="h-10 w-auto object-contain" />
-                                        </Link>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        {user?.uid && <BusinessNotifBell businessId={user.uid} />}
-                                        <LanguageSwitcher variant="icon" />
-                                    </div>
+                        {/* Header Fixed Area (Desktop exclusively) to stop layout clipping of dropdowns */}
+                        <div className="hidden md:flex flex-col gap-4 flex-none px-6 pt-6 pb-2 relative z-[100]">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                    <Link href={lp('/business/dashboard')} className="active:scale-95 transition-transform hover:opacity-80">
+                                        <img src="/logo-header.png" alt="Pro24/7" className="h-10 w-auto object-contain" />
+                                    </Link>
                                 </div>
-
-                                {/* SWITCH TO CLIENT MODE */}
-                                <Link
-                                    href={lp('/')}
-                                    className="w-full flex items-center justify-center gap-2 bg-slate-50 hover:bg-[#14B8A6]/10 border border-slate-200 hover:border-[#14B8A6]/30 rounded-xl py-2.5 text-xs font-bold text-slate-600 hover:text-[#0F766E] transition-all shadow-sm"
-                                >
-                                    <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                                    {t('clientMode')}
-                                </Link>
+                                <div className="flex items-center gap-2">
+                                    {user?.uid && <BusinessNotifBell businessId={user.uid} />}
+                                    <LanguageSwitcher variant="icon" />
+                                </div>
                             </div>
 
-                            {/* Navigation */}
+                            {/* SWITCH TO CLIENT MODE */}
+                            <Link
+                                href={lp('/')}
+                                className="w-full flex items-center justify-center gap-2 bg-slate-50 hover:bg-[#14B8A6]/10 border border-slate-200 hover:border-[#14B8A6]/30 rounded-xl py-2.5 text-xs font-bold text-slate-600 hover:text-[#0F766E] transition-all shadow-sm"
+                            >
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+                                {t('clientMode')}
+                            </Link>
+                        </div>
+
+                        {/* Scrollable Container for Navigation items */}
+                        <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar px-4 pt-[calc(max(env(safe-area-inset-top),20px)+20px)] md:pt-4 pb-[calc(env(safe-area-inset-bottom)+24px)] md:pb-6 relative z-10">
                             <nav className="flex-1 space-y-1.5 md:px-2">
                                 {menuItems.map((item) => (
                                     <a
