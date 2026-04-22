@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import Cropper from 'react-easy-crop';
 import { X, ZoomIn, ZoomOut, Check, RotateCcw, RotateCw } from 'lucide-react';
 
@@ -110,6 +111,7 @@ async function getCroppedImg(
 }
 
 export default function ImageCropModal({ imageSrc, aspectRatio = 16 / 9, freeCrop = false, onComplete, onClose }: Props) {
+    const t = useTranslations('common.imageCropper');
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [rotation, setRotation] = useState(0);
@@ -139,8 +141,8 @@ export default function ImageCropModal({ imageSrc, aspectRatio = 16 / 9, freeCro
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
                     <div>
-                        <h3 className="font-bold text-slate-900">Ajustar foto</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">Mueve, acerca o rota la imagen para encuadrarla</p>
+                        <h3 className="font-bold text-slate-900">{t('title')}</h3>
+                        <p className="text-xs text-slate-500 mt-0.5">{t('subtitle')}</p>
                     </div>
                     <button
                         onClick={onClose}
@@ -193,7 +195,7 @@ export default function ImageCropModal({ imageSrc, aspectRatio = 16 / 9, freeCro
 
                     {/* Rotation */}
                     <div className="flex items-center gap-3">
-                        <button onClick={() => setRotation(r => r - 90)} className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors" title="Rotar 90° izquierda">
+                        <button onClick={() => setRotation(r => r - 90)} className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors" title={t('rotateLeft')}>
                             <RotateCcw size={18} />
                         </button>
                         <input
@@ -205,7 +207,7 @@ export default function ImageCropModal({ imageSrc, aspectRatio = 16 / 9, freeCro
                             onChange={e => setRotation(Number(e.target.value))}
                             className="flex-1 h-2 accent-teal-500 cursor-pointer"
                         />
-                        <button onClick={() => setRotation(r => r + 90)} className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors" title="Rotar 90° derecha">
+                        <button onClick={() => setRotation(r => r + 90)} className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors" title={t('rotateRight')}>
                             <RotateCw size={18} />
                         </button>
                     </div>
@@ -217,7 +219,7 @@ export default function ImageCropModal({ imageSrc, aspectRatio = 16 / 9, freeCro
                         onClick={() => { setZoom(1); setRotation(0); setCrop({ x: 0, y: 0 }); }}
                         className="text-xs font-medium text-slate-400 hover:text-slate-600 transition-colors underline decoration-slate-300 underline-offset-2"
                     >
-                        Restablecer valores
+                        {t('resetValues')}
                     </button>
                 </div>
 
@@ -227,7 +229,7 @@ export default function ImageCropModal({ imageSrc, aspectRatio = 16 / 9, freeCro
                         onClick={onClose}
                         className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors text-sm"
                     >
-                        Cancelar
+                        {t('cancel')}
                     </button>
                     <button
                         onClick={handleApply}
@@ -239,7 +241,7 @@ export default function ImageCropModal({ imageSrc, aspectRatio = 16 / 9, freeCro
                         ) : (
                             <Check size={16} />
                         )}
-                        {processing ? 'Aplicando...' : 'Aplicar recorte'}
+                        {processing ? t('applying') : t('applyCrop')}
                     </button>
                 </div>
             </div>

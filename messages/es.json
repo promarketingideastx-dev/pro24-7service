@@ -1324,6 +1324,16 @@
     }
   },
   "common": {
+    "imageCropper": {
+      "title": "Ajustar foto",
+      "subtitle": "Mueve, acerca o rota la imagen para encuadrarla",
+      "rotateLeft": "Rotar 90° izquierda",
+      "rotateRight": "Rotar 90° derecha",
+      "resetValues": "Restablecer valores",
+      "cancel": "Cancelar",
+      "applying": "Aplicando...",
+      "applyCrop": "Aplicar recorte"
+    },
     "notifications": {
       "activate": "Activa las notificaciones",
       "bannerDesc": "Recibe alertas de citas y mensajes en tiempo real.",

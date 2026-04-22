@@ -1323,6 +1323,16 @@
     }
   },
   "common": {
+    "imageCropper": {
+      "title": "Adjust photo",
+      "subtitle": "Move, zoom, or rotate the image to frame it",
+      "rotateLeft": "Rotate 90° left",
+      "rotateRight": "Rotate 90° right",
+      "resetValues": "Reset values",
+      "cancel": "Cancel",
+      "applying": "Applying...",
+      "applyCrop": "Apply crop"
+    },
     "notifications": {
       "activate": "Turn on notifications",
       "bannerDesc": "Receive real-time alerts for appointments and messages.",
