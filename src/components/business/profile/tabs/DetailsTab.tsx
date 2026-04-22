@@ -120,6 +120,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                         lng: business.location?.lng && business.location.lng !== 0 ? business.location.lng : (business.lng || -88.02500),
                                         zoom: 15
                                     }}
+                                    hidePopup={true}
                                 />
                             </div>
                         </div>
