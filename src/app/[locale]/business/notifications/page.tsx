@@ -11,6 +11,7 @@ import {
 import { Bell, CheckCheck } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es, enUS, ptBR } from 'date-fns/locale';
+import { useRouter } from 'next/navigation';
 
 const dateLocales: Record<string, any> = {
     es,
@@ -21,6 +22,7 @@ const dateLocales: Record<string, any> = {
 
 export default function BusinessNotificationsPage() {
     const { user } = useAuth();
+    const router = useRouter();
     const t = useTranslations('business.notifications');
     const tRoot = useTranslations();
     const tStates = useTranslations('common.states');
@@ -199,7 +201,13 @@ export default function BusinessNotificationsPage() {
                                     if (selectionMode) {
                                         toggleSelection(item.id);
                                     } else {
-                                        !item.read && handleMarkOne(item.id);
+                                        if (!item.read) {
+                                            handleMarkOne(item.id);
+                                        }
+                                        const isActionable = item.relatedId && ['new_appointment', 'appointment_confirmed', 'appointment_rejected', 'payment_received', 'proof_uploaded'].includes(item.type);
+                                        if (isActionable) {
+                                            router.push(`/${locale}/business/bookings?bookingId=${item.relatedId}`);
+                                        }
                                     }
                                 }}
                                 className={`flex gap-4 p-4 rounded-2xl border transition-all ${selectionMode ? 'cursor-pointer hover:border-cyan-400' : 'cursor-pointer'} ${item.read
@@ -214,7 +222,6 @@ export default function BusinessNotificationsPage() {
                                         </div>
                                     </div>
                                 )}
-                                {/* Emoji icon */}
                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-lg ${meta.bg}`}>
                                     {meta.emoji}
                                 </div>

@@ -152,7 +152,17 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
                                 return (
                                     <div
                                         key={item.id}
-                                        className={`px-4 py-3 flex gap-3 ${item.read ? 'opacity-60' : ''}`}
+                                        onClick={() => {
+                                            if (!item.read) {
+                                                BusinessNotificationService.markRead(businessId, item.id).catch(() => {});
+                                            }
+                                            const isActionable = item.relatedId && ['new_appointment', 'appointment_confirmed', 'appointment_rejected', 'payment_received', 'proof_uploaded'].includes(item.type);
+                                            if (isActionable) {
+                                                setOpen(false);
+                                                router.push(lp(`/business/bookings?bookingId=${item.relatedId}`));
+                                            }
+                                        }}
+                                        className={`px-4 py-3 flex gap-3 transition-colors ${item.read ? 'opacity-60' : 'cursor-pointer hover:bg-white/5'}`}
                                     >
                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-base ${meta.bg}`}>
                                             {meta.emoji}
@@ -166,7 +176,6 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
                                                 </p>
                                             )}
                                         </div>
-                                        {/* isMessage handler removed */}
                                     </div>
                                 );
                             })}
