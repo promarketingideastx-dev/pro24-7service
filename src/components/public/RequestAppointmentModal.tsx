@@ -474,6 +474,8 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 }
             }
 
+            let uploadFailed = false;
+
             // Upload payment proof if provided (FASE 1: Dual-Write & Independent Storage)
             if (proofFile) {
                 try {
@@ -491,6 +493,7 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                         proofFile
                     );
                 } catch (e: any) {
+                    uploadFailed = true;
                     console.error(`[Storage Error] Proof upload / Dual-Write failed for bookingId: ${booking.id} | Code: ${e.code || 'unknown'} | Details:`, e);
                     const errorMsg = localeKey === 'en' ? 'We couldn’t upload the payment proof. Please try again.'
                                    : localeKey === 'pt' ? 'Não foi possível enviar o comprovante. Tente novamente.'
@@ -540,7 +543,9 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
             }).catch(e => console.error('[Push Business Error]', e));
             */
 
-            toast.success(t('requestSent'));
+            if (!uploadFailed) {
+                toast.success(t('requestSent'));
+            }
             onClose();
             setStep('service');
             setSelectedService(null);

@@ -48,7 +48,7 @@ export const PaymentService = {
             // It will be resolved when the business confirms the agenda slot.
             clientSnapshot: {
                 name: clientName,
-                email: clientEmail
+                ...(clientEmail ? { email: clientEmail } : {})
             },
             serviceName,
             amount,
