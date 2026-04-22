@@ -646,6 +646,13 @@ export default function UserProfilePage() {
                                                 <Clock className="w-3 h-3 shrink-0" />
                                                 <span>{aptDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                             </div>
+                                            {/* Mensaje de confirmación predeterminado */}
+                                            {apt.status === 'confirmed' && (
+                                                <div className="mt-2 text-[11px] text-[#0F766E] bg-[rgba(20,184,166,0.08)] p-2.5 flex-1 rounded-xl border border-[#14B8A6]/20 w-full font-medium">
+                                                    {t('confirmedMessage')}
+                                                </div>
+                                            )}
+
                                             {/* Inyectar nota de cancelación o confirmación aquí */}
                                             {apt.notesBusiness && (apt.status === 'canceled' || apt.status === 'confirmed') && (
                                                 <div className="mt-2 text-[11px] text-slate-700 bg-amber-50/50 p-2.5 flex-1 rounded-xl border border-amber-100/50 italic w-full">
