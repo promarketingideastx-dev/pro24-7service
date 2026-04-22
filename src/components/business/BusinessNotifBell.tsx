@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Bell } from 'lucide-react';
+import { Bell, CheckSquare, Square, Trash2, X } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { unlockAudio, playNotificationSound } from '@/lib/audioUtils';
@@ -36,6 +36,11 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
     const prevUnread = useRef(-1);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
+    // Edit mode state
+    const [isEditing, setIsEditing] = useState(false);
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [isDeleting, setIsDeleting] = useState(false);
+
     // Unlock iOS audio on first user touch/click
     useEffect(() => {
         const unlock = () => unlockAudio();
@@ -62,11 +67,11 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
         return () => unsub();
     }, [businessId]);
 
-    // Feed (last 5 for dropdown)
+    // Feed (last 30 for dropdown so they can actually delete multiple)
     useEffect(() => {
         if (!businessId || !open) return;
         const unsub = BusinessNotificationService.onNotifications(businessId, (notifs) => {
-            setItems(notifs.slice(0, 5));
+            setItems(notifs);
         });
         return () => unsub();
     }, [businessId, open]);
@@ -76,6 +81,8 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
         const handler = (e: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
                 setOpen(false);
+                setIsEditing(false);
+                setSelectedIds(new Set());
             }
         };
         document.addEventListener('mousedown', handler);
@@ -83,14 +90,64 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
     }, []);
 
     const handleOpen = () => {
-        setOpen(o => !o);
-        if (!open && unread > 0) {
-            BusinessNotificationService.markAllRead(businessId).catch(() => { });
-            
-            // Stop-At-Sight: If business opens bell, cancel all pending email reminders
+        if (open) {
+            setOpen(false);
+            setIsEditing(false);
+            setSelectedIds(new Set());
+        } else {
+            setOpen(true);
+            // Cancel pending emails when bell is opened
             import('@/services/notificationQueue.service').then(({ NotificationQueueService }) => {
                 NotificationQueueService.cancelAllPendingForTarget(businessId).catch(() => {});
             });
+        }
+    };
+
+    const toggleSelection = (id: string) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
+
+    const handleSelectAll = () => {
+        if (selectedIds.size === items.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(items.map(i => i.id)));
+        }
+    };
+
+    const handleDeleteSelected = async () => {
+        if (selectedIds.size === 0) return;
+        setIsDeleting(true);
+        try {
+            await BusinessNotificationService.deleteSelected(businessId, Array.from(selectedIds));
+            setSelectedIds(new Set());
+            if (items.length - selectedIds.size === 0) {
+                setIsEditing(false);
+            }
+        } catch (err) {
+            console.error('Error deleting notifications', err);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const handleItemClick = (item: BusinessNotification) => {
+        if (isEditing) {
+            toggleSelection(item.id);
+        } else {
+            if (!item.read) {
+                BusinessNotificationService.markRead(businessId, item.id).catch(() => {});
+            }
+            const isActionable = item.relatedId && ['new_appointment', 'appointment_confirmed', 'appointment_rejected', 'payment_received', 'proof_uploaded'].includes(item.type);
+            if (isActionable) {
+                setOpen(false);
+                router.push(lp(`/business/bookings?bookingId=${item.relatedId}`));
+            }
         }
     };
 
@@ -112,12 +169,51 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
 
             {/* Dropdown */}
             {open && (
-                <div className="absolute right-0 md:left-0 md:right-auto md:-ml-2 top-12 w-[calc(100vw-2rem)] sm:w-80 max-w-sm bg-[#0d1929] border border-slate-200 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                <div className="absolute right-0 md:left-0 md:right-auto md:-ml-2 top-12 w-[calc(100vw-2rem)] sm:w-[380px] max-w-sm bg-[#0d1929] border border-slate-200 rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-white/6">
-                        <span className="text-sm font-bold text-white">{t('title')}</span>
-                        <a href={`./notifications`} className="text-xs text-cyan-400 hover:underline">
-                            {t('seeAll')}
-                        </a>
+                        {isEditing ? (
+                            <div className="flex items-center justify-between w-full">
+                                <button 
+                                    onClick={() => { setIsEditing(false); setSelectedIds(new Set()); }}
+                                    className="text-xs font-semibold text-slate-400 hover:text-white"
+                                >
+                                    {t('cancel') || 'Cancelar'}
+                                </button>
+                                <div className="flex gap-3">
+                                    <button 
+                                        onClick={handleSelectAll}
+                                        className="text-xs font-medium text-cyan-400 hover:text-cyan-300"
+                                    >
+                                        {selectedIds.size === items.length ? 'Limpiar' : t('select_all') || 'Todas'}
+                                    </button>
+                                    <button 
+                                        onClick={handleDeleteSelected}
+                                        disabled={selectedIds.size === 0 || isDeleting}
+                                        className="text-xs font-medium text-red-500 hover:text-red-400 disabled:opacity-40 flex items-center gap-1"
+                                    >
+                                        <Trash2 size={12} />
+                                        {t('delete_selected') || 'Borrar'}
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <span className="text-sm font-bold text-white">{t('title')}</span>
+                                <div className="flex items-center gap-3">
+                                    {items.length > 0 && (
+                                        <button 
+                                            onClick={() => setIsEditing(true)}
+                                            className="text-xs font-semibold text-cyan-400 hover:text-cyan-300"
+                                        >
+                                            Editar
+                                        </button>
+                                    )}
+                                    <a href={`./notifications`} className="text-xs text-slate-400 hover:text-white hover:underline">
+                                        {t('seeAll')}
+                                    </a>
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {items.length === 0 ? (
@@ -129,7 +225,7 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
                         <div className="divide-y divide-white/4 max-h-[60vh] overflow-y-auto no-scrollbar">
                             {items.map(item => {
                                 const meta = BUSINESS_NOTIF_META[item.type as any] || { emoji: '🔔', color: '#94a3b8', bg: 'bg-slate-500/10' };
-                                
+                                const isSelected = selectedIds.has(item.id);
                                 let title = t(`types.${item.type}.title`);
                                 let body = '';
                                 
@@ -152,19 +248,19 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
                                 return (
                                     <div
                                         key={item.id}
-                                        onClick={() => {
-                                            if (!item.read) {
-                                                BusinessNotificationService.markRead(businessId, item.id).catch(() => {});
-                                            }
-                                            const isActionable = item.relatedId && ['new_appointment', 'appointment_confirmed', 'appointment_rejected', 'payment_received', 'proof_uploaded'].includes(item.type);
-                                            if (isActionable) {
-                                                setOpen(false);
-                                                router.push(lp(`/business/bookings?bookingId=${item.relatedId}`));
-                                            }
-                                        }}
-                                        className={`px-4 py-3 flex gap-3 transition-colors ${item.read ? 'opacity-60' : 'cursor-pointer hover:bg-white/5'}`}
+                                        onClick={() => handleItemClick(item)}
+                                        className={`px-4 py-3.5 flex gap-3 cursor-pointer transition-colors ${item.read && !isEditing ? 'opacity-60' : 'hover:bg-white/5'} ${isSelected ? 'bg-cyan-500/10' : ''}`}
                                     >
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-base ${meta.bg}`}>
+                                        {isEditing && (
+                                            <div className="flex items-center justify-center shrink-0 w-6">
+                                                {isSelected ? (
+                                                    <CheckSquare size={18} className="text-cyan-400" />
+                                                ) : (
+                                                    <Square size={18} className="text-slate-500" />
+                                                )}
+                                            </div>
+                                        )}
+                                        <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-base ${meta.bg}`}>
                                             {meta.emoji}
                                         </div>
                                         <div className="min-w-0 flex-1">

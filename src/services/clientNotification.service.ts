@@ -58,6 +58,18 @@ export const ClientNotificationService = {
         }
     },
 
+    /** Mark a single notification as read */
+    async markRead(clientUid: string, notifId: string): Promise<void> {
+        try {
+            await updateDoc(
+                doc(db, 'client_notifications', clientUid, 'items', notifId),
+                { read: true, readAt: serverTimestamp() }
+            );
+        } catch (err) {
+            console.warn('[ClientNotif] markRead failed:', err);
+        }
+    },
+
     /** Mark ALL notifications as read */
     async markAllRead(clientUid: string): Promise<void> {
         try {

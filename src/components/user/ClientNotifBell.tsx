@@ -89,9 +89,6 @@ export default function ClientNotifBell({ clientId }: ClientNotifBellProps) {
             setSelectedIds(new Set());
         } else {
             setOpen(true);
-            if (unread > 0) {
-                ClientNotificationService.markAllRead(clientId).catch(() => { });
-            }
         }
     };
 
@@ -132,6 +129,9 @@ export default function ClientNotifBell({ clientId }: ClientNotifBellProps) {
         if (isEditing) {
             toggleSelection(item.id);
         } else {
+            if (!item.read) {
+                ClientNotificationService.markRead(clientId, item.id).catch(() => {});
+            }
             // Dar vida: navigate based on notification type
             if (item.type === 'new_message') {
                 router.push(`/${locale}/user/messages`);
