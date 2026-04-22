@@ -1150,6 +1150,7 @@
       "confirmIdentity": "Confirma tu identidad",
       "deleteAccount": "Eliminar cuenta"
     },
+    "back": "Volver al mapa",
     "title": "Mi Perfil",
     "nameLabel": "Nombre Completo",
     "namePlaceholder": "Tu nombre",

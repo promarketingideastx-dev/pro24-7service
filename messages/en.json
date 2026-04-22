@@ -1148,6 +1148,7 @@
       "confirmIdentity": "Confirm your identity",
       "deleteAccount": "Delete account"
     },
+    "back": "Back to map",
     "title": "My Profile",
     "nameLabel": "Full Name",
     "namePlaceholder": "Your name",
