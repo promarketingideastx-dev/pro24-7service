@@ -90,6 +90,7 @@ export default function Home() {
     const locale = useLocale();
     const localeKey = locale === 'en' ? 'en' : locale === 'pt-BR' ? 'pt' : 'es';
     const t = useTranslations('home');
+    const tBadges = useTranslations('business.badges');
     const tStates = useTranslations('common.states');
     // Helper: prefixes any path with the current locale
     const lp = (path: string) => `/${locale}${path}`;
@@ -1016,7 +1017,7 @@ export default function Home() {
                                                     <span className="text-yellow-400 font-bold text-[10px]">{((biz as any).rating ?? 0).toFixed(1)}</span>
                                                 </>
                                             ) : (
-                                                <span className="text-[#0F766E] font-bold text-[10px] px-1.5 py-0.5 bg-[rgba(20,184,166,0.1)] rounded px-1">Nuevo</span>
+                                                <span className="text-[#0F766E] font-bold text-[10px] px-1.5 py-0.5 bg-[rgba(20,184,166,0.1)] rounded px-1">{tBadges('new')}</span>
                                             )}
                                             {userSearchLocationGPS && (() => {
                                                 const bizLat = (biz as any).location?.lat ?? biz.lat;

@@ -27,6 +27,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
     const router = useRouter();
     const { user } = useAuth();
     const t = useTranslations('business.publicProfile');
+    const tBadges = useTranslations('business.badges');
     const locale = useLocale();
     const [isFavorited, setIsFavorited] = useState(false);
     const [heartAnim, setHeartAnim] = useState(false);
@@ -289,7 +290,7 @@ export default function BusinessProfileLayout({ business, activeTab, onTabChange
                                         <Award className="w-4 h-4 mr-1" />
                                         {business.reviewCount > 0
                                             ? (business.rating ? business.rating.toFixed(1) : '—')
-                                            : <span className="text-xs">Nuevo</span>
+                                            : <span className="text-xs">{tBadges('new')}</span>
                                         }
                                     </span>
                                     <span>•</span>

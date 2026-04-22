@@ -13,6 +13,7 @@ export default function PublicBusinessPreviewModal({ isOpen, onClose, business }
     const router = useRouter();
     const locale = useLocale();
     const t = useTranslations('publicPreview');
+    const tBadges = useTranslations('business.badges');
     const lp = (path: string) => `/${locale}${path}`;
 
     if (!isOpen || !business) return null;
@@ -70,7 +71,7 @@ export default function PublicBusinessPreviewModal({ isOpen, onClose, business }
                                             <span className="text-white font-bold text-sm">{business.rating ? business.rating.toFixed(1) : '5.0'}</span>
                                         </>
                                     ) : (
-                                        <span className="text-white font-bold text-sm px-1">Nuevo</span>
+                                        <span className="text-white font-bold text-sm px-1">{tBadges('new')}</span>
                                     )}
                                 </div>
                             </div>
