@@ -631,7 +631,7 @@ export default function UserProfilePage() {
                                                 {aptDate.getDate()}
                                             </p>
                                             <p className="text-slate-500 text-[10px] uppercase">
-                                                {aptDate.toLocaleString('default', { month: 'short' })}
+                                                {aptDate.toLocaleString(locale === 'pt' ? 'pt-BR' : locale, { month: 'short' })}
                                             </p>
                                         </div>
                                         {/* Info */}
