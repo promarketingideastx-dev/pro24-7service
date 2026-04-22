@@ -241,6 +241,7 @@ function ClusterLayer({
     isAuthenticated,
     countryBounds,
     locked,
+    hidePopup,
     t,
 }: {
     businesses: BusinessMock[];
