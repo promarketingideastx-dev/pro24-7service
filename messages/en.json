@@ -1222,7 +1222,7 @@
     "bookFirst": "Book first appointment →",
     "aptStatus_pending": "Pending",
     "aptStatus_confirmed": "Confirmed",
-    "confirmedMessage": "Thank you, the business will contact you.",
+    "confirmedMessage": "Your appointment is confirmed! The business will contact you shortly to sort out the details. Feel free to reach out to them if you have any questions.",
     "aptStatus_completed": "Completed",
     "aptStatus_canceled": "Cancelled",
     "aptStatus_no-show": "No Show",

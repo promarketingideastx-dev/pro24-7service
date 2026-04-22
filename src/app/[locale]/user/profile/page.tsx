@@ -648,8 +648,11 @@ export default function UserProfilePage() {
                                             </div>
                                             {/* Mensaje de confirmación predeterminado */}
                                             {apt.status === 'confirmed' && (
-                                                <div className="mt-2 text-[11px] text-[#0F766E] bg-[rgba(20,184,166,0.08)] p-2.5 flex-1 rounded-xl border border-[#14B8A6]/20 w-full font-medium">
-                                                    {t('confirmedMessage')}
+                                                <div className="mt-2 text-[11px] text-[#0F766E] bg-[rgba(20,184,166,0.08)] p-2.5 flex-1 rounded-xl border border-[#14B8A6]/20 w-full font-medium leading-relaxed">
+                                                    <div className="flex items-start gap-1.5">
+                                                        <MessageCircle size={12} className="shrink-0 mt-[1.5px] opacity-80" />
+                                                        <span>{t('confirmedMessage')}</span>
+                                                    </div>
                                                 </div>
                                             )}
 

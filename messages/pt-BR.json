@@ -1220,7 +1220,7 @@
     "bookFirst": "Fazer primeiro agendamento →",
     "aptStatus_pending": "Pendente",
     "aptStatus_confirmed": "Confirmado",
-    "confirmedMessage": "Obrigado, o negócio entrará em contato com você.",
+    "confirmedMessage": "Seu agendamento foi confirmado! O estabelecimento entrará em contato em breve para os detalhes. Sinta-se à vontade para ligar se tiver dúvidas.",
     "aptStatus_completed": "Concluído",
     "aptStatus_canceled": "Cancelado",
     "aptStatus_no-show": "Não compareceu",

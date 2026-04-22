@@ -1224,7 +1224,7 @@
     "bookFirst": "Agendar primera cita →",
     "aptStatus_pending": "Pendiente",
     "aptStatus_confirmed": "Confirmada",
-    "confirmedMessage": "Gracias, el negocio se pondrá en contacto contigo.",
+    "confirmedMessage": "¡Tu cita ha sido confirmada! El establecimiento se pondrá en contacto contigo para afinar los detalles. Si tienes alguna pregunta, no dudes en escribirles o llamar.",
     "aptStatus_completed": "Completada",
     "aptStatus_canceled": "Cancelada",
     "aptStatus_no-show": "No asistí",
