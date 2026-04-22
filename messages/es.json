@@ -1206,7 +1206,9 @@
     "closeBizModalConfirm": "Sí, cerrar negocio",
     "closeBizModalCancel": "Cancelar",
     "reauthDesc": "Por seguridad, ingresa tu contraseña actual para continuar con la eliminación de tu cuenta.",
-    "reauthPasswordPlaceholder": "Tu contraseña actual"
+    "reauthPasswordPlaceholder": "Tu contraseña actual",
+    "locationConfirmed": "Ubicación confirmada",
+    "updateGpsLocation": "Actualizar mi ubicación GPS"
   },
   "share": {
     "title": "Compartir Pro24/7YA",
@@ -1478,8 +1480,26 @@
     "goHome": "Volver al Inicio",
     "progress": "Progreso",
     "summary": "Resumen del Negocio",
-    "finishDesc": "Al hacer clic en 'Crear Negocio', tu perfil será activado como Proveedor y podrás empezar a gestionar tus servicios.",
-    "headerTitle": "Registro de Negocio"
+    "finishDesc": "Al hacer clic en 'Crear Negocio', tu perfil se activará como Proveedor y podrás comenzar a recibir clientes.",
+    "headerTitle": "Registro de Negocio",
+    "locationPicker": {
+      "useMyLocationBtn": "Usar mi ubicación",
+      "searchPlaceholder": "Busca tu dirección o arrastra el pin...",
+      "fallbackRuralMap": "Área rural (Pin en el mapa)",
+      "fallbackRuralGps": "Ubicación GPS (Área rural)",
+      "fallbackMapMark": "Ubicación marcada en el mapa",
+      "pinWarnMsg": "Mueve el pin o usa tu GPS para establecer tu ubicación garantizada.",
+      "mapLoadErrorWarn": "Si no aparece, verifica tu conexión a internet o recarga la página.",
+      "toastNoGeo": "Tu dispositivo o navegador no soporta geolocalización.",
+      "toastGettingLoc": "Obteniendo tu ubicación actual...",
+      "toastGpsSuccess": "Ubicación capturada correctamente por GPS.",
+      "toastGpsError": "No pudimos obtener la ubicación. Activa tu GPS.",
+      "toastMapSuccess": "Dirección configurada desde el mapa.",
+      "toastOutsideCountryGPS": "Tu ubicación GPS ({detected}) limita fuera de tu país de registro ({countryCode}).",
+      "toastOutsideCountryMap": "La ubicación ({detected}) limita fuera de tu país ({countryCode}).",
+      "toastOutsideCountrySugg": "La ubicación sugerida ({detected}) debe pertenecer al país de registro ({countryCode}).",
+      "unmappedArea": "Área no mapeada"
+    }
   },
   "curiousMode": {
     "limitReachedTitle": "Sigue explorando negocios cerca de ti",

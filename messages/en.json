@@ -1205,7 +1205,9 @@
     "closeBizModalConfirm": "Yes, close business",
     "closeBizModalCancel": "Cancel",
     "reauthDesc": "For security, enter your current password to proceed with account deletion.",
-    "reauthPasswordPlaceholder": "Your current password"
+    "reauthPasswordPlaceholder": "Your current password",
+    "locationConfirmed": "Location confirmed",
+    "updateGpsLocation": "Update my GPS location"
   },
   "share": {
     "title": "Share Pro24/7YA",
@@ -1478,7 +1480,25 @@
     "progress": "Progress",
     "summary": "Business Summary",
     "finishDesc": "By clicking 'Create Business', your profile will be activated as a Provider and you can start managing your services.",
-    "headerTitle": "Business Setup"
+    "headerTitle": "Business Setup",
+    "locationPicker": {
+      "useMyLocationBtn": "Use my location",
+      "searchPlaceholder": "Search your address or drag the pin...",
+      "fallbackRuralMap": "Rural area (Map pin)",
+      "fallbackRuralGps": "GPS Location (Rural area)",
+      "fallbackMapMark": "Location marked on map",
+      "pinWarnMsg": "Move the pin or use your GPS to set your guaranteed location.",
+      "mapLoadErrorWarn": "If it doesn't appear, check your internet connection or reload the page.",
+      "toastNoGeo": "Your device or browser does not support geolocation.",
+      "toastGettingLoc": "Getting your current location...",
+      "toastGpsSuccess": "Location successfully captured by GPS.",
+      "toastGpsError": "We couldn't get your location. Turn on your GPS.",
+      "toastMapSuccess": "Address configured from the map.",
+      "toastOutsideCountryGPS": "Your GPS location ({detected}) is outside your registered country ({countryCode}).",
+      "toastOutsideCountryMap": "The location ({detected}) is outside your country ({countryCode}).",
+      "toastOutsideCountrySugg": "The suggested location ({detected}) must belong to the registered country ({countryCode}).",
+      "unmappedArea": "Unmapped area"
+    }
   },
   "curiousMode": {
     "limitReachedTitle": "Keep exploring businesses near you",

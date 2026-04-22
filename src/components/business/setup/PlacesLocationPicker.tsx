@@ -63,11 +63,11 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
 
     const handleGPS = () => {
         if (!navigator.geolocation) {
-            toast.error("Tu dispositivo o navegador no soporta geolocalización.");
+            toast.error(t('locationPicker.toastNoGeo'));
             return;
         }
 
-        const toastId = toast.loading("Obteniendo tu ubicación actual...");
+        const toastId = toast.loading(t('locationPicker.toastGettingLoc'));
         navigator.geolocation.getCurrentPosition(
             async (position) => {
                 const lat = position.coords.latitude;
@@ -130,7 +130,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                                     fallbackCountry = osmCountry;
                                 } else {
                                     isInsideCountry = true;
-                                    fallbackAddress = fallbackAddress || "Área rural (Pin GPS)";
+                                    fallbackAddress = fallbackAddress || t('locationPicker.fallbackRuralGps');
                                 }
                             } else {
                                 isInsideCountry = false;
@@ -145,8 +145,8 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                 }
 
                 if (!isInsideCountry) {
-                    const detected = fallbackCountry ? fallbackCountry.toUpperCase() : 'Área no mapeada';
-                    toast.success(`Tu ubicación GPS (${detected}) limita fuera de tu país de registro (${countryCode?.toUpperCase()}).`, {
+                    const detected = fallbackCountry ? fallbackCountry.toUpperCase() : t('locationPicker.unmappedArea');
+                    toast.success(t('locationPicker.toastOutsideCountryGPS', { detected, countryCode: countryCode?.toUpperCase() || '' }), {
                         icon: '📍',
                         style: { background: '#F0FDF4', color: '#166534', borderColor: '#BBF7D0' }
                     });
@@ -158,7 +158,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                     return;
                 }
 
-                const finalDisplay = fallbackAddress || "Ubicación GPS (Área rural)";
+                const finalDisplay = fallbackAddress || t('locationPicker.fallbackRuralGps');
                 setInputValue(finalDisplay);
                 setMapCenter({ lat, lng });
                 setMarkerPos({ lat, lng });
@@ -183,11 +183,11 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
 
                 lastSentCoordsRef.current = { lat, lng };
                 onLocationSelect(result);
-                toast.success('Ubicación capturada correctamente por GPS.');
+                toast.success(t('locationPicker.toastGpsSuccess'));
             },
             (error) => {
                 toast.dismiss(toastId);
-                toast.error("No pudimos obtener la ubicación. Activa tu GPS.");
+                toast.error(t('locationPicker.toastGpsError'));
             },
             { enableHighAccuracy: true, timeout: 10000 }
         );
@@ -253,7 +253,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                             fallbackCountry = osmCountry;
                         } else {
                             isInsideCountry = true;
-                            fallbackAddress = fallbackAddress || "Área rural (Pin en el mapa)";
+                            fallbackAddress = fallbackAddress || t('locationPicker.fallbackRuralMap');
                         }
                     } else {
                         isInsideCountry = false;
@@ -268,8 +268,8 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         }
 
         if (!isInsideCountry) {
-            const detected = fallbackCountry ? fallbackCountry.toUpperCase() : 'Área no mapeada';
-            toast.success(`La ubicación (${detected}) limita fuera de tu país (${countryCode?.toUpperCase()}).`, {
+            const detected = fallbackCountry ? fallbackCountry.toUpperCase() : t('locationPicker.unmappedArea');
+            toast.success(t('locationPicker.toastOutsideCountryMap', { detected, countryCode: countryCode?.toUpperCase() || '' }), {
                 icon: '📍',
                 style: { background: '#F0FDF4', color: '#166534', borderColor: '#BBF7D0' }
             });
@@ -281,7 +281,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         }
 
         setMarkerPos({ lat, lng });
-        const finalAddressText = fallbackAddress || "Ubicación marcada en el mapa";
+        const finalAddressText = fallbackAddress || t('locationPicker.fallbackMapMark');
         setInputValue(finalAddressText);
 
         const result: LocationResult = {
@@ -300,8 +300,8 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
 
         lastSentCoordsRef.current = { lat, lng };
         onLocationSelect(result);
-        toast.success('Dirección configurada desde el mapa.');
-    }, [countryCode, onLocationSelect, defaultCenter]);
+        toast.success(t('locationPicker.toastMapSuccess'));
+    }, [countryCode, onLocationSelect, defaultCenter, t]);
 
     const onPlaceChanged = useCallback(() => {
         if (!autocompleteRef.current) return;
@@ -328,7 +328,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
         }
 
         if (countryCode && fallbackCountry && fallbackCountry.toUpperCase() !== countryCode.toUpperCase()) {
-            toast.success(`La ubicación sugerida (${fallbackCountry.toUpperCase()}) debe pertenecer al país de registro (${countryCode.toUpperCase()}).`, {
+            toast.success(t('locationPicker.toastOutsideCountrySugg', { detected: fallbackCountry.toUpperCase(), countryCode: countryCode.toUpperCase() }), {
                 icon: '📍',
                 style: { background: '#F0FDF4', color: '#166534', borderColor: '#BBF7D0' }
             });
@@ -366,7 +366,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
 
         lastSentCoordsRef.current = pos;
         onLocationSelect(result);
-    }, [countryCode, inputValue, onLocationSelect, defaultCenter]);
+    }, [countryCode, inputValue, onLocationSelect, defaultCenter, t]);
 
     return (
         <div className="space-y-3">
@@ -377,7 +377,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                     className="flex-shrink-0 flex items-center justify-center gap-2 h-12 px-4 rounded-lg font-medium bg-teal-50 text-teal-600 border border-teal-200 hover:bg-teal-100 hover:border-teal-300 transition-colors"
                 >
                     <Navigation size={18} />
-                    <span>Usar mi ubicación</span>
+                    <span>{t('locationPicker.useMyLocationBtn')}</span>
                 </button>
 
                 <div className="relative w-full">
@@ -398,7 +398,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
                                     e.preventDefault();
                                 }
                             }}
-                            placeholder="Busca tu dirección o arrastra el pin..."
+                            placeholder={t('locationPicker.searchPlaceholder')}
                             className="w-full h-12 bg-white border border-slate-200 rounded-lg pl-9 pr-9 text-slate-800 text-sm focus:outline-none focus:border-teal-500 placeholder:text-slate-400 disabled:opacity-50 inline-block focus:ring-0"
                         />
                     </Autocomplete>
@@ -446,7 +446,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
             {!initialLat && (
                 <div className="mt-2 flex items-center gap-2 text-amber-700 text-sm animate-in fade-in">
                     <AlertTriangle size={16} />
-                    <span>Mueve el pin o usa tu GPS para establecer tu ubicación garantizada.</span>
+                    <span>{t('locationPicker.pinWarnMsg')}</span>
                 </div>
             )}
         </div>
@@ -455,6 +455,7 @@ function PlacesLocationPickerInner({ onLocationSelect, initialAddress, initialLa
 
 export function PlacesLocationPicker(props: Props) {
     const tStates = useTranslations('common.states');
+    const tSetup = useTranslations('setup');
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
     const { isLoaded, loadError } = useJsApiLoader({
@@ -468,7 +469,7 @@ export function PlacesLocationPicker(props: Props) {
                 <AlertTriangle size={20} className="text-amber-500 shrink-0 mt-0.5" />
                 <div>
                     <h3 className="text-slate-800 font-medium text-sm">{tStates('loadingMap')}</h3>
-                    <p className="text-slate-600 text-xs mt-1">Si no aparece, verifica tu conexión a internet o recarga la página.</p>
+                    <p className="text-slate-600 text-xs mt-1">{tSetup('locationPicker.mapLoadErrorWarn')}</p>
                 </div>
             </div>
         );

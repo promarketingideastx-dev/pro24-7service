@@ -458,7 +458,7 @@ export default function UserProfilePage() {
                                 <label className="text-xs font-semibold text-slate-500 uppercase flex items-center gap-2">
                                     {t('addressLabel')}
                                     {formData.userLocation.lat && (
-                                        <span className="text-xs text-green-500 font-medium normal-case flex items-center"><CheckCircle className="w-3 h-3 inline mr-1" /> Ubicación confirmada</span>
+                                        <span className="text-xs text-green-500 font-medium normal-case flex items-center"><CheckCircle className="w-3 h-3 inline mr-1" /> {t('locationConfirmed')}</span>
                                     )}
                                 </label>
                                 <div className="rounded-xl overflow-hidden border border-slate-200">
@@ -490,7 +490,7 @@ export default function UserProfilePage() {
                                     className="text-xs font-bold text-[#14B8A6] hover:underline mt-2 flex items-center gap-1"
                                 >
                                     <MapPin className="w-3 h-3" />
-                                    Actualizar mi ubicación GPS
+                                    {t('updateGpsLocation')}
                                 </button>
                             </div>
 
