@@ -1142,7 +1142,57 @@
   "userProfile": {
     "notifications": {
       "title": "Notifications",
-      "empty": "No notifications yet"
+      "empty": "No notifications yet",
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "deleteSelected": "Delete",
+      "selectAll": "All",
+      "types": {
+        "new_message": {
+          "title": "New Message",
+          "body": "You have a new message from {businessName}"
+        },
+        "booking_created": {
+          "title": "Request Sent",
+          "body": "Your appointment request for {serviceName} was sent to {businessName}"
+        },
+        "booking_confirmed": {
+          "title": "Confirmed",
+          "body": "Your appointment for {serviceName} is confirmed"
+        },
+        "booking_canceled": {
+          "title": "Canceled",
+          "body": "Your appointment for {serviceName} was canceled"
+        },
+        "appointment_confirmed": {
+          "title": "Confirmed",
+          "body": "Your appointment is confirmed"
+        },
+        "appointment_rejected": {
+          "title": "Rejected",
+          "body": "Your appointment request was rejected"
+        },
+        "appointment_cancelled": {
+          "title": "Canceled",
+          "body": "Your appointment has been canceled"
+        },
+        "proof_approved": {
+          "title": "Payment Approved",
+          "body": "Payment for {serviceName} was approved"
+        },
+        "proof_rejected": {
+          "title": "Payment Failed",
+          "body": "There is an issue with the payment for {serviceName}"
+        },
+        "payment_approved": {
+          "title": "Payment Approved",
+          "body": "Payment for {serviceName} was approved"
+        },
+        "payment_rejected": {
+          "title": "Payment Failed",
+          "body": "There is an issue with the payment for {serviceName}"
+        }
+      }
     },
     "reauth": {
       "confirmIdentity": "Confirm your identity",

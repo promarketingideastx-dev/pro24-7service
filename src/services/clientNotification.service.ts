@@ -72,6 +72,20 @@ export const ClientNotificationService = {
         }
     },
 
+    /** Delete selected notifications */
+    async delete(clientUid: string, ids: string[]): Promise<void> {
+        try {
+            if (!ids.length) return;
+            const batch = writeBatch(db);
+            ids.forEach(id => {
+                 batch.delete(doc(db, 'client_notifications', clientUid, 'items', id));
+            });
+            await batch.commit();
+        } catch (err) {
+            console.warn('[ClientNotif] delete failed:', err);
+        }
+    },
+
     /** Real-time unread count — for bell badge */
     onUnreadCount(clientUid: string, cb: (count: number) => void): () => void {
         const q = query(col(clientUid), where('read', '==', false));

@@ -1140,7 +1140,57 @@
   "userProfile": {
     "notifications": {
       "title": "Notificações",
-      "empty": "Sem notificações no momento"
+      "empty": "Sem notificações no momento",
+      "edit": "Editar",
+      "cancel": "Cancelar",
+      "deleteSelected": "Excluir",
+      "selectAll": "Todas",
+      "types": {
+        "new_message": {
+          "title": "Nova Mensagem",
+          "body": "Você tem uma nova mensagem de {businessName}"
+        },
+        "booking_created": {
+          "title": "Solicitação Enviada",
+          "body": "Sua solicitação de agendamento de {serviceName} para {businessName} foi enviada"
+        },
+        "booking_confirmed": {
+          "title": "Confirmada",
+          "body": "Sua consulta para {serviceName} foi confirmada"
+        },
+        "booking_canceled": {
+          "title": "Cancelada",
+          "body": "Sua consulta para {serviceName} foi cancelada"
+        },
+        "appointment_confirmed": {
+          "title": "Confirmada",
+          "body": "Sua consulta foi confirmada"
+        },
+        "appointment_rejected": {
+          "title": "Rejeitada",
+          "body": "Sua solicitação de consulta foi rejeitada"
+        },
+        "appointment_cancelled": {
+          "title": "Cancelada",
+          "body": "Sua consulta foi cancelada"
+        },
+        "proof_approved": {
+          "title": "Pagamento Aprovado",
+          "body": "O pagamento de {serviceName} foi aprovado"
+        },
+        "proof_rejected": {
+          "title": "Erro no Pagamento",
+          "body": "Ocorreu um problema com o pagamento de {serviceName}"
+        },
+        "payment_approved": {
+          "title": "Pagamento Aprovado",
+          "body": "O pagamento de {serviceName} foi aprovado"
+        },
+        "payment_rejected": {
+          "title": "Erro no Pagamento",
+          "body": "Ocorreu um problema com o pagamento de {serviceName}"
+        }
+      }
     },
     "reauth": {
       "confirmIdentity": "Confirme sua identidade",

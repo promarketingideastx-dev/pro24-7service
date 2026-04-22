@@ -1144,7 +1144,57 @@
   "userProfile": {
     "notifications": {
       "title": "Notificaciones",
-      "empty": "Sin notificaciones por ahora"
+      "empty": "Sin notificaciones por ahora",
+      "edit": "Editar",
+      "cancel": "Cancelar",
+      "deleteSelected": "Borrar",
+      "selectAll": "Todas",
+      "types": {
+        "new_message": {
+          "title": "Nuevo Mensaje",
+          "body": "Tienes un nuevo mensaje de {businessName}"
+        },
+        "booking_created": {
+          "title": "Cita Solicitada",
+          "body": "Se ha solicitado una cita con {businessName} para {serviceName}"
+        },
+        "booking_confirmed": {
+          "title": "Cita Confirmada",
+          "body": "Tu cita para {serviceName} fue confirmada"
+        },
+        "booking_canceled": {
+          "title": "Cita Cancelada",
+          "body": "Tu cita para {serviceName} ha sido cancelada"
+        },
+        "appointment_confirmed": {
+          "title": "Cita Confirmada",
+          "body": "Se ha confirmado tu cita"
+        },
+        "appointment_rejected": {
+          "title": "Cita Rechazada",
+          "body": "Tu cita no pudo ser confirmada"
+        },
+        "appointment_cancelled": {
+          "title": "Cita Cancelada",
+          "body": "La cita fue cancelada"
+        },
+        "proof_approved": {
+          "title": "Pago Aprobado",
+          "body": "El pago para {serviceName} ha sido aprobado"
+        },
+        "proof_rejected": {
+          "title": "Pago Rechazado",
+          "body": "Hay un problema con el pago de {serviceName}"
+        },
+        "payment_approved": {
+          "title": "Pago Aprobado",
+          "body": "El pago para {serviceName} ha sido aprobado"
+        },
+        "payment_rejected": {
+          "title": "Pago Rechazado",
+          "body": "Hay un problema con el pago de {serviceName}"
+        }
+      }
     },
     "reauth": {
       "confirmIdentity": "Confirma tu identidad",
