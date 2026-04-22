@@ -303,8 +303,8 @@ function ClusterLayer({
                 }
 
                 const biz = item.business;
-                // In locked mode: no Leaflet Popup — page-level mini card handles display
-                if (locked) {
+                // In locked mode or when hidePopup is active: no Leaflet Popup — page-level mini card handles display or popup is hidden
+                if (locked || hidePopup) {
                     return (
                         <Marker
                             key={biz.id}
@@ -326,32 +326,30 @@ function ClusterLayer({
                             click: () => { if (onBusinessSelect) onBusinessSelect(biz); }
                         }}
                     >
-                        {!hidePopup && (
-                            <Popup className="custom-popup" closeButton={false} minWidth={140} maxWidth={180}>
-                                <div className="p-1 min-w-[140px] flex flex-col gap-1.5 text-center">
-                                    <div>
-                                        <h3 className="font-bold text-slate-900 text-xs leading-none line-clamp-1">{biz.name}</h3>
-                                        <p className="text-[10px] text-slate-500 font-medium mt-0.5">{biz.subcategory}</p>
-                                    </div>
-                                    {isAuthenticated && (
-                                        <p className="text-[10px] text-slate-400 line-clamp-1 hidden sm:block leading-tight">{biz.description}</p>
-                                    )}
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (onNavigate) onNavigate(biz);
-                                        }}
-                                        className={`w-full text-[10px] font-bold py-1 px-2 rounded transition-colors flex items-center justify-center gap-1
-                                        ${isAuthenticated
-                                                ? 'bg-slate-900 text-white hover:bg-slate-800'
-                                                : 'bg-brand-neon-cyan/10 text-brand-dark-blue hover:bg-brand-neon-cyan/20 border border-brand-neon-cyan/20'}`}
-                                    >
-                                        {isAuthenticated ? t('viewProfile') : t('view')}
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-                                    </button>
+                        <Popup className="custom-popup" closeButton={false} minWidth={140} maxWidth={180}>
+                            <div className="p-1 min-w-[140px] flex flex-col gap-1.5 text-center">
+                                <div>
+                                    <h3 className="font-bold text-slate-900 text-xs leading-none line-clamp-1">{biz.name}</h3>
+                                    <p className="text-[10px] text-slate-500 font-medium mt-0.5">{biz.subcategory}</p>
                                 </div>
-                            </Popup>
-                        )}
+                                {isAuthenticated && (
+                                    <p className="text-[10px] text-slate-400 line-clamp-1 hidden sm:block leading-tight">{biz.description}</p>
+                                )}
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (onNavigate) onNavigate(biz);
+                                    }}
+                                    className={`w-full text-[10px] font-bold py-1 px-2 rounded transition-colors flex items-center justify-center gap-1
+                                    ${isAuthenticated
+                                            ? 'bg-slate-900 text-white hover:bg-slate-800'
+                                            : 'bg-brand-neon-cyan/10 text-brand-dark-blue hover:bg-brand-neon-cyan/20 border border-brand-neon-cyan/20'}`}
+                                >
+                                    {isAuthenticated ? t('viewProfile') : t('view')}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                                </button>
+                            </div>
+                        </Popup>
                     </Marker>
                 );
             })}
