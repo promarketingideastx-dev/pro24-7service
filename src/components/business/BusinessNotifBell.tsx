@@ -112,7 +112,7 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
 
             {/* Dropdown */}
             {open && (
-                <div className="absolute right-0 top-12 w-80 bg-[#0d1929] border border-slate-200 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                <div className="absolute right-0 md:left-0 md:right-auto md:-ml-2 top-12 w-[calc(100vw-2rem)] sm:w-80 max-w-sm bg-[#0d1929] border border-slate-200 rounded-2xl shadow-2xl z-50 overflow-hidden">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-white/6">
                         <span className="text-sm font-bold text-white">{t('title')}</span>
                         <a href={`./notifications`} className="text-xs text-cyan-400 hover:underline">
@@ -126,7 +126,7 @@ export default function BusinessNotifBell({ businessId }: BusinessNotifBellProps
                             {t('empty')}
                         </div>
                     ) : (
-                        <div className="divide-y divide-white/4">
+                        <div className="divide-y divide-white/4 max-h-[60vh] overflow-y-auto no-scrollbar">
                             {items.map(item => {
                                 const meta = BUSINESS_NOTIF_META[item.type as any] || { emoji: '🔔', color: '#94a3b8', bg: 'bg-slate-500/10' };
                                 
