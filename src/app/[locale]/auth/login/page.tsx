@@ -37,7 +37,12 @@ function LoginForm() {
 
         try {
             await AuthService.loginWithEmail(email, password);
-            // No navigation here. AuthGuard intercepts and shoots us to the correct page automatically.
+            
+            // AGGRESSIVE ROUTING FIX: Push the router immediately to survive Next.js dropped navigation during AuthContext re-render
+            const hasLocalePrefix = LOCALE_PREFIXES.some(p => returnTo.startsWith(p));
+            const target = returnTo && returnTo !== '/' && !hasLocalePrefix ? lp(returnTo) : returnTo || lp('/');
+            router.replace(target);
+
             setTimeout(() => {
                 if (typeof window !== 'undefined' && window.location.pathname.includes('/auth/login')) {
                     setLoading(false);
