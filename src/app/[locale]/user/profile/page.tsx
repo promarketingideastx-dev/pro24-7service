@@ -636,7 +636,12 @@ export default function UserProfilePage() {
                                         </div>
                                         {/* Info */}
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-slate-900 font-semibold text-sm truncate">{apt.serviceName}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-slate-900 font-semibold text-sm truncate">{apt.serviceName}</p>
+                                                <span className={`px-2 py-[2px] rounded-full text-[9px] font-bold uppercase tracking-wider border ${color}`}>
+                                                    {t(statusKey)}
+                                                </span>
+                                            </div>
                                             <div className="flex items-center gap-2 text-slate-500 text-xs mt-0.5">
                                                 <Clock className="w-3 h-3 shrink-0" />
                                                 <span>{aptDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>

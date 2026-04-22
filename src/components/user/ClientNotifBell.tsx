@@ -263,7 +263,8 @@ export default function ClientNotifBell({ clientId }: ClientNotifBellProps) {
                                                     try {
                                                         const params = { 
                                                             businessName: item.variables?.businessName || item.relatedName || 'Negocio', 
-                                                            serviceName: item.variables?.serviceName || item.serviceName || 'Servicio' 
+                                                            serviceName: item.variables?.serviceName || item.serviceName || 'Servicio',
+                                                            clientName: item.variables?.clientName || 'Cliente'
                                                         };
                                                         const tBody = t(`types.${item.type}.body` as any, params);
                                                         body = tBody && !tBody.includes('.body') ? tBody : (item.body || '');

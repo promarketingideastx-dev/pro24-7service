@@ -17,7 +17,7 @@ import PublicBusinessPreviewModal from '@/components/ui/PublicBusinessPreviewMod
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import ShareAppModal from '@/components/ui/ShareAppModal';
 import SearchAutocomplete from '@/components/ui/SearchAutocomplete';
-import ClientNotifBell from '@/components/ui/ClientNotifBell';
+import ClientNotifBell from '@/components/user/ClientNotifBell';
 import UserLocationModal from '@/components/public/UserLocationModal';
 import { toast } from 'sonner';
 
@@ -368,7 +368,7 @@ export default function Home() {
                             <LanguageSwitcher variant="icon" />
 
                             {/* Client Notification Bell — only for logged-in users */}
-                            {user && <ClientNotifBell clientUid={user.uid} />}
+                            {user && <ClientNotifBell clientId={user.uid} />}
 
                             {user ? (
                                 <div className="flex items-center gap-2 group relative">
