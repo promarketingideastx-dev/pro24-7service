@@ -228,7 +228,7 @@ export default function ServicesTab({ businessId, services: initialServices, onB
                                 </div>
 
                                 <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[rgba(20,184,166,0.08)] text-[#14B8A6] text-sm font-semibold group-hover:bg-[#14B8A6] group-hover:text-white transition-colors">
-                                    Agendar
+                                    {t('bookBtn')}
                                     <ChevronRight className="w-4 h-4" />
                                 </button>
                             </div>
