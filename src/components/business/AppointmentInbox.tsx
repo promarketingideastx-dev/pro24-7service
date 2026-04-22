@@ -408,15 +408,17 @@ export default function AppointmentInbox({
 
             {/* ── Delete Confirmation Modal ────────────────────────────── */}
             {showDeleteConfirm && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-                    <div className="bg-white border border-[#E6E8EC] rounded-2xl p-6 w-full max-w-sm shadow-2xl text-center">
-                        <div className="mx-auto w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4">
-                            <AlertCircle size={24} />
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 hover:animate-in fade-in transition-all">
+                    <div className="bg-white border border-[#E6E8EC] rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+                        <div className="banner-danger mb-6 text-left">
+                            <h3 className="font-bold text-base flex items-center gap-2">
+                                <AlertCircle size={18} className="text-red-500" />
+                                ¿Eliminar {selectedIds.size} cita{selectedIds.size !== 1 ? 's' : ''}?
+                            </h3>
+                            <p className="text-sm mt-1.5 text-red-600/80 leading-relaxed font-medium">
+                                Esta acción es permanente y eliminará los registros de la base de datos de forma irreversible.
+                            </p>
                         </div>
-                        <h3 className="font-bold text-lg text-slate-900 mb-2">¿Eliminar {selectedIds.size} cita{selectedIds.size !== 1 ? 's' : ''}?</h3>
-                        <p className="text-slate-500 text-sm mb-6 leading-relaxed">
-                            Esta acción es permanente y eliminará los registros de Firebase de forma irreversible.
-                        </p>
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setShowDeleteConfirm(false)}
