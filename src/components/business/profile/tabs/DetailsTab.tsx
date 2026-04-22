@@ -96,7 +96,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                     onClick={() => setIsMapInteractive(true)}
                                 >
                                     <div className="bg-black/70 backdrop-blur-md px-5 py-2.5 rounded-full text-white text-sm font-bold shadow-[0_4px_15px_rgba(0,0,0,0.3)] animate-bounce hover:animate-none">
-                                        tocar para interactuar
+                                        {t('tapToInteract')}
                                     </div>
                                 </div>
                             )}
@@ -161,7 +161,7 @@ export default function DetailsTab({ business }: DetailsTabProps) {
                                 className="mt-5 flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-bold text-sm shadow-[0_6px_20px_rgba(37,99,235,0.4)] active:scale-[0.98] transition-all border border-blue-400/50"
                             >
                                 <Navigation className="w-5 h-5 fill-white/20" />
-                                Cómo llegar
+                                {t('getDirections')}
                             </button>
                         );
                     })()}
