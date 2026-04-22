@@ -6,6 +6,7 @@ import * as admin from 'firebase-admin';
 import { EmailService } from '@/services/email.service';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 export async function GET(request: Request) {
     // 1. Dual Compatibility Authorization (Vercel Cron OR External Trigger)

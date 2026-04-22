@@ -64,7 +64,7 @@ export const EmailService = {
                 </div>
                 
                 <div style="margin-top: 30px;">
-                    <a href="https://www.pro247ya.com/${locale || 'es'}/business/agenda?bookingId=${bookingId}" style="background: #14B8A6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">${t.button}</a>
+                    <a href="https://www.pro247ya.com/${locale || 'es'}/business/bookings?bookingId=${bookingId}" style="background: #14B8A6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">${t.button}</a>
                 </div>
                 <p style="font-size: 12px; color: #94a3b8; margin-top: 40px;">${t.footer}</p>
             </div>
@@ -122,7 +122,7 @@ export const EmailService = {
                     ${imgHtml}
 
                     <p style="text-align: center; margin-top: 25px;">
-                        <a href="https://www.pro247ya.com/${locale || 'es'}/business/agenda?bookingId=${bookingId}" style="background: #14B8A6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Revisar y Aprobar</a>
+                        <a href="https://www.pro247ya.com/${locale || 'es'}/business/bookings?bookingId=${bookingId}" style="background: #14B8A6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Revisar y Aprobar</a>
                     </p>
                 </div>
             </div>
