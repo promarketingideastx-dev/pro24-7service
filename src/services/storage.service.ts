@@ -149,5 +149,52 @@ export const StorageService = {
             console.error("Payment Proof Upload Error:", error);
             throw new Error("Error al subir comprobante: " + error.message);
         }
+    },
+
+    /**
+     * FASE 1: Uploads a Payment Proof cleanly to the independent financial storage.
+     * Path: businesses/{businessId}/payments/{paymentId}/proof_{timestamp}.{ext}
+     */
+    async uploadServicePaymentProof(businessId: string, paymentId: string, file: File): Promise<{ url: string, path: string, type: 'image' | 'pdf', fileName: string }> {
+        if (!businessId || !paymentId) throw new Error("Business ID and Payment ID are required.");
+
+        const isPdf = file.type === 'application/pdf';
+        const isImage = file.type.startsWith('image/');
+
+        if (!isPdf && !isImage) {
+            throw new Error("Formato inválido. Solo se admiten imágenes y PDFs.");
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            throw new Error("El archivo excede el límite de 5MB.");
+        }
+
+        let fileToUpload = file;
+        let ext = isPdf ? 'pdf' : 'jpg';
+
+        if (isImage) {
+            fileToUpload = await this.compressImage(file);
+            ext = 'webp'; // Compresser output
+        }
+
+        const timestamp = Date.now();
+        const safeName = file.name.replace(/[^a-zA-Z0-9.\-]/g, '_');
+        const storagePath = `businesses/${businessId}/payments/${paymentId}/proof_${timestamp}_${safeName}`;
+
+        const storageRef = ref(storage, storagePath);
+
+        try {
+            const snapshot = await uploadBytes(storageRef, fileToUpload);
+            const downloadURL = await getDownloadURL(snapshot.ref);
+            return {
+                url: downloadURL,
+                path: storagePath,
+                type: isPdf ? 'pdf' : 'image',
+                fileName: safeName
+            };
+        } catch (error: any) {
+            console.error("Service Payment Proof Upload Error:", error);
+            throw new Error("Error al subir comprobante financiero: " + error.message);
+        }
     }
 };

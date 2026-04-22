@@ -474,22 +474,24 @@ export default function RequestAppointmentModal({ isOpen, onClose, businessId, b
                 }
             }
 
-            // Upload payment proof if provided
+            // Upload payment proof if provided (FASE 1: Dual-Write & Independent Storage)
             if (proofFile) {
                 try {
-                    const { StorageService } = await import('@/services/storage.service');
-                    const proofRes = await StorageService.uploadPaymentProof(booking.id, proofFile);
-                    await updateDoc(doc(db, 'bookings', booking.id), {
-                        paymentProof: {
-                            url: proofRes.url,
-                            type: proofRes.type,
-                            fileName: proofRes.fileName,
-                            uploadedAt: new Date().toISOString()
-                        },
-                        paymentStatus: 'proof_uploaded'
-                    });
+                    const { PaymentService } = await import('@/services/payment.service');
+                    await PaymentService.uploadServicePaymentProofAndDualWrite(
+                        businessId,
+                        booking.id,
+                        user.uid,
+                        data.name,
+                        data.email || user.email || undefined,
+                        selectedService.name || t('service'),
+                        totalAmount,
+                        selectedService.currency || countryConfig.currency,
+                        'manual', // Assuming manual for UI forms, this can be expanded if selection is added
+                        proofFile
+                    );
                 } catch (e: any) {
-                    console.error(`[Storage Error] Proof upload failed for bookingId: ${booking.id} | Code: ${e.code || 'unknown'} | Path: bookings/${booking.id}/${proofFile.name} | Details:`, e);
+                    console.error(`[Storage Error] Proof upload / Dual-Write failed for bookingId: ${booking.id} | Code: ${e.code || 'unknown'} | Details:`, e);
                     const errorMsg = localeKey === 'en' ? 'We couldn’t upload the payment proof. Please try again.'
                                    : localeKey === 'pt' ? 'Não foi possível enviar o comprovante. Tente novamente.'
                                    : 'No pudimos subir el comprobante. Inténtalo nuevamente.';

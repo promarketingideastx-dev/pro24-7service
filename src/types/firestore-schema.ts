@@ -349,3 +349,39 @@ export interface NotificationQueueDocument {
     cancelledAt?: any; // Timestamp
     openedAt?: any; // Timestamp
 }
+
+// ==========================================
+// 7. Service Payments Collection (businesses/{businessId}/service_payments/{paymentId})
+// ==========================================
+
+export type ServicePaymentStatus = 'under_review' | 'approved' | 'rejected' | 'refunded' | 'void';
+
+export interface ServicePaymentDocument {
+    id: string;                      // Firebase auto ID or generated UUID
+    bookingId: string;               // Strong link to booking
+    businessId: string;
+    clientId: string;                // User UID who made the payment
+    crmCustomerId?: string;          // Link to the internal CRM customer. Resolved post-booking confirm.
+    clientSnapshot: {
+        name: string;
+        email?: string;
+    };
+    serviceName: string;
+    amount: number;
+    currency: string;
+    paymentMethod: PaymentMethod | 'cash' | 'pe_transfer' | 'zelle' | 'paypal' | string; // Expanded for specific options if needed later
+    paymentMethodDetails?: string;   // Optional details inputted
+    proofImageUrl: string;
+    proofStoragePath: string;        // E.g., businesses/{businessId}/payments/{paymentId}/...
+    status: ServicePaymentStatus;
+    
+    version: number;                 // Track manual edits vs auto
+    source: 'client_upload' | 'business_manual' | 'webhook';
+    
+    archivedAt?: any;                // Soft delete
+    createdAt: any;                  // Timestamp
+    updatedAt: any;                  // Timestamp
+    reviewedAt?: any;                // Timestamp
+    reviewedBy?: string;             // UID of business worker/admin
+}
+
