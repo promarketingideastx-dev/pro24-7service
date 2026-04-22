@@ -84,5 +84,24 @@ export const PaymentService = {
             paymentId,
             proofRes
         };
+    },
+
+    /**
+     * Real-time listener for Service Payments
+     */
+    onPaymentsByBusiness(businessId: string, callback: (payments: ServicePaymentDocument[]) => void): () => void {
+        const { onSnapshot, query, orderBy } = require('firebase/firestore');
+        const paymentsRef = collection(db, 'businesses', businessId, 'service_payments');
+        const q = query(paymentsRef, orderBy('createdAt', 'desc'));
+        return onSnapshot(q, (snapshot: any) => {
+            const data: ServicePaymentDocument[] = [];
+            snapshot.forEach((docSnap: any) => {
+                data.push({ id: docSnap.id, ...docSnap.data() } as ServicePaymentDocument);
+            });
+            callback(data);
+        }, (error: any) => {
+            console.error('[PaymentService] onPaymentsByBusiness error', error);
+            callback([]);
+        });
     }
 };

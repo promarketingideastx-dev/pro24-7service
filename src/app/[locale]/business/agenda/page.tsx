@@ -53,29 +53,26 @@ export default function AgendaPage() {
         fetchDependencies();
     }, [user]);
 
-    const fetchAppointments = async () => {
+    // Real-time synchronization
+    useEffect(() => {
         if (!user) return;
-        try {
-            const data = await BookingService.getByBusiness(user.uid);
+        
+        const unsubscribe = BookingService.onBookingsByBusiness(user.uid, (data) => {
             setAppointments(data);
             
             // Stop-At-Sight: Clear pending reminders since business is viewing their agenda
-            NotificationQueueService.cancelAllPendingForTarget(user.uid).catch(() => {});
-        } catch (error) {
-            console.error("Error fetching appointments:", error);
-            toast.error("Error al cargar reservas");
-        }
-    };
+            import('@/services/notificationQueue.service').then(({ NotificationQueueService }) => {
+                NotificationQueueService.cancelAllPendingForTarget(user.uid).catch(() => {});
+            });
+        });
 
-    useEffect(() => {
-        fetchAppointments();
+        // Cleanup the listener when component unmounts or user changes
+        return () => unsubscribe();
     }, [user, currentDate, view]);
 
-    // Listen to global refresh signal from Inbox (cross-page bridge)
+    // Manual refresh bridge (can remain as fallback but listener handles real-time updates)
     useEffect(() => {
-        if (lastRefresh > 0) {
-            fetchAppointments();
-        }
+        // Nothing needed here since onBookingsByBusiness is active, but keeping structure so we don't break Context logic if used elsewhere.
     }, [lastRefresh]);
 
     const handleSaveAppointment = async (appointmentData: any) => {
@@ -91,7 +88,6 @@ export default function AgendaPage() {
                 });
                 toast.success("Reserva creada");
             }
-            fetchAppointments();
             setIsModalOpen(false);
         } catch (error) {
             console.error(error);

@@ -7,6 +7,14 @@ service firebase.storage {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
+    // Service Payments - Allow clients to upload proofs to businesses
+    match /businesses/{businessId}/payments/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null 
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*|application/pdf');
+    }
+
     // Business assets — owner can read/write anything under their own businessId
     match /businesses/{businessId}/{allPaths=**} {
       allow read: if request.auth != null;

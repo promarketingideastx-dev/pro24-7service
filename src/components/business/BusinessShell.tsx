@@ -54,7 +54,7 @@ export default function BusinessShell({ children }: { children: React.ReactNode 
         { name: t('clients'), href: lp('/business/clients'), icon: <Users size={20} /> },
         { name: t('services'), href: lp('/business/services'), icon: <Store size={20} /> },
         { name: t('team'), href: lp('/business/team'), icon: <Users size={20} /> },
-        { name: t('payments'), href: lp('/business/dashboard/settings/payments'), icon: <CreditCard size={20} /> },
+        { name: t('payments'), href: lp('/business/payments'), icon: <CreditCard size={20} /> },
         { name: t('notifications'), href: lp('/business/notifications'), icon: <Bell size={20} /> },
         { name: t('settings'), href: lp('/business/profile'), icon: <Settings size={20} /> },
     ];
